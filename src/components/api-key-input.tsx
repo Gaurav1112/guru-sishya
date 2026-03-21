@@ -13,7 +13,19 @@ const PROVIDER_CONFIG: Record<
   gemini: {
     label: "Gemini API Key (Free)",
     placeholder: "AIza...",
-    helpText: "Get a FREE key at aistudio.google.com → Get API Key. No credit card needed.",
+    helpText: "Get a FREE key at aistudio.google.com — Get API Key. No credit card needed.",
+  },
+  groq: {
+    label: "Groq API Key (Free)",
+    placeholder: "gsk_...",
+    helpText: "Get a FREE key at console.groq.com. Runs Llama 3.3 70B. Note: may have CORS limitations in browser.",
+    validatePrefix: "gsk_",
+  },
+  openrouter: {
+    label: "OpenRouter API Key (Free)",
+    placeholder: "sk-or-...",
+    helpText: "Get a FREE key at openrouter.ai. CORS-friendly, runs Gemini 2.0 Flash free. Recommended fallback.",
+    validatePrefix: "sk-or-",
   },
   claude: {
     label: "Claude API Key (Paid)",
@@ -61,7 +73,7 @@ export function ApiKeyInput() {
       {/* Provider selector */}
       <div>
         <Label className="mb-2 block">AI Provider</Label>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant={aiProvider === "gemini" ? "default" : "outline"}
             size="sm"
@@ -69,6 +81,22 @@ export function ApiKeyInput() {
             className={aiProvider === "gemini" ? "bg-saffron" : ""}
           >
             Gemini (Free)
+          </Button>
+          <Button
+            variant={aiProvider === "groq" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setAIProvider("groq")}
+            className={aiProvider === "groq" ? "bg-saffron" : ""}
+          >
+            Groq (Free)
+          </Button>
+          <Button
+            variant={aiProvider === "openrouter" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setAIProvider("openrouter")}
+            className={aiProvider === "openrouter" ? "bg-saffron" : ""}
+          >
+            OpenRouter (Free)
           </Button>
           <Button
             variant={aiProvider === "claude" ? "default" : "outline"}

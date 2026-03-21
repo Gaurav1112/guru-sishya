@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AIProvider, GenerateOptions, GradeResult } from "./types";
 import { AIError } from "./types";
 
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-2.0-flash-001";
 const DEFAULT_MAX_TOKENS = 4096;
 
 const GRADE_SYSTEM_PROMPT = `You are an expert educational evaluator. Grade the student's answer against the rubric.

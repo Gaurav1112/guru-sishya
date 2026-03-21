@@ -1,6 +1,6 @@
 import type { StateCreator } from "zustand";
 
-export type AIProviderType = "gemini" | "claude";
+export type AIProviderType = "gemini" | "claude" | "groq" | "openrouter";
 
 export interface SettingsState {
   apiKey: string;
