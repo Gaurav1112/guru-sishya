@@ -2,6 +2,15 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+const BORDER_COLORS = [
+  "border-t-saffron",
+  "border-t-teal",
+  "border-t-indigo",
+  "border-t-gold",
+  "border-t-saffron",
+  "border-t-teal",
+];
+
 const features = [
   { title: "20-Hour Pareto Plan", description: "AI generates a focused plan targeting the 20% that drives 80% of results.", icon: "📋" },
   { title: "Cheat Sheet Generator", description: "Visual 1-2 page summary with diagrams and code examples. Review in 5 minutes.", icon: "📄" },
@@ -18,7 +27,7 @@ export function Features() {
       <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3">
         {features.map((f, i) => (
           <motion.div key={f.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}>
-            <Card className="h-full border-border/50 bg-surface hover:bg-surface-hover transition-colors">
+            <Card className={`h-full border-border/50 border-t-2 ${BORDER_COLORS[i]} bg-surface hover:bg-surface-hover hover:-translate-y-1 hover:shadow-lg transition-all duration-200`}>
               <CardHeader><div className="mb-2 text-3xl">{f.icon}</div><CardTitle className="font-heading text-lg">{f.title}</CardTitle></CardHeader>
               <CardContent><p className="text-sm text-muted-foreground">{f.description}</p></CardContent>
             </Card>
