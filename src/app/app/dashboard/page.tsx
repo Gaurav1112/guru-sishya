@@ -1,11 +1,46 @@
 "use client";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useEffect, useState } from "react";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { TopicInput } from "@/components/topic-input";
 import { StreakFlame } from "@/components/gamification/streak-flame";
 import { XPBar } from "@/components/gamification/xp-bar";
+import { DailyChallengeWidget } from "@/components/gamification/daily-challenge";
 import { useStreak } from "@/hooks/use-streak";
+import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
+
+// ────────────────────────────────────────────────────────────────────────────
+// Comeback banner — shown if user has been away 3+ days
+// ────────────────────────────────────────────────────────────────────────────
+
+function ComebackBanner() {
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const lastActivity = localStorage.getItem("lastStreakDate") ?? "";
+    const today = new Date().toISOString().slice(0, 10);
+    const { eligible, daysAway } = checkComeback(lastActivity, today);
+    if (eligible) {
+      setMessage(getComebackMessage(daysAway));
+    }
+  }, []);
+
+  if (!message) return null;
+
+  return (
+    <div className="flex items-start gap-3 rounded-xl border border-gold/40 bg-gold/10 px-4 py-3">
+      <span className="text-xl">🙏</span>
+      <div>
+        <p className="text-sm font-semibold text-gold">Welcome Back!</p>
+        <p className="text-sm text-foreground/80 mt-0.5">{message}</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Complete 3 sessions in 3 days to earn a special comeback badge.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // Today's streak status indicator
@@ -135,8 +170,14 @@ export default function DashboardPage() {
         <h1 className="font-heading text-2xl font-bold">Dashboard</h1>
       </div>
 
+      <ComebackBanner />
       <StreakStatusIndicator />
       <GamificationWidgets />
+
+      {/* Daily Challenge */}
+      <div>
+        <DailyChallengeWidget />
+      </div>
 
       <div>
         <h2 className="font-heading text-lg font-semibold mb-3">Add a Topic</h2>
