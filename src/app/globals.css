@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Dark Scholar theme — CSS custom properties */
+:root {
+  --background: hsl(240 10% 8%);
+  --foreground: hsl(40 33% 97%);
+  --card: hsl(240 25% 13%);
+  --card-foreground: hsl(40 33% 97%);
+  --popover: hsl(240 25% 13%);
+  --popover-foreground: hsl(40 33% 97%);
+  --primary: hsl(16 79% 53%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(271 100% 25%);
+  --secondary-foreground: hsl(40 33% 97%);
+  --muted: hsl(240 15% 20%);
+  --muted-foreground: hsl(240 10% 55%);
+  --accent: hsl(166 100% 37%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(240 10% 20%);
+  --input: hsl(240 10% 20%);
+  --ring: hsl(16 79% 53%);
+  --radius: 0.75rem;
+
+  --gold: hsl(43 100% 49%);
+  --teal: hsl(166 100% 37%);
+  --saffron: hsl(16 79% 53%);
+  --indigo: hsl(271 100% 25%);
+  --surface: hsl(240 25% 13%);
+  --surface-hover: hsl(240 25% 19%);
+
+  /* sidebar tokens kept for shadcn compatibility */
+  --sidebar: hsl(240 25% 13%);
+  --sidebar-foreground: hsl(40 33% 97%);
+  --sidebar-primary: hsl(16 79% 53%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 15% 20%);
+  --sidebar-accent-foreground: hsl(40 33% 97%);
+  --sidebar-border: hsl(240 10% 20%);
+  --sidebar-ring: hsl(16 79% 53%);
+}
+
+@theme inline {
+  /* Core semantic colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Dark Scholar brand colors */
+  --color-gold: var(--gold);
+  --color-teal: var(--teal);
+  --color-saffron: var(--saffron);
+  --color-indigo: var(--indigo);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Border radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Fonts */
+  --font-heading: var(--font-jakarta), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  html {
+    @apply font-sans;
+  }
+}
