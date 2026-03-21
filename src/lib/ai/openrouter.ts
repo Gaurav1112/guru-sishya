@@ -3,8 +3,9 @@ import { AIError } from "./types";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 // Best free model on OpenRouter — CORS-enabled, browser-safe
-const MODEL = "google/gemini-2.0-flash-exp:free";
-const FALLBACK_MODEL = "meta-llama/llama-3.1-8b-instruct:free";
+// Best free models on OpenRouter (verified available)
+const MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+const FALLBACK_MODEL = "mistralai/mistral-small-3.1-24b-instruct:free";
 const DEFAULT_MAX_TOKENS = 4096;
 
 const GRADE_SYSTEM_PROMPT = `You are an expert educational evaluator. Grade the student's answer against the rubric.
@@ -68,7 +69,7 @@ export class OpenRouterProvider implements AIProvider {
       const errorMsg = errorBody.error?.message ?? `HTTP ${response.status}`;
 
       // Try fallback model if primary free model is unavailable
-      if ((response.status === 429 || response.status === 503) && model === MODEL) {
+      if (model === MODEL && (response.status === 429 || response.status === 503 || errorMsg.toLowerCase().includes("no endpoints"))) {
         return this.fetchCompletion(messages, options, FALLBACK_MODEL);
       }
 
@@ -154,7 +155,7 @@ export class OpenRouterProvider implements AIProvider {
         const errorMsg = errorBody.error?.message ?? `HTTP ${response.status}`;
 
         // Try fallback model with non-streaming if primary is unavailable
-        if (response.status === 429 || response.status === 503) {
+        if (response.status === 429 || response.status === 503 || errorMsg.toLowerCase().includes("no endpoints")) {
           const fallbackText = await this.fetchCompletion(
             [
               { role: "system", content: systemPrompt },
