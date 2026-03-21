@@ -20,7 +20,7 @@ interface ResourceContainerProps {
 type Status = "loading" | "generating" | "ready" | "error";
 
 function extractJSON(text: string): string {
-  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/is);
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (fenceMatch) return fenceMatch[1].trim();
   const firstBrace = text.indexOf("{");
   if (firstBrace !== -1) {

@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ChevronDown, ChevronUp, RefreshCw, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress";
+import { Progress, ProgressLabel } from "@/components/ui/progress";
 import { SessionCard } from "./session-card";
 import type { GeneratedPlan } from "@/lib/plan/types";
 
@@ -64,7 +64,9 @@ export function PlanViewer({
         <div>
           <Progress value={progressPct}>
             <ProgressLabel>Progress</ProgressLabel>
-            <ProgressValue>{completedCount}/{totalSessions} sessions</ProgressValue>
+            <span className="ml-auto text-sm text-muted-foreground tabular-nums">
+              {completedCount}/{totalSessions} sessions
+            </span>
           </Progress>
         </div>
 

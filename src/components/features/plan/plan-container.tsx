@@ -18,7 +18,7 @@ interface PlanContainerProps {
 }
 
 function extractJSON(text: string): string {
-  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/is);
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (fenceMatch) return fenceMatch[1].trim();
   const firstBrace = text.indexOf("{");
   const firstBracket = text.indexOf("[");
@@ -55,10 +55,10 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
 
   // Live query: plan sessions for existing plan
   const planSessions = useLiveQuery(
-    () =>
-      existingPlan?.id
-        ? db.planSessions.where("planId").equals(existingPlan.id).toArray()
-        : Promise.resolve([]),
+    async () => {
+      if (!existingPlan?.id) return [] as { id?: number; planId: number; sessionNumber: number; completed: boolean; completedAt?: Date }[];
+      return db.planSessions.where("planId").equals(existingPlan.id).toArray();
+    },
     [existingPlan?.id]
   );
 
