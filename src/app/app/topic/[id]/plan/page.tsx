@@ -1,8 +1,10 @@
 "use client";
 import { use } from "react";
+import { Loader2 } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { PlanContainer } from "@/components/features/plan/plan-container";
 
 export default function PlanPage({
@@ -13,11 +15,21 @@ export default function PlanPage({
   const { id } = use(params);
   const topic = useLiveQuery(() => db.topics.get(Number(id)), [id]);
   const apiKey = useStore((s) => s.apiKey);
+  const aiProvider = useStore((s) => s.aiProvider);
+  const hydrated = useHydrated();
 
-  if (!apiKey) {
+  if (!hydrated) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!apiKey && aiProvider !== "ollama") {
     return (
       <div className="py-20 text-center text-muted-foreground">
-        Set your Claude API key in{" "}
+        Set your API key in{" "}
         <a href="/app/settings" className="text-saffron underline">
           Settings
         </a>{" "}
