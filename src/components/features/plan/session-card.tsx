@@ -1,0 +1,223 @@
+"use client";
+
+import { useState } from "react";
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Clock, Target, BookOpen, HelpCircle } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { GeneratedSession } from "@/lib/plan/types";
+
+interface SessionCardProps {
+  session: GeneratedSession;
+  completed: boolean;
+  onComplete: () => void;
+  isLoading?: boolean;
+}
+
+export function SessionCard({ session, completed, onComplete, isLoading }: SessionCardProps) {
+  const [expanded, setExpanded] = useState(false);
+
+  const totalMinutes = session.activities.reduce(
+    (sum, a) => sum + a.durationMinutes,
+    0
+  );
+
+  return (
+    <Card
+      className={cn(
+        "transition-all duration-200",
+        completed
+          ? "border-teal/50 bg-teal/5"
+          : "border-border bg-surface hover:bg-surface-hover"
+      )}
+    >
+      {/* Header — always visible */}
+      <CardHeader className="pb-0">
+        <div className="flex items-start gap-3">
+          {/* Completion toggle */}
+          <button
+            type="button"
+            onClick={onComplete}
+            disabled={isLoading}
+            className="mt-0.5 shrink-0 text-teal disabled:opacity-50"
+            aria-label={completed ? "Mark incomplete" : "Mark complete"}
+          >
+            {completed ? (
+              <CheckCircle2 className="size-5" />
+            ) : (
+              <Circle className="size-5 text-muted-foreground" />
+            )}
+          </button>
+
+          {/* Title area */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-mono text-muted-foreground">
+                Session {session.sessionNumber}
+              </span>
+              {completed && (
+                <Badge variant="outline" className="text-teal border-teal/40 text-xs">
+                  Done
+                </Badge>
+              )}
+            </div>
+            <h3
+              className={cn(
+                "font-heading font-semibold text-sm mt-0.5",
+                completed && "line-through text-muted-foreground"
+              )}
+            >
+              {session.title}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              {session.paretoJustification}
+            </p>
+            <div className="flex items-center gap-1 mt-1.5 text-xs text-muted-foreground">
+              <Clock className="size-3" />
+              <span>{totalMinutes} min</span>
+            </div>
+          </div>
+
+          {/* Expand toggle */}
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={expanded ? "Collapse session" : "Expand session"}
+          >
+            {expanded ? (
+              <ChevronUp className="size-4" />
+            ) : (
+              <ChevronDown className="size-4" />
+            )}
+          </button>
+        </div>
+      </CardHeader>
+
+      {/* Expanded body */}
+      {expanded && (
+        <CardContent className="pt-4 space-y-4">
+          {/* Objectives */}
+          {session.objectives.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Target className="size-3.5 text-saffron" />
+                <span className="text-xs font-semibold text-saffron uppercase tracking-wide">
+                  Objectives
+                </span>
+              </div>
+              <ul className="space-y-1">
+                {session.objectives.map((obj, i) => (
+                  <li key={i} className="text-sm text-muted-foreground flex gap-2">
+                    <span className="text-saffron shrink-0">•</span>
+                    <span>{obj}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Activities */}
+          {session.activities.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Clock className="size-3.5 text-teal" />
+                <span className="text-xs font-semibold text-teal uppercase tracking-wide">
+                  Activities
+                </span>
+              </div>
+              <div className="space-y-2">
+                {session.activities.map((act, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-2 text-sm rounded-lg bg-muted/40 p-2"
+                  >
+                    <Badge variant="outline" className="shrink-0 text-xs tabular-nums">
+                      {act.durationMinutes}m
+                    </Badge>
+                    <span className="text-muted-foreground">{act.description}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Resources */}
+          {session.resources.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <BookOpen className="size-3.5 text-gold" />
+                <span className="text-xs font-semibold text-gold uppercase tracking-wide">
+                  Resources
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {session.resources.map((res, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <Badge variant="secondary" className="text-xs shrink-0">
+                      {res.type}
+                    </Badge>
+                    {res.url ? (
+                      <a
+                        href={res.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-saffron hover:underline"
+                      >
+                        {res.title}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">{res.title}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Review Questions */}
+          {session.reviewQuestions.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <HelpCircle className="size-3.5 text-indigo" />
+                <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "hsl(var(--secondary))" }}>
+                  Review Questions
+                </span>
+              </div>
+              <ul className="space-y-1.5">
+                {session.reviewQuestions.map((q, i) => (
+                  <li key={i} className="text-sm text-muted-foreground italic">
+                    {i + 1}. {q}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Success Criteria */}
+          {session.successCriteria && (
+            <div className="rounded-lg border border-teal/20 bg-teal/5 p-3">
+              <p className="text-xs font-semibold text-teal mb-1">Success Criteria</p>
+              <p className="text-sm text-muted-foreground">{session.successCriteria}</p>
+            </div>
+          )}
+
+          {/* Mark complete button */}
+          {!completed && (
+            <Button
+              onClick={onComplete}
+              disabled={isLoading}
+              size="sm"
+              className="w-full bg-teal/20 text-teal border border-teal/30 hover:bg-teal/30"
+              variant="ghost"
+            >
+              <CheckCircle2 className="size-3.5 mr-1.5" />
+              Mark Session Complete (+20 XP, +10 coins)
+            </Button>
+          )}
+        </CardContent>
+      )}
+    </Card>
+  );
+}
