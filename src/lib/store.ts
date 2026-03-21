@@ -7,12 +7,13 @@ import {
 } from "./stores/settings-slice";
 import { createGameSlice, type GameSlice } from "./stores/game-slice";
 import { createUISlice, type UISlice } from "./stores/ui-slice";
+import { createQuizSlice, type QuizSlice } from "./stores/quiz-slice";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Combined store state type
 // ────────────────────────────────────────────────────────────────────────────
 
-export type StoreState = SettingsSlice & GameSlice & UISlice;
+export type StoreState = SettingsSlice & GameSlice & UISlice & QuizSlice;
 
 // ────────────────────────────────────────────────────────────────────────────
 // Keys that are persisted to localStorage
@@ -50,6 +51,7 @@ const rootSlice: ImmerStateCreator = (...args) => ({
   ...(createSettingsSlice as unknown as ImmerStateCreator)(...args),
   ...(createGameSlice as unknown as ImmerStateCreator)(...args),
   ...(createUISlice as unknown as ImmerStateCreator)(...args),
+  ...(createQuizSlice as unknown as ImmerStateCreator)(...args),
 });
 
 export const useStore = create<StoreState>()(
