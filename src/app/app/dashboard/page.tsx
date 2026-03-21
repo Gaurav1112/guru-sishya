@@ -10,6 +10,8 @@ import { DailyChallengeWidget } from "@/components/gamification/daily-challenge"
 import { useStreak } from "@/hooks/use-streak";
 import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
 
+const SUGGESTED_TOPICS = ["System Design", "Machine Learning", "Guitar", "Data Structures"];
+
 // ────────────────────────────────────────────────────────────────────────────
 // Comeback banner — shown if user has been away 3+ days
 // ────────────────────────────────────────────────────────────────────────────
@@ -148,6 +150,13 @@ export default function DashboardPage() {
           </a>{" "}
           to get started.
         </p>
+        <div className="flex flex-wrap justify-center gap-2 mt-2">
+          {SUGGESTED_TOPICS.map((t) => (
+            <span key={t} className="rounded-full border border-border/60 bg-surface px-3 py-1 text-sm text-muted-foreground">
+              {t}
+            </span>
+          ))}
+        </div>
       </div>
     );
   }
@@ -160,6 +169,21 @@ export default function DashboardPage() {
           Enter any topic and Guru Sishya will create your personalized learning journey.
         </p>
         <TopicInput />
+        <div className="flex flex-wrap justify-center gap-2">
+          {SUGGESTED_TOPICS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={async () => {
+                const id = await db.topics.add({ name: t, category: "General", createdAt: new Date() });
+                window.location.href = `/app/topic/${id}`;
+              }}
+              className="rounded-full border border-saffron/30 bg-saffron/10 px-3 py-1 text-sm text-saffron hover:bg-saffron/20 transition-colors cursor-pointer"
+            >
+              {t}
+            </button>
+          ))}
+        </div>
       </div>
     );
   }

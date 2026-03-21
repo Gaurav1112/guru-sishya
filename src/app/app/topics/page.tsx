@@ -64,9 +64,26 @@ export default function TopicsPage() {
             </Link>
           ))}
           {topics?.length === 0 && (
-            <p className="col-span-full mt-4 text-center text-muted-foreground">
-              No topics yet. Enter a topic above to start learning.
-            </p>
+            <div className="col-span-full flex flex-col items-center gap-4 mt-8 py-12">
+              <span className="text-5xl">📚</span>
+              <p className="text-lg font-heading font-semibold">No topics yet</p>
+              <p className="text-muted-foreground text-sm">Enter a topic above or pick one to start your journey</p>
+              <div className="flex flex-wrap justify-center gap-2 mt-2">
+                {["System Design", "Machine Learning", "Guitar", "Data Structures"].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={async () => {
+                      const id = await db.topics.add({ name: t, category: "General", createdAt: new Date() });
+                      window.location.href = `/app/topic/${id}`;
+                    }}
+                    className="rounded-full border border-saffron/30 bg-saffron/10 px-3 py-1 text-sm text-saffron hover:bg-saffron/20 transition-colors cursor-pointer"
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       ) : (
