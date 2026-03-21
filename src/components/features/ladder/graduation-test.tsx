@@ -144,11 +144,9 @@ export function GraduationTest({
   onClose,
 }: GraduationTestProps) {
   const ai = useAI();
-  const { addXP, addCoins, queueCelebration } = useStore((s) => ({
-    addXP: s.addXP,
-    addCoins: s.addCoins,
-    queueCelebration: s.queueCelebration,
-  }));
+  const addXP = useStore((s) => s.addXP);
+  const addCoins = useStore((s) => s.addCoins);
+  const queueCelebration = useStore((s) => s.queueCelebration);
 
   const isBoss = dreyfusLevel === 5;
   const totalQuestions = isBoss ? BOSS_COUNT : STANDARD_COUNT;

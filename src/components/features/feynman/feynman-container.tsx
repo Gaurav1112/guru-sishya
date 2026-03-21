@@ -66,19 +66,17 @@ interface AntiParrotResult {
 
 export function FeynmanContainer({ topicId, topicName }: FeynmanContainerProps) {
   const ai = useAI();
-  const { addXP, addCoins, queueCelebration, startFeynmanChat, setFeynmanPhase, setFeynmanStatus, setFeynmanRound, updateMasteryScores, addChatMessage, endFeynmanChat, feynmanChat } = useStore((s) => ({
-    addXP: s.addXP,
-    addCoins: s.addCoins,
-    queueCelebration: s.queueCelebration,
-    startFeynmanChat: s.startFeynmanChat,
-    setFeynmanPhase: s.setFeynmanPhase,
-    setFeynmanStatus: s.setFeynmanStatus,
-    setFeynmanRound: s.setFeynmanRound,
-    updateMasteryScores: s.updateMasteryScores,
-    addChatMessage: s.addChatMessage,
-    endFeynmanChat: s.endFeynmanChat,
-    feynmanChat: s.feynmanChat,
-  }));
+  const addXP = useStore((s) => s.addXP);
+  const addCoins = useStore((s) => s.addCoins);
+  const queueCelebration = useStore((s) => s.queueCelebration);
+  const startFeynmanChat = useStore((s) => s.startFeynmanChat);
+  const setFeynmanPhase = useStore((s) => s.setFeynmanPhase);
+  const setFeynmanStatus = useStore((s) => s.setFeynmanStatus);
+  const setFeynmanRound = useStore((s) => s.setFeynmanRound);
+  const updateMasteryScores = useStore((s) => s.updateMasteryScores);
+  const addChatMessage = useStore((s) => s.addChatMessage);
+  const endFeynmanChat = useStore((s) => s.endFeynmanChat);
+  const feynmanChat = useStore((s) => s.feynmanChat);
 
   const [error, setError] = useState<string | null>(null);
   const [streamingContent, setStreamingContent] = useState<string | null>(null);

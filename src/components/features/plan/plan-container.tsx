@@ -35,11 +35,9 @@ function extractJSON(text: string): string {
 
 export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
   const ai = useAI();
-  const { addXP, addCoins, queueCelebration } = useStore((s) => ({
-    addXP: s.addXP,
-    addCoins: s.addCoins,
-    queueCelebration: s.queueCelebration,
-  }));
+  const addXP = useStore((s) => s.addXP);
+  const addCoins = useStore((s) => s.addCoins);
+  const queueCelebration = useStore((s) => s.queueCelebration);
 
   const [status, setStatus] = useState<PlanViewStatus>("loading");
   const [error, setError] = useState<string | null>(null);
