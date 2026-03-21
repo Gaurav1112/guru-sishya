@@ -160,9 +160,16 @@ export class ClaudeProvider implements AIProvider {
         retryAfter || undefined
       );
     }
-    // 402 Payment Required — maps as PermissionDeniedError or a generic APIError with status 402
-    if (err instanceof APIError && err.status === 402) {
-      return new AIError("Insufficient credits", "insufficient_credits");
+    // 402 Payment Required or 400 with credit balance message
+    if (err instanceof APIError && (err.status === 402 || (err.status === 400 && err.message?.toLowerCase().includes("credit balance")))) {
+      return new AIError("Your API credit balance is too low. Please add credits at console.anthropic.com", "insufficient_credits");
+    }
+    // Any other API error with a status code
+    if (err instanceof APIError) {
+      return new AIError(
+        err.message || `API error (status ${err.status})`,
+        "unknown"
+      );
     }
     if (
       err instanceof APIConnectionError ||
