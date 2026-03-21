@@ -13,7 +13,7 @@ import {
   DAILY_CHALLENGE_CORRECT_XP,
 } from "@/lib/gamification/daily-challenge";
 import type { DailyChallenge } from "@/lib/types";
-import { ClaudeProvider } from "@/lib/ai/claude";
+import { createAIProvider } from "@/lib/ai";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -28,7 +28,7 @@ interface ParsedChallenge {
 // ── Daily Challenge Widget ────────────────────────────────────────────────────
 
 export function DailyChallengeWidget() {
-  const { apiKey, timezone, level, totalXP, addXP } = useStore();
+  const { apiKey, aiProvider, timezone, level, totalXP, addXP } = useStore();
 
   const [challenge, setChallenge] = useState<DailyChallenge | null>(null);
   const [parsed, setParsed] = useState<ParsedChallenge | null>(null);
@@ -85,8 +85,8 @@ export function DailyChallengeWidget() {
   // ── Generate challenge via AI ──────────────────────────────────────────────
 
   async function generateChallenge() {
-    if (!apiKey) {
-      setError("Add your Claude API key in Settings first.");
+    if (!apiKey && aiProvider !== "ollama") {
+      setError("Set your API key in Settings first.");
       return;
     }
     setGenerating(true);
@@ -99,7 +99,7 @@ export function DailyChallengeWidget() {
         return;
       }
 
-      const ai = new ClaudeProvider(apiKey);
+      const ai = createAIProvider(aiProvider === "ollama" ? "ollama" : apiKey, aiProvider);
       const { system, user } = dailyChallengePrompt(topicNames, level);
       const raw = await ai.generateText(user, system, { temperature: 0.7 });
 

@@ -1,6 +1,7 @@
 import { ClaudeProvider } from "./claude";
 import { GeminiProvider } from "./gemini";
 import { GroqProvider } from "./groq";
+import { OllamaProvider } from "./ollama";
 import { OpenRouterProvider } from "./openrouter";
 import type { AIProvider } from "./types";
 import type { AIProviderType } from "@/lib/stores/settings-slice";
@@ -23,6 +24,8 @@ export function createAIProvider(
       return new GroqProvider(apiKey);
     case "openrouter":
       return new OpenRouterProvider(apiKey);
+    case "ollama":
+      return new OllamaProvider(apiKey);
     case "gemini":
       return new GeminiProvider(apiKey);
     default:

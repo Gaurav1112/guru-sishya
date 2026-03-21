@@ -8,8 +8,14 @@ import type { AIProviderType } from "@/lib/stores/settings-slice";
 
 const PROVIDER_CONFIG: Record<
   AIProviderType,
-  { label: string; placeholder: string; helpText: string; validatePrefix?: string }
+  { label: string; placeholder: string; helpText: string; validatePrefix?: string; noKeyNeeded?: boolean }
 > = {
+  ollama: {
+    label: "Ollama (Local, Free, No Key)",
+    placeholder: "",
+    helpText: "Runs AI models locally on your computer. Install Ollama from ollama.com/download, then run: ollama pull llama3.2",
+    noKeyNeeded: true,
+  },
   gemini: {
     label: "Gemini API Key (Free)",
     placeholder: "AIza...",
@@ -75,6 +81,14 @@ export function ApiKeyInput() {
         <Label className="mb-2 block">AI Provider</Label>
         <div className="flex flex-wrap gap-2">
           <Button
+            variant={aiProvider === "ollama" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setAIProvider("ollama")}
+            className={aiProvider === "ollama" ? "bg-teal" : ""}
+          >
+            Ollama (Local, Free)
+          </Button>
+          <Button
             variant={aiProvider === "gemini" ? "default" : "outline"}
             size="sm"
             onClick={() => setAIProvider("gemini")}
@@ -109,49 +123,68 @@ export function ApiKeyInput() {
         </div>
       </div>
 
-      {/* API key input */}
-      <div className="space-y-2">
-        <Label htmlFor="api-key">{config.label}</Label>
-        <div className="flex gap-2">
-          <Input
-            id="api-key"
-            type="password"
-            value={key}
-            onChange={(e) => {
-              setKey(e.target.value);
-              setSaved(false);
-            }}
-            placeholder={config.placeholder}
-            className="bg-surface font-mono text-sm"
-          />
-          <Button
-            onClick={handleSave}
-            disabled={!key.trim() || saved}
-            className={saved ? "bg-teal" : "bg-saffron hover:bg-saffron/90"}
-          >
-            {saved ? "Saved" : "Save"}
-          </Button>
-          {apiKey && (
-            <Button
-              variant="outline"
-              onClick={handleRemove}
-              className="text-destructive border-destructive/30 hover:bg-destructive/10"
-            >
-              Remove
-            </Button>
-          )}
-        </div>
-        {isInvalid && (
-          <p className="text-xs text-destructive">
-            Key should start with &quot;{config.validatePrefix}&quot;
+      {/* Ollama: no key needed, show setup instructions */}
+      {config.noKeyNeeded ? (
+        <div className="space-y-2 rounded-xl border border-teal/30 bg-teal/5 p-4">
+          <p className="text-sm font-medium text-teal">No API key needed!</p>
+          <p className="text-xs text-muted-foreground">{config.helpText}</p>
+          <div className="text-xs text-muted-foreground space-y-1">
+            <p className="font-medium">Quick setup:</p>
+            <ol className="list-decimal list-inside space-y-0.5">
+              <li>Download Ollama from <a href="https://ollama.com/download" target="_blank" rel="noopener noreferrer" className="text-teal underline">ollama.com/download</a></li>
+              <li>Open Terminal and run: <code className="bg-surface px-1 rounded">ollama pull llama3.2</code></li>
+              <li>Keep Ollama running and start using the app</li>
+            </ol>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Everything runs on your computer. No data leaves your machine.
           </p>
-        )}
-        <p className="text-xs text-muted-foreground">{config.helpText}</p>
-        <p className="text-xs text-muted-foreground">
-          Your key is stored locally in your browser. It is never sent to our
-          servers.
-        </p>
-      </div>
+        </div>
+      ) : (
+        /* API key input */
+        <div className="space-y-2">
+          <Label htmlFor="api-key">{config.label}</Label>
+          <div className="flex gap-2">
+            <Input
+              id="api-key"
+              type="password"
+              value={key}
+              onChange={(e) => {
+                setKey(e.target.value);
+                setSaved(false);
+              }}
+              placeholder={config.placeholder}
+              className="bg-surface font-mono text-sm"
+            />
+            <Button
+              onClick={handleSave}
+              disabled={!key.trim() || saved}
+              className={saved ? "bg-teal" : "bg-saffron hover:bg-saffron/90"}
+            >
+              {saved ? "Saved" : "Save"}
+            </Button>
+            {apiKey && (
+              <Button
+                variant="outline"
+                onClick={handleRemove}
+                className="text-destructive border-destructive/30 hover:bg-destructive/10"
+              >
+                Remove
+              </Button>
+            )}
+          </div>
+          {isInvalid && (
+            <p className="text-xs text-destructive">
+              Key should start with &quot;{config.validatePrefix}&quot;
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground">{config.helpText}</p>
+          <p className="text-xs text-muted-foreground">
+            Your key is stored locally in your browser. It is never sent to our
+            servers.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

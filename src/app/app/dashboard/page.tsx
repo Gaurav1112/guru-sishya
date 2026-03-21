@@ -186,17 +186,18 @@ export default function DashboardPage() {
 
   const topicCount = useLiveQuery(() => db.topics.count());
   const apiKey = useStore((s) => s.apiKey);
+  const aiProvider = useStore((s) => s.aiProvider);
 
-  if (!apiKey) {
+  if (!apiKey && aiProvider !== "ollama") {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20">
         <h2 className="font-heading text-2xl font-bold">Welcome to Guru Sishya</h2>
         <p className="text-muted-foreground">
-          Add your Claude API key in{" "}
+          Set your API key in{" "}
           <a href="/app/settings" className="text-saffron underline">
             Settings
           </a>{" "}
-          to get started.
+          to get started, or select Ollama for a free, local AI.
         </p>
         <div className="flex flex-wrap justify-center gap-2 mt-2">
           {SUGGESTED_TOPICS.map((t) => (
