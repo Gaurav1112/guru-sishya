@@ -1,1 +1,38 @@
-export default function QuizPage() { return <div className="py-20 text-center text-muted-foreground">Quiz Me Till I Break — Coming in Phase 3</div>; }
+"use client";
+import { use } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/lib/db";
+import { useStore } from "@/lib/store";
+import { QuizContainer } from "@/components/features/quiz/quiz-container";
+
+export default function QuizPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const topic = useLiveQuery(() => db.topics.get(Number(id)), [id]);
+  const apiKey = useStore((s) => s.apiKey);
+
+  if (!apiKey) {
+    return (
+      <div className="py-20 text-center text-muted-foreground">
+        Set your Claude API key in{" "}
+        <a href="/app/settings" className="text-saffron underline">
+          Settings
+        </a>{" "}
+        first.
+      </div>
+    );
+  }
+
+  if (!topic) {
+    return (
+      <div className="py-20 text-center text-muted-foreground">
+        Topic not found
+      </div>
+    );
+  }
+
+  return <QuizContainer topicId={topic.id!} topicName={topic.name} />;
+}
