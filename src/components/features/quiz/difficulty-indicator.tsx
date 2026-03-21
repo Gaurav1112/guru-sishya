@@ -31,19 +31,15 @@ export function DifficultyIndicator({
           const isFilled = level <= currentLevel;
           return (
             <Tooltip key={level}>
-              <TooltipTrigger asChild>
-                <div
-                  className={cn(
-                    "size-2.5 rounded-full transition-all duration-200",
-                    isActive
-                      ? "ring-2 ring-saffron ring-offset-1 ring-offset-background scale-125"
-                      : "",
-                    isFilled
-                      ? "bg-saffron"
-                      : "bg-muted"
-                  )}
-                />
-              </TooltipTrigger>
+              <TooltipTrigger
+                className={cn(
+                  "size-2.5 rounded-full transition-all duration-200 cursor-default border-0 bg-transparent p-0",
+                  isActive
+                    ? "ring-2 ring-saffron ring-offset-1 ring-offset-background scale-125"
+                    : "",
+                  isFilled ? "!bg-saffron" : "!bg-muted"
+                )}
+              />
               <TooltipContent side="top">
                 <span>
                   Level {level}: {BLOOM_LABELS[level]}
