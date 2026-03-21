@@ -51,17 +51,35 @@ export default function TopicsPage() {
       {view === "list" ? (
         <div className="mt-8 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {topics?.map((t) => (
-            <Link key={t.id} href={`/app/topic/${t.id}`}>
-              <Card className="bg-surface hover:bg-surface-hover transition-colors cursor-pointer">
-                <CardContent className="flex items-center gap-3 p-4">
-                  <span className="h-3 w-3 rounded-full bg-saffron/60" />
-                  <div>
-                    <p className="font-medium">{t.name}</p>
+            <Card key={t.id} className="bg-surface hover:bg-surface-hover transition-colors">
+              <CardContent className="flex items-center justify-between gap-3 p-4">
+                <Link href={`/app/topic/${t.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                  <span className="h-3 w-3 rounded-full bg-saffron/60 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{t.name}</p>
                     <p className="text-xs text-muted-foreground">{t.category}</p>
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-destructive shrink-0 h-8 w-8 p-0"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (confirm(`Delete "${t.name}"? This will remove all associated data.`)) {
+                      await db.topics.delete(t.id!);
+                      await db.learningPlans.where("topicId").equals(t.id!).delete();
+                      await db.quizAttempts.where("topicId").equals(t.id!).delete();
+                      await db.flashcards.where("topicId").equals(t.id!).delete();
+                      await db.cheatSheets.where("topicId").equals(t.id!).delete();
+                      await db.resources.where("topicId").equals(t.id!).delete();
+                    }
+                  }}
+                >
+                  ✕
+                </Button>
+              </CardContent>
+            </Card>
           ))}
           {topics?.length === 0 && (
             <div className="col-span-full flex flex-col items-center gap-4 mt-8 py-12">
