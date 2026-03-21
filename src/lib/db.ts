@@ -15,6 +15,7 @@ import type {
   InventoryItem,
   GuidedPathProgress,
 } from "./types";
+import type { GraduationTestResult, LevelProgress } from "./ladder/types";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Additional table-only types (not exported from types.ts)
@@ -58,6 +59,14 @@ interface PlanSessionRow {
   completedAt?: Date;
 }
 
+// Ladder cache — stores the AI-generated ladder JSON for a topic
+interface LadderCache {
+  id?: number;
+  topicId: number;
+  data: string; // JSON-serialized GeneratedLadder
+  createdAt: Date;
+}
+
 interface UserProfile {
   id?: number;
   level: number;
@@ -90,6 +99,9 @@ class GuruSishyaDB extends Dexie {
   treasureChests!: EntityTable<TreasureChest, "id">;
   planSessions!: EntityTable<PlanSessionRow, "id">;
   userProfile!: EntityTable<UserProfile, "id">;
+  ladderCache!: EntityTable<LadderCache, "id">;
+  graduationTests!: EntityTable<GraduationTestResult, "id">;
+  levelProgress!: EntityTable<LevelProgress, "id">;
 
   constructor() {
     super("GuruSishya");
@@ -115,6 +127,34 @@ class GuruSishyaDB extends Dexie {
       treasureChests: "++id, earnedAt, opened",
       planSessions: "++id, planId, sessionNumber, completed, completedAt",
       userProfile: "++id, level, totalXP, totalCoins",
+    });
+
+    this.version(2).stores({
+      topics: "++id, name, category, createdAt",
+      learningPlans: "++id, topicId, status, createdAt",
+      quizAttempts: "++id, topicId, score, difficulty, completedAt",
+      flashcards:
+        "++id, topicId, concept, nextReviewAt, easeFactor, interval, repetitions",
+      chatSessions: "++id, topicId, technique, createdAt",
+      chatMessages: "++id, sessionId, role, createdAt",
+      cheatSheets: "++id, topicId, version, level, createdAt",
+      resources: "++id, topicId, createdAt",
+      badges: "++id, type, name, unlockedAt",
+      streakHistory: "++id, date, maintained",
+      dailyChallenges: "++id, date, topic, answered, score",
+      coinTransactions: "++id, type, amount, reason, createdAt",
+      inventory: "++id, itemType, itemId, acquiredAt, equipped",
+      guidedPathProgress: "++id, topicId, currentStep, startedAt",
+      skillTreeNodes: "++id, topicId, concept, mastery, [topicId+concept]",
+      leaderboardUsers: "++id, name, archetype, weeklyXP, league",
+      leaderboardHistory: "++id, weekStart, userId, xp, rank, league",
+      treasureChests: "++id, earnedAt, opened",
+      planSessions: "++id, planId, sessionNumber, completed, completedAt",
+      userProfile: "++id, level, totalXP, totalCoins",
+      // Phase 7 — Learning Ladder
+      ladderCache: "++id, topicId, createdAt",
+      graduationTests: "++id, topicId, level, passed, attemptedAt",
+      levelProgress: "++id, topicId, unlockedLevel, updatedAt",
     });
   }
 }
