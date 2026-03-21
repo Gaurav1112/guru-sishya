@@ -1,7 +1,8 @@
 import type { AIProvider, GenerateOptions, GradeResult } from "./types";
 import { AIError } from "./types";
 
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+// Use local proxy to avoid CORS issues
+const OPENROUTER_API_URL = "/api/ai";
 // Best free model on OpenRouter — CORS-enabled, browser-safe
 // Best free models on OpenRouter (verified available)
 const MODEL = "meta-llama/llama-3.3-70b-instruct:free";
@@ -54,8 +55,10 @@ export class OpenRouterProvider implements AIProvider {
   ): Promise<string> {
     const response = await fetch(OPENROUTER_API_URL, {
       method: "POST",
-      headers: this.getHeaders(),
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        provider: "openrouter",
+        apiKey: this.apiKey,
         model,
         messages,
         temperature: options?.temperature ?? 0.7,
@@ -137,8 +140,10 @@ export class OpenRouterProvider implements AIProvider {
     try {
       const response = await fetch(OPENROUTER_API_URL, {
         method: "POST",
-        headers: this.getHeaders(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          provider: "openrouter",
+          apiKey: this.apiKey,
           model: MODEL,
           messages: [
             { role: "system", content: systemPrompt },
