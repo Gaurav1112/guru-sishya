@@ -23,6 +23,7 @@ export type StoreState = SettingsSlice & GameSlice & UISlice & QuizSlice & ChatS
 type PersistedState = Pick<
   StoreState,
   | "apiKey"
+  | "aiProvider"
   | "theme"
   | "soundEnabled"
   | "dailyGoal"
@@ -65,6 +66,7 @@ export const useStore = create<StoreState>()(
       name: "guru-sishya-store",
       partialize: (state): PersistedState => ({
         apiKey: state.apiKey,
+        aiProvider: state.aiProvider,
         theme: state.theme,
         soundEnabled: state.soundEnabled,
         dailyGoal: state.dailyGoal,

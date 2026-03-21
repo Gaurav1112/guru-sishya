@@ -1,7 +1,10 @@
 import type { StateCreator } from "zustand";
 
+export type AIProviderType = "gemini" | "claude";
+
 export interface SettingsState {
   apiKey: string;
+  aiProvider: AIProviderType;
   theme: "dark" | "light";
   soundEnabled: boolean;
   dailyGoal: number; // minutes
@@ -10,6 +13,7 @@ export interface SettingsState {
 
 export interface SettingsActions {
   setApiKey: (key: string) => void;
+  setAIProvider: (provider: AIProviderType) => void;
   setTheme: (theme: "dark" | "light") => void;
   setSoundEnabled: (enabled: boolean) => void;
   setDailyGoal: (minutes: number) => void;
@@ -25,6 +29,7 @@ export const createSettingsSlice: StateCreator<
 > = (set) => ({
   // State
   apiKey: "",
+  aiProvider: "gemini" as AIProviderType,
   theme: "dark",
   soundEnabled: false,
   dailyGoal: 15,
@@ -34,6 +39,10 @@ export const createSettingsSlice: StateCreator<
   setApiKey: (key) =>
     set((state) => {
       state.apiKey = key;
+    }),
+  setAIProvider: (provider) =>
+    set((state) => {
+      state.aiProvider = provider;
     }),
   setTheme: (theme) =>
     set((state) => {
