@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, RefreshCw, Zap } from "lucide-react";
+import { Loader2, AlertCircle, Zap } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAI } from "@/hooks/use-ai";
 import { useStore } from "@/lib/store";
@@ -15,13 +15,19 @@ import { GradeResult } from "./grade-result";
 import { QuizResultScreen } from "./quiz-result";
 import { CalibrationIntro } from "./calibration-intro";
 import { DifficultyIndicator } from "./difficulty-indicator";
+import { OneMoreRound } from "@/components/gamification/one-more-round";
+import { TreasureChest } from "@/components/gamification/treasure-chest";
 import { calibrationPrompt } from "@/lib/prompts/quiz-calibration";
 import { quizQuestionPrompt, quizGradingPrompt } from "@/lib/prompts/quiz-generator";
 import { getNextLevel, calculateQuizResult, getStartingLevelFromCalibration } from "@/lib/quiz/engine";
 import { updateFlashcardsFromQuiz } from "@/lib/quiz/spaced-repetition-bridge";
 import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
+import { checkOneMoreRound } from "@/lib/gamification/one-more-round";
+import { xpProgressInLevel } from "@/lib/gamification/xp";
+import { shouldDropChest, recordChest } from "@/lib/gamification/treasure-chests";
+import type { ChestReward } from "@/lib/gamification/treasure-chests";
+import type { OneMoreRoundTrigger } from "@/lib/gamification/one-more-round";
 import { BLOOM_LABELS, type BloomLevel, type GeneratedQuestion, type AnsweredQuestion, type QuizResult } from "@/lib/quiz/types";
-import { cn } from "@/lib/utils";
 
 const SESSION_CAP = 15;
 const CALIBRATION_COUNT = 5;
@@ -47,6 +53,48 @@ function extractJSON(text: string): string {
     if (last !== -1) return text.slice(firstBrace, last + 1);
   }
   return text.trim();
+}
+
+// ── FIX 4: Weighted format selection based on Bloom's level ──────────────────
+
+type QuizFormat = GeneratedQuestion["format"];
+
+function pickFormatForLevel(level: BloomLevel): QuizFormat {
+  type WeightedFormat = [QuizFormat, number];
+  let pool: WeightedFormat[];
+
+  if (level <= 2) {
+    // Levels 1-2: recall and comprehension — simple formats
+    pool = [
+      ["mcq", 40],
+      ["true_false", 30],
+      ["fill_blank", 30],
+    ];
+  } else if (level <= 4) {
+    // Levels 3-4: application and analysis
+    pool = [
+      ["scenario", 35],
+      ["open_ended", 25],
+      ["predict_output", 20],
+      ["mcq", 20],
+    ];
+  } else {
+    // Levels 5-7: evaluation and synthesis
+    pool = [
+      ["open_ended", 40],
+      ["scenario", 30],
+      ["code_review", 15],
+      ["ordering", 15],
+    ];
+  }
+
+  const total = pool.reduce((s, [, w]) => s + w, 0);
+  let roll = Math.random() * total;
+  for (const [format, weight] of pool) {
+    roll -= weight;
+    if (roll <= 0) return format;
+  }
+  return pool[0][0];
 }
 
 // ── Local MCQ/TF/FB grading ──────────────────────────────────────────────────
@@ -123,10 +171,8 @@ type Phase =
 
 export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const ai = useAI();
-  const { addXP, addCoins } = useStore((s) => ({
-    addXP: s.addXP,
-    addCoins: s.addCoins,
-  }));
+  const addXP = useStore((s) => s.addXP);
+  const addCoins = useStore((s) => s.addCoins);
 
   // Dexie live query to detect existing calibration
   const existingCalibration = useLiveQuery(
@@ -153,6 +199,15 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const [breakingPointLevel, setBreakingPointLevel] = useState<BloomLevel | null>(null);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
+  // FIX 1: One More Round state
+  const [oneMoreRoundTrigger, setOneMoreRoundTrigger] = useState<OneMoreRoundTrigger | null>(null);
+  const [consecutivePrompts, setConsecutivePrompts] = useState(0);
+
+  // FIX 2: Treasure Chest state
+  const [activeChestId, setActiveChestId] = useState<number | null>(null);
+  const [roundsCompleted, setRoundsCompleted] = useState(0);
+  const [lastChestRound, setLastChestRound] = useState(0);
+
   const allAnswers = useRef<AnsweredQuestion[]>([]);
 
   // ── Effect: determine initial phase ─────────────────────────────────────────
@@ -163,8 +218,13 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     if (existingCalibration === null) {
       setPhase("calibration_intro");
     } else {
-      // Has calibration — start adaptive directly at level 1
-      setCurrentLevel(1);
+      // FIX 3: Use getStartingLevelFromCalibration with saved calibration scores
+      // instead of hardcoding level 1.
+      const savedScores = existingCalibration.questions?.map((q) => q.score) ?? [];
+      const startLevel = savedScores.length > 0
+        ? getStartingLevelFromCalibration(savedScores)
+        : 1;
+      setCurrentLevel(startLevel);
       setPhase("adaptive_loading");
     }
   }, [existingCalibration, phase]);
@@ -285,11 +345,8 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     setError(null);
     try {
       const prevQs = adaptiveQuestions.map((q) => q.question.substring(0, 80));
-      const formats: Array<GeneratedQuestion["format"]> = [
-        "mcq", "open_ended", "scenario", "code_review", "predict_output",
-        "fill_blank", "true_false", "ordering",
-      ];
-      const format = formats[Math.floor(Math.random() * formats.length)];
+      // FIX 4: Weighted format selection based on Bloom's level
+      const format = pickFormatForLevel(currentLevel);
       const { system, user } = quizQuestionPrompt(topicName, currentLevel, format, prevQs);
 
       const question = await ai.generateStructured<GeneratedQuestion>(
@@ -300,7 +357,8 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
           if (!parsed.question) throw new Error("Invalid question response");
           return parsed;
         },
-        { temperature: 0.8 }
+        // FIX 6: Lower temperature from 0.8 to 0.5 for more reliable questions
+        { temperature: 0.5 }
       );
       setCurrentQuestion(question);
       setAdaptiveQuestions((prev) => [...prev, question]);
@@ -378,6 +436,35 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     [ai, adaptiveAnswers, consecutiveLow, currentLevel]
   );
 
+  // ── FIX 5: Skip question ─────────────────────────────────────────────────────
+
+  const handleSkip = useCallback(() => {
+    if (!currentQuestion) return;
+    // Record as score 0, do NOT count toward consecutive-low counter
+    const skippedAnswer: AnsweredQuestion = {
+      ...currentQuestion,
+      userAnswer: "[skipped]",
+      score: 0,
+      feedback: "Question skipped.",
+      missed: [],
+      perfectAnswer: currentQuestion.correctAnswer ?? "",
+    };
+
+    const newAnswers = [...adaptiveAnswers, skippedAnswer];
+    setAdaptiveAnswers(newAnswers);
+    allAnswers.current = newAnswers;
+    setCurrentAnswer(skippedAnswer);
+
+    // Treat skip as neutral (score 5) for level progression — don't penalise
+    const { nextLevel, breakingPoint } = getNextLevel(currentLevel, 5, 0);
+    if (breakingPoint || newAnswers.length >= SESSION_CAP) {
+      if (breakingPoint) setBreakingPointLevel(currentLevel);
+    } else {
+      setCurrentLevel(nextLevel);
+    }
+    setPhase("adaptive_grading");
+  }, [adaptiveAnswers, currentLevel, currentQuestion]);
+
   // ── After seeing grade result, decide what to do next ───────────────────────
 
   const handleNextAfterGrade = useCallback(async () => {
@@ -434,13 +521,49 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       });
       await checkAndUnlockBadges(stats);
 
+      // FIX 2: Treasure chest drop check
+      const newRoundsCompleted = roundsCompleted + 1;
+      setRoundsCompleted(newRoundsCompleted);
+      if (shouldDropChest(newRoundsCompleted, lastChestRound)) {
+        setLastChestRound(newRoundsCompleted);
+        try {
+          const chestId = await recordChest();
+          setActiveChestId(chestId);
+        } catch {
+          // Non-critical — skip chest if Dexie fails
+        }
+      }
+
+      // FIX 1: One More Round trigger check
+      const lastQuizScore = Math.round(result.averageScore * 10);
+      const xpProgress = xpProgressInLevel(storeState.totalXP + result.xpEarned);
+      const xpToNextLevel = xpProgress.needed - xpProgress.current;
+
+      // Compute in-session streak (consecutive scoring answers from the end)
+      let inSessionStreak = 0;
+      for (let i = answers.length - 1; i >= 0; i--) {
+        if (answers[i].score >= 7) inSessionStreak++;
+        else break;
+      }
+
+      const trigger = checkOneMoreRound({
+        lastQuizScore,
+        xpToNextLevel,
+        badgesNearUnlock: 0,
+        inSessionStreak,
+        dailyChallengeAvailable: false,
+        decayedTopicCount: 0,
+        consecutivePrompts,
+      });
+      setOneMoreRoundTrigger(trigger);
+
       if (bpLevel !== null) {
         setPhase("breaking_point");
       } else {
         setPhase("result");
       }
     },
-    [addCoins, addXP, topicId]
+    [addCoins, addXP, topicId, roundsCompleted, lastChestRound, consecutivePrompts]
   );
 
   // ── Trigger adaptive question load when entering adaptive_loading ────────────
@@ -464,8 +587,41 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     setConsecutiveLow(0);
     setBreakingPointLevel(null);
     setQuizResult(null);
-    setCurrentLevel(1);
+    setOneMoreRoundTrigger(null);
+    setActiveChestId(null);
+    // FIX 3: Restore the correct starting level from existing calibration data
+    const savedScores = existingCalibration?.questions?.map((q) => q.score) ?? [];
+    const startLevel = savedScores.length > 0
+      ? getStartingLevelFromCalibration(savedScores)
+      : 1;
+    setCurrentLevel(startLevel);
     setPhase("adaptive_loading");
+  }, [existingCalibration]);
+
+  // ── One More Round handlers ──────────────────────────────────────────────────
+
+  const handleOneMoreRoundAccept = useCallback(() => {
+    setConsecutivePrompts((p) => p + 1);
+    setOneMoreRoundTrigger(null);
+    handleRetry();
+  }, [handleRetry]);
+
+  const handleOneMoreRoundDismiss = useCallback(() => {
+    setConsecutivePrompts(0);
+    setOneMoreRoundTrigger(null);
+  }, []);
+
+  // ── Treasure chest handlers ──────────────────────────────────────────────────
+
+  const handleChestClaim = useCallback(
+    (reward: ChestReward) => {
+      if (reward.coins > 0) addCoins(reward.coins, "treasure_chest");
+    },
+    [addCoins]
+  );
+
+  const handleChestDismiss = useCallback(() => {
+    setActiveChestId(null);
   }, []);
 
   // ── Calibration answer submission ─────────────────────────────────────────────
@@ -614,6 +770,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         <AnswerInput
           question={currentQuestion}
           onSubmit={handleAdaptiveAnswer}
+          onSkip={handleSkip}
         />
       </div>
     );
@@ -683,11 +840,27 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   if (phase === "result" && quizResult) {
     return (
       <div className="max-w-xl mx-auto">
+        {/* FIX 2: Treasure Chest overlay (shown before result if a chest dropped) */}
+        {activeChestId !== null && (
+          <TreasureChest
+            chestId={activeChestId}
+            onClaim={handleChestClaim}
+            onDismiss={handleChestDismiss}
+          />
+        )}
+
         <QuizResultScreen
           result={quizResult}
           answers={allAnswers.current}
           topicId={topicId}
           onRetry={handleRetry}
+        />
+
+        {/* FIX 1: One More Round prompt — slides up from bottom */}
+        <OneMoreRound
+          trigger={oneMoreRoundTrigger}
+          onAccept={handleOneMoreRoundAccept}
+          onDismiss={handleOneMoreRoundDismiss}
         />
       </div>
     );
