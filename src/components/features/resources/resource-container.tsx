@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { CategorySection } from "./category-section";
 import { resourceFinderPrompt } from "@/lib/prompts/resource-finder";
+import { BLOOM_LABELS, type BloomLevel } from "@/lib/quiz/types";
 import type { ResourceCollection } from "@/lib/resources/types";
 import type { ResourceItem } from "@/lib/types";
 
@@ -30,9 +31,19 @@ function extractJSON(text: string): string {
   return text.trim();
 }
 
+// FIX 8: Derive a human-readable user level from quiz attempt data for this topic
+function bloomLevelLabel(difficulty: string): string | undefined {
+  if (difficulty === "calibration") return undefined;
+  const n = parseInt(difficulty, 10);
+  if (n >= 1 && n <= 7) {
+    return BLOOM_LABELS[n as BloomLevel];
+  }
+  return undefined;
+}
+
 export function ResourceContainer({ topicId, topicName }: ResourceContainerProps) {
   const ai = useAI();
-  const { addXP } = useStore((s) => ({ addXP: s.addXP }));
+  const addXP = useStore((s) => s.addXP);
 
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
@@ -46,10 +57,22 @@ export function ResourceContainer({ topicId, topicName }: ResourceContainerProps
     [topicId]
   );
 
+  // FIX 8: Live query for the most recent quiz attempt for this topic
+  const latestQuizAttempt = useLiveQuery(
+    () =>
+      db.quizAttempts
+        .where("topicId")
+        .equals(topicId)
+        .reverse()
+        .first(),
+    [topicId]
+  );
+
   // Restore cached resources from Dexie
   useEffect(() => {
     if (initDone.current) return;
     if (existingResource === undefined) return; // still loading
+    if (latestQuizAttempt === undefined) return; // still loading
 
     initDone.current = true;
 
@@ -75,7 +98,7 @@ export function ResourceContainer({ topicId, topicName }: ResourceContainerProps
       generateResources();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [existingResource]);
+  }, [existingResource, latestQuizAttempt]);
 
   // ── Generate resources via AI ───────────────────────────────────────────────
 
@@ -85,7 +108,16 @@ export function ResourceContainer({ topicId, topicName }: ResourceContainerProps
     setError(null);
 
     try {
-      const { system, user } = resourceFinderPrompt(topicName);
+      // FIX 8: Build a user level string from the most recent quiz attempt
+      let userLevel: string | undefined;
+      if (latestQuizAttempt) {
+        const label = bloomLevelLabel(latestQuizAttempt.difficulty);
+        if (label) {
+          userLevel = `Bloom's Level ${latestQuizAttempt.difficulty} (${label})`;
+        }
+      }
+
+      const { system, user } = resourceFinderPrompt(topicName, userLevel);
       const resourceCollection = await ai.generateStructured<ResourceCollection>(
         user,
         system,
@@ -125,7 +157,7 @@ export function ResourceContainer({ topicId, topicName }: ResourceContainerProps
       setError(err instanceof Error ? err.message : "Failed to generate resources");
       setStatus("error");
     }
-  }, [ai, existingResource?.id, topicId, topicName, addXP]);
+  }, [ai, existingResource?.id, latestQuizAttempt, topicId, topicName, addXP]);
 
   // ── Refresh handler ─────────────────────────────────────────────────────────
 
