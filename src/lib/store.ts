@@ -33,6 +33,8 @@ type PersistedState = Pick<
   | "currentStreak"
   | "longestStreak"
   | "streakFreezes"
+  | "dailyXP"
+  | "dailyXPDate"
 >;
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -73,6 +75,8 @@ export const useStore = create<StoreState>()(
         currentStreak: state.currentStreak,
         longestStreak: state.longestStreak,
         streakFreezes: state.streakFreezes,
+        dailyXP: state.dailyXP,
+        dailyXPDate: state.dailyXPDate,
       }),
     }
   )

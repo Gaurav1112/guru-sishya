@@ -45,6 +45,54 @@ function ComebackBanner() {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// Daily Goal Progress Bar
+// ────────────────────────────────────────────────────────────────────────────
+
+function DailyGoalBar() {
+  const { dailyGoal, dailyXP, dailyXPDate, queueCelebration } = useStore();
+  const goalXP = dailyGoal * 5; // 1 min target ≈ 5 XP
+  const today = new Date().toISOString().slice(0, 10);
+  const todayXP = dailyXPDate === today ? dailyXP : 0;
+  const pct = Math.min(100, goalXP > 0 ? Math.round((todayXP / goalXP) * 100) : 0);
+  const goalMet = todayXP >= goalXP && goalXP > 0;
+
+  const [celebrated, setCelebrated] = useState(false);
+  useEffect(() => {
+    if (goalMet && !celebrated) {
+      setCelebrated(true);
+      queueCelebration({ type: "perfect_round", data: {} });
+    }
+  }, [goalMet, celebrated, queueCelebration]);
+
+  return (
+    <div className="rounded-xl border border-border/50 bg-surface p-4">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs text-muted-foreground uppercase tracking-wider">Daily Goal</p>
+        <div className="flex items-center gap-1.5">
+          {goalMet && <span className="text-green-400 text-sm">✓</span>}
+          <span className="text-xs font-semibold tabular-nums">
+            {todayXP} / {goalXP} XP
+          </span>
+        </div>
+      </div>
+      <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${
+            goalMet ? "bg-green-400" : "bg-gold"
+          }`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="text-[10px] text-muted-foreground mt-1">
+        {goalMet
+          ? "Daily goal achieved! Keep going."
+          : `${goalXP - todayXP} XP to reach today's goal (${dailyGoal} min target)`}
+      </p>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // Today's streak status indicator
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -195,13 +243,15 @@ export default function DashboardPage() {
       </div>
 
       <ComebackBanner />
+
+      {/* Daily Challenge — most prominent, shown first */}
+      <DailyChallengeWidget />
+
       <StreakStatusIndicator />
       <GamificationWidgets />
 
-      {/* Daily Challenge */}
-      <div>
-        <DailyChallengeWidget />
-      </div>
+      {/* Daily Goal Progress */}
+      <DailyGoalBar />
 
       <div>
         <h2 className="font-heading text-lg font-semibold mb-3">Add a Topic</h2>

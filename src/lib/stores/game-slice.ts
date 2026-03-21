@@ -9,6 +9,10 @@ export interface GameState {
   currentStreak: number;
   longestStreak: number;
   streakFreezes: number;
+  /** XP earned today (resets at midnight). Persisted via partialize in store.ts. */
+  dailyXP: number;
+  /** ISO date (YYYY-MM-DD) when dailyXP was last reset */
+  dailyXPDate: string;
 }
 
 export interface GameActions {
@@ -34,12 +38,22 @@ export const createGameSlice: StateCreator<
   currentStreak: 0,
   longestStreak: 0,
   streakFreezes: 0,
+  dailyXP: 0,
+  dailyXPDate: "",
 
   // Actions
   addXP: (amount) =>
     set((state) => {
       state.totalXP += amount;
       state.level = levelFromXP(state.totalXP);
+
+      // Reset dailyXP counter if the date has changed
+      const today = new Date().toISOString().slice(0, 10);
+      if (state.dailyXPDate !== today) {
+        state.dailyXP = 0;
+        state.dailyXPDate = today;
+      }
+      state.dailyXP += amount;
     }),
 
   addCoins: (amount, reason) => {
