@@ -7,7 +7,8 @@ export type CelebrationType =
   | "level_up"
   | "badge"
   | "streak_milestone"
-  | "perfect_round";
+  | "perfect_round"
+  | "streak_broken";
 
 export type CelebrationTier = "subtle" | "satisfying" | "celebration" | "milestone";
 
@@ -22,6 +23,8 @@ export function getCelebrationTier(type: CelebrationType): CelebrationTier {
     case "perfect_round":
       return "satisfying";
     case "badge":
+      return "milestone";
+    case "streak_broken":
       return "celebration";
     case "level_up":
       return "milestone";
@@ -34,7 +37,7 @@ export function getCelebrationTier(type: CelebrationType): CelebrationTier {
 export function getDismissDuration(tier: CelebrationTier): number {
   switch (tier) {
     case "subtle":
-      return 600;
+      return 1500;
     case "satisfying":
       return 2000;
     case "celebration":

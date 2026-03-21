@@ -6,7 +6,8 @@ export interface Celebration {
     | "badge"
     | "streak_milestone"
     | "perfect_round"
-    | "xp_gain";
+    | "xp_gain"
+    | "streak_broken";
   data: Record<string, unknown>;
 }
 

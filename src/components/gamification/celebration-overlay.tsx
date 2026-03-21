@@ -14,13 +14,13 @@ function XPGainToast({ data }: { data: Record<string, unknown> }) {
   return (
     <motion.div
       key="xp-gain"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: -20 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed top-16 right-6 z-[200] pointer-events-none"
+      initial={{ opacity: 0, y: 20, scale: 0.8 }}
+      animate={{ opacity: 1, y: -40, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="fixed top-14 right-6 z-[200] pointer-events-none"
     >
-      <span className="text-lg font-bold text-gold drop-shadow-lg">
+      <span className="text-2xl font-black text-gold drop-shadow-[0_0_8px_rgba(234,179,8,0.8)]">
         +{amount ?? "?"} XP
       </span>
     </motion.div>
@@ -78,25 +78,63 @@ function LevelUpOverlay({ data }: { data: Record<string, unknown> }) {
 
 function BadgeOverlay({ data }: { data: Record<string, unknown> }) {
   const badge = data.badge as { icon: string; name: string; description: string } | undefined;
+  const confettiRef = useRef(false);
+
+  useEffect(() => {
+    if (confettiRef.current) return;
+    confettiRef.current = true;
+    import("canvas-confetti").then(({ default: confetti }) => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.4 },
+        colors: ["#f97316", "#fbbf24", "#a855f7"],
+      });
+    });
+  }, []);
+
   return (
     <motion.div
       key="badge"
-      initial={{ x: 120, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 120, opacity: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className="fixed bottom-8 right-6 z-[200] max-w-xs"
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm"
     >
-      <div className="flex items-center gap-3 rounded-xl border border-gold/40 bg-surface px-4 py-3 shadow-[0_0_20px_rgba(234,179,8,0.25)]">
-        <span className="text-3xl">{badge?.icon ?? "🏅"}</span>
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
-            Badge Unlocked
-          </p>
-          <p className="font-heading font-bold text-gold leading-tight">{badge?.name}</p>
-          <p className="text-xs text-muted-foreground">{badge?.description}</p>
-        </div>
-      </div>
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15, duration: 0.4 }}
+        className="text-center"
+      >
+        <p className="text-muted-foreground text-sm uppercase tracking-widest mb-4">
+          Badge Unlocked!
+        </p>
+        <motion.div
+          animate={{
+            filter: [
+              "drop-shadow(0 0 8px rgba(234,179,8,0.4))",
+              "drop-shadow(0 0 24px rgba(234,179,8,0.9))",
+              "drop-shadow(0 0 8px rgba(234,179,8,0.4))",
+            ],
+          }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          className="text-8xl mb-6 inline-block"
+        >
+          {badge?.icon ?? "🏅"}
+        </motion.div>
+        <h2 className="font-heading text-4xl font-bold text-gold mb-2">{badge?.name}</h2>
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto">{badge?.description}</p>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-6 text-muted-foreground text-xs"
+        >
+          Tap anywhere to continue
+        </motion.div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -152,6 +190,84 @@ function PerfectRoundOverlay() {
   );
 }
 
+function StreakBrokenOverlay({ data }: { data: Record<string, unknown> }) {
+  const lostStreak = data.lostStreak as number | undefined;
+  const dequeueCelebration = useStore((s) => s.dequeueCelebration);
+  const { coins, spendCoins, setStreak, currentStreak, longestStreak } = useStore();
+  const canRepair = coins >= 200;
+
+  function handleRepair() {
+    const success = spendCoins(200, "Streak Repair");
+    if (success) {
+      // Restore the streak to the old count
+      setStreak(lostStreak ?? 1, Math.max(longestStreak, lostStreak ?? 1));
+    }
+    dequeueCelebration();
+  }
+
+  function handleStartFresh() {
+    dequeueCelebration();
+  }
+
+  return (
+    <motion.div
+      key="streak-broken"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm"
+    >
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="text-center max-w-sm px-6"
+      >
+        <motion.div
+          animate={{ opacity: [1, 0.4, 1], scale: [1, 0.92, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="text-7xl mb-6"
+        >
+          🔥
+        </motion.div>
+
+        <h2 className="font-heading text-3xl font-bold text-foreground mb-2">
+          Your {lostStreak}-day streak was lost
+        </h2>
+        <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+          Life happens — even the most dedicated scholars miss a day. Your progress and knowledge
+          remain. Pick up where you left off.
+        </p>
+
+        <div className="flex flex-col gap-3">
+          {canRepair && (
+            <button
+              onClick={handleRepair}
+              className="flex items-center justify-center gap-2 rounded-xl bg-gold/20 border border-gold/40 px-5 py-3 text-gold font-semibold hover:bg-gold/30 transition-colors"
+            >
+              <span>🪙</span>
+              <span>Repair for 200 coins</span>
+              <span className="text-xs text-gold/70 ml-1">({coins} available)</span>
+            </button>
+          )}
+          {!canRepair && (
+            <div className="text-xs text-muted-foreground mb-1">
+              Not enough coins to repair (need 200, have {coins})
+            </div>
+          )}
+          <button
+            onClick={handleStartFresh}
+            className="rounded-xl border border-border/50 px-5 py-3 text-muted-foreground hover:text-foreground hover:bg-surface transition-colors text-sm"
+          >
+            Start fresh — every day is a new beginning
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Main overlay component
 // ────────────────────────────────────────────────────────────────────────────
@@ -162,6 +278,8 @@ function CelebrationItem({ celebration }: { celebration: Celebration }) {
   const duration = getDismissDuration(tier);
 
   useEffect(() => {
+    // streak_broken is interactive — user dismisses manually
+    if (celebration.type === "streak_broken") return;
     const timer = setTimeout(() => {
       dequeueCelebration();
     }, duration);
@@ -179,6 +297,8 @@ function CelebrationItem({ celebration }: { celebration: Celebration }) {
       return <StreakMilestoneOverlay data={celebration.data} />;
     case "perfect_round":
       return <PerfectRoundOverlay />;
+    case "streak_broken":
+      return <StreakBrokenOverlay data={celebration.data} />;
     default:
       return null;
   }

@@ -1,8 +1,10 @@
 "use client";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { db } from "@/lib/db";
-import { BADGE_DEFINITIONS, type BadgeDefinition } from "@/lib/gamification/badges";
+import { BADGE_DEFINITIONS, getUserStats, type BadgeDefinition, type UserStats } from "@/lib/gamification/badges";
+import { useStore } from "@/lib/store";
 import { BadgeCard } from "./badge-card";
 
 type BadgeCategory = BadgeDefinition["category"];
@@ -17,6 +19,14 @@ const CATEGORIES: { id: BadgeCategory; label: string }[] = [
 
 export function BadgeMandir() {
   const unlockedBadges = useLiveQuery(() => db.badges.toArray(), []);
+  const { currentStreak, longestStreak, totalXP, level } = useStore();
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
+
+  useEffect(() => {
+    getUserStats({ currentStreak, longestStreak, totalXP, level })
+      .then(setUserStats)
+      .catch(() => {});
+  }, [currentStreak, longestStreak, totalXP, level]);
 
   const unlockedMap = new Map(
     (unlockedBadges ?? []).map((b) => [b.type, b])
@@ -67,6 +77,7 @@ export function BadgeMandir() {
                       badge={badge}
                       unlocked={!!record}
                       unlockedAt={record?.unlockedAt}
+                      userStats={userStats ?? undefined}
                     />
                   );
                 })}

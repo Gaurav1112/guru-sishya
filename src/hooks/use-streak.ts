@@ -65,7 +65,13 @@ export function useStreak() {
         addCoins(1, "daily streak");
       }
     } else if (result.status === "broken") {
-      // Streak was broken — no extra rewards
+      // Streak was broken — queue an emotional recovery overlay
+      if (currentStreak > 1) {
+        queueCelebration({
+          type: "streak_broken",
+          data: { lostStreak: currentStreak },
+        });
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
