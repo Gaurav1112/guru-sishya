@@ -1,20 +1,29 @@
 "use client";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
-import { TopicInput } from "@/components/topic-input";
+import { loadAllContent, type TopicContent } from "@/lib/content/loader";
 import { StreakFlame } from "@/components/gamification/streak-flame";
 import { XPBar } from "@/components/gamification/xp-bar";
 import { DailyChallengeWidget } from "@/components/gamification/daily-challenge";
 import { useStreak } from "@/hooks/use-streak";
 import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
+import Link from "next/link";
 
-const SUGGESTED_TOPICS = ["System Design", "Machine Learning", "Guitar", "Data Structures"];
+// ── Featured topics to show on dashboard ────────────────────────────────────
 
-// ────────────────────────────────────────────────────────────────────────────
-// Comeback banner — shown if user has been away 3+ days
-// ────────────────────────────────────────────────────────────────────────────
+const FEATURED_TOPICS = [
+  "Load Balancing",
+  "Design: Chat System (WhatsApp/Slack)",
+  "Dynamic Programming",
+  "JavaScript Fundamentals",
+  "Design: URL Shortener (TinyURL)",
+  "Arrays & Strings",
+];
+
+// ── Comeback Banner ──────────────────────────────────────────────────────────
 
 function ComebackBanner() {
   const [message, setMessage] = useState<string | null>(null);
@@ -23,9 +32,7 @@ function ComebackBanner() {
     const lastActivity = localStorage.getItem("lastStreakDate") ?? "";
     const today = new Date().toISOString().slice(0, 10);
     const { eligible, daysAway } = checkComeback(lastActivity, today);
-    if (eligible) {
-      setMessage(getComebackMessage(daysAway));
-    }
+    if (eligible) setMessage(getComebackMessage(daysAway));
   }, []);
 
   if (!message) return null;
@@ -44,13 +51,11 @@ function ComebackBanner() {
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Daily Goal Progress Bar
-// ────────────────────────────────────────────────────────────────────────────
+// ── Daily Goal Progress Bar ──────────────────────────────────────────────────
 
 function DailyGoalBar() {
   const { dailyGoal, dailyXP, dailyXPDate, queueCelebration } = useStore();
-  const goalXP = dailyGoal * 5; // 1 min target ≈ 5 XP
+  const goalXP = dailyGoal * 5;
   const today = new Date().toISOString().slice(0, 10);
   const todayXP = dailyXPDate === today ? dailyXP : 0;
   const pct = Math.min(100, goalXP > 0 ? Math.round((todayXP / goalXP) * 100) : 0);
@@ -77,9 +82,7 @@ function DailyGoalBar() {
       </div>
       <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${
-            goalMet ? "bg-green-400" : "bg-gold"
-          }`}
+          className={`h-full rounded-full transition-all duration-500 ${goalMet ? "bg-green-400" : "bg-gold"}`}
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -92,75 +95,125 @@ function DailyGoalBar() {
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Today's streak status indicator
-// ────────────────────────────────────────────────────────────────────────────
+// ── Quick Start Card ─────────────────────────────────────────────────────────
 
-function StreakStatusIndicator() {
-  const lastDate = typeof window !== "undefined"
-    ? localStorage.getItem("lastStreakDate") ?? ""
-    : "";
-  const today = new Date().toISOString().slice(0, 10);
-  const donToday = lastDate === today;
+function QuickStartCard({ content }: { content: TopicContent }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const BADGE_COLORS: Record<string, string> = {
+    "System Design": "bg-saffron/20 text-saffron border-saffron/30",
+    "System Design Cases": "bg-teal/20 text-teal border-teal/30",
+    "Data Structures": "bg-indigo/20 text-indigo border-indigo/30",
+    Algorithms: "bg-indigo/20 text-indigo border-indigo/30",
+    "Programming Languages": "bg-gold/20 text-gold border-gold/30",
+    Frontend: "bg-gold/20 text-gold border-gold/30",
+    Backend: "bg-gold/20 text-gold border-gold/30",
+    Databases: "bg-gold/20 text-gold border-gold/30",
+    "Software Engineering": "bg-gold/20 text-gold border-gold/30",
+    "Computer Science Fundamentals": "bg-gold/20 text-gold border-gold/30",
+  };
+
+  const badgeClass = BADGE_COLORS[content.category] ?? "bg-saffron/20 text-saffron border-saffron/30";
+  const quizCount = content.quizBank?.length ?? 0;
+
+  async function handleClick() {
+    setLoading(true);
+    try {
+      const existing = await db.topics
+        .where("name")
+        .equalsIgnoreCase(content.topic)
+        .first();
+      if (existing?.id) {
+        router.push(`/app/topic/${existing.id}`);
+      } else {
+        const id = await db.topics.add({
+          name: content.topic,
+          category: content.category,
+          createdAt: new Date(),
+        });
+        router.push(`/app/topic/${id}`);
+      }
+    } catch {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div
-      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
-        donToday
-          ? "border-green-500/30 bg-green-500/10 text-green-400"
-          : "border-orange-500/30 bg-orange-500/10 text-orange-400"
-      }`}
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={loading}
+      className="group text-left rounded-xl border border-border/50 bg-surface hover:bg-surface-hover hover:border-border transition-all duration-150 p-4 flex flex-col gap-2 cursor-pointer disabled:opacity-60"
     >
-      <span>{donToday ? "✅" : "⏳"}</span>
-      <span>{donToday ? "Today's streak recorded" : "Start learning to maintain your streak"}</span>
+      <p className="font-semibold text-sm leading-snug">
+        {loading ? "Opening..." : content.topic}
+      </p>
+      <span className={`inline-flex self-start items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${badgeClass}`}>
+        {content.category}
+      </span>
+      <p className="text-xs text-muted-foreground mt-auto">{quizCount} questions</p>
+    </button>
+  );
+}
+
+// ── Categories Quick Link ────────────────────────────────────────────────────
+
+function CategoryLinks() {
+  const CATS = [
+    { icon: "📐", label: "System Design Fundamentals", count: 31, color: "text-saffron", tab: "sd" },
+    { icon: "🏗️", label: "System Design Cases", count: 18, color: "text-teal", tab: "cases" },
+    { icon: "🧮", label: "DS & Algorithms", count: 10, color: "text-indigo", tab: "dsalgo" },
+    { icon: "💻", label: "Core CS & Languages", count: 10, color: "text-gold", tab: "cs" },
+  ];
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {CATS.map((cat) => (
+        <Link
+          key={cat.tab}
+          href="/app/topics"
+          className={`rounded-xl border border-border/50 bg-surface hover:bg-surface-hover p-4 flex items-start gap-3 transition-colors`}
+        >
+          <span className="text-2xl">{cat.icon}</span>
+          <div>
+            <p className={`font-semibold text-sm ${cat.color}`}>{cat.label}</p>
+            <p className="text-xs text-muted-foreground">{cat.count} topics</p>
+          </div>
+        </Link>
+      ))}
     </div>
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Gamification widgets shown when user has topics
-// ────────────────────────────────────────────────────────────────────────────
+// ── Your Progress ────────────────────────────────────────────────────────────
 
-function GamificationWidgets() {
+function YourProgress() {
   const { totalXP, level, currentStreak } = useStore();
-  const quizAttempts = useLiveQuery(
-    () => db.quizAttempts.toArray(),
-    []
-  );
-
-  // Count today's quiz attempts
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const questionsToday = (quizAttempts ?? []).filter(
-    (q) => q.completedAt.toISOString?.().slice(0, 10) === todayStr ||
-           new Date(q.completedAt).toISOString().slice(0, 10) === todayStr
-  ).reduce((acc, q) => acc + (q.questions?.length ?? 0), 0);
-
+  const quizAttempts = useLiveQuery(() => db.quizAttempts.toArray(), []);
   const topicCount = useLiveQuery(() => db.topics.count(), []);
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const questionsToday = (quizAttempts ?? [])
+    .filter(
+      (q) =>
+        new Date(q.completedAt).toISOString().slice(0, 10) === todayStr
+    )
+    .reduce((acc, q) => acc + (q.questions?.length ?? 0), 0);
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {/* Streak widget */}
+    <div className="grid gap-4 sm:grid-cols-3">
       <div className="rounded-xl border border-border/50 bg-surface p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-          Sadhana Streak
-        </p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Streak</p>
         <StreakFlame streak={currentStreak} size="md" />
         <p className="text-xs text-muted-foreground mt-2">days in a row</p>
       </div>
-
-      {/* XP progress */}
       <div className="rounded-xl border border-border/50 bg-surface p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-          XP Progress
-        </p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">XP Progress</p>
         <XPBar totalXP={totalXP} level={level} />
       </div>
-
-      {/* Quick stats */}
       <div className="rounded-xl border border-border/50 bg-surface p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-          Today
-        </p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Today</p>
         <div className="flex gap-6">
           <div>
             <p className="font-heading text-2xl font-bold">{questionsToday}</p>
@@ -168,7 +221,7 @@ function GamificationWidgets() {
           </div>
           <div>
             <p className="font-heading text-2xl font-bold">{topicCount ?? 0}</p>
-            <p className="text-xs text-muted-foreground">Topics</p>
+            <p className="text-xs text-muted-foreground">Topics Started</p>
           </div>
         </div>
       </div>
@@ -176,91 +229,97 @@ function GamificationWidgets() {
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Dashboard Page
-// ────────────────────────────────────────────────────────────────────────────
+// ── Dashboard Page ───────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  // Run streak check on mount
   useStreak();
 
+  const [featuredContent, setFeaturedContent] = useState<TopicContent[]>([]);
+
+  useEffect(() => {
+    loadAllContent().then((all) => {
+      const featured = FEATURED_TOPICS.flatMap((name) => {
+        const match = all.find(
+          (t) => t.topic.toLowerCase() === name.toLowerCase()
+        );
+        return match ? [match] : [];
+      });
+      setFeaturedContent(featured);
+    }).catch(() => {});
+  }, []);
+
   const topicCount = useLiveQuery(() => db.topics.count());
-  const apiKey = useStore((s) => s.apiKey);
-  const aiProvider = useStore((s) => s.aiProvider);
-
-  if (!apiKey && aiProvider !== "ollama" && aiProvider !== "static") {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20">
-        <h2 className="font-heading text-2xl font-bold">Welcome to Guru Sishya</h2>
-        <p className="text-muted-foreground">
-          Set your API key in{" "}
-          <a href="/app/settings" className="text-saffron underline">
-            Settings
-          </a>{" "}
-          to get started, or select Ollama for a free, local AI.
-        </p>
-        <div className="flex flex-wrap justify-center gap-2 mt-2">
-          {SUGGESTED_TOPICS.map((t) => (
-            <span key={t} className="rounded-full border border-border/60 bg-surface px-3 py-1 text-sm text-muted-foreground">
-              {t}
-            </span>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!topicCount || topicCount === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-6 py-20">
-        <h2 className="font-heading text-2xl font-bold">What do you want to learn today?</h2>
-        <p className="text-muted-foreground">
-          Enter any topic and Guru Sishya will create your personalized learning journey.
-        </p>
-        <TopicInput />
-        <div className="flex flex-wrap justify-center gap-2">
-          {SUGGESTED_TOPICS.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={async () => {
-                const id = await db.topics.add({ name: t, category: "General", createdAt: new Date() });
-                window.location.href = `/app/topic/${id}`;
-              }}
-              className="rounded-full border border-saffron/30 bg-saffron/10 px-3 py-1 text-sm text-saffron hover:bg-saffron/20 transition-colors cursor-pointer"
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-heading text-2xl font-bold">Dashboard</h1>
+    <div className="space-y-8">
+      {/* Welcome Banner */}
+      <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-teal/5 p-6">
+        <p className="text-xs font-medium tracking-widest text-saffron uppercase mb-1">
+          Guru Sishya
+        </p>
+        <h1 className="font-heading text-2xl font-bold mb-2">
+          Your Interview Prep Dashboard
+        </h1>
+        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+          <span>
+            <strong className="text-foreground">69</strong> topics ready
+          </span>
+          <span>
+            <strong className="text-foreground">1,633</strong> quiz questions
+          </span>
+          <span>
+            <strong className="text-foreground">{topicCount ?? 0}</strong>{" "}
+            {topicCount === 1 ? "topic" : "topics"} started
+          </span>
+        </div>
       </div>
 
       <ComebackBanner />
 
-      {/* Daily Challenge — most prominent, shown first */}
+      {/* Daily Challenge */}
       <DailyChallengeWidget />
 
-      <StreakStatusIndicator />
-      <GamificationWidgets />
+      {/* Your Progress */}
+      <section>
+        <h2 className="font-heading text-lg font-semibold mb-3">Your Progress</h2>
+        <YourProgress />
+      </section>
 
-      {/* Daily Goal Progress */}
+      {/* Daily Goal */}
       <DailyGoalBar />
 
-      <div>
-        <h2 className="font-heading text-lg font-semibold mb-3">Add a Topic</h2>
-        <TopicInput />
-        <p className="mt-4 text-sm text-muted-foreground">
-          You have {topicCount} topic{topicCount !== 1 ? "s" : ""}. Select one from the sidebar.
+      {/* Quick Start */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-heading text-lg font-semibold">Quick Start</h2>
+          <Link
+            href="/app/topics"
+            className="text-sm text-saffron hover:underline"
+          >
+            Browse all 69 topics →
+          </Link>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Pick a topic to jump straight into learning.
         </p>
-      </div>
+        {featuredContent.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredContent.map((c) => (
+              <QuickStartCard key={c.topic} content={c} />
+            ))}
+          </div>
+        ) : (
+          <div className="h-32 rounded-xl border border-dashed border-border/50 flex items-center justify-center text-sm text-muted-foreground">
+            Loading topics...
+          </div>
+        )}
+      </section>
+
+      {/* Category Links */}
+      <section>
+        <h2 className="font-heading text-lg font-semibold mb-3">Browse by Category</h2>
+        <CategoryLinks />
+      </section>
     </div>
   );
 }

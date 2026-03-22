@@ -7,8 +7,8 @@ function LandingNavbar() {
   return (
     <nav className="sticky top-0 z-50 flex h-14 items-center justify-between bg-background/60 px-6 backdrop-blur-md border-b border-border/30">
       <span className="font-heading text-lg font-bold text-saffron tracking-wider">GURU SISHYA</span>
-      <Link href="/app/dashboard">
-        <Button size="sm" className="bg-saffron hover:bg-saffron/90">Start Learning</Button>
+      <Link href="/app/topics">
+        <Button size="sm" className="bg-saffron hover:bg-saffron/90">Start Preparing</Button>
       </Link>
     </nav>
   );
@@ -20,7 +20,9 @@ export default function LandingPage() {
       <LandingNavbar />
       <Hero />
       <Features />
-      <footer className="border-t border-border/50 py-8 text-center text-sm text-muted-foreground">Guru Sishya — Master Any Subject</footer>
+      <footer className="border-t border-border/50 py-8 text-center text-sm text-muted-foreground">
+        Guru Sishya — Ace Your Software Engineering Interview
+      </footer>
     </main>
   );
 }
