@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { DiagnosticForm } from "./diagnostic-form";
 import { PlanViewer } from "./plan-viewer";
 import { planGenerationPrompt } from "@/lib/prompts/plan-generator";
+import { findTopicContent } from "@/lib/content/loader";
 import type { DiagnosticAnswer, GeneratedPlan, PlanViewStatus } from "@/lib/plan/types";
 
 interface PlanContainerProps {
@@ -84,10 +85,45 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
         setStatus("diagnostic");
       }
     } else {
-      // null = no plan exists, show diagnostic form
-      setStatus("diagnostic");
+      // No plan in Dexie — check if we have pre-generated static content
+      loadStaticPlan();
     }
   }, [existingPlan]);
+
+  // ── Load pre-generated plan from static content (skip diagnostics) ────────
+
+  const loadStaticPlan = useCallback(async () => {
+    try {
+      const content = await findTopicContent(topicName);
+      if (content?.plan && content.plan.sessions && content.plan.sessions.length > 0) {
+        const plan: GeneratedPlan = {
+          topic: topicName,
+          overview: content.plan.overview || `Comprehensive 20-hour learning plan for ${topicName}`,
+          skippedTopics: content.plan.skippedTopics || "",
+          sessions: content.plan.sessions,
+        };
+
+        // Save to Dexie so it loads from cache next time
+        await db.learningPlans.add({
+          topicId,
+          sessions: JSON.stringify(plan) as unknown as import("@/lib/types").PlanSession[],
+          skippedTopics: [],
+          status: "active",
+          createdAt: new Date(),
+        });
+
+        setGeneratedPlan(plan);
+        setStatus("ready");
+        addXP(15);
+        addCoins(5, "plan_loaded");
+        return;
+      }
+    } catch {
+      // Static content not available — fall through to diagnostic
+    }
+    // No static content found — show diagnostic form for AI generation
+    setStatus("diagnostic");
+  }, [topicName, topicId, addXP, addCoins]);
 
   // ── Generate plan from diagnostic answers ──────────────────────────────────
 
