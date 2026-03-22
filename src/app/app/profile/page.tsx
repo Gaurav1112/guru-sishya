@@ -6,6 +6,7 @@ import { getLevelInfo, xpProgressInLevel } from "@/lib/gamification/xp";
 import { StreakFlame } from "@/components/gamification/streak-flame";
 import { LevelBadge } from "@/components/gamification/level-badge";
 import { BadgeMandir } from "@/components/gamification/badge-mandir";
+import { ShareButton } from "@/components/share-button";
 
 // ────────────────────────────────────────────────────────────────────────────
 // 30-day dot calendar
@@ -162,7 +163,15 @@ export default function ProfilePage() {
 
       {/* ── Stats Grid ─────────────────────────────────────────────────── */}
       <section>
-        <h2 className="font-heading text-xl font-bold mb-4">Your Stats</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-heading text-xl font-bold">Your Stats</h2>
+          <ShareButton
+            type="stats"
+            value={level}
+            shareText={`I'm Level ${level} on Guru Sishya with ${totalXP.toLocaleString()} XP! Building real software engineering interview mastery.`}
+            size="sm"
+          />
+        </div>
         <StatsGrid />
       </section>
 
@@ -179,6 +188,15 @@ export default function ProfilePage() {
               <span className="font-heading text-3xl font-bold text-orange-300">{longestStreak}</span>
               <p className="text-xs text-muted-foreground">Longest</p>
             </div>
+            {currentStreak >= 3 && (
+              <div className="ml-auto">
+                <ShareButton
+                  type="streak"
+                  value={currentStreak}
+                  size="sm"
+                />
+              </div>
+            )}
           </div>
           <div>
             <p className="text-xs text-muted-foreground mb-2">Last 30 days</p>

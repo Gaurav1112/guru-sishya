@@ -937,6 +937,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
           result={quizResult}
           answers={allAnswers.current}
           topicId={topicId}
+          topicName={topicName}
           onRetry={handleRetry}
         />
 

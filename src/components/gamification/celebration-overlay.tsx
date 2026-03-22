@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import { getCelebrationTier, getDismissDuration } from "@/lib/gamification/celebrations";
 import type { Celebration } from "@/lib/stores/ui-slice";
 import { sounds } from "@/lib/audio";
+import { ShareButton } from "@/components/share-button";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Sub-renderers
@@ -143,8 +144,20 @@ function BadgeOverlay({ data }: { data: Record<string, unknown> }) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-6 text-muted-foreground text-xs"
+          transition={{ delay: 0.7 }}
+          className="mt-6 flex justify-center"
+        >
+          <ShareButton
+            type="badge"
+            name={badge?.name}
+            size="sm"
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+          className="mt-4 text-muted-foreground text-xs"
         >
           Tap anywhere to continue
         </motion.div>
@@ -169,9 +182,15 @@ function StreakMilestoneOverlay({ data }: { data: Record<string, unknown> }) {
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
       className="fixed top-16 left-1/2 z-[200] -translate-x-1/2"
     >
-      <div className="flex items-center gap-2 rounded-xl border border-orange-500/40 bg-surface px-5 py-3 shadow-lg">
+      <div className="flex items-center gap-3 rounded-xl border border-orange-500/40 bg-surface px-5 py-3 shadow-lg">
         <span className="text-2xl">🔥</span>
         <span className="font-heading font-bold text-orange-400">{streak} Day Streak!</span>
+        <ShareButton
+          type="streak"
+          value={streak}
+          size="sm"
+          iconOnly
+        />
       </div>
     </motion.div>
   );
