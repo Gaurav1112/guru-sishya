@@ -28,6 +28,8 @@ import { shouldDropChest, recordChest } from "@/lib/gamification/treasure-chests
 import type { ChestReward } from "@/lib/gamification/treasure-chests";
 import type { OneMoreRoundTrigger } from "@/lib/gamification/one-more-round";
 import { BLOOM_LABELS, type BloomLevel, type GeneratedQuestion, type AnsweredQuestion, type QuizResult } from "@/lib/quiz/types";
+import { findTopicContent, type QuizBankQuestion } from "@/lib/content/loader";
+import { pickQuestion, gradeStaticQuestion } from "@/lib/quiz/static-quiz";
 
 const SESSION_CAP = 15;
 const CALIBRATION_COUNT = 5;
@@ -173,6 +175,21 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const ai = useAI();
   const addXP = useStore((s) => s.addXP);
   const addCoins = useStore((s) => s.addCoins);
+  const aiProvider = useStore((s) => s.aiProvider);
+
+  // Static provider: load quiz bank directly for instant question delivery
+  const [quizBank, setQuizBank] = useState<QuizBankQuestion[] | null>(null);
+  const isStatic = aiProvider === "static";
+
+  useEffect(() => {
+    if (isStatic) {
+      findTopicContent(topicName).then((content) => {
+        if (content?.quizBank && content.quizBank.length > 0) {
+          setQuizBank(content.quizBank);
+        }
+      }).catch(() => {});
+    }
+  }, [isStatic, topicName]);
 
   // Dexie live query to detect existing calibration
   const existingCalibration = useLiveQuery(
@@ -236,6 +253,30 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     setPhase("calibration_loading");
     setError(null);
     try {
+      // Static provider with quiz bank: pick calibration questions directly
+      if (isStatic && quizBank && quizBank.length >= CALIBRATION_COUNT) {
+        const calibQuestions: GeneratedQuestion[] = [];
+        for (let level = 1; level <= 5; level++) {
+          const q = pickQuestion(quizBank, level, calibQuestions.map((cq) => cq.question));
+          if (q) {
+            calibQuestions.push({
+              question: q.question,
+              format: q.format as GeneratedQuestion["format"],
+              difficulty: q.difficulty as BloomLevel,
+              bloomLabel: q.bloomLabel,
+              options: q.options,
+              correctAnswer: q.correctAnswer,
+            });
+          }
+        }
+        if (calibQuestions.length > 0) {
+          setCalibQuestions(calibQuestions.slice(0, CALIBRATION_COUNT));
+          setCalibIndex(0);
+          setPhase("calibration_answering");
+          return;
+        }
+      }
+
       const { system, user } = calibrationPrompt(topicName);
       const questions = await ai.generateStructured<GeneratedQuestion[]>(
         user,
@@ -255,7 +296,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       setError(err instanceof Error ? err.message : "Failed to load calibration questions");
       setPhase("calibration_intro");
     }
-  }, [ai, topicName]);
+  }, [ai, topicName, isStatic, quizBank]);
 
   // ── Calibration: grade answer ────────────────────────────────────────────────
 
@@ -267,30 +308,40 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       try {
         let graded: Pick<AnsweredQuestion, "score" | "feedback" | "missed" | "perfectAnswer">;
 
-        const needsAI = !question.correctAnswer ||
-          (question.format !== "mcq" &&
-            question.format !== "true_false" &&
-            question.format !== "fill_blank");
-
-        if (needsAI) {
-          const { system, user } = quizGradingPrompt(question.question, userAnswer, question.difficulty);
-          const result = await ai.generateStructured(
-            user,
-            system,
-            (text) => {
-              const parsed = JSON.parse(extractJSON(text)) as Record<string, unknown>;
-              return {
-                score: Math.min(10, Math.max(0, Number(parsed.score))),
-                feedback: String(parsed.feedback ?? ""),
-                missed: Array.isArray(parsed.missed) ? (parsed.missed as unknown[]).map(String) : [],
-                perfectAnswer: String(parsed.perfectAnswer ?? ""),
-              };
-            },
-            { temperature: 0.2 }
-          );
-          graded = result;
+        // Static provider: find quiz bank question and grade locally
+        if (isStatic && quizBank) {
+          const bankQ = quizBank.find((q) => q.question === question.question);
+          if (bankQ) {
+            graded = gradeStaticQuestion(bankQ, userAnswer);
+          } else {
+            graded = gradeLocalAnswer(question, userAnswer);
+          }
         } else {
-          graded = gradeLocalAnswer(question, userAnswer);
+          const needsAI = !question.correctAnswer ||
+            (question.format !== "mcq" &&
+              question.format !== "true_false" &&
+              question.format !== "fill_blank");
+
+          if (needsAI) {
+            const { system, user } = quizGradingPrompt(question.question, userAnswer, question.difficulty);
+            const result = await ai.generateStructured(
+              user,
+              system,
+              (text) => {
+                const parsed = JSON.parse(extractJSON(text)) as Record<string, unknown>;
+                return {
+                  score: Math.min(10, Math.max(0, Number(parsed.score))),
+                  feedback: String(parsed.feedback ?? ""),
+                  missed: Array.isArray(parsed.missed) ? (parsed.missed as unknown[]).map(String) : [],
+                  perfectAnswer: String(parsed.perfectAnswer ?? ""),
+                };
+              },
+              { temperature: 0.2 }
+            );
+            graded = result;
+          } else {
+            graded = gradeLocalAnswer(question, userAnswer);
+          }
         }
 
         const answered: AnsweredQuestion = { ...question, userAnswer, ...graded };
@@ -324,7 +375,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setPhase("calibration_answering");
       }
     },
-    [ai, calibIndex, calibQuestions, calibScores, topicId]
+    [ai, calibIndex, calibQuestions, calibScores, topicId, isStatic, quizBank]
   );
 
   const advanceCalibration = useCallback(() => {
@@ -345,6 +396,26 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     setError(null);
     try {
       const prevQs = adaptiveQuestions.map((q) => q.question.substring(0, 80));
+
+      // Static provider with quiz bank: pick questions directly
+      if (isStatic && quizBank && quizBank.length > 0) {
+        const picked = pickQuestion(quizBank, currentLevel, prevQs);
+        if (picked) {
+          const question: GeneratedQuestion = {
+            question: picked.question,
+            format: picked.format as GeneratedQuestion["format"],
+            difficulty: picked.difficulty as BloomLevel,
+            bloomLabel: picked.bloomLabel,
+            options: picked.options,
+            correctAnswer: picked.correctAnswer,
+          };
+          setCurrentQuestion(question);
+          setAdaptiveQuestions((prev) => [...prev, question]);
+          setPhase("adaptive_answering");
+          return;
+        }
+      }
+
       // FIX 4: Weighted format selection based on Bloom's level
       const format = pickFormatForLevel(currentLevel);
       const { system, user } = quizQuestionPrompt(topicName, currentLevel, format, prevQs);
@@ -366,7 +437,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate question");
     }
-  }, [ai, adaptiveQuestions, currentLevel, topicName]);
+  }, [ai, adaptiveQuestions, currentLevel, topicName, isStatic, quizBank]);
 
   // ── Adaptive: grade answer ───────────────────────────────────────────────────
 
@@ -378,30 +449,40 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       try {
         let graded: Pick<AnsweredQuestion, "score" | "feedback" | "missed" | "perfectAnswer">;
 
-        const needsAI = !question.correctAnswer ||
-          (question.format !== "mcq" &&
-            question.format !== "true_false" &&
-            question.format !== "fill_blank");
-
-        if (needsAI) {
-          const { system, user } = quizGradingPrompt(question.question, userAnswer, question.difficulty);
-          const result = await ai.generateStructured(
-            user,
-            system,
-            (text) => {
-              const parsed = JSON.parse(extractJSON(text)) as Record<string, unknown>;
-              return {
-                score: Math.min(10, Math.max(0, Number(parsed.score))),
-                feedback: String(parsed.feedback ?? ""),
-                missed: Array.isArray(parsed.missed) ? (parsed.missed as unknown[]).map(String) : [],
-                perfectAnswer: String(parsed.perfectAnswer ?? ""),
-              };
-            },
-            { temperature: 0.2 }
-          );
-          graded = result;
+        // Static provider: find quiz bank question and grade locally
+        if (isStatic && quizBank) {
+          const bankQ = quizBank.find((q) => q.question === question.question);
+          if (bankQ) {
+            graded = gradeStaticQuestion(bankQ, userAnswer);
+          } else {
+            graded = gradeLocalAnswer(question, userAnswer);
+          }
         } else {
-          graded = gradeLocalAnswer(question, userAnswer);
+          const needsAI = !question.correctAnswer ||
+            (question.format !== "mcq" &&
+              question.format !== "true_false" &&
+              question.format !== "fill_blank");
+
+          if (needsAI) {
+            const { system, user } = quizGradingPrompt(question.question, userAnswer, question.difficulty);
+            const result = await ai.generateStructured(
+              user,
+              system,
+              (text) => {
+                const parsed = JSON.parse(extractJSON(text)) as Record<string, unknown>;
+                return {
+                  score: Math.min(10, Math.max(0, Number(parsed.score))),
+                  feedback: String(parsed.feedback ?? ""),
+                  missed: Array.isArray(parsed.missed) ? (parsed.missed as unknown[]).map(String) : [],
+                  perfectAnswer: String(parsed.perfectAnswer ?? ""),
+                };
+              },
+              { temperature: 0.2 }
+            );
+            graded = result;
+          } else {
+            graded = gradeLocalAnswer(question, userAnswer);
+          }
         }
 
         const answered: AnsweredQuestion = { ...question, userAnswer, ...graded };
@@ -433,7 +514,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setPhase("adaptive_answering");
       }
     },
-    [ai, adaptiveAnswers, consecutiveLow, currentLevel]
+    [ai, adaptiveAnswers, consecutiveLow, currentLevel, isStatic, quizBank]
   );
 
   // ── FIX 5: Skip question ─────────────────────────────────────────────────────
