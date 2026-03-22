@@ -242,8 +242,28 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
       ? 6
       : 3;
 
+  // For code-centric formats, extract and show a syntax-highlighted code viewer
+  const isCodeFormat =
+    question.format === "code_review" || question.format === "predict_output";
+  const codeSnippet = isCodeFormat ? extractCodeBlock(question.question) : null;
+
   return (
     <div className="flex flex-col gap-3">
+      {/* ── Code snippet viewer (for code_review & predict_output) ─────────── */}
+      {codeSnippet && (
+        <CodeViewer
+          code={codeSnippet.code}
+          language={
+            codeSnippet.lang === "typescript" || codeSnippet.lang === "ts"
+              ? "typescript"
+              : codeSnippet.lang === "python" || codeSnippet.lang === "py"
+              ? "python"
+              : "javascript"
+          }
+          height={180}
+          className="mb-1"
+        />
+      )}
       <textarea
         value={selected}
         onChange={(e) => setSelected(e.target.value)}
