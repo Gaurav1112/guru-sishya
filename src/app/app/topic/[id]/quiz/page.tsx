@@ -13,7 +13,7 @@ export default function QuizPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const topic = useLiveQuery(() => db.topics.get(Number(id)), [id]);
+  const topic = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
   const apiKey = useStore((s) => s.apiKey);
   const aiProvider = useStore((s) => s.aiProvider);
   const hydrated = useHydrated();
@@ -34,6 +34,14 @@ export default function QuizPage({
           Settings
         </a>{" "}
         first.
+      </div>
+    );
+  }
+
+  if (topic === undefined) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }

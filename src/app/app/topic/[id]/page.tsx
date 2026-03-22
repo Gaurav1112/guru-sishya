@@ -1,4 +1,5 @@
 "use client";
+import { Loader2 } from "lucide-react";
 import { use } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
@@ -16,7 +17,7 @@ const featureCards = [
 
 export default function TopicHubPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const topic = useLiveQuery(() => db.topics.get(Number(id)), [id]);
+  const topic = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
   if (!topic) return <div className="py-20 text-center text-muted-foreground">Topic not found</div>;
   return (
     <div>
