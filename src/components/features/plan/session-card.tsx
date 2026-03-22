@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Clock, Target, BookOpen, HelpCircle } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Clock, Target, BookOpen, HelpCircle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,9 +21,10 @@ interface SessionCardProps {
   completed: boolean;
   onComplete: () => void;
   isLoading?: boolean;
+  topicId: number;
 }
 
-export function SessionCard({ session, completed, onComplete, isLoading }: SessionCardProps) {
+export function SessionCard({ session, completed, onComplete, isLoading, topicId }: SessionCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   const totalMinutes = (session.activities ?? []).reduce(
@@ -85,6 +87,17 @@ export function SessionCard({ session, completed, onComplete, isLoading }: Sessi
               <span>{totalMinutes} min</span>
             </div>
           </div>
+
+          {/* Open full lesson link */}
+          <Link
+            href={`/app/topic/${topicId}/plan/session/${session.sessionNumber}`}
+            onClick={(e) => e.stopPropagation()}
+            className="shrink-0 flex items-center gap-1 rounded-md border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-medium text-saffron hover:bg-saffron/20 transition-colors"
+            aria-label="Open full lesson"
+          >
+            <ExternalLink className="size-3" />
+            Open
+          </Link>
 
           {/* Expand toggle */}
           <button

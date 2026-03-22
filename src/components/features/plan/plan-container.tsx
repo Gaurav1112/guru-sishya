@@ -308,6 +308,7 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
         onSessionComplete={handleSessionComplete}
         onRegenerate={handleRegenerate}
         completingSession={completingSession}
+        topicId={topicId}
       />
     );
   }

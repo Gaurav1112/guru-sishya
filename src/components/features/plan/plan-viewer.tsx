@@ -20,6 +20,7 @@ interface PlanViewerProps {
   onSessionComplete: (sessionNumber: number) => void;
   onRegenerate: () => void;
   completingSession?: number | null;
+  topicId: number;
 }
 
 export function PlanViewer({
@@ -28,6 +29,7 @@ export function PlanViewer({
   onSessionComplete,
   onRegenerate,
   completingSession,
+  topicId,
 }: PlanViewerProps) {
   const [skippedExpanded, setSkippedExpanded] = useState(false);
 
@@ -130,6 +132,7 @@ export function PlanViewer({
               completed={isCompleted(session.sessionNumber)}
               onComplete={() => onSessionComplete(session.sessionNumber)}
               isLoading={completingSession === session.sessionNumber}
+              topicId={topicId}
             />
             {/* Midpoint checkpoint banner between sessions 5 and 6 */}
             {session.sessionNumber === 5 && (
