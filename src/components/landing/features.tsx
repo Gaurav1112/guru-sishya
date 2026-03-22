@@ -12,11 +12,11 @@ const BORDER_COLORS = [
 ];
 
 const features = [
-  { title: "20-Hour Pareto Plan", description: "AI generates a focused plan targeting the 20% that drives 80% of results.", icon: "📋" },
+  { title: "20-Hour Pareto Plan", description: "A focused plan targeting the 20% that drives 80% of results. Ready instantly for 66 built-in topics.", icon: "📋" },
   { title: "Cheat Sheet Generator", description: "Visual 1-2 page summary with diagrams and code examples. Review in 5 minutes.", icon: "📄" },
-  { title: "Quiz Me Till I Break", description: "Adaptive AI quizzes that find your ceiling with real-time grading.", icon: "🧠" },
+  { title: "Quiz Me Till I Break", description: "Adaptive quizzes from a pre-built question bank that find your ceiling with instant grading.", icon: "🧠" },
   { title: "Learning Ladder", description: "5-level progression from Novice to Expert with clear milestones.", icon: "🪜" },
-  { title: "Resource Finder", description: "AI-curated list of the best books, courses, and videos.", icon: "🔍" },
+  { title: "Resource Finder", description: "Curated list of the best books, courses, and videos for each topic.", icon: "🔍" },
   { title: "Feynman Technique", description: "Interactive Socratic chat. Explain back until you truly understand.", icon: "💬" },
 ];
 
