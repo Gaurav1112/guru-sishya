@@ -18,7 +18,7 @@ interface SessionCardProps {
 export function SessionCard({ session, completed, onComplete, isLoading }: SessionCardProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const totalMinutes = session.activities.reduce(
+  const totalMinutes = (session.activities ?? []).reduce(
     (sum, a) => sum + a.durationMinutes,
     0
   );
@@ -99,7 +99,7 @@ export function SessionCard({ session, completed, onComplete, isLoading }: Sessi
       {expanded && (
         <CardContent className="pt-4 space-y-4">
           {/* Objectives */}
-          {session.objectives.length > 0 && (
+          {session.objectives?.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <Target className="size-3.5 text-saffron" />
@@ -119,7 +119,7 @@ export function SessionCard({ session, completed, onComplete, isLoading }: Sessi
           )}
 
           {/* Activities */}
-          {session.activities.length > 0 && (
+          {session.activities?.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <Clock className="size-3.5 text-teal" />
@@ -144,7 +144,7 @@ export function SessionCard({ session, completed, onComplete, isLoading }: Sessi
           )}
 
           {/* Resources */}
-          {session.resources.length > 0 && (
+          {session.resources?.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <BookOpen className="size-3.5 text-gold" />
@@ -177,7 +177,7 @@ export function SessionCard({ session, completed, onComplete, isLoading }: Sessi
           )}
 
           {/* Review Questions */}
-          {session.reviewQuestions.length > 0 && (
+          {session.reviewQuestions?.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <HelpCircle className="size-3.5 text-indigo" />
