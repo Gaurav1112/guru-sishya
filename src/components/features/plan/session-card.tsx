@@ -32,13 +32,13 @@ export function SessionCard({ session, completed, onComplete, isLoading }: Sessi
           : "border-border bg-surface hover:bg-surface-hover"
       )}
     >
-      {/* Header — always visible */}
-      <CardHeader className="pb-0">
+      {/* Header — click anywhere to expand/collapse */}
+      <CardHeader className="pb-0 cursor-pointer" onClick={() => setExpanded((v) => !v)}>
         <div className="flex items-start gap-3">
           {/* Completion toggle */}
           <button
             type="button"
-            onClick={onComplete}
+            onClick={(e) => { e.stopPropagation(); onComplete(); }}
             disabled={isLoading}
             className="mt-0.5 shrink-0 text-teal disabled:opacity-50"
             aria-label={completed ? "Mark incomplete" : "Mark complete"}
@@ -82,8 +82,8 @@ export function SessionCard({ session, completed, onComplete, isLoading }: Sessi
           {/* Expand toggle */}
           <button
             type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+            onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v); }}
+            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
             aria-label={expanded ? "Collapse session" : "Expand session"}
           >
             {expanded ? (
