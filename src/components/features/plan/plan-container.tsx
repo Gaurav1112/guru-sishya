@@ -78,10 +78,12 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
       // Parse stored JSON plan
       try {
         const stored = JSON.parse(existingPlan.sessions as unknown as string) as GeneratedPlan;
-        // Check if this cached plan has actual lesson content
+        // Check if cached plan is stale (missing content or fewer sessions than static)
         const hasContent = stored.sessions?.some((s) => (s as unknown as Record<string, unknown>).content);
-        if (!hasContent) {
-          // Old cached plan without lesson content — delete and reload from static
+        const sessionCount = stored.sessions?.length ?? 0;
+        // Refresh if: no lesson content OR suspiciously few sessions (static content may have more)
+        if (!hasContent || sessionCount < 10) {
+          // Old/incomplete cached plan — delete and reload from static
           db.planSessions.where("planId").equals(existingPlan.id!).delete();
           db.learningPlans.delete(existingPlan.id!);
           loadStaticPlan();
