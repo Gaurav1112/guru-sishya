@@ -13,7 +13,7 @@ const PROVIDER_CONFIG: Record<
   static: {
     label: "Built-in Content (No Setup)",
     placeholder: "",
-    helpText: "30 software development interview topics with full content. No API key needed.",
+    helpText: "66 pre-generated topics covering System Design, DS&Algo, and Core CS — with full content. No API key needed.",
     noKeyNeeded: true,
   },
   ollama: {

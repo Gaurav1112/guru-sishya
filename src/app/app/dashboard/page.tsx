@@ -188,7 +188,7 @@ export default function DashboardPage() {
   const apiKey = useStore((s) => s.apiKey);
   const aiProvider = useStore((s) => s.aiProvider);
 
-  if (!apiKey && aiProvider !== "ollama") {
+  if (!apiKey && aiProvider !== "ollama" && aiProvider !== "static") {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20">
         <h2 className="font-heading text-2xl font-bold">Welcome to Guru Sishya</h2>

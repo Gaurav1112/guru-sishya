@@ -27,7 +27,7 @@ export default function LadderPage({
     );
   }
 
-  if (!apiKey && aiProvider !== "ollama") {
+  if (!apiKey && aiProvider !== "ollama" && aiProvider !== "static") {
     return (
       <div className="py-20 text-center text-muted-foreground">
         Set your API key in{" "}

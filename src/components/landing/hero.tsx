@@ -13,8 +13,13 @@ export function Hero() {
         <p className="mb-3 text-sm font-medium tracking-[0.3em] text-saffron">GURU SISHYA</p>
         <h1 className="font-heading text-4xl font-bold leading-tight md:text-6xl bg-gradient-to-r from-saffron via-gold to-teal bg-clip-text text-transparent">Master Any Subject</h1>
         <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">Learn the critical 20% of any subject in 20 focused hours — not 200</p>
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <Link href="/app/dashboard"><Button size="lg" className="bg-saffron hover:bg-saffron/90">Start Learning</Button></Link>
+        <div className="mt-6 flex items-center justify-center gap-2 flex-wrap">
+          <span className="rounded-full border border-teal/40 bg-teal/10 px-3 py-1 text-sm font-medium text-teal">No setup required</span>
+          <span className="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-sm font-medium text-gold">66 topics ready instantly</span>
+          <span className="rounded-full border border-saffron/40 bg-saffron/10 px-3 py-1 text-sm font-medium text-saffron">No API key needed</span>
+        </div>
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <Link href="/app/dashboard"><Button size="lg" className="bg-saffron hover:bg-saffron/90">Start Learning — Free</Button></Link>
           <Link href="#features"><Button variant="outline" size="lg">See Features</Button></Link>
         </div>
         <p className="mt-6 text-xs text-muted-foreground/70">Built with Pareto Principle, Feynman Technique, Bloom&apos;s Taxonomy &amp; Spaced Repetition</p>

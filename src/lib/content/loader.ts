@@ -36,7 +36,8 @@ export interface TopicContent {
 
 const CONTENT_FILES = [
   "/content/ds-algo.json",
-  "/content/system-design.json",
+  "/content/system-design-fundamentals.json",
+  "/content/system-design-cases.json",
   "/content/core-cs.json",
 ];
 
