@@ -230,8 +230,10 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
     }
     initDone.current = false;
     setGeneratedPlan(null);
-    setStatus("diagnostic");
-  }, [existingPlan?.id]);
+    setStatus("loading");
+    // Try to reload from static content (which may have new lesson content)
+    loadStaticPlan();
+  }, [existingPlan?.id, loadStaticPlan]);
 
   // ── Build completions list ─────────────────────────────────────────────────
 
