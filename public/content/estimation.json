@@ -1,0 +1,699 @@
+[
+  {
+    "topic": "Back-of-Envelope Estimation",
+    "category": "System Design",
+    "cheatSheet": "# Back-of-Envelope Estimation Cheat Sheet\n\n## Why It Matters\nInterviewers use estimation questions to test whether you can reason about scale before designing systems. A candidate who jumps straight into architecture without estimating load, storage, and bandwidth is red-flagged immediately.\n\n## Power-of-Two Table\n| Power | Exact | Approx | Name |\n|-------|-------|--------|------|\n| 2^10 | 1,024 | 1 thousand | 1 KB |\n| 2^20 | 1,048,576 | 1 million | 1 MB |\n| 2^30 | 1,073,741,824 | 1 billion | 1 GB |\n| 2^40 | ~1.1 trillion | 1 trillion | 1 TB |\n| 2^50 | ~1.1 quadrillion | 1 quadrillion | 1 PB |\n\n## Latency Numbers\n| Operation | Latency |\n|-----------|--------|\n| L1 cache reference | 0.5 ns |\n| L2 cache reference | 7 ns |\n| Main memory reference | 100 ns |\n| Compress 1 KB (Snappy) | 3 μs |\n| Send 1 KB over 1 Gbps network | 10 μs |\n| SSD random read | 150 μs |\n| HDD seek | 10 ms |\n| Round trip within same datacenter | 0.5 ms |\n| Round trip CA to Netherlands | 150 ms |\n\n## Throughput Benchmarks\n- Web server (nginx): ~10,000 req/s per core\n- Database (PostgreSQL, simple query): ~5,000 QPS per instance\n- Cache (Redis): ~100,000 ops/s per instance\n- Message queue (Kafka): ~1,000,000 msg/s per broker\n\n## Core Formulas\n\n### QPS from DAU\n```\nDAU × actions_per_day / 86,400 = avg QPS\npeak QPS = avg QPS × 2–3  (rule of thumb)\n```\n\n### Storage\n```\ndaily_storage = QPS × 86,400 × bytes_per_record\ntotal_storage = daily_storage × retention_days\n```\n\n### Bandwidth\n```\nbandwidth = QPS × payload_size_bytes\n```\n\n### Server Count\n```\nservers = peak_QPS / throughput_per_server\n```\n\n## Common Sizes\n| Item | Size |\n|------|------|\n| ASCII char | 1 byte |\n| Unicode char | 2 bytes |\n| UUID | 16 bytes |\n| Timestamp | 8 bytes |\n| IP address | 4 bytes |\n| Tweet text | ~280 bytes |\n| Profile photo (compressed) | ~200 KB |\n| HD video (1 min) | ~50 MB |\n| 4K video (1 min) | ~375 MB |\n\n## Estimation Workflow\n1. Nail down DAU (Daily Active Users)\n2. Compute avg QPS, then peak QPS\n3. Estimate storage per record × volume × retention\n4. Compute bandwidth = QPS × payload\n5. Derive server count = peak QPS / throughput\n6. Size caches = working set × avg object size\n7. State all assumptions out loud",
+    "resources": [
+      {
+        "title": "System Design Interview – An Insider's Guide",
+        "author": "Alex Xu",
+        "category": "books",
+        "justification": "Chapter 2 is the definitive back-of-envelope reference used by most FAANG interviewers",
+        "bestFor": "Beginner",
+        "estimatedTime": "2 hours",
+        "cost": "~$30",
+        "confidence": "HIGH",
+        "url": "https://www.amazon.com/System-Design-Interview-insiders-Second/dp/B08CMF2CQF"
+      },
+      {
+        "title": "Numbers Every Programmer Should Know",
+        "author": "Colin Scott (Berkeley)",
+        "category": "interactive",
+        "justification": "Interactive latency reference updated with modern hardware numbers",
+        "bestFor": "Beginner",
+        "estimatedTime": "30 minutes",
+        "cost": "Free",
+        "confidence": "HIGH",
+        "url": "https://colin-scott.github.io/personal_website/research/interactive_latency.html"
+      },
+      {
+        "title": "Designing Data-Intensive Applications",
+        "author": "Martin Kleppmann",
+        "category": "books",
+        "justification": "Provides real-world throughput and storage numbers for databases, queues, and streams",
+        "bestFor": "Intermediate",
+        "estimatedTime": "20 hours",
+        "cost": "~$50",
+        "confidence": "HIGH",
+        "url": "https://dataintensive.net/"
+      },
+      {
+        "title": "High Scalability Blog",
+        "author": "Todd Hoff",
+        "category": "blogs",
+        "justification": "Real architecture teardowns with actual scale numbers from production systems",
+        "bestFor": "Intermediate",
+        "estimatedTime": "Ongoing",
+        "cost": "Free",
+        "confidence": "MEDIUM",
+        "url": "http://highscalability.com/"
+      },
+      {
+        "title": "ByteByteGo System Design Newsletter",
+        "author": "Alex Xu",
+        "category": "blogs",
+        "justification": "Weekly estimation worked examples with diagrams; directly mirrors interview style",
+        "bestFor": "Beginner",
+        "estimatedTime": "1 hour/week",
+        "cost": "Free tier available",
+        "confidence": "HIGH",
+        "url": "https://blog.bytebytego.com/"
+      }
+    ],
+    "ladder": {
+      "levels": [
+        {
+          "level": 1,
+          "name": "Novice",
+          "dreyfusLabel": "Novice",
+          "description": "Knows the power-of-two table and can convert between KB/MB/GB/TB. Can state the DAU-to-QPS formula.",
+          "observableSkills": [
+            "Recite powers of 2 from 2^10 to 2^40",
+            "Convert 1 million users × 10 req/day into avg QPS",
+            "State what DAU stands for and why it matters"
+          ],
+          "milestoneProject": {
+            "title": "Flashcard Drill",
+            "description": "Create 20 flashcards covering latency numbers, storage units, and throughput benchmarks. Quiz yourself to sub-3-second recall.",
+            "estimatedHours": 3
+          },
+          "commonPlateaus": [
+            "Memorising numbers without understanding what drives them",
+            "Forgetting to account for peak vs average traffic"
+          ],
+          "estimatedHours": 4,
+          "prerequisites": []
+        },
+        {
+          "level": 2,
+          "name": "Advanced Beginner",
+          "dreyfusLabel": "Advanced Beginner",
+          "description": "Can estimate QPS, storage, and bandwidth for a simple system from a DAU figure in under 5 minutes.",
+          "observableSkills": [
+            "Compute peak QPS from DAU and request rate",
+            "Estimate daily storage from record count and size",
+            "Derive bandwidth from QPS and payload",
+            "Identify which bottleneck (compute, storage, network) dominates"
+          ],
+          "milestoneProject": {
+            "title": "Instagram Estimation",
+            "description": "Given 500M DAU, estimate QPS, photo storage per day, and CDN bandwidth. Write up your assumptions and calculations.",
+            "estimatedHours": 2
+          },
+          "commonPlateaus": [
+            "Using average QPS in server sizing instead of peak",
+            "Forgetting replication factor in storage estimates"
+          ],
+          "estimatedHours": 6,
+          "prerequisites": ["Novice"]
+        },
+        {
+          "level": 3,
+          "name": "Competent",
+          "dreyfusLabel": "Competent",
+          "description": "Produces full estimates (QPS, storage, bandwidth, servers, cache) for Twitter-scale systems with correct assumptions stated aloud.",
+          "observableSkills": [
+            "Complete a full estimation in 5–8 minutes",
+            "Choose correct replication factor and storage overhead",
+            "Size a Redis cache given hit rate and working set",
+            "Justify every assumption with reasoning"
+          ],
+          "milestoneProject": {
+            "title": "Twitter Scale Estimate",
+            "description": "Estimate the full infrastructure for Twitter: QPS for reads/writes, tweet storage, media CDN bandwidth, timeline cache size, and server count.",
+            "estimatedHours": 4
+          },
+          "commonPlateaus": [
+            "Doing math correctly but failing to communicate assumptions",
+            "Ignoring index storage overhead in database sizing"
+          ],
+          "estimatedHours": 8,
+          "prerequisites": ["Advanced Beginner"]
+        },
+        {
+          "level": 4,
+          "name": "Proficient",
+          "dreyfusLabel": "Proficient",
+          "description": "Can estimate any system in the interview context, adapt when the interviewer changes constraints, and explain the sensitivity of each assumption.",
+          "observableSkills": [
+            "Adjust estimates on the fly when DAU or retention changes",
+            "Identify which assumption most affects the final number",
+            "Spot when a proposed design is physically impossible given the estimates",
+            "Propose load-testing strategies based on estimates"
+          ],
+          "milestoneProject": {
+            "title": "Estimation Sensitivity Analysis",
+            "description": "For Uber, estimate base case, then show how the answer changes if DAU doubles, average trip length increases 50%, and retention increases from 90 days to 3 years.",
+            "estimatedHours": 5
+          },
+          "commonPlateaus": [
+            "Not connecting estimates back to design decisions",
+            "Refusing to estimate without perfect information"
+          ],
+          "estimatedHours": 10,
+          "prerequisites": ["Competent"]
+        },
+        {
+          "level": 5,
+          "name": "Expert",
+          "dreyfusLabel": "Expert",
+          "description": "Estimation is automatic. Immediately sizes systems, catches inconsistencies in interviewer's premises, and uses estimates to drive architecture choices.",
+          "observableSkills": [
+            "Estimate a new system in under 3 minutes from scratch",
+            "Identify when design decisions are scale-inappropriate",
+            "Size multi-region deployments with cross-region replication overhead",
+            "Teach estimation methodology to others"
+          ],
+          "milestoneProject": {
+            "title": "YouTube Full Estimate",
+            "description": "Estimate storage, CDN bandwidth, transcoding compute, metadata DB size, and recommendation cache for YouTube at full scale. Document as a sharable reference.",
+            "estimatedHours": 6
+          },
+          "commonPlateaus": [
+            "Overcomplicating estimates with unnecessary precision",
+            "Failing to simplify for communication"
+          ],
+          "estimatedHours": 12,
+          "prerequisites": ["Proficient"]
+        }
+      ]
+    },
+    "plan": {
+      "overview": "Back-of-envelope estimation is the foundation of every system design interview. You will learn the numbers that every engineer carries in their head, the formulas that convert user activity into infrastructure requirements, and how to apply them to real systems. We start with raw benchmarks, build up to full worked examples, and finish with three complete practice estimates for Twitter, Uber, and YouTube.",
+      "skippedTopics": "We skip exact hardware benchmarks for specific cloud instance types (too volatile), cost estimation in dollars (varies by provider and contract), and formal capacity planning tools. We focus on the order-of-magnitude reasoning that interviewers actually test.",
+      "sessions": [
+        {
+          "sessionNumber": 1,
+          "title": "Numbers Every Engineer Should Know",
+          "paretoJustification": "Having these numbers memorised eliminates fumbling during the interview and makes all subsequent estimation instant.",
+          "objectives": [
+            "Memorise the power-of-two table from 2^10 to 2^50",
+            "Recall key latency numbers for L1 cache, RAM, SSD, HDD, and network",
+            "Know throughput benchmarks for web servers, databases, caches, and queues"
+          ],
+          "activities": [
+            { "description": "Study the latency cheat sheet and power-of-two table for 20 minutes", "durationMinutes": 20 },
+            { "description": "Create Anki flashcards for all 15 latency numbers and 5 throughput benchmarks", "durationMinutes": 30 },
+            { "description": "Do a timed self-quiz: write all numbers from memory in under 3 minutes", "durationMinutes": 10 }
+          ],
+          "reviewQuestions": [
+            "How much slower is a disk seek than a RAM access?",
+            "What is the approximate throughput of a Redis instance?",
+            "What does 2^30 equal in human-readable form?"
+          ],
+          "successCriteria": "Can recite all key latency and throughput numbers from memory without hesitation.",
+          "content": "## Numbers Every Engineer Should Know\n\nThe best system designers carry a mental lookup table of benchmark numbers. These are not trivia — they are the constants that let you convert any scale question into a concrete answer in seconds.\n\n### Why Numbers Matter\n\nWhen an interviewer asks \"how many servers do you need?\", you cannot answer without knowing roughly how many requests a server can handle. When they ask \"will this fit in memory?\", you need to know how big a terabyte is. These numbers are the vocabulary of system design.\n\n### The Power-of-Two Table\n\nAll computer storage is measured in powers of 2. Memorise these:\n\n```\n2^10  =  1,024           ≈  1 thousand   (Kilo)\n2^20  =  1,048,576       ≈  1 million    (Mega)\n2^30  =  1,073,741,824   ≈  1 billion    (Giga)\n2^40  ≈  1.1 trillion               (Tera)\n2^50  ≈  1.1 quadrillion            (Peta)\n```\n\nThe trick: each step up multiplies by roughly 1,000. So 1 TB is roughly 1,000 GB, which is roughly 1,000,000 MB.\n\n### Latency Numbers\n\nThese numbers come from Jeff Dean's famous talk at Google (2012), updated for modern hardware:\n\n| Operation | Latency | Mental model |\n|-----------|---------|-------------|\n| L1 cache hit | 0.5 ns | Blink of an eye |\n| L2 cache hit | 7 ns | 14× slower than L1 |\n| RAM read | 100 ns | 200× slower than L1 |\n| SSD random read | 150 μs | 1,000× slower than RAM |\n| HDD seek | 10 ms | 100,000× slower than RAM |\n| Same-DC network | 0.5 ms | 5,000× slower than RAM |\n| Cross-continent | 150 ms | Unavoidable speed-of-light delay |\n\n**Key insight**: avoid disk I/O in the hot path. A single HDD seek is 100,000× slower than a RAM read. This is why caching exists.\n\n### Throughput Benchmarks\n\nThese are rough orders of magnitude for a single well-tuned instance:\n\n| System | Throughput |\n|--------|------------|\n| Nginx (web server) | ~10,000 req/s per core |\n| PostgreSQL (simple read) | ~5,000 QPS |\n| MySQL (simple read) | ~5,000–10,000 QPS |\n| Redis (in-memory cache) | ~100,000 ops/s |\n| Kafka (message broker) | ~1,000,000 msg/s per broker |\n| Cassandra (wide-column) | ~10,000–50,000 ops/s |\n\n**Key insight**: caches are 20× faster than databases. If your read QPS exceeds 5,000, you need a cache layer.\n\n### Common Object Sizes\n\nKnowing typical sizes lets you estimate storage instantly:\n\n| Object | Size |\n|--------|------|\n| ASCII character | 1 byte |\n| UUID | 16 bytes |\n| Timestamp | 8 bytes |\n| Average tweet | 280 bytes |\n| Average user profile record | 1 KB |\n| Compressed thumbnail | 50 KB |\n| Profile photo | 200 KB |\n| 1 minute of 720p video | ~20 MB |\n| 1 minute of 1080p video | ~50 MB |\n| 1 minute of 4K video | ~375 MB |\n\n### How to Use These in an Interview\n\nWhen you encounter an estimation problem:\n1. Write the relevant benchmarks in the corner of your whiteboard or doc\n2. Use them as constants in your formulas\n3. State them out loud: \"I'm assuming a web server handles about 10,000 req/s\"\n\nThis signals that you know the numbers and that you're being transparent about your assumptions — both of which interviewers reward.\n\n### Common Mistake\n\nDo not confuse MB/s (megabytes per second) with Mbps (megabits per second). Network bandwidth is usually quoted in bits; storage throughput in bytes. 1 Gbps network = 125 MB/s. Always check your units.\n\n### Quick Drill\n\nCover the right column and try to fill in each number from memory:\n- L1 cache: ___\n- RAM read: ___\n- SSD read: ___\n- Redis throughput: ___\n- PostgreSQL throughput: ___\n\nRepeat until instant recall.",
+          "keyTakeaways": [
+            "Power-of-two table: 10=K, 20=M, 30=G, 40=T, 50=P",
+            "Disk is 100,000× slower than RAM — always cache",
+            "Redis handles 20× more ops/s than PostgreSQL",
+            "Know object sizes: tweet=280B, photo=200KB, 1min 1080p=50MB"
+          ]
+        },
+        {
+          "sessionNumber": 2,
+          "title": "QPS Estimation",
+          "paretoJustification": "QPS is the master variable — it drives server count, cache sizing, and bandwidth. Every estimation starts here.",
+          "objectives": [
+            "Convert DAU and actions-per-day into average QPS",
+            "Apply the peak multiplier to get worst-case QPS",
+            "Separate read QPS from write QPS using the read/write ratio"
+          ],
+          "activities": [
+            { "description": "Derive the DAU-to-QPS formula from first principles", "durationMinutes": 15 },
+            { "description": "Practice 5 QPS estimation problems with different DAU and action rates", "durationMinutes": 40 },
+            { "description": "Estimate QPS for a messaging app: 100M DAU, 50 messages/day average", "durationMinutes": 15 }
+          ],
+          "reviewQuestions": [
+            "WhatsApp has 2 billion DAU and users send an average of 30 messages per day. What is the average message write QPS?",
+            "If average QPS is 58,000, what is a safe peak QPS to design for?",
+            "A system has a 10:1 read-to-write ratio and 50,000 total QPS. How many reads per second?"
+          ],
+          "successCriteria": "Can convert any DAU + action rate into peak read and write QPS in under 60 seconds.",
+          "content": "## QPS Estimation: From Users to Requests\n\nQPS (Queries Per Second) is the heartbeat of your system. Every design decision — number of servers, cache size, database replication — flows from this number. Getting it right is the most important estimation skill.\n\n### The Core Formula\n\n```\nAverage QPS = DAU × actions_per_day / seconds_per_day\n\nseconds_per_day = 24 × 3600 = 86,400  (≈ 100,000 for easy math)\n```\n\nPeak QPS = Average QPS × peak_factor\n\nFor most consumer apps, the peak factor is **2–3×** (traffic spikes during evening hours). For event-driven systems (concert ticket sales, product launches), it can be **10–20×**.\n\n### Worked Example: Twitter\n\n**Given**:\n- 300 million DAU\n- Average user reads timeline 10 times/day\n- Average user posts 1 tweet/day\n- Read/write ratio: 10:1\n\n**Step 1 — Write QPS**:\n```\nwrite_avg = 300M × 1 / 86,400\n          = 300,000,000 / 86,400\n          ≈ 3,500 writes/sec\n\nwrite_peak = 3,500 × 3 ≈ 10,000 writes/sec\n```\n\n**Step 2 — Read QPS**:\n```\nread_avg = 300M × 10 / 86,400\n         ≈ 35,000 reads/sec\n\nread_peak = 35,000 × 3 ≈ 100,000 reads/sec\n```\n\nNow you know: the system must handle ~100K read QPS and ~10K write QPS at peak. These numbers immediately tell you that you need caching (Redis can handle 100K ops/s on one node) and that writes need a separate, smaller write path.\n\n### The 86,400 Trick\n\nPure calculation: 24 × 60 × 60 = 86,400. For rough estimates, round to **100,000** to make division easier. This introduces only a 15% error, which is fine for back-of-envelope work.\n\n**Example**: 100 million daily actions / 100,000 seconds ≈ 1,000 QPS. (Exact: 1,157 QPS. Close enough.)\n\n### Read vs Write Split\n\nMost systems are read-heavy. Common ratios:\n\n| System | Read:Write ratio |\n|--------|------------------|\n| Social feed | 100:1 |\n| E-commerce product page | 50:1 |\n| Messaging app | 2:1 |\n| Logging / analytics | 1:10 (write-heavy) |\n| Stock ticker | 1000:1 |\n\nAlways ask: \"Is this a read-heavy or write-heavy system?\" It determines whether you optimise for read replicas or write throughput.\n\n### The Seasonal Spike Problem\n\nPeak QPS is not always evening traffic. Consider:\n- **Black Friday** for e-commerce: 10–20× baseline\n- **Match day** for sports apps: 50× during the final whistle\n- **New Year's midnight** for messaging apps: 100× for a 5-minute window\n\nFor systems with hard spikes, design for the spike and use auto-scaling to handle periods in between.\n\n### Interview Dialogue Example\n\n> Interviewer: \"Let's say the app has 50 million DAU. How do you handle the load?\"\n>\n> You: \"Let me estimate QPS first. If each user makes about 20 requests per day — browsing, searching, loading profiles — that's 50 million × 20 / 86,400, which is roughly 1 billion / 86,400, so about 11,500 requests per second on average. At peak, I'd assume 2 to 3× that, so around 25,000 to 35,000 QPS. That's too high for a single web server, so we'd need a load balancer distributing across at least 4–5 application servers.\"\n\nThis kind of structured, quantified reasoning is exactly what interviewers reward.\n\n### Common Mistakes\n\n1. **Using average instead of peak for server sizing.** Servers must handle peak load, not average.\n2. **Forgetting read/write split.** Databases handle reads and writes differently; mixing them gives wrong server counts.\n3. **Ignoring burst traffic.** Design for the worst day, not the typical day.",
+          "keyTakeaways": [
+            "Avg QPS = DAU × actions/day / 86,400",
+            "Peak QPS = Avg QPS × 2–3 (use 3 for safety)",
+            "Always split reads from writes — most systems are read-heavy",
+            "Size for peak, not average"
+          ]
+        },
+        {
+          "sessionNumber": 3,
+          "title": "Storage Estimation",
+          "paretoJustification": "Storage costs money and determines database architecture. Interviewers always ask how much data the system stores.",
+          "objectives": [
+            "Calculate daily storage from write QPS and record size",
+            "Apply replication factor and storage overhead multipliers",
+            "Estimate total storage over a retention period"
+          ],
+          "activities": [
+            { "description": "Derive storage formula from write QPS and record size", "durationMinutes": 20 },
+            { "description": "Estimate storage for a URL shortener: 100M URLs at 500 bytes each, 5-year retention", "durationMinutes": 20 },
+            { "description": "Add replication and index overhead to the URL shortener estimate", "durationMinutes": 20 }
+          ],
+          "reviewQuestions": [
+            "If write QPS is 1,000 and each record is 1 KB, how much storage is needed per day?",
+            "What multiplier do you apply for a 3-way replicated database?",
+            "A system stores 500 bytes per event at 10,000 events/sec. How much storage per year?"
+          ],
+          "successCriteria": "Can estimate total storage with replication and overhead for any system in under 3 minutes.",
+          "content": "## Storage Estimation\n\nStorage estimation answers: \"How many hard drives do we need, and how fast do we fill them up?\" Get this wrong and you either over-provision (waste money) or under-provision (lose data).\n\n### The Core Formula\n\n```\ndaily_bytes = write_QPS × 86,400 × bytes_per_record\ntotal_bytes = daily_bytes × retention_days × replication_factor × overhead_factor\n```\n\n**Overhead factor**: databases add indexes, WAL logs, and fragmentation. Use **1.5×** as a baseline.\n**Replication factor**: most production databases use 3 replicas for durability.\n\n### Worked Example: Twitter Tweets\n\n**Given**:\n- 300M DAU × 1 tweet/day = 300M tweets/day\n- Tweet metadata: ~500 bytes (id, user_id, text, timestamp, location)\n- Retention: 5 years = 1,825 days\n- Replication: 3×\n- Overhead: 1.5×\n\n**Step 1 — Raw daily storage**:\n```\nwrite_QPS = 300M / 86,400 ≈ 3,500 writes/sec\ndaily_bytes = 3,500 × 86,400 × 500 bytes\n           = 3,500 × 86,400 × 500\n           ≈ 151 GB/day\n```\n\n**Step 2 — Total with multipliers**:\n```\ntotal = 151 GB × 1,825 days × 3 (replication) × 1.5 (overhead)\n      = 151 × 1,825 × 4.5\n      ≈ 1,238,737 GB\n      ≈ 1.2 PB\n```\n\nThat's just for tweet text metadata. Media (photos, videos) is separate and 100–1,000× larger.\n\n### Media Storage is Different\n\nFor user-generated media, you don't use the write QPS formula directly. Instead:\n\n```\ndaily_media = uploads_per_day × avg_size_per_upload\n```\n\nFor Twitter (rough numbers):\n- 100M media tweets/day (1 in 3 tweets has media)\n- Average compressed photo: 200 KB\n\n```\ndaily_media = 100M × 200 KB = 20,000,000,000 KB = 20 TB/day\ntotal_media (5 years) = 20 TB × 1,825 ≈ 36.5 PB\n```\n\nThis is why Twitter uses object storage (like S3), not a relational database, for media.\n\n### The Replication Factor Deep Dive\n\nWhy 3 replicas?\n- 1 primary + 2 secondaries = can lose 2 nodes and still recover\n- Industry standard for most distributed databases (Cassandra, Kafka, HDFS)\n- Some financial systems use 5 replicas\n\nFor cache (Redis), replication is usually 1 primary + 1 replica (2×). For object storage (S3), AWS handles durability internally with 11 nines — you don't add a multiplier.\n\n### Estimating Index Size\n\nIndexes can be 20–50% of the raw data size. For a table with 5 indexes on a 100 GB dataset:\n```\nindex_size ≈ 100 GB × 5 × 0.1 = 50 GB\ntotal_db_size = 100 GB + 50 GB = 150 GB\n```\n\nThis is why we use the 1.5× overhead factor as a minimum.\n\n### Storage Tiers\n\nNot all data needs to live on fast SSDs:\n\n| Tier | Storage Type | Cost | Latency | Use case |\n|------|-------------|------|---------|----------|\n| Hot | NVMe SSD | High | <1 ms | Last 30 days of activity |\n| Warm | SAS SSD | Medium | 1–5 ms | Last 1 year |\n| Cold | HDD / Object | Low | Seconds | Archives, compliance |\n\nMentioning tiered storage in an interview signals production awareness.\n\n### Interview Dialogue Example\n\n> Interviewer: \"How much storage does this system need?\"\n>\n> You: \"I'll estimate write volume first. We said 500K new records per day, each about 1 KB. That's 500 GB per day raw. With 3-way replication and 1.5× overhead for indexes and WAL, we need about 2.25 TB per day. Over 3 years that's around 2.5 PB. We'd want to use tiered storage — hot data on SSD for recent 90 days, then move to cheaper object storage.\"\n\n### Common Mistakes\n\n1. **Forgetting replication**. Raw storage × 3 is the real number.\n2. **Ignoring indexes**. A heavily-indexed table can double in size.\n3. **Treating all data the same**. Hot/warm/cold tiering is expected knowledge.",
+          "keyTakeaways": [
+            "daily_bytes = write_QPS × 86,400 × record_size",
+            "Multiply by replication_factor (usually 3) and overhead (1.5×)",
+            "Media storage is separate: uploads/day × avg_size",
+            "Mention tiered storage (hot/warm/cold) to signal production awareness"
+          ]
+        },
+        {
+          "sessionNumber": 4,
+          "title": "Bandwidth Estimation",
+          "paretoJustification": "Bandwidth determines network costs, CDN strategy, and whether the design is physically feasible.",
+          "objectives": [
+            "Calculate ingress and egress bandwidth from QPS and payload size",
+            "Distinguish internal bandwidth from public egress",
+            "Identify when CDN is required based on bandwidth numbers"
+          ],
+          "activities": [
+            { "description": "Derive bandwidth formula and practice unit conversion (Bps vs bps)", "durationMinutes": 20 },
+            { "description": "Estimate bandwidth for a photo-sharing app: 1M uploads/day and 100M views/day", "durationMinutes": 30 },
+            { "description": "Calculate CDN cost savings by estimating bandwidth reduction from edge caching", "durationMinutes": 20 }
+          ],
+          "reviewQuestions": [
+            "If read QPS is 50,000 and average response is 2 KB, what is egress bandwidth?",
+            "When does a system's bandwidth exceed a single 10 Gbps network card?",
+            "Why is egress bandwidth usually the bottleneck rather than ingress?"
+          ],
+          "successCriteria": "Can calculate ingress and egress bandwidth for any system and identify CDN necessity.",
+          "content": "## Bandwidth Estimation\n\nBandwidth is the pipe your system's data flows through. Insufficient bandwidth means slow responses, timeouts, and unhappy users. Excess bandwidth is expensive. Estimation lets you size it correctly.\n\n### The Core Formula\n\n```\nbandwidth_bytes_per_sec = QPS × avg_payload_size_bytes\n\nTo convert to bits (for network engineers):\nbandwidth_bps = bandwidth_bytes_per_sec × 8\n```\n\n**Ingress**: data flowing INTO your system (uploads, API writes)\n**Egress**: data flowing OUT of your system (reads, downloads, API responses)\n\nEgress is almost always larger and more expensive.\n\n### Worked Example: YouTube\n\n**Given**:\n- 500 hours of video uploaded every minute\n- 1 billion views per day\n- Average video watch: 7 minutes\n- Average bitrate for 1080p: 4 Mbps (0.5 MB/s)\n\n**Ingress (uploads)**:\n```\nuploaded_per_min = 500 hours = 30,000 minutes of video\ningress_bps = 30,000 min × 60 sec × 4 Mbps / 60 sec\n           = 30,000 × 4 Mbps = 120,000 Mbps = 120 Gbps\n```\n\n**Egress (views)**:\n```\nview_QPS = 1B / 86,400 ≈ 11,600 concurrent streams\navg_stream_rate = 4 Mbps = 0.5 MB/s\negress_bytes_per_sec = 11,600 × 0.5 MB/s = 5,800 MB/s = 5.8 GB/s = 46 Gbps\n```\n\nAt 46 Gbps of egress, a single 10 Gbps network card is insufficient. This is why YouTube has thousands of edge PoPs (Points of Presence) globally via its CDN.\n\n### CDN Decision Rule\n\nIf egress bandwidth exceeds **1 Gbps** for static or cacheable content, a CDN is necessary:\n\n```mermaid\ngraph TD\n    Q[Egress > 1 Gbps?] -->|Yes| A[Use CDN]\n    Q -->|No| B[Origin servers sufficient]\n    A --> C[Is content static/cacheable?]\n    C -->|Yes| D[High CDN cache ratio, 90%+ origin offload]\n    C -->|No| E[CDN still helps with proximity, but lower hit rate]\n```\n\nWith a 90% CDN cache hit rate:\n```\noriginal_egress = 46 Gbps\norigin_egress  = 46 Gbps × (1 - 0.90) = 4.6 Gbps\n```\n\nThe CDN absorbs 90% of the traffic. Your origin servers only handle 4.6 Gbps instead of 46 Gbps.\n\n### Internal vs External Bandwidth\n\nInternal bandwidth (server-to-server within a datacenter) is cheap and fast — typically 10–100 Gbps links. External bandwidth (egress to users) is expensive — cloud providers charge $0.08–0.15 per GB out.\n\nFor a system sending 46 Gbps externally:\n```\ndaily_egress_bytes = 46 GB/s × 86,400 s ≈ 3,974,400 GB ≈ 3.9 PB/day\ncost_without_CDN = 3.9 PB × $0.08/GB ≈ $312,000/day\n```\n\nThis is why YouTube's CDN strategy is worth billions in savings.\n\n### Interview Dialogue Example\n\n> Interviewer: \"We expect 10 million daily active users streaming HD content. What does that mean for bandwidth?\"\n>\n> You: \"Let me estimate egress. At 10 million DAU watching an average of 30 minutes a day, we have about 10M × 0.5 hours / 24 hours ≈ 208,000 concurrent streams at any moment. For 1080p at 4 Mbps each, that's 208,000 × 4 Mbps ≈ 832 Gbps of egress. That's clearly CDN territory. With a 95% cache hit rate we'd push only about 42 Gbps to origin servers.\"\n\n### Common Mistakes\n\n1. **Mixing bytes and bits**. Bandwidth benchmarks use bits (Gbps). Storage uses bytes (GB). Multiply by 8 to convert.\n2. **Ignoring CDN**. No interviewer expects you to serve video at that scale directly from origin.\n3. **Using average instead of peak**. CDN capacity must handle peak egress, not daily average.",
+          "keyTakeaways": [
+            "bandwidth = QPS × payload_size_bytes",
+            "Multiply by 8 to convert bytes/sec to bps",
+            "If egress > 1 Gbps for cacheable content, use a CDN",
+            "CDN with 90% hit rate cuts origin egress to 10% of total"
+          ]
+        },
+        {
+          "sessionNumber": 5,
+          "title": "Server Count Estimation",
+          "paretoJustification": "Server count translates abstract QPS into concrete infrastructure and shows interviewers you understand capacity planning.",
+          "objectives": [
+            "Calculate server count from peak QPS and throughput-per-server",
+            "Account for redundancy and headroom in server sizing",
+            "Distinguish web/app servers from database servers"
+          ],
+          "activities": [
+            { "description": "Derive server count formula and practice with 3 examples", "durationMinutes": 25 },
+            { "description": "Estimate web server, database server, and cache server counts for a given QPS", "durationMinutes": 30 },
+            { "description": "Add redundancy and headroom to get final production server count", "durationMinutes": 15 }
+          ],
+          "reviewQuestions": [
+            "Peak QPS is 50,000 and each app server handles 2,000 req/s. How many app servers do you need (with 30% headroom)?",
+            "Why do you always round up server counts?",
+            "Should web servers or database servers cost more per unit? Why?"
+          ],
+          "successCriteria": "Can size a three-tier stack (web, app, DB) from peak QPS with appropriate redundancy.",
+          "content": "## Server Count Estimation\n\nKnowing the QPS is only half the battle. You need to translate it into a concrete server count. This is what the interviewer is really asking when they say \"how would you scale this?\"\n\n### The Core Formula\n\n```\nmin_servers = ceil(peak_QPS / throughput_per_server)\n\nproduction_servers = min_servers × (1 + headroom_factor)\n```\n\nUse **30% headroom** as a minimum. This covers traffic spikes, rolling deployments (you need capacity to restart servers), and gradual growth.\n\n### Throughput per Server (Reference)\n\n| Server Type | Throughput | Notes |\n|-------------|-----------|-------|\n| Nginx (web) | 10,000 req/s | Static content, reverse proxy |\n| Node.js (app) | 1,000–3,000 req/s | Depends on CPU-bound work |\n| Java/Go (app) | 2,000–5,000 req/s | With connection pooling |\n| PostgreSQL | 5,000 QPS | Simple reads, single instance |\n| MySQL | 5,000–10,000 QPS | With proper indexing |\n| Cassandra node | 10,000–50,000 ops/s | Wide-column, write-optimised |\n| Redis | 100,000 ops/s | In-memory |\n\n### Worked Example: E-commerce Platform\n\n**Given**: Peak QPS = 30,000 (reads + writes)\n\n**Step 1 — Web/App Servers**:\n```\nAssume app server handles 2,000 req/s (complex business logic)\nmin_servers = ceil(30,000 / 2,000) = 15 servers\nproduction  = 15 × 1.3 = 19.5 → 20 servers\n```\n\n**Step 2 — Database Servers**:\n```\nRead QPS  = 30,000 × 0.9 = 27,000 (90% reads)\nWrite QPS = 30,000 × 0.1 = 3,000  (10% writes)\n\nPrimary DB handles writes: ceil(3,000 / 5,000) = 1 primary\nRead replicas for reads: ceil(27,000 / 5,000) = 6 replicas\nTotal DB servers = 1 primary + 6 replicas = 7\n```\n\n**Step 3 — Cache Servers (Redis)**:\n```\nCache QPS = 27,000 (all reads go through cache)\nRedis handles 100,000 ops/s per node\nmin_cache = ceil(27,000 / 100,000) = 1 node\nProduction = 1 × 1.3 → 2 nodes (for HA)\n```\n\n**Final Answer**:\n- 20 app servers\n- 7 database servers (1 primary, 6 read replicas)\n- 2 Redis cache nodes\n\n### Architecture Diagram\n\n```mermaid\ngraph LR\n    LB[Load Balancer] --> AS1[App Server 1]\n    LB --> AS2[App Server 2]\n    LB --> ASN[... 20 total]\n    AS1 --> Cache[Redis Cache x2]\n    AS1 --> DBP[DB Primary]\n    AS1 --> DBR1[DB Replica 1]\n    AS1 --> DBR2[... 6 replicas]\n```\n\n### Redundancy Rules of Thumb\n\n- **N+1 redundancy**: minimum for stateless services (lose 1 server, still functional)\n- **Active-active**: for stateless web/app servers (all serve traffic simultaneously)\n- **Active-passive**: for databases (one primary, replicas take over on failure)\n- **Multi-AZ**: always deploy across ≥2 availability zones for HA\n\n### Interview Dialogue Example\n\n> Interviewer: \"With 100K QPS, how many servers?\"\n>\n> You: \"Breaking it down by tier: for app servers, assuming each handles 2,500 req/s with typical business logic, I need ceil(100,000/2,500) = 40 servers plus 30% headroom = 52 servers. For databases, if it's 80% reads at 80,000 read QPS, I need ceil(80,000/5,000) = 16 read replicas plus 1 primary. For the cache layer, 1 Redis node handles 100K ops/s, so 2 nodes for HA. Total: roughly 55 app servers, 17 database servers, 2 cache nodes.\"\n\n### Common Mistakes\n\n1. **No headroom**. Servers at 100% utilisation cannot handle any spike.\n2. **Single database server**. Always plan for replicas and failover.\n3. **Ignoring different tiers**. Web, app, and database servers have very different throughputs.",
+          "keyTakeaways": [
+            "servers = ceil(peak_QPS / throughput_per_server) × 1.3",
+            "App server: ~2,000 req/s; PostgreSQL: ~5,000 QPS; Redis: 100K ops/s",
+            "Separate read from write database servers (replicas vs primary)",
+            "Always size for peak + 30% headroom"
+          ]
+        },
+        {
+          "sessionNumber": 6,
+          "title": "Database Sizing",
+          "paretoJustification": "Database sizing is the most-asked storage sub-problem. Getting it wrong leads to the wrong database choice.",
+          "objectives": [
+            "Estimate row count and table size for the system's key entities",
+            "Account for index size, WAL overhead, and replication",
+            "Use size estimates to justify SQL vs NoSQL choice"
+          ],
+          "activities": [
+            { "description": "Size a users table: 500M users × 1 KB per row, with 3 indexes", "durationMinutes": 25 },
+            { "description": "Size a social graph: 500M users × avg 500 connections, edge table", "durationMinutes": 25 },
+            { "description": "Justify a database technology choice based on size and QPS estimates", "durationMinutes": 20 }
+          ],
+          "reviewQuestions": [
+            "A table has 10 billion rows, each 200 bytes, with 4 indexes at 10% each. What is total DB size?",
+            "At what row count does a single PostgreSQL instance start struggling?",
+            "If the graph has 500M users with avg 1,000 connections, how many rows in the edge table?"
+          ],
+          "successCriteria": "Can estimate database table sizes and use them to justify a database technology choice.",
+          "content": "## Database Sizing\n\nDatabase sizing answers two questions: \"How much disk do we need?\" and \"Will this database technology physically handle our scale?\" These numbers should drive your technology selection.\n\n### Row Count Estimation\n\n```\ntotal_rows = entity_count × avg_relationships_per_entity\n```\n\nFor a users table:\n```\nusers = 1 billion active users\nrow_count = 1,000,000,000 rows\n```\n\nFor a social graph (follow/friend edges):\n```\nusers = 1 billion\navg_connections = 200\nedge_rows = 1B × 200 = 200 billion rows\n```\n\n200 billion rows is not storable in a traditional RDBMS without sharding. This is why social graphs use purpose-built graph databases or wide-column stores.\n\n### Table Size Estimation\n\n```\nraw_data_size = row_count × bytes_per_row\nindex_size    = raw_data_size × num_indexes × index_ratio (typically 0.1–0.2)\ntotal_size    = (raw_data_size + index_size) × replication_factor\n```\n\n**Worked example — tweets table**:\n\n| Field | Size |\n|-------|------|\n| tweet_id (bigint) | 8 bytes |\n| user_id (bigint) | 8 bytes |\n| content (varchar 280) | 280 bytes |\n| created_at (timestamp) | 8 bytes |\n| metadata (JSON) | ~200 bytes |\n| **Total per row** | ~504 bytes ≈ 500 bytes |\n\n```\nrows_after_10_years = 3,500 writes/sec × 86,400 × 3,650 = 1.1 trillion rows\nraw_data  = 1.1T × 500 bytes = 550 TB\nindexes   = 550 TB × 3 indexes × 0.15 = 247 TB\ntotal_raw = 797 TB\ntotal_rep = 797 TB × 3 = 2.4 PB\n```\n\n### PostgreSQL vs Cassandra Decision\n\n```mermaid\ngraph TD\n    A[Row count?] --> B{< 10 billion?}\n    B -->|Yes| C[Single PostgreSQL shard viable]\n    B -->|No| D{Append-only writes?}\n    D -->|Yes| E[Cassandra or DynamoDB]\n    D -->|No| F{Complex queries?}\n    F -->|Yes| G[Sharded PostgreSQL]\n    F -->|No| H[Cassandra or HBase]\n    C --> I{QPS > 10K?}\n    I -->|Yes| J[Add read replicas]\n    I -->|No| K[Single node may suffice]\n```\n\n### When to Shard\n\nA single PostgreSQL instance handles:\n- Up to ~10 billion rows (with proper indexing)\n- Up to ~5,000–10,000 QPS\n- Up to ~10 TB of data on NVMe\n\nBeyond these limits, you must shard or switch to a distributed database.\n\n**Sharding key selection**:\n- **User ID sharding**: all data for one user on one shard (great for user-centric queries)\n- **Time-based sharding**: recent data on fast shards, old data on slow shards\n- **Hash sharding**: even distribution, but cross-shard queries are expensive\n\n### Index Size Reality Check\n\nFor a 100 GB table with 5 indexes:\n```\ntypical index size = 100 GB × 5 × 0.15 = 75 GB\ntotal_with_indexes = 175 GB\n```\n\nThis is why DBA's warn against over-indexing. Every index you add costs disk space and slows writes (the index must be updated on every INSERT/UPDATE).\n\n### Common Mistakes\n\n1. **Forgetting index size**. Real tables can be 2× the raw data size.\n2. **Not applying replication factor**. Triple the storage for 3-way replication.\n3. **Assuming SQL always works**. At 100 billion rows, traditional RDBMS requires heroic sharding effort.",
+          "keyTakeaways": [
+            "total_size = row_count × row_size × (1 + index_ratio) × replication_factor",
+            "PostgreSQL handles up to ~10B rows and ~10TB per instance comfortably",
+            "Beyond that, use Cassandra, DynamoDB, or sharded SQL",
+            "Every index costs ~15% of raw table size in extra disk"
+          ]
+        },
+        {
+          "sessionNumber": 7,
+          "title": "Cache Sizing",
+          "paretoJustification": "Cache sizing is asked in 80% of system design interviews because caching is the single biggest performance lever.",
+          "objectives": [
+            "Estimate working set size for a given access pattern",
+            "Calculate cache memory required given hit rate target",
+            "Apply the 80/20 rule to size a practical cache"
+          ],
+          "activities": [
+            { "description": "Derive working set and apply 80/20 rule to estimate cache size", "durationMinutes": 25 },
+            { "description": "Size Redis cache for a 100M user social app with 80% target hit rate", "durationMinutes": 25 },
+            { "description": "Calculate how many Redis nodes are needed based on memory and QPS", "durationMinutes": 20 }
+          ],
+          "reviewQuestions": [
+            "What is the working set in the context of caching?",
+            "If you want to cache 20% of daily reads (80/20 rule), and each object is 1 KB at 10M objects/day, how much RAM?",
+            "Your cache hit rate is 60% but you need 90%. What levers can you pull?"
+          ],
+          "successCriteria": "Can size a cache layer by working set, hit rate target, and object size for any system.",
+          "content": "## Cache Sizing\n\nThe cache is the most important performance component you can add. A well-sized cache can make a 5,000 QPS database handle 50,000 QPS. But too small a cache is almost useless, and too large wastes expensive RAM.\n\n### Key Concepts\n\n**Working set**: the fraction of data that receives the vast majority of requests. Per the Pareto principle (80/20 rule), 20% of the data receives 80% of the reads. Cache that 20% and you satisfy 80% of requests from memory.\n\n**Cache hit rate**: percentage of reads served from cache without hitting the database.\n- < 80%: cache is undersized or wrong keys are cached\n- 80–95%: good for most OLTP workloads\n- > 99%: required for extreme read amplification (social feeds, real-time leaderboards)\n\n**Eviction policy**: when the cache is full, which items to remove?\n- **LRU (Least Recently Used)**: remove the item not accessed longest — best general policy\n- **LFU (Least Frequently Used)**: remove the item accessed fewest times — better for skewed access\n- **TTL-based**: items expire after a fixed time — best for time-sensitive data\n\n### The Core Formula\n\n```\nworking_set_count = daily_unique_objects × 0.20  (80/20 rule)\ncache_memory     = working_set_count × avg_object_size_bytes\n```\n\nAdd 20% overhead for Redis metadata and fragmentation:\n```\ntotal_ram = cache_memory × 1.2\n```\n\n### Worked Example: Twitter Timeline Cache\n\n**Given**:\n- 300M DAU\n- Each user's timeline = ~100 tweet IDs (references, not full content)\n- Each tweet ID = 8 bytes\n- Active timeline = last 24 hours\n- Working set = 20% of DAU (60M users actively reading)\n\n**Cache size**:\n```\nworking_set_count = 60,000,000 users\nobject_size       = 100 tweet IDs × 8 bytes = 800 bytes per user timeline\ncache_memory      = 60M × 800 bytes = 48,000,000,000 bytes = 48 GB\ntotal_ram         = 48 GB × 1.2 = 57.6 GB\n```\n\nA single r6g.4xlarge Redis instance has 128 GB of RAM — sufficient. But for HA you'd run 2 nodes (primary + replica), totalling ~60 GB used out of 256 GB available.\n\n### Read/Write Through vs Cache-Aside\n\n```mermaid\ngraph LR\n    subgraph Cache-Aside\n        A1[App] -->|1 read| C1[Cache Miss]\n        C1 -->|2 read| DB1[Database]\n        DB1 -->|3 return| C1\n        C1 -->|4 store| Cache1[Cache]\n        Cache1 -->|5 return| A1\n    end\n```\n\nFor the interview:\n- **Cache-aside** (lazy loading): most common, application controls caching\n- **Write-through**: write to cache and DB simultaneously — stronger consistency\n- **Write-behind**: write to cache first, async flush to DB — highest write throughput\n\n### Cache Node Count\n\nAfter computing memory, determine nodes:\n\n```\nnodes_for_memory = ceil(total_ram / ram_per_node)\nnodes_for_qps    = ceil(peak_read_QPS / 100,000)  (Redis ops/s per node)\nnodes_needed     = max(nodes_for_memory, nodes_for_qps) × 2  (HA replication)\n```\n\n**Example**: 57.6 GB required, 128 GB per node → 1 node sufficient for memory. Peak QPS 100K → 1 node sufficient. With HA: 2 nodes (1 primary, 1 replica).\n\n### Common Mistakes\n\n1. **No working set analysis**. Caching everything is wasteful. Cache hot data only.\n2. **Forgetting TTL**. Stale cache data causes subtle bugs. Set appropriate TTLs.\n3. **Cache stampede**. When TTL expires, thousands of requests hit DB simultaneously. Use jitter on TTL or background refresh.\n4. **No eviction policy**. Without LRU, the cache fills with old data and hit rate collapses.",
+          "keyTakeaways": [
+            "Cache the hot 20% that serves 80% of reads (Pareto/working set)",
+            "cache_memory = working_set_count × object_size × 1.2",
+            "Redis: 100K ops/s per node, size per instance up to available RAM",
+            "Always set TTL and choose an eviction policy (LRU is the default)"
+          ]
+        },
+        {
+          "sessionNumber": 8,
+          "title": "Practice: Estimate for Twitter",
+          "paretoJustification": "Twitter is the canonical system design estimation problem. Mastering it gives you a reusable template for any social network.",
+          "objectives": [
+            "Complete a full end-to-end estimation for Twitter from scratch",
+            "Size QPS, storage, bandwidth, servers, and cache in one continuous flow",
+            "Identify the dominant bottleneck and propose how to address it"
+          ],
+          "activities": [
+            { "description": "Do the full Twitter estimation timed at 8 minutes, no notes", "durationMinutes": 10 },
+            { "description": "Compare your numbers to the reference solution and identify gaps", "durationMinutes": 20 },
+            { "description": "Identify the dominant bottleneck and write a 2-minute explanation of how to address it", "durationMinutes": 15 }
+          ],
+          "reviewQuestions": [
+            "What is the read-to-write ratio for Twitter and why does it matter architecturally?",
+            "Why is timeline generation (fan-out) the hardest scaling problem at Twitter?",
+            "If tweet media storage grows at 20 TB/day, what storage infrastructure would you recommend?"
+          ],
+          "successCriteria": "Can produce all Twitter estimates in under 10 minutes with correct orders of magnitude.",
+          "content": "## Practice Estimate: Twitter\n\nTwitter is the textbook system design estimation problem. Work through it methodically. The goal is not perfect accuracy — it's demonstrating structured thinking.\n\n### Given Assumptions (State These Out Loud)\n\n- 300 million DAU\n- Average user: reads timeline 10×/day, posts 1 tweet/day\n- 30% of tweets include media (photos/videos)\n- Average tweet text: 280 characters = ~300 bytes with metadata\n- Average media attachment: 500 KB (photos) or 10 MB (short videos)\n- Retention: 5 years\n- Read:Write ratio: 10:1\n\n### Step 1 — QPS\n\n```\nWrite QPS (tweets):\n  300M × 1 / 86,400 = 3,472 ≈ 3,500 writes/sec\n  Peak write QPS = 3,500 × 3 = 10,500 ≈ 10K/sec\n\nRead QPS (timeline):\n  300M × 10 / 86,400 = 34,722 ≈ 35,000 reads/sec\n  Peak read QPS = 35,000 × 3 = 105,000 ≈ 100K/sec\n```\n\n### Step 2 — Storage\n\n**Tweet metadata** (text + IDs):\n```\ndaily_text = 3,500 × 86,400 × 300 bytes = 90.7 GB/day ≈ 91 GB/day\n5yr_text   = 91 × 1,825 × 3 (replication) × 1.5 (overhead)\n           = 91 × 1,825 × 4.5 ≈ 748 TB ≈ 0.75 PB\n```\n\n**Media** (30% of tweets):\n```\nmedia_tweets/day = 3,500 × 0.30 × 86,400 = 90.7M media tweets/day\navg_media_size   = 0.7 × 500 KB + 0.3 × 10 MB = 350 KB + 3 MB = 3.35 MB\ndaily_media      = 90.7M × 3.35 MB ≈ 304,000 GB ≈ 304 TB/day\n5yr_media        = 304 TB × 1,825 ≈ 554 PB\n```\n\nMedia dominates. Total storage: ~555 PB over 5 years.\n\n### Step 3 — Bandwidth\n\n**Write ingress**:\n```\ningress = 10K writes/sec × 300 bytes = 3 MB/s (text only)\nmedia_ingress = 10K × 0.3 × 3.35 MB = 10 GB/s\n```\n\n**Read egress**:\n```\negress_text = 100K reads/sec × 300 bytes = 30 MB/s\n```\n\nMedia egress is the real problem — CDN is mandatory.\n\n### Step 4 — Servers\n\n**App servers** (handle write API and read API separately):\n```\nWrite servers: ceil(10,000 / 2,000) × 1.3 = 7\nRead servers:  ceil(100,000 / 2,000) × 1.3 = 65\nTotal: ~72 app servers\n```\n\n**Database servers** (tweet metadata):\n```\nPrimary (writes): ceil(3,500 / 5,000) × 1.3 ≈ 1 primary\nRead replicas:    ceil(35,000 / 5,000) = 7 replicas\nTotal: 8 DB servers\n```\n\n**Cache (Redis)**:\n```\nTimeline cache: 60M active users × 800 bytes ≈ 48 GB\n1 Redis node (128 GB) × 2 (HA) = 2 nodes\n```\n\n### Step 5 — Bottleneck Analysis\n\nThe dominant challenge at Twitter is NOT tweet storage or API throughput — it's **timeline fan-out for celebrities**.\n\nWhen Elon Musk tweets to 100M followers:\n- Naive approach: write to 100M timeline caches → 100M writes × 100 bytes = 10 GB per celebrity tweet\n- At 10K tweet/sec overall, this is infeasible synchronously\n\nSolution: **hybrid push/pull**\n- Push to timelines for users with < 10K followers\n- Pull from the celebrity's tweet list at read time for users following celebrities\n\n### Reference Summary Table\n\n| Metric | Value |\n|--------|-------|\n| Write QPS | 3,500 avg / 10K peak |\n| Read QPS | 35K avg / 100K peak |\n| Daily metadata storage | 91 GB |\n| Daily media storage | 304 TB |\n| 5-year total storage | ~555 PB |\n| App servers | ~72 |\n| DB servers | ~8 |\n| Redis cache nodes | 2 |",
+          "keyTakeaways": [
+            "Twitter: 3.5K write QPS, 35K read QPS, 555 PB over 5 years",
+            "Media storage dwarfs metadata — always separate these estimates",
+            "Celebrity fan-out (not QPS or storage) is Twitter's hardest scaling problem",
+            "Cache timelines in Redis: 60M users × 800 bytes = 48 GB"
+          ]
+        },
+        {
+          "sessionNumber": 9,
+          "title": "Practice: Estimate for Uber",
+          "paretoJustification": "Uber represents location-data-intensive systems. The estimation patterns differ significantly from social networks.",
+          "objectives": [
+            "Estimate QPS for a location-update-heavy system",
+            "Size a geospatial index and real-time location database",
+            "Estimate matching engine throughput and latency budget"
+          ],
+          "activities": [
+            { "description": "Estimate Uber's peak location update QPS from driver and rider counts", "durationMinutes": 20 },
+            { "description": "Size the real-time location storage for active drivers", "durationMinutes": 20 },
+            { "description": "Estimate the trip history database size over 10 years", "durationMinutes": 15 }
+          ],
+          "reviewQuestions": [
+            "If Uber has 5M active drivers globally, each sending GPS updates every 4 seconds, what is the write QPS?",
+            "How large is the active driver location database (just current positions)?",
+            "What makes Uber's estimation different from Twitter's?"
+          ],
+          "successCriteria": "Can produce all Uber estimates with the right focus on real-time location data.",
+          "content": "## Practice Estimate: Uber\n\nUber is fundamentally different from Twitter. The core challenge is not media storage or social graph fan-out — it's **real-time location data** at high frequency. Every driver sends a GPS update every 4 seconds. Every rider query searches for nearby drivers. This shapes the entire estimate.\n\n### Given Assumptions (State These Out Loud)\n\n- 100M DAU (riders)\n- 5M active drivers globally at peak\n- Drivers send GPS update every 4 seconds while online\n- Average trip: 20 minutes, 10 km\n- Trip data: ~2 KB per trip (route, fare, timestamps)\n- Location update: ~100 bytes (driver_id, lat, lng, timestamp, status)\n- Retention: trip history 10 years; real-time location: in-memory only\n- Matching radius: 5 km\n\n### Step 1 — QPS (Location Updates)\n\n```\nDriver location update QPS:\n  5M drivers × 1 update / 4 seconds = 1,250,000 writes/sec = 1.25M write QPS\n\nThis is the dominant write load. Everything else is tiny by comparison.\n```\n\nFor context: Twitter's write QPS is 3,500. Uber's location write QPS is 1.25M — 357× higher.\n\n```\nRider QPS (trip requests, searches):\n  100M DAU × 3 interactions/day / 86,400 = 3,472 ≈ 3,500 QPS\n  Peak = 3,500 × 3 = 10,500 ≈ 10K QPS\n```\n\n### Step 2 — Real-Time Location Storage\n\nThis is in-memory, not on disk. You only store the **current** position of active drivers:\n\n```\nactive_drivers = 5,000,000\nbytes_per_driver = 100 bytes (driver_id, lat, lng, timestamp, status, heading)\ntotal_memory = 5M × 100 bytes = 500 MB\n```\n\n500 MB fits easily on a single Redis instance. But for 1.25M writes/sec:\n```\nRedis handles 100K ops/s per node\nnodes_needed = ceil(1.25M / 100K) = 13 nodes\n```\n\nYou need 13 Redis nodes for write throughput, not memory. This is an important distinction — **QPS, not RAM, is the constraint**.\n\n### Step 3 — Trip History Storage\n\n```\nTrips per day:\n  100M DAU × 1 trip/day (avg) = 100M trips/day\n  (realistic: 20M trips/day — roughly 20% of riders take a trip on any given day)\n\nUsing 20M trips/day:\nbytes_per_trip = 2,000 bytes (route, fare, driver, rider, timestamps, ratings)\ndaily_storage  = 20M × 2,000 = 40 GB/day\n\n10-year retention:\ntotal = 40 GB × 3,650 days × 3 (replication) × 1.5 (overhead)\n      = 40 × 3,650 × 4.5 ≈ 657,000 GB ≈ 657 TB ≈ 0.66 PB\n```\n\nThis is manageable — a fraction of Twitter's media storage.\n\n### Step 4 — Bandwidth\n\n```\nIngress (location updates):\n  1.25M writes/sec × 100 bytes = 125 MB/s = 1 Gbps\n\nEgress (driver search results for riders):\n  10K rider QPS × 10 nearby drivers × 100 bytes each = 10 MB/s (negligible)\n```\n\nIngress is the constraint, not egress. Unusual compared to read-heavy systems.\n\n### Step 5 — Servers\n\n**Location ingestion tier** (handles 1.25M write QPS):\n```\nUse Kafka as a buffer:\nKafka brokers: ceil(1.25M msg/s / 200K msg/s per broker) = 7 brokers\n\nLocation consumers (writing to Redis):\nEach consumer processes ~50K updates/sec\nConsumers = ceil(1.25M / 50K) = 25 consumers\n```\n\n**Redis cluster**: 13 nodes (write QPS bound) × 2 (HA) = 26 Redis instances\n\n**Trip API servers** (for rider app): ~10K QPS → ceil(10,000/2,000) × 1.3 = 7 servers\n\n### Architecture Comparison\n\n```mermaid\ngraph LR\n    D[Driver App] -->|GPS every 4s| K[Kafka Cluster 7 brokers]\n    K --> C[25 Location Consumers]\n    C --> R[Redis Cluster 13 nodes]\n    RA[Rider App] -->|Search nearby| Q[Query Service]\n    Q --> R\n    Q --> Trip[Trip DB]\n```\n\n### Key Difference from Twitter\n\n| Dimension | Twitter | Uber |\n|-----------|---------|------|\n| Write QPS | 3,500 | 1,250,000 |\n| Dominant storage | Media (PBs) | Trip history (TBs) |\n| Hardest problem | Fan-out | Real-time ingestion |\n| Cache target | Timelines | Driver locations |\n| Data type | Social graph | Geospatial |\n\n### Common Mistakes\n\n1. **Treating Uber like Twitter**. Location updates are write-heavy, not read-heavy.\n2. **Storing location on disk**. Current driver positions are ephemeral — RAM only.\n3. **Missing Kafka**. At 1.25M writes/sec, you cannot write directly to Redis without a buffer.",
+          "keyTakeaways": [
+            "Uber's dominant load is location updates: 5M drivers × 1/4s = 1.25M write QPS",
+            "Real-time location is RAM-only: 5M × 100 bytes = 500 MB",
+            "Redis node count is QPS-bound: 13 nodes for 1.25M ops/s",
+            "Use Kafka as a write buffer before Redis for high-frequency ingestion"
+          ]
+        },
+        {
+          "sessionNumber": 10,
+          "title": "Practice: Estimate for YouTube",
+          "paretoJustification": "YouTube is the canonical CDN and video storage estimation. It tests a different dimension: compute (transcoding) alongside storage and bandwidth.",
+          "objectives": [
+            "Estimate upload, transcoding, and storage pipeline for video",
+            "Size CDN bandwidth for video streaming at global scale",
+            "Estimate metadata database and recommendation cache"
+          ],
+          "activities": [
+            { "description": "Estimate YouTube video storage from upload rate and retention", "durationMinutes": 20 },
+            { "description": "Estimate transcoding compute: CPU hours per minute of uploaded video", "durationMinutes": 20 },
+            { "description": "Size CDN bandwidth and recommendation cache", "durationMinutes": 20 }
+          ],
+          "reviewQuestions": [
+            "500 hours of video are uploaded every minute. What is the ingress bandwidth in Gbps?",
+            "If transcoding takes 3× real time and you transcode into 5 quality levels, how many CPU cores do you need?",
+            "Why is YouTube's storage measured in exabytes rather than petabytes?"
+          ],
+          "successCriteria": "Can produce all YouTube estimates including transcoding compute, which most candidates miss.",
+          "content": "## Practice Estimate: YouTube\n\nYouTube is the ultimate test of estimation breadth. Unlike Twitter (social) or Uber (location), YouTube adds **compute estimation** (transcoding) to the standard storage and bandwidth questions. Most candidates miss this entirely.\n\n### Given Assumptions (State These Out Loud)\n\n- 2 billion logged-in users/month, ~500M DAU\n- 500 hours of video uploaded every minute\n- 1 billion hours of video watched daily\n- Transcoding: 1 minute of video → 5 quality versions (360p, 480p, 720p, 1080p, 4K)\n- Transcoding time: ~3× real-time per quality level (3 minutes to transcode 1 minute of video per level)\n- Retention: forever (YouTube doesn't delete content)\n- Average upload resolution: 1080p at ~50 MB/minute\n- Average watch resolution: 720p at ~20 MB/minute (4 Mbps)\n\n### Step 1 — Upload (Ingress) Bandwidth\n\n```\nupload_rate = 500 hours/minute × 60 min/hour × 50 MB/min\n            = 500 × 60 × 50 MB/min per minute\n            = 30,000 MB/s = 30 GB/s = 240 Gbps ingress\n```\n\n240 Gbps of ingress. This requires multiple 100 Gbps links and a global upload tier.\n\n### Step 2 — Storage\n\n**Raw uploaded storage** (per day):\n```\nuploads_per_day = 500 hours/min × 60 min/hour × 1,440 min/day\n               = 500 × 60 × 1,440 = 43,200,000 hours/day\nbytes_per_hour  = 60 min × 50 MB/min = 3,000 MB = 3 GB\ndaily_raw = 43.2M hours × 3 GB = 129.6 million GB = 129.6 PB/day\n```\n\nWait — that seems enormous. Let's sanity check:\n- 500 hrs/min × 1,440 min/day = 720,000 hours of video per day\n- 720,000 hours × 3 GB/hour = 2,160,000 GB = 2.16 PB/day raw\n\n(The first calculation double-counted minutes — use this corrected number.)\n\n**Transcoded storage** (5 quality levels, average ~60% of original each):\n```\ntranscoded_daily = 2.16 PB × 5 × 0.6 = 6.48 PB/day\n```\n\n**10-year total** (YouTube doesn't delete):\n```\ntotal_raw = 2.16 PB × 3,650 days = 7,884 PB ≈ 7.9 EB\ntotal_transcoded = 6.48 × 3,650 ≈ 23.6 EB\ngrand_total ≈ 31.5 EB\n```\n\nYouTube is measured in **exabytes**. This is why they use Google's Colossus distributed file system, not off-the-shelf NAS.\n\n### Step 3 — Transcoding Compute\n\nThis is the question 90% of candidates skip:\n\n```\nminutes_uploaded_per_minute = 500 hours × 60 = 30,000 minutes/minute\nquality_levels = 5\ntranscode_time_ratio = 3× real time per level\n\nCPU_minutes_needed_per_minute = 30,000 × 5 × 3 = 450,000 CPU-minutes/minute\n                               = 450,000 CPU cores running continuously\n```\n\n450,000 CPU cores just for transcoding. This is a massive compute cluster. YouTube uses custom hardware (Google TPUs/ASICs) to reduce this cost.\n\nIn practice, they prioritise popular/trending videos for fast transcoding and defer rare-view videos to cheaper batch processing.\n\n### Step 4 — Streaming Egress Bandwidth\n\n```\nwatch_hours_per_day = 1 billion hours\nconcurrent_viewers = 1B hours × 60 min/hr / (24 hr × 60 min) = 1B / 1,440 ≈ 694,000 concurrent viewers\n\nbandwidth_per_viewer = 4 Mbps (720p average)\ntotal_egress = 694,000 × 4 Mbps = 2,776,000 Mbps = 2,776 Gbps ≈ 2.8 Tbps\n```\n\n2.8 Tbps of streaming egress requires a massive CDN. Google's CDN (Google Global Cache, GGC) is one of the largest in the world, with PoPs in thousands of ISP networks.\n\n### Step 5 — Metadata Database and Recommendation Cache\n\n**Video metadata** (title, description, tags, views, etc.):\n```\n800 million videos × 10 KB metadata = 8,000,000,000 KB = 8 TB\nWith indexes and replication: 8 TB × 1.5 × 3 = 36 TB\n```\n\n36 TB fits comfortably in a distributed database (Bigtable or Spanner).\n\n**Recommendation cache** (pre-computed \"up next\" lists):\n```\n500M DAU × 20 recommended videos × 8 bytes (video_id) = 80 GB\nWith overhead: 80 GB × 1.2 = 96 GB\n```\n\nFits on 1–2 Redis nodes.\n\n### Summary Table\n\n| Metric | Value |\n|--------|-------|\n| Upload ingress | ~240 Gbps |\n| Daily new video storage | ~2.16 PB |\n| 10-year total storage | ~31.5 EB |\n| Transcoding cores | ~450,000 |\n| Streaming egress | ~2.8 Tbps |\n| Video metadata DB | ~36 TB |\n| Recommendation cache | ~96 GB |\n\n### What Interviewers Look For\n\n1. Did you estimate transcoding compute? (Most candidates miss this)\n2. Did you use EB not PB for total storage? (Signals awareness of real scale)\n3. Did you propose CDN? (Mandatory for 2.8 Tbps egress)\n4. Did you separate video storage from metadata? (Different systems)\n\n### Common Mistakes\n\n1. **Skipping transcoding**. It's the biggest compute cost at YouTube.\n2. **Using PB instead of EB**. At YouTube's scale, numbers reach exabyte territory.\n3. **Single database for metadata and video**. Video files go to object/file storage; metadata goes to a database.\n4. **No CDN mention**. 2.8 Tbps cannot be served from a central origin.",
+          "keyTakeaways": [
+            "YouTube: 2.16 PB/day new video, 31.5 EB over 10 years",
+            "Transcoding requires ~450,000 CPU cores — the hidden compute cost",
+            "Streaming egress: 2.8 Tbps → requires global CDN with thousands of PoPs",
+            "Separate video files (object storage) from metadata (database) from recommendations (cache)"
+          ]
+        }
+      ]
+    },
+    "quizBank": [
+      {
+        "question": "What is 2^30 in human-readable form?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Remember",
+        "options": ["A) 1 KB", "B) 1 MB", "C) 1 GB", "D) 1 TB"],
+        "correctAnswer": "C",
+        "explanation": "2^10 = 1 KB, 2^20 = 1 MB, 2^30 = 1 GB. Each power of 10 steps up multiplies by roughly 1,000."
+      },
+      {
+        "question": "How many seconds are in a day (used in QPS estimation)?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Remember",
+        "options": ["A) 24,000", "B) 86,400", "C) 100,000", "D) 3,600,000"],
+        "correctAnswer": "B",
+        "explanation": "24 hours × 60 minutes × 60 seconds = 86,400. We often approximate as 100,000 for easier mental math."
+      },
+      {
+        "question": "An app has 100M DAU and each user makes 10 requests per day. What is the average QPS?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Apply",
+        "options": ["A) ~1,000", "B) ~5,800", "C) ~11,600", "D) ~100,000"],
+        "correctAnswer": "C",
+        "explanation": "100M × 10 / 86,400 = 1,000,000,000 / 86,400 ≈ 11,574 ≈ 11,600 QPS."
+      },
+      {
+        "question": "Peak QPS is typically what multiple of average QPS for consumer apps?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Remember",
+        "options": ["A) 1–1.1×", "B) 2–3×", "C) 5–10×", "D) 20–50×"],
+        "correctAnswer": "B",
+        "explanation": "For typical consumer apps (social, e-commerce), peak is 2–3× average due to evening/lunch hour spikes. Use 3× for conservative sizing."
+      },
+      {
+        "question": "Write QPS is 1,000 and each record is 500 bytes. How much storage is generated per day?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Apply",
+        "options": ["A) ~43 MB", "B) ~43 GB", "C) ~43 TB", "D) ~500 GB"],
+        "correctAnswer": "B",
+        "explanation": "1,000 writes/sec × 86,400 sec × 500 bytes = 43,200,000,000 bytes = 43.2 GB/day."
+      },
+      {
+        "question": "A 3-way replicated database has 100 TB of raw data with 50 TB of indexes. What is the total disk needed?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "options": ["A) 100 TB", "B) 150 TB", "C) 300 TB", "D) 450 TB"],
+        "correctAnswer": "D",
+        "explanation": "(100 TB raw + 50 TB indexes) × 3 replicas = 150 TB × 3 = 450 TB."
+      },
+      {
+        "question": "Read QPS is 80,000 and each response is 2 KB. What is egress bandwidth?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Apply",
+        "options": ["A) 160 MB/s", "B) 1.28 Gbps", "C) 80 MB/s", "D) 16 GB/s"],
+        "correctAnswer": "A",
+        "explanation": "80,000 × 2,000 bytes = 160,000,000 bytes/sec = 160 MB/s. In bits: 160 × 8 = 1.28 Gbps."
+      },
+      {
+        "question": "How many app servers do you need for 50,000 peak QPS if each handles 2,000 req/s with 30% headroom?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "options": ["A) 25", "B) 33", "C) 40", "D) 50"],
+        "correctAnswer": "B",
+        "explanation": "ceil(50,000/2,000) = 25 minimum. With 30% headroom: 25 × 1.3 = 32.5 → 33 servers."
+      },
+      {
+        "question": "What is the approximate throughput of a single Redis instance?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Remember",
+        "options": ["A) 1,000 ops/s", "B) 5,000 ops/s", "C) 100,000 ops/s", "D) 10,000,000 ops/s"],
+        "correctAnswer": "C",
+        "explanation": "A well-configured Redis instance handles ~100,000 operations per second. This is ~20× the throughput of PostgreSQL."
+      },
+      {
+        "question": "A cache stores the hot 20% of 100M objects, each 1 KB. How much RAM is needed (with 20% overhead)?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "options": ["A) 20 GB", "B) 24 GB", "C) 100 GB", "D) 120 GB"],
+        "correctAnswer": "B",
+        "explanation": "Working set = 20M objects × 1 KB = 20 GB. With 20% overhead: 20 GB × 1.2 = 24 GB."
+      },
+      {
+        "question": "Twitter has 300M DAU, 1 tweet/user/day. What is peak write QPS? (3× peak multiplier)",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "options": ["A) 3,500", "B) 10,500", "C) 35,000", "D) 300,000"],
+        "correctAnswer": "B",
+        "explanation": "Avg write QPS = 300M / 86,400 ≈ 3,472. Peak = 3,472 × 3 ≈ 10,416 ≈ 10,500."
+      },
+      {
+        "question": "Why is Uber's location write QPS dramatically higher than Twitter's tweet write QPS?",
+        "format": "mcq",
+        "difficulty": 4,
+        "bloomLabel": "Analyze",
+        "options": [
+          "A) Uber has more users",
+          "B) Drivers send GPS updates every 4 seconds while Twitter users tweet once a day",
+          "C) Uber uses a less efficient database",
+          "D) Location data is larger than tweet data"
+        ],
+        "correctAnswer": "B",
+        "explanation": "5M drivers × 1 update/4 sec = 1.25M writes/sec vs Twitter's 300M DAU × 1 tweet/day / 86,400 = 3,500 writes/sec. Frequency, not user count, drives write QPS."
+      },
+      {
+        "question": "YouTube uploads 500 hours of video per minute. Roughly how many CPU cores are needed for transcoding (5 quality levels, 3× real-time encode)?",
+        "format": "mcq",
+        "difficulty": 5,
+        "bloomLabel": "Evaluate",
+        "options": ["A) 4,500", "B) 45,000", "C) 450,000", "D) 4,500,000"],
+        "correctAnswer": "C",
+        "explanation": "500 hrs/min × 60 = 30,000 minutes of video per minute. 30,000 × 5 quality levels × 3× time = 450,000 CPU-minutes per minute → 450,000 cores needed continuously."
+      },
+      {
+        "question": "What is the latency difference between an L1 cache hit and a spinning disk seek?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Understand",
+        "options": ["A) 100×", "B) 1,000×", "C) 10,000,000×", "D) 20,000,000×"],
+        "correctAnswer": "D",
+        "explanation": "L1 cache: 0.5 ns. HDD seek: 10 ms = 10,000,000 ns. Ratio: 10,000,000 / 0.5 = 20,000,000×."
+      },
+      {
+        "question": "What storage tier should hold data older than 1 year in a system with a 3-year retention requirement?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) NVMe SSD (hot tier)",
+          "B) SAS SSD (warm tier)",
+          "C) Object storage or HDD (cold tier)",
+          "D) In-memory cache"
+        ],
+        "correctAnswer": "C",
+        "explanation": "Data accessed rarely is moved to cold tier (object storage like S3 or HDD) to reduce cost. Hot NVMe is expensive and reserved for frequently accessed data."
+      },
+      {
+        "question": "Your system has 10K write QPS and 200K read QPS. Which architecture decision does this directly inform?",
+        "format": "mcq",
+        "difficulty": 4,
+        "bloomLabel": "Analyze",
+        "options": [
+          "A) Use a write-optimised NoSQL database only",
+          "B) Add a read replica tier and a caching layer to handle the 20:1 read/write imbalance",
+          "C) No special action needed — a single database handles both",
+          "D) Reduce write frequency to balance the ratio"
+        ],
+        "correctAnswer": "B",
+        "explanation": "20:1 read/write ratio means reads are the bottleneck. Add read replicas for database horizontal read scaling and a cache (Redis) to absorb the bulk of reads before they hit the DB."
+      },
+      {
+        "question": "What is the critical difference between designing for average QPS versus peak QPS?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) No difference — they are usually the same",
+          "B) Servers must handle peak load; designing for average causes outages during traffic spikes",
+          "C) Peak is only relevant for financial systems",
+          "D) Average QPS is always higher than peak QPS"
+        ],
+        "correctAnswer": "B",
+        "explanation": "If servers can only handle average load, they will be overwhelmed during peak (evenings, special events). Always size for peak + headroom."
+      },
+      {
+        "question": "A social graph has 500M users, each with an average of 500 connections. How many rows are in the edge table?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "options": ["A) 500M", "B) 1 billion", "C) 250 billion", "D) 500 billion"],
+        "correctAnswer": "C",
+        "explanation": "Each connection is stored as two directed edges (A→B and B→A) or one undirected edge. For directed (follow): 500M × 500 = 250 billion rows."
+      },
+      {
+        "question": "Why does egress bandwidth typically cost more than ingress bandwidth in cloud systems?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) Egress requires more encryption",
+          "B) Cloud providers charge for data leaving their network to the public internet",
+          "C) Egress protocols are less efficient",
+          "D) Ingress is always cached, so it is free"
+        ],
+        "correctAnswer": "B",
+        "explanation": "Cloud providers (AWS, GCP, Azure) charge $0.08–0.15/GB for egress to the internet but charge nothing or very little for ingress. This is a major cost driver for high-egress systems."
+      },
+      {
+        "question": "Uber has 5M active drivers sending GPS every 4 seconds. Which technology is most appropriate as a write buffer before the location store?",
+        "format": "mcq",
+        "difficulty": 4,
+        "bloomLabel": "Evaluate",
+        "options": [
+          "A) PostgreSQL with a write-ahead log",
+          "B) A message queue like Kafka to buffer 1.25M writes/sec",
+          "C) A single Redis instance",
+          "D) An HTTP load balancer"
+        ],
+        "correctAnswer": "B",
+        "explanation": "At 1.25M writes/sec, writing directly to any datastore is risky. Kafka can ingest 1M+ messages/sec per broker and acts as a durable buffer. Consumers then write to Redis at a controlled rate."
+      }
+    ],
+    "interviewTips": [
+      "Always state your assumptions out loud before calculating — interviewers award points for transparent reasoning",
+      "Start with DAU, then derive QPS, then storage, then bandwidth, then servers — this ordering is logical and shows structure",
+      "Use round numbers: 86,400 → 100,000; 3,500 → 4,000. Precision kills speed in estimation",
+      "Write the formula before plugging in numbers — formula on the left, substitution on the right",
+      "Mention the peak multiplier (2–3×) unprompted — most candidates forget to design for peak",
+      "Separate read QPS from write QPS; they hit different parts of the system",
+      "After getting your number, sanity check: does this seem physically possible? (e.g., 100 TB/sec would require 800 Tbps of bandwidth — not realistic)",
+      "Mention tiered storage (hot/warm/cold) to signal operational maturity",
+      "Quote actual throughput benchmarks by name: 'Redis handles about 100K ops/s' sounds much better than a vague guess",
+      "Summarise your estimates in a table at the end: QPS, storage, bandwidth, server count — one row per metric"
+    ],
+    "commonMistakes": [
+      "Designing for average QPS instead of peak QPS — servers that work on average will fail on the worst day",
+      "Forgetting the replication factor — raw storage × 3 is the real disk requirement",
+      "Mixing bytes and bits — network bandwidth is in bits (Gbps), storage is in bytes (GB)",
+      "Skipping index and overhead multipliers — real databases are 1.5–2× larger than raw data",
+      "Not separating read and write QPS — databases treat these differently; mixing them gives wrong server counts"
+    ]
+  }
+]
