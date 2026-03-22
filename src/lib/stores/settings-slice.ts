@@ -1,6 +1,6 @@
 import type { StateCreator } from "zustand";
 
-export type AIProviderType = "gemini" | "claude" | "groq" | "openrouter" | "ollama";
+export type AIProviderType = "static" | "gemini" | "claude" | "groq" | "openrouter" | "ollama";
 
 export interface SettingsState {
   apiKey: string;
@@ -29,7 +29,7 @@ export const createSettingsSlice: StateCreator<
 > = (set) => ({
   // State
   apiKey: "",
-  aiProvider: "gemini" as AIProviderType,
+  aiProvider: "static" as AIProviderType,
   theme: "dark",
   soundEnabled: false,
   dailyGoal: 15,

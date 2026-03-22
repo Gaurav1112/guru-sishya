@@ -10,6 +10,12 @@ const PROVIDER_CONFIG: Record<
   AIProviderType,
   { label: string; placeholder: string; helpText: string; validatePrefix?: string; noKeyNeeded?: boolean }
 > = {
+  static: {
+    label: "Built-in Content (No Setup)",
+    placeholder: "",
+    helpText: "30 software development interview topics with full content. No API key needed.",
+    noKeyNeeded: true,
+  },
   ollama: {
     label: "Ollama (Local, Free, No Key)",
     placeholder: "",
@@ -81,6 +87,14 @@ export function ApiKeyInput() {
         <Label className="mb-2 block">AI Provider</Label>
         <div className="flex flex-wrap gap-2">
           <Button
+            variant={aiProvider === "static" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setAIProvider("static")}
+            className={aiProvider === "static" ? "bg-teal" : ""}
+          >
+            Built-in Content (No Setup)
+          </Button>
+          <Button
             variant={aiProvider === "ollama" ? "default" : "outline"}
             size="sm"
             onClick={() => setAIProvider("ollama")}
@@ -89,12 +103,12 @@ export function ApiKeyInput() {
             Ollama (Local, Free)
           </Button>
           <Button
-            variant={aiProvider === "gemini" ? "default" : "outline"}
+            variant={aiProvider === "openrouter" ? "default" : "outline"}
             size="sm"
-            onClick={() => setAIProvider("gemini")}
-            className={aiProvider === "gemini" ? "bg-saffron" : ""}
+            onClick={() => setAIProvider("openrouter")}
+            className={aiProvider === "openrouter" ? "bg-saffron" : ""}
           >
-            Gemini (Free)
+            OpenRouter (Free)
           </Button>
           <Button
             variant={aiProvider === "groq" ? "default" : "outline"}
@@ -105,12 +119,12 @@ export function ApiKeyInput() {
             Groq (Free)
           </Button>
           <Button
-            variant={aiProvider === "openrouter" ? "default" : "outline"}
+            variant={aiProvider === "gemini" ? "default" : "outline"}
             size="sm"
-            onClick={() => setAIProvider("openrouter")}
-            className={aiProvider === "openrouter" ? "bg-saffron" : ""}
+            onClick={() => setAIProvider("gemini")}
+            className={aiProvider === "gemini" ? "bg-saffron" : ""}
           >
-            OpenRouter (Free)
+            Gemini (Free)
           </Button>
           <Button
             variant={aiProvider === "claude" ? "default" : "outline"}
@@ -123,21 +137,35 @@ export function ApiKeyInput() {
         </div>
       </div>
 
-      {/* Ollama: no key needed, show setup instructions */}
+      {/* No key needed: static or Ollama */}
       {config.noKeyNeeded ? (
         <div className="space-y-2 rounded-xl border border-teal/30 bg-teal/5 p-4">
           <p className="text-sm font-medium text-teal">No API key needed!</p>
           <p className="text-xs text-muted-foreground">{config.helpText}</p>
-          <div className="text-xs text-muted-foreground space-y-1">
-            <p className="font-medium">Quick setup:</p>
-            <ol className="list-decimal list-inside space-y-0.5">
-              <li>Download Ollama from <a href="https://ollama.com/download" target="_blank" rel="noopener noreferrer" className="text-teal underline">ollama.com/download</a></li>
-              <li>Open Terminal and run: <code className="bg-surface px-1 rounded">ollama pull llama3.2</code></li>
-              <li>Keep Ollama running and start using the app</li>
-            </ol>
-          </div>
+          {aiProvider === "static" ? (
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium">How it works:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>All content is pre-generated and bundled with the app</li>
+                <li>Cheat sheets, learning plans, quizzes, resources, and ladders are included</li>
+                <li>Works instantly with zero setup — no internet needed</li>
+                <li>Switch to an AI provider anytime for custom topics</li>
+              </ul>
+            </div>
+          ) : (
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium">Quick setup:</p>
+              <ol className="list-decimal list-inside space-y-0.5">
+                <li>Download Ollama from <a href="https://ollama.com/download" target="_blank" rel="noopener noreferrer" className="text-teal underline">ollama.com/download</a></li>
+                <li>Open Terminal and run: <code className="bg-surface px-1 rounded">ollama pull llama3.2</code></li>
+                <li>Keep Ollama running and start using the app</li>
+              </ol>
+            </div>
+          )}
           <p className="text-xs text-muted-foreground">
-            Everything runs on your computer. No data leaves your machine.
+            {aiProvider === "static"
+              ? "No data leaves your browser. Everything is local."
+              : "Everything runs on your computer. No data leaves your machine."}
           </p>
         </div>
       ) : (

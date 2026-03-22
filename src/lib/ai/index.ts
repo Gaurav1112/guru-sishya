@@ -3,6 +3,7 @@ import { GeminiProvider } from "./gemini";
 import { GroqProvider } from "./groq";
 import { OllamaProvider } from "./ollama";
 import { OpenRouterProvider } from "./openrouter";
+import { StaticProvider } from "./static-provider";
 import { ResilientProvider, type ProviderEntry } from "./resilient-provider";
 import type { AIProvider } from "./types";
 import type { AIProviderType } from "@/lib/stores/settings-slice";
@@ -25,6 +26,8 @@ function createRawProvider(
   type: AIProviderType
 ): AIProvider {
   switch (type) {
+    case "static":
+      return new StaticProvider();
     case "claude":
       return new ClaudeProvider(apiKey);
     case "groq":
@@ -94,7 +97,9 @@ function buildProviderChain(
  * unless the user explicitly configured them.
  */
 function getFallbackOrder(primary: AIProviderType): AIProviderType[] {
-  // Preferred free-tier fallback order
+  // Static provider has no fallbacks — it's self-contained
+  if (primary === "static") return [];
+  // Preferred free-tier fallback order (static is never a fallback)
   const allFree: AIProviderType[] = ["openrouter", "gemini", "groq", "ollama"];
   // Remove the primary from fallback list
   return allFree.filter((p) => p !== primary);

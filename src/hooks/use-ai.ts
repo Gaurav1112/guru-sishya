@@ -18,6 +18,10 @@ export function useAI(): ResilientProvider | null {
   const aiProvider = useStore((s) => s.aiProvider);
 
   return useMemo(() => {
+    // Static provider doesn't need an API key — uses pre-generated content
+    if (aiProvider === "static") {
+      return createAIProvider("static", aiProvider);
+    }
     // Ollama doesn't need an API key — it runs locally
     if (aiProvider === "ollama") {
       return createAIProvider("ollama", aiProvider);
