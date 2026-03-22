@@ -37,9 +37,13 @@ export interface TopicContent {
 
 const CONTENT_FILES = [
   "/content/ds-algo.json",
+  "/content/dsa-patterns.json",
   "/content/system-design-fundamentals.json",
   "/content/system-design-cases.json",
   "/content/core-cs.json",
+  "/content/design-patterns.json",
+  "/content/estimation.json",
+  "/content/interview-framework.json",
 ];
 
 let _contentCache: TopicContent[] | null = null;
