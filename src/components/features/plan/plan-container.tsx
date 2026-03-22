@@ -46,8 +46,12 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
   const [completingSession, setCompletingSession] = useState<number | null>(null);
 
   // Live query: existing learning plan for this topic
+  // Returns null (not undefined) when no record found, so we can distinguish loading vs empty
   const existingPlan = useLiveQuery(
-    () => db.learningPlans.where("topicId").equals(topicId).first(),
+    async () => {
+      const plan = await db.learningPlans.where("topicId").equals(topicId).first();
+      return plan ?? null; // convert undefined → null to distinguish from "still loading" (undefined)
+    },
     [topicId]
   );
 
@@ -65,7 +69,7 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
 
   useEffect(() => {
     if (initDone.current) return;
-    if (existingPlan === undefined) return; // still loading from Dexie
+    if (existingPlan === undefined) return; // still loading from Dexie (undefined = loading, null = no record)
 
     initDone.current = true;
 
@@ -80,6 +84,7 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
         setStatus("diagnostic");
       }
     } else {
+      // null = no plan exists, show diagnostic form
       setStatus("diagnostic");
     }
   }, [existingPlan]);
