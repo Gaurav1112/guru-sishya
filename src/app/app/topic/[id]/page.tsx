@@ -1,8 +1,9 @@
 "use client";
 import { Loader2 } from "lucide-react";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
+import { findTopicContent, type TopicContent } from "@/lib/content/loader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
@@ -15,23 +16,125 @@ const featureCards = [
   { key: "feynman", title: "Feynman Technique", description: "Interactive Socratic chat to truly understand", href: "feynman", icon: "💬", color: "border-teal/30" },
 ];
 
+// Keys that map to pre-generated content availability
+const CONTENT_KEYS: Record<string, (c: TopicContent) => boolean> = {
+  plan: (c) => (c.plan?.sessions?.length ?? 0) > 0,
+  cheatsheet: (c) => Boolean(c.cheatSheet),
+  quiz: (c) => (c.quizBank?.length ?? 0) > 0,
+  ladder: (c) => (c.ladder?.levels?.length ?? 0) > 0,
+  resources: (c) => (c.resources?.length ?? 0) > 0,
+  feynman: () => false, // always requires AI
+};
+
+const CATEGORY_BADGE: Record<string, string> = {
+  "System Design": "bg-saffron/20 text-saffron border-saffron/30",
+  "System Design Cases": "bg-teal/20 text-teal border-teal/30",
+  "Data Structures": "bg-indigo/20 text-indigo border-indigo/30",
+  Algorithms: "bg-indigo/20 text-indigo border-indigo/30",
+  "Programming Languages": "bg-gold/20 text-gold border-gold/30",
+  Frontend: "bg-gold/20 text-gold border-gold/30",
+  Backend: "bg-gold/20 text-gold border-gold/30",
+  Databases: "bg-gold/20 text-gold border-gold/30",
+  "Software Engineering": "bg-gold/20 text-gold border-gold/30",
+  "Computer Science Fundamentals": "bg-gold/20 text-gold border-gold/30",
+};
+
 export default function TopicHubPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const topic = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
-  if (!topic) return <div className="py-20 text-center text-muted-foreground">Topic not found</div>;
+  const [builtIn, setBuiltIn] = useState<TopicContent | null>(null);
+  const [contentChecked, setContentChecked] = useState(false);
+
+  useEffect(() => {
+    if (!topic) return;
+    findTopicContent(topic.name)
+      .then((c) => {
+        setBuiltIn(c);
+        setContentChecked(true);
+      })
+      .catch(() => setContentChecked(true));
+  }, [topic]);
+
+  if (!topic)
+    return (
+      <div className="py-20 text-center text-muted-foreground">
+        <Loader2 className="mx-auto mb-3 size-6 animate-spin" />
+        Loading topic...
+      </div>
+    );
+
+  const badgeClass =
+    CATEGORY_BADGE[topic.category ?? ""] ?? "bg-saffron/20 text-saffron border-saffron/30";
+
+  const quizCount = builtIn?.quizBank?.length ?? 0;
+  const planSessions = builtIn?.plan?.sessions?.length ?? 0;
+
   return (
     <div>
-      <h1 className="font-heading text-3xl font-bold mb-2">{topic.name}</h1>
-      <p className="text-muted-foreground mb-8">Choose a learning tool or follow the guided path</p>
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-2">
+        <div className="flex items-start gap-3 flex-wrap">
+          <h1 className="font-heading text-3xl font-bold">{topic.name}</h1>
+          {topic.category && (
+            <span
+              className={`inline-flex items-center self-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}
+            >
+              {topic.category}
+            </span>
+          )}
+          {contentChecked && builtIn && (
+            <span className="inline-flex items-center self-center rounded-full border border-teal/30 bg-teal/10 px-2.5 py-0.5 text-xs font-medium text-teal">
+              Built-in Content
+            </span>
+          )}
+        </div>
+
+        {/* Quick stats */}
+        {contentChecked && builtIn && (
+          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+            {quizCount > 0 && (
+              <span>
+                <strong className="text-foreground">{quizCount}</strong> quiz questions available
+              </span>
+            )}
+            {planSessions > 0 && (
+              <span>
+                <strong className="text-foreground">{planSessions}</strong> sessions in plan
+              </span>
+            )}
+          </div>
+        )}
+
+        <p className="text-muted-foreground">
+          Choose a learning tool or follow the guided path
+        </p>
+      </div>
+
+      {/* Feature cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {featureCards.map((f) => (
-          <Link key={f.key} href={`/app/topic/${id}/${f.href}`}>
-            <Card className={`h-full border ${f.color} bg-surface hover:bg-surface-hover transition-colors cursor-pointer`}>
-              <CardHeader><div className="text-2xl mb-1">{f.icon}</div><CardTitle className="font-heading text-base">{f.title}</CardTitle></CardHeader>
-              <CardContent><p className="text-sm text-muted-foreground">{f.description}</p></CardContent>
-            </Card>
-          </Link>
-        ))}
+        {featureCards.map((f) => {
+          const hasContent = builtIn ? CONTENT_KEYS[f.key]?.(builtIn) ?? false : false;
+          return (
+            <Link key={f.key} href={`/app/topic/${id}/${f.href}`}>
+              <Card
+                className={`h-full border ${f.color} bg-surface hover:bg-surface-hover transition-colors cursor-pointer relative`}
+              >
+                {contentChecked && hasContent && (
+                  <span className="absolute top-3 right-3 rounded-full bg-teal/20 border border-teal/30 px-1.5 py-0.5 text-[10px] font-medium text-teal">
+                    ready
+                  </span>
+                )}
+                <CardHeader>
+                  <div className="text-2xl mb-1">{f.icon}</div>
+                  <CardTitle className="font-heading text-base">{f.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{f.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
