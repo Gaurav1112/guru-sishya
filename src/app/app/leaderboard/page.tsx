@@ -75,7 +75,7 @@ function estimateWeeklyXP(totalXP: number): number {
 // ── Leaderboard page ─────────────────────────────────────────────────────────
 
 export default function LeaderboardPage() {
-  const { totalXP, level } = useStore();
+  const { totalXP, level, showOnLeaderboard } = useStore();
 
   const userWeeklyXP = estimateWeeklyXP(totalXP);
   const userLeague = getLeague(totalXP);
@@ -95,7 +95,10 @@ export default function LeaderboardPage() {
   );
 
   // Combine simulated + real user, sort by weeklyXP descending
+  // If the user has opted out, exclude them from the list
   const allUsers = useMemo(() => {
+    const others = simUsers.map((u) => ({ ...u, isMe: false }));
+    if (!showOnLeaderboard) return others.sort((a, b) => b.weeklyXP - a.weeklyXP);
     const me = {
       name: "You",
       weeklyXP: userWeeklyXP,
@@ -104,9 +107,8 @@ export default function LeaderboardPage() {
       avatarSeed: 0,
       isMe: true,
     };
-    const others = simUsers.map((u) => ({ ...u, isMe: false }));
     return [...others, me].sort((a, b) => b.weeklyXP - a.weeklyXP);
-  }, [simUsers, userWeeklyXP, userLeague]);
+  }, [simUsers, userWeeklyXP, userLeague, showOnLeaderboard]);
 
   const totalCount = allUsers.length;
 
@@ -144,6 +146,17 @@ export default function LeaderboardPage() {
       {needsReset && (
         <div className="rounded-lg border border-saffron/30 bg-saffron/10 px-3 py-2 text-xs text-saffron">
           New week — league rankings have been refreshed!
+        </div>
+      )}
+
+      {/* Privacy opt-out notice */}
+      {!showOnLeaderboard && (
+        <div className="rounded-lg border border-border bg-surface px-4 py-3 text-sm text-muted-foreground">
+          You&apos;ve opted out of the leaderboard. Enable &quot;Show me on Leaderboard&quot; in{" "}
+          <a href="/app/settings" className="text-saffron hover:underline underline-offset-2">
+            Settings
+          </a>{" "}
+          to participate.
         </div>
       )}
 

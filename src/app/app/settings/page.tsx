@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { db } from "@/lib/db";
 
 export default function SettingsPage() {
-  const { soundEnabled, setSoundEnabled, dailyGoal, setDailyGoal } = useStore();
+  const { soundEnabled, setSoundEnabled, dailyGoal, setDailyGoal, showOnLeaderboard, setShowOnLeaderboard } = useStore();
   async function handleExport() {
     const data = {
       version: 1, exportedAt: new Date().toISOString(),
@@ -32,6 +32,8 @@ export default function SettingsPage() {
         <Card className="bg-surface border-border/50"><CardHeader><CardTitle className="text-lg">API Key</CardTitle></CardHeader><CardContent><ApiKeyInput /></CardContent></Card>
         <Card className="bg-surface border-border/50"><CardHeader><CardTitle className="text-lg">Preferences</CardTitle></CardHeader><CardContent className="space-y-4">
           <div className="flex items-center justify-between"><Label>Sound Effects</Label><Button variant="outline" size="sm" onClick={() => setSoundEnabled(!soundEnabled)}>{soundEnabled ? "On" : "Off"}</Button></div>
+          <Separator />
+          <div className="flex items-center justify-between"><div><Label>Show me on Leaderboard</Label><p className="text-xs text-muted-foreground">Appear in weekly XP rankings</p></div><Button variant="outline" size="sm" onClick={() => setShowOnLeaderboard(!showOnLeaderboard)}>{showOnLeaderboard ? "On" : "Off"}</Button></div>
           <Separator />
           <div className="flex items-center justify-between"><div><Label>Daily Goal</Label><p className="text-xs text-muted-foreground">Minutes per day</p></div>
             <div className="flex gap-2">{[5, 10, 15, 20, 30].map((m) => (<Button key={m} variant={dailyGoal === m ? "default" : "outline"} size="sm" onClick={() => setDailyGoal(m)} className={dailyGoal === m ? "bg-saffron" : ""}>{m}</Button>))}</div>

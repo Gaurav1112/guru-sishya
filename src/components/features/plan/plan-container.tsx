@@ -113,13 +113,24 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
         };
 
         // Save to Dexie so it loads from cache next time
-        await db.learningPlans.add({
+        const newPlanId = await db.learningPlans.add({
           topicId,
           sessions: JSON.stringify(plan) as unknown as import("@/lib/types").PlanSession[],
           skippedTopics: [],
           status: "active",
           createdAt: new Date(),
         });
+
+        // Create planSessions rows so the Mark Complete toggle works
+        await Promise.all(
+          plan.sessions.map((s) =>
+            db.planSessions.add({
+              planId: newPlanId as number,
+              sessionNumber: s.sessionNumber,
+              completed: false,
+            })
+          )
+        );
 
         setGeneratedPlan(plan);
         setStatus("ready");
@@ -200,11 +211,22 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
     async (sessionNumber: number) => {
       if (!existingPlan?.id) return;
 
-      const existing = await db.planSessions
+      let existing = await db.planSessions
         .where("planId")
         .equals(existingPlan.id)
         .filter((ps) => ps.sessionNumber === sessionNumber)
         .first();
+
+      // If no planSession row exists (e.g. plan was loaded from static content
+      // before this fix), create one on the fly so the toggle works.
+      if (!existing) {
+        const newId = await db.planSessions.add({
+          planId: existingPlan.id,
+          sessionNumber,
+          completed: false,
+        });
+        existing = { id: newId as number, planId: existingPlan.id, sessionNumber, completed: false };
+      }
 
       if (!existing?.id) return;
 

@@ -9,6 +9,7 @@ export interface SettingsState {
   soundEnabled: boolean;
   dailyGoal: number; // minutes
   timezone: string;
+  showOnLeaderboard: boolean;
 }
 
 export interface SettingsActions {
@@ -17,6 +18,7 @@ export interface SettingsActions {
   setTheme: (theme: "dark" | "light") => void;
   setSoundEnabled: (enabled: boolean) => void;
   setDailyGoal: (minutes: number) => void;
+  setShowOnLeaderboard: (show: boolean) => void;
 }
 
 export type SettingsSlice = SettingsState & SettingsActions;
@@ -34,6 +36,7 @@ export const createSettingsSlice: StateCreator<
   soundEnabled: false,
   dailyGoal: 15,
   timezone: "UTC",
+  showOnLeaderboard: true,
 
   // Actions
   setApiKey: (key) =>
@@ -55,5 +58,9 @@ export const createSettingsSlice: StateCreator<
   setDailyGoal: (minutes) =>
     set((state) => {
       state.dailyGoal = minutes;
+    }),
+  setShowOnLeaderboard: (show) =>
+    set((state) => {
+      state.showOnLeaderboard = show;
     }),
 });

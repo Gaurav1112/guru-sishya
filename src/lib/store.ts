@@ -28,6 +28,7 @@ type PersistedState = Pick<
   | "soundEnabled"
   | "dailyGoal"
   | "timezone"
+  | "showOnLeaderboard"
   | "totalXP"
   | "level"
   | "coins"
@@ -71,6 +72,7 @@ export const useStore = create<StoreState>()(
         soundEnabled: state.soundEnabled,
         dailyGoal: state.dailyGoal,
         timezone: state.timezone,
+        showOnLeaderboard: state.showOnLeaderboard,
         totalXP: state.totalXP,
         level: state.level,
         coins: state.coins,

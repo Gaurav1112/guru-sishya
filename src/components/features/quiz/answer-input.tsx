@@ -1,9 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { GeneratedQuestion } from "@/lib/quiz/types";
+
+// CodeViewer is lazily loaded so Monaco never runs on the server
+const CodeViewer = dynamic(
+  () => import("@/components/code-playground").then((m) => m.CodeViewer),
+  { ssr: false }
+);
+
+// Extract the first fenced code block from a markdown string
+function extractCodeBlock(md: string): { code: string; lang: string } | null {
+  const match = md.match(/```(\w*)\n([\s\S]*?)```/);
+  if (!match) return null;
+  const lang = match[1].toLowerCase() || "javascript";
+  const code = match[2].trim();
+  return { code, lang };
+}
 
 interface AnswerInputProps {
   question: GeneratedQuestion;

@@ -2,8 +2,9 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Loader2, ArrowLeft, ArrowRight, Clock, Target, BookOpen, HelpCircle, Star, CheckCircle2, ChevronDown, ChevronUp, Zap } from "lucide-react";
+import { Loader2, ArrowLeft, ArrowRight, Clock, Target, BookOpen, HelpCircle, Star, CheckCircle2, ChevronDown, ChevronUp, Zap, Terminal } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { db } from "@/lib/db";
@@ -13,6 +14,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { GeneratedPlan } from "@/lib/plan/types";
+
+// Dynamic import — Monaco must never run on the server
+const CodePlayground = dynamic(
+  () => import("@/components/code-playground").then((m) => m.CodePlayground),
+  { ssr: false }
+);
 
 // ── Extended session type (content + takeaways may come from static content) ──
 
@@ -125,6 +132,7 @@ export default function SessionViewPage({
   const queueCelebration = useStore((s) => s.queueCelebration);
 
   const [completing, setCompleting] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   // Load topic
   const topic = useLiveQuery(
@@ -199,29 +207,75 @@ export default function SessionViewPage({
     (session.activities ?? []).reduce((sum, a) => sum + a.durationMinutes, 0);
 
   const isCompleted = planSession?.completed ?? false;
+
+  // ── Celebration overlay ───────────────────────────────────────────────────
   const prevNum = sessionNum > 1 ? sessionNum - 1 : null;
   const nextNum = sessionNum < totalSessions ? sessionNum + 1 : null;
 
   // ── Mark complete handler ────────────────────────────────────────────────────
 
   async function handleMarkComplete() {
-    if (!existingPlan?.id || !planSession?.id) return;
+    if (!existingPlan?.id) return;
+
+    // Marking incomplete doesn't need a confirmation
+    if (!isCompleted) {
+      const confirmed = window.confirm(
+        "Mark this session complete?\n\nThis will award +20 XP and +10 coins."
+      );
+      if (!confirmed) return;
+    }
+
     setCompleting(true);
     try {
       const nowCompleted = !isCompleted;
-      await db.planSessions.update(planSession.id, {
+
+      // If no planSession row exists yet (static-content plan loaded before the
+      // fix), create one on the fly so the toggle works immediately.
+      let sessionRow = planSession;
+      if (!sessionRow?.id) {
+        const newId = await db.planSessions.add({
+          planId: existingPlan.id,
+          sessionNumber: sessionNum,
+          completed: false,
+        });
+        sessionRow = { id: newId as number, planId: existingPlan.id, sessionNumber: sessionNum, completed: false };
+      }
+
+      await db.planSessions.update(sessionRow.id!, {
         completed: nowCompleted,
         completedAt: nowCompleted ? new Date() : undefined,
       });
+
       if (nowCompleted) {
         addXP(20);
         addCoins(10, "plan_session_complete");
         queueCelebration({ type: "xp_gain", data: { amount: 20 } });
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 2000);
       }
     } finally {
       setCompleting(false);
     }
   }
+
+  // ── Extract first fenced code block from session content ────────────────────
+
+  function extractFirstCodeBlock(md: string | undefined): { code: string; lang: string } | null {
+    if (!md) return null;
+    const match = md.match(/```(\w*)\n([\s\S]*?)```/);
+    if (!match) return null;
+    const lang = match[1].toLowerCase() || "javascript";
+    const code = match[2].trim();
+    return { code, lang };
+  }
+
+  const codeBlock = extractFirstCodeBlock(session.content);
+  const playgroundLang =
+    codeBlock?.lang === "typescript" || codeBlock?.lang === "ts"
+      ? "typescript"
+      : codeBlock?.lang === "python" || codeBlock?.lang === "py"
+      ? "python"
+      : "javascript";
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
@@ -357,6 +411,27 @@ export default function SessionViewPage({
         </div>
       )}
 
+      {/* ── Try it yourself (Code Playground) ────────────────────────────── */}
+      {codeBlock && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Terminal className="size-4 text-saffron" />
+            <h2 className="text-sm font-semibold text-saffron uppercase tracking-wide">
+              Try It Yourself
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Modify and run the code below. Your changes stay local — experiment freely.
+          </p>
+          <CodePlayground
+            defaultCode={codeBlock.code}
+            language={playgroundLang}
+            height={320}
+            title="Interactive Example"
+          />
+        </div>
+      )}
+
       {/* ── Key takeaways ─────────────────────────────────────────────────── */}
       {session.keyTakeaways && session.keyTakeaways.length > 0 && (
         <div className="rounded-xl border border-gold/30 bg-gold/5 p-5">
@@ -484,7 +559,7 @@ export default function SessionViewPage({
           </div>
           <Button
             onClick={handleMarkComplete}
-            disabled={completing || !planSession}
+            disabled={completing}
             size="sm"
             className={cn(
               "shrink-0 gap-1.5",
@@ -538,6 +613,17 @@ export default function SessionViewPage({
           <div />
         )}
       </div>
+
+      {/* ── Celebration overlay ───────────────────────────────────────────── */}
+      {showCelebration && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-50">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-teal/40 bg-surface/95 px-10 py-8 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+            <CheckCircle2 className="size-12 text-teal" />
+            <p className="font-heading text-xl font-bold text-foreground">Session Complete!</p>
+            <p className="text-sm text-muted-foreground">+20 XP &amp; +10 coins awarded</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
