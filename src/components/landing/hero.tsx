@@ -3,80 +3,125 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-const CATEGORY_PILLS = [
-  { label: "System Design Fundamentals", color: "border-saffron/40 bg-saffron/10 text-saffron" },
-  { label: "System Design Cases", color: "border-teal/40 bg-teal/10 text-teal" },
-  { label: "DS & Algorithms", color: "border-indigo/40 bg-indigo/10 text-indigo" },
-  { label: "Core CS & Languages", color: "border-gold/40 bg-gold/10 text-gold" },
+const TRUST_BADGES = [
+  "No credit card required",
+  "No API key needed",
+  "Works offline",
+];
+
+const STATS = [
+  { value: "54", label: "Topics", color: "text-saffron" },
+  { value: "555", label: "Lessons", color: "text-teal" },
+  { value: "1,301", label: "Quiz Questions", color: "text-gold" },
+  { value: "Free", label: "Forever", color: "text-indigo" },
 ];
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-[80vh] flex-col items-center justify-center px-6 text-center">
+    <section className="relative flex min-h-[88vh] flex-col items-center justify-center px-6 text-center">
       {/* Radial gradient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-saffron)_8%,transparent),transparent_70%)] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-saffron)_6%,transparent),transparent_70%)] pointer-events-none" />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="relative z-10 max-w-3xl"
       >
-        <p className="mb-3 text-sm font-medium tracking-[0.3em] text-saffron">
-          GURU SISHYA
-        </p>
+        {/* Social proof pill */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+          className="mb-5 inline-flex items-center gap-2 rounded-full border border-saffron/30 bg-saffron/10 px-4 py-1.5"
+        >
+          <span className="h-2 w-2 rounded-full bg-saffron animate-pulse" />
+          <span className="text-xs font-semibold text-saffron tracking-wide">
+            Built for FAANG interview prep
+          </span>
+        </motion.div>
+
+        {/* Headline */}
         <h1 className="font-heading text-4xl font-bold leading-tight md:text-6xl bg-gradient-to-r from-saffron via-gold to-teal bg-clip-text text-transparent">
-          Ace Your Software Engineering Interview
+          Crack Any Software Engineering Interview
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
-          69 topics, 1,633 quiz questions. System Design, Data Structures,
-          Algorithms, and more. 100% free, no signup required.
+
+        {/* Subheadline — stat-driven */}
+        <p className="mx-auto mt-5 max-w-xl text-base text-muted-foreground leading-relaxed">
+          <span className="text-foreground font-semibold">54 topics</span> &bull;{" "}
+          <span className="text-foreground font-semibold">555 lessons</span> &bull;{" "}
+          <span className="text-foreground font-semibold">1,301 quiz questions</span> &bull;{" "}
+          Code playground &bull; Zero setup
         </p>
 
-        {/* Category previews */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          {CATEGORY_PILLS.map((pill) => (
-            <span
-              key={pill.label}
-              className={`rounded-full border px-3 py-1 text-sm font-medium ${pill.color}`}
+        {/* Stats grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.5 }}
+          className="mt-6 grid grid-cols-4 gap-3 max-w-lg mx-auto"
+        >
+          {STATS.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-xl border border-border/50 bg-surface/60 px-3 py-3"
             >
-              {pill.label}
+              <div className={`font-heading text-xl font-bold ${stat.color}`}>
+                {stat.value}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">{stat.label}</div>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Primary CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.5 }}
+          className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
+        >
+          <Link href="/app/topics">
+            <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[140px] text-base font-semibold">
+              Start Free
+            </Button>
+          </Link>
+          <Link href="/app/roadmap">
+            <Button variant="outline" size="lg" className="min-w-[140px] text-base">
+              View Roadmap
+            </Button>
+          </Link>
+        </motion.div>
+
+        {/* Trust badges */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="mt-5 flex flex-wrap items-center justify-center gap-3"
+        >
+          {TRUST_BADGES.map((badge) => (
+            <span
+              key={badge}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
+              <svg
+                className="h-3.5 w-3.5 text-teal flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              {badge}
             </span>
           ))}
-        </div>
+        </motion.div>
 
-        {/* Stats */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-          <span>
-            <strong className="text-foreground">69</strong> topics
-          </span>
-          <span className="text-border">•</span>
-          <span>
-            <strong className="text-foreground">1,633</strong> quiz questions
-          </span>
-          <span className="text-border">•</span>
-          <span>
-            <strong className="text-foreground">No API key</strong> needed
-          </span>
-        </div>
-
-        {/* CTAs */}
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <Link href="/app/topics">
-            <Button size="lg" className="bg-saffron hover:bg-saffron/90">
-              Start Preparing
-            </Button>
-          </Link>
-          <Link href="#features">
-            <Button variant="outline" size="lg">
-              See Features
-            </Button>
-          </Link>
-        </div>
-
-        <p className="mt-6 text-xs text-muted-foreground/70">
-          Built with Pareto Principle, Feynman Technique, Bloom&apos;s Taxonomy
-          &amp; Spaced Repetition
+        {/* Technique tags */}
+        <p className="mt-5 text-xs text-muted-foreground/60">
+          Powered by Pareto Principle &bull; Feynman Technique &bull; Bloom&apos;s Taxonomy &bull; Spaced Repetition
         </p>
       </motion.div>
     </section>

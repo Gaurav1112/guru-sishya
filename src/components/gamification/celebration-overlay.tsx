@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { getCelebrationTier, getDismissDuration } from "@/lib/gamification/celebrations";
 import type { Celebration } from "@/lib/stores/ui-slice";
+import { sounds } from "@/lib/audio";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Sub-renderers
@@ -11,6 +12,11 @@ import type { Celebration } from "@/lib/stores/ui-slice";
 
 function XPGainToast({ data }: { data: Record<string, unknown> }) {
   const amount = data.amount as number | undefined;
+
+  useEffect(() => {
+    sounds.coin();
+  }, []);
+
   return (
     <motion.div
       key="xp-gain"
@@ -31,6 +37,10 @@ function LevelUpOverlay({ data }: { data: Record<string, unknown> }) {
   const title = data.title as string | undefined;
   const level = data.level as number | undefined;
   const confettiRef = useRef(false);
+
+  useEffect(() => {
+    sounds.levelUp();
+  }, []);
 
   useEffect(() => {
     if (confettiRef.current) return;
@@ -79,6 +89,10 @@ function LevelUpOverlay({ data }: { data: Record<string, unknown> }) {
 function BadgeOverlay({ data }: { data: Record<string, unknown> }) {
   const badge = data.badge as { icon: string; name: string; description: string } | undefined;
   const confettiRef = useRef(false);
+
+  useEffect(() => {
+    sounds.badge();
+  }, []);
 
   useEffect(() => {
     if (confettiRef.current) return;
@@ -141,6 +155,11 @@ function BadgeOverlay({ data }: { data: Record<string, unknown> }) {
 
 function StreakMilestoneOverlay({ data }: { data: Record<string, unknown> }) {
   const streak = data.streak as number | undefined;
+
+  useEffect(() => {
+    sounds.streak();
+  }, []);
+
   return (
     <motion.div
       key="streak-milestone"
@@ -160,6 +179,10 @@ function StreakMilestoneOverlay({ data }: { data: Record<string, unknown> }) {
 
 function PerfectRoundOverlay() {
   const confettiRef = useRef(false);
+
+  useEffect(() => {
+    sounds.perfect();
+  }, []);
 
   useEffect(() => {
     if (confettiRef.current) return;

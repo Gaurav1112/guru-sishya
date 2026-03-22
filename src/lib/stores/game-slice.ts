@@ -13,6 +13,12 @@ export interface GameState {
   dailyXP: number;
   /** ISO date (YYYY-MM-DD) when dailyXP was last reset */
   dailyXPDate: string;
+  /** ISO string timestamp when the active XP boost expires, or null if none */
+  activeXPBoost: string | null;
+  /** Number of hint tokens available for use in quizzes */
+  hintTokens: number;
+  /** Whether a streak repair powerup is available */
+  streakRepairAvailable: boolean;
 }
 
 export interface GameActions {
@@ -21,6 +27,12 @@ export interface GameActions {
   /** Returns true if coins were spent, false if insufficient balance */
   spendCoins: (amount: number, reason: string) => boolean;
   setStreak: (current: number, longest: number) => void;
+  addStreakFreeze: () => void;
+  activateXPBoost: () => void;
+  addHintToken: () => void;
+  useHintToken: () => boolean;
+  activateStreakRepair: () => void;
+  consumeStreakRepair: () => void;
 }
 
 export type GameSlice = GameState & GameActions;
@@ -40,11 +52,25 @@ export const createGameSlice: StateCreator<
   streakFreezes: 0,
   dailyXP: 0,
   dailyXPDate: "",
+  activeXPBoost: null,
+  hintTokens: 0,
+  streakRepairAvailable: false,
 
   // Actions
   addXP: (amount) =>
     set((state) => {
-      state.totalXP += amount;
+      // Apply 1.5x multiplier if an XP boost is active and not expired
+      let effective = amount;
+      if (state.activeXPBoost) {
+        if (new Date(state.activeXPBoost) > new Date()) {
+          effective = Math.round(amount * 1.5);
+        } else {
+          // Boost has expired — clear it
+          state.activeXPBoost = null;
+        }
+      }
+
+      state.totalXP += effective;
       state.level = levelFromXP(state.totalXP);
 
       // Reset dailyXP counter if the date has changed
@@ -53,7 +79,7 @@ export const createGameSlice: StateCreator<
         state.dailyXP = 0;
         state.dailyXPDate = today;
       }
-      state.dailyXP += amount;
+      state.dailyXP += effective;
     }),
 
   addCoins: (amount, reason) => {
@@ -82,5 +108,41 @@ export const createGameSlice: StateCreator<
     set((state) => {
       state.currentStreak = current;
       state.longestStreak = longest;
+    }),
+
+  addStreakFreeze: () =>
+    set((state) => {
+      state.streakFreezes += 1;
+    }),
+
+  activateXPBoost: () =>
+    set((state) => {
+      // Boost lasts 1 hour from now
+      const expiry = new Date(Date.now() + 60 * 60 * 1000);
+      state.activeXPBoost = expiry.toISOString();
+    }),
+
+  addHintToken: () =>
+    set((state) => {
+      state.hintTokens += 1;
+    }),
+
+  useHintToken: () => {
+    const { hintTokens } = get();
+    if (hintTokens <= 0) return false;
+    set((state) => {
+      state.hintTokens -= 1;
+    });
+    return true;
+  },
+
+  activateStreakRepair: () =>
+    set((state) => {
+      state.streakRepairAvailable = true;
+    }),
+
+  consumeStreakRepair: () =>
+    set((state) => {
+      state.streakRepairAvailable = false;
     }),
 });

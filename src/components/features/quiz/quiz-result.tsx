@@ -9,11 +9,13 @@ import { BLOOM_LABELS, type BloomLevel } from "@/lib/quiz/types";
 import type { QuizResult } from "@/lib/quiz/types";
 import type { AnsweredQuestion } from "@/lib/quiz/types";
 import { cn } from "@/lib/utils";
+import { ShareButton } from "@/components/share-button";
 
 interface QuizResultProps {
   result: QuizResult;
   answers: AnsweredQuestion[];
   topicId: number;
+  topicName?: string;
   onRetry: () => void;
 }
 
@@ -47,6 +49,7 @@ export function QuizResultScreen({
   result,
   answers,
   topicId,
+  topicName,
   onRetry,
 }: QuizResultProps) {
   const router = useRouter();
@@ -171,6 +174,13 @@ export function QuizResultScreen({
         <Button onClick={onRetry} variant="outline" className="flex-1">
           Try Again
         </Button>
+        <ShareButton
+          type="quiz"
+          value={`${result.averageScore}/10`}
+          name={topicName}
+          className="flex-1"
+          size="default"
+        />
         <Button
           onClick={() => router.push(`/app/topic/${topicId}`)}
           className="flex-1"

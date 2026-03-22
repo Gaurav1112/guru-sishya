@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -20,10 +20,19 @@ const jetbrains = JetBrains_Mono({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#E85D26",
+};
+
 export const metadata: Metadata = {
   title: "Guru Sishya — Master Any Subject",
   description:
     "AI-powered learning app combining Pareto Principle, Feynman Technique, and spaced repetition to help you learn any topic in 20 focused hours.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Guru Sishya",
+  },
 };
 
 export default function RootLayout({

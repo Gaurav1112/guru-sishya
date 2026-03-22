@@ -52,6 +52,10 @@ const SHOP_ITEMS: ShopItem[] = [
 
 function ShopItemCard({ item, coins }: { item: ShopItem; coins: number }) {
   const spendCoins = useStore((s) => s.spendCoins);
+  const addStreakFreeze = useStore((s) => s.addStreakFreeze);
+  const activateXPBoost = useStore((s) => s.activateXPBoost);
+  const addHintToken = useStore((s) => s.addHintToken);
+  const activateStreakRepair = useStore((s) => s.activateStreakRepair);
   const canAfford = coins >= item.cost;
 
   async function handleBuy() {
@@ -61,6 +65,17 @@ function ShopItemCard({ item, coins }: { item: ShopItem; coins: number }) {
         description: `You need ${item.cost} coins. You have ${coins}.`,
       });
       return;
+    }
+
+    // Apply item effect in the Zustand store
+    if (item.id === "streak_freeze") {
+      addStreakFreeze();
+    } else if (item.id === "double_xp_boost") {
+      activateXPBoost();
+    } else if (item.id === "quiz_hint_token") {
+      addHintToken();
+    } else if (item.id === "streak_repair") {
+      activateStreakRepair();
     }
 
     // Add to Dexie inventory
@@ -73,8 +88,15 @@ function ShopItemCard({ item, coins }: { item: ShopItem; coins: number }) {
       })
       .catch(() => {});
 
+    const effectMessages: Record<string, string> = {
+      streak_freeze: "Your streak is protected for one missed day.",
+      double_xp_boost: "1.5x XP is active for the next hour!",
+      quiz_hint_token: "Use it during a quiz to reveal the answer for one option.",
+      streak_repair: "You can restore a broken streak within 24 hours.",
+    };
+
     toast.success(`Purchased: ${item.name}`, {
-      description: "Added to your inventory.",
+      description: effectMessages[item.id] ?? "Added to your inventory.",
       icon: item.icon,
     });
   }

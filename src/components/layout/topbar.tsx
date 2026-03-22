@@ -83,7 +83,9 @@ function MobileNav() {
 }
 
 export function Topbar() {
-  const { totalXP, level, coins, currentStreak } = useStore();
+  const { totalXP, level, coins, currentStreak, activeXPBoost } = useStore();
+  const xpBoostActive =
+    !!activeXPBoost && new Date(activeXPBoost) > new Date();
 
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-sm">
@@ -99,6 +101,14 @@ export function Topbar() {
 
       <div className="flex items-center gap-5">
         <StreakFlame streak={currentStreak} size="sm" />
+        {xpBoostActive && (
+          <span
+            title="XP Boost active — 1.5x XP for the next hour"
+            className="hidden sm:inline-flex items-center gap-1 rounded-full bg-saffron/20 px-2 py-0.5 text-xs font-semibold text-saffron"
+          >
+            ⚡ 1.5x XP
+          </span>
+        )}
         <div className="hidden sm:block">
           <XPBar totalXP={totalXP} level={level} />
         </div>

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { GeneratedQuestion } from "@/lib/quiz/types";
+import { useStore } from "@/lib/store";
 
 // CodeViewer is lazily loaded so Monaco never runs on the server
 const CodeViewer = dynamic(
@@ -28,6 +29,18 @@ interface AnswerInputProps {
   disabled?: boolean;
 }
 
+// Picks one wrong MCQ option letter to eliminate using a hint token.
+function pickEliminatedOption(
+  options: string[],
+  correctAnswer: string
+): string | null {
+  const wrongLetters = options
+    .map((o) => o.charAt(0))
+    .filter((l) => l !== correctAnswer.toUpperCase());
+  if (wrongLetters.length === 0) return null;
+  return wrongLetters[Math.floor(Math.random() * wrongLetters.length)];
+}
+
 const OPEN_PLACEHOLDERS: Record<string, string> = {
   code_review: "Describe the bug you found and explain why it is a problem...",
   predict_output:
@@ -41,7 +54,29 @@ const OPEN_PLACEHOLDERS: Record<string, string> = {
 };
 
 export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInputProps) {
+  const hintTokens = useStore((s) => s.hintTokens);
+  const useHintToken = useStore((s) => s.useHintToken);
   const [selected, setSelected] = useState<string>("");
+  const [eliminatedOption, setEliminatedOption] = useState<string | null>(null);
+
+  // Reset eliminated option whenever the question changes
+  useEffect(() => {
+    setEliminatedOption(null);
+  }, [question.question]);
+
+  function handleUseHint() {
+    if (
+      question.format !== "mcq" ||
+      !question.options ||
+      !question.correctAnswer ||
+      eliminatedOption
+    )
+      return;
+    const success = useHintToken();
+    if (!success) return;
+    const toEliminate = pickEliminatedOption(question.options, question.correctAnswer);
+    setEliminatedOption(toEliminate);
+  }
 
   const handleSubmit = () => {
     if (!selected.trim()) return;
@@ -134,25 +169,30 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
 
   if (question.format === "mcq" && question.options) {
     const keyHints: Record<string, string> = { A: "1", B: "2", C: "3", D: "4", E: "5" };
+    const canUseHint =
+      hintTokens > 0 && !!question.correctAnswer && !eliminatedOption && !disabled;
     return (
       <div className="flex flex-col gap-3">
         <div className="grid gap-2">
           {question.options.map((option) => {
             const letter = option.charAt(0); // "A", "B", etc.
             const isSelected = selected === letter;
+            const isEliminated = eliminatedOption === letter;
             return (
               <button
                 key={option}
                 type="button"
-                disabled={disabled}
-                onClick={() => setSelected(letter)}
+                disabled={disabled || isEliminated}
+                onClick={() => !isEliminated && setSelected(letter)}
                 className={cn(
                   "flex items-start gap-3 rounded-lg border p-3 text-left text-sm transition-all duration-150 min-h-[48px]",
                   "hover:bg-surface-hover hover:border-saffron/50",
-                  "disabled:pointer-events-none disabled:opacity-50",
-                  isSelected
-                    ? "border-saffron bg-saffron/10 text-foreground"
-                    : "border-border bg-card text-foreground"
+                  "disabled:pointer-events-none",
+                  isEliminated
+                    ? "opacity-30 line-through cursor-not-allowed"
+                    : isSelected
+                      ? "border-saffron bg-saffron/10 text-foreground"
+                      : "border-border bg-card text-foreground disabled:opacity-50"
                 )}
               >
                 <span
@@ -167,7 +207,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
                 </span>
                 <span className="pt-0.5 flex-1">{option.substring(3)}</span>
                 {/* Keyboard hint */}
-                {keyHints[letter] && (
+                {keyHints[letter] && !isEliminated && (
                   <span className="shrink-0 self-center rounded border border-border/60 bg-muted/40 px-1 py-0.5 text-[10px] text-muted-foreground tabular-nums">
                     {keyHints[letter]}
                   </span>
@@ -176,6 +216,25 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
             );
           })}
         </div>
+        {/* Hint token button — only for MCQ with a known correct answer */}
+        {(canUseHint || eliminatedOption) && (
+          <button
+            type="button"
+            onClick={handleUseHint}
+            disabled={!canUseHint}
+            className={cn(
+              "flex items-center justify-center gap-1.5 rounded-lg border border-dashed px-3 py-2 text-xs transition-colors",
+              canUseHint
+                ? "border-saffron/50 text-saffron hover:bg-saffron/10 cursor-pointer"
+                : "border-border/40 text-muted-foreground cursor-default"
+            )}
+          >
+            <span>💡</span>
+            {eliminatedOption
+              ? "One wrong answer eliminated"
+              : `Use hint token (${hintTokens} left) — eliminate a wrong answer`}
+          </button>
+        )}
         <Button
           onClick={handleSubmit}
           disabled={!selected || disabled}

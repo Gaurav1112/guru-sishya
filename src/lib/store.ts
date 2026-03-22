@@ -37,6 +37,9 @@ type PersistedState = Pick<
   | "streakFreezes"
   | "dailyXP"
   | "dailyXPDate"
+  | "activeXPBoost"
+  | "hintTokens"
+  | "streakRepairAvailable"
 >;
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -81,6 +84,9 @@ export const useStore = create<StoreState>()(
         streakFreezes: state.streakFreezes,
         dailyXP: state.dailyXP,
         dailyXPDate: state.dailyXPDate,
+        activeXPBoost: state.activeXPBoost,
+        hintTokens: state.hintTokens,
+        streakRepairAvailable: state.streakRepairAvailable,
       }),
     }
   )
