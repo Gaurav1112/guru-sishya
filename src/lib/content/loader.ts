@@ -19,7 +19,8 @@ export interface QuizBankQuestion {
 }
 
 export interface TopicContent {
-  topic: string;
+  topic: string; // normalised — always populated after load
+  name?: string; // some files use "name" instead of "topic"
   category: string;
   cheatSheet: string; // markdown
   resources: CuratedResource[];
@@ -58,11 +59,14 @@ export async function loadAllContent(): Promise<TopicContent[]> {
     try {
       const response = await fetch(file);
       if (!response.ok) continue;
-      const data = (await response.json()) as TopicContent | TopicContent[];
-      if (Array.isArray(data)) {
-        results.push(...data);
-      } else if (data && data.topic) {
-        results.push(data);
+      const raw = (await response.json()) as TopicContent | TopicContent[];
+      const items: TopicContent[] = Array.isArray(raw) ? raw : [raw];
+      for (const item of items) {
+        // Normalise: some files use "name" instead of "topic"
+        if (!item.topic && item.name) {
+          item.topic = item.name;
+        }
+        if (item.topic) results.push(item);
       }
     } catch {
       // Non-critical — file may not exist yet
