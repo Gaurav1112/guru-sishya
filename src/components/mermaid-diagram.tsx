@@ -9,8 +9,8 @@ interface MermaidDiagramProps {
 export function MermaidDiagram({ chart }: MermaidDiagramProps) {
   const id = useId().replace(/:/g, "");
   const containerRef = useRef<HTMLDivElement>(null);
+  const [svgContent, setSvgContent] = useState<string | null>(null);
   const [error, setError] = useState(false);
-  const [rendered, setRendered] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,9 +41,8 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
         const renderId = `mermaid-${id}-${Date.now()}`;
         const { svg } = await mermaid.render(renderId, chart.trim());
 
-        if (!cancelled && containerRef.current) {
-          containerRef.current.innerHTML = svg;
-          setRendered(true);
+        if (!cancelled) {
+          setSvgContent(svg);
         }
       } catch {
         if (!cancelled) {
@@ -73,9 +72,11 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
       className="my-4 overflow-x-auto rounded-lg border border-border bg-surface p-4 [&_svg]:max-w-full [&_svg]:mx-auto [&_svg]:block"
       aria-label="Mermaid diagram"
     >
-      {!rendered && (
+      {svgContent ? (
+        <div dangerouslySetInnerHTML={{ __html: svgContent }} />
+      ) : (
         <div className="flex items-center justify-center py-8 text-xs text-muted-foreground">
-          Rendering diagram…
+          Rendering diagram...
         </div>
       )}
     </div>

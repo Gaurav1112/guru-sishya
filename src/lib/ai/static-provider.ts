@@ -38,6 +38,24 @@ function detectContentType(
   if (combined.includes("cheat sheet") || combined.includes("cheatsheet")) {
     return "cheatsheet";
   }
+  // Check resources BEFORE plan, because the resource prompt mentions
+  // "Pareto chapters" which would falsely trigger the plan detection.
+  if (
+    combined.includes("resource curator") ||
+    combined.includes("curate") ||
+    (combined.includes("resource") && combined.includes("categories"))
+  ) {
+    return "resources";
+  }
+  // Check ladder BEFORE plan, because the ladder prompt uses
+  // "curriculum designer" which would falsely trigger the plan detection.
+  if (
+    combined.includes("ladder") ||
+    combined.includes("dreyfus") ||
+    combined.includes("skill acquisition")
+  ) {
+    return "ladder";
+  }
   if (
     combined.includes("learning plan") ||
     combined.includes("pareto") ||
@@ -66,20 +84,6 @@ function detectContentType(
     combined.includes("quiz generator")
   ) {
     return "quiz_question";
-  }
-  if (
-    combined.includes("resource") ||
-    combined.includes("curate") ||
-    combined.includes("curator")
-  ) {
-    return "resources";
-  }
-  if (
-    combined.includes("ladder") ||
-    combined.includes("dreyfus") ||
-    combined.includes("skill acquisition")
-  ) {
-    return "ladder";
   }
   if (
     combined.includes("diagnostic") &&

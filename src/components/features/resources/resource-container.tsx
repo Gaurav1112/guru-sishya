@@ -52,19 +52,21 @@ export function ResourceContainer({ topicId, topicName }: ResourceContainerProps
   const initDone = useRef(false);
 
   // Live query: existing resource record for this topic
+  // Note: first() returns undefined when no records match, but useLiveQuery
+  // also returns undefined while loading. Normalize to null to distinguish.
   const existingResource = useLiveQuery(
-    () => db.resources.where("topicId").equals(topicId).first(),
+    async () => (await db.resources.where("topicId").equals(topicId).first()) ?? null,
     [topicId]
   );
 
   // FIX 8: Live query for the most recent quiz attempt for this topic
   const latestQuizAttempt = useLiveQuery(
-    () =>
-      db.quizAttempts
+    async () =>
+      (await db.quizAttempts
         .where("topicId")
         .equals(topicId)
         .reverse()
-        .first(),
+        .first()) ?? null,
     [topicId]
   );
 

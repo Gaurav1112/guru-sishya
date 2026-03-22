@@ -171,13 +171,15 @@ export function LevelCard({
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                 {level.milestoneProject.description}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Estimated: ~{level.milestoneProject.estimatedHours}h
-              </p>
+              {level.milestoneProject.estimatedHours && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Estimated: ~{level.milestoneProject.estimatedHours}h
+                </p>
+              )}
             </div>
 
             {/* Common plateaus */}
-            {level.commonPlateaus.length > 0 && (
+            {(level.commonPlateaus?.length ?? 0) > 0 && (
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
                   <AlertTriangle className="size-3 text-gold" />
@@ -195,7 +197,7 @@ export function LevelCard({
             )}
 
             {/* Prerequisites */}
-            {level.prerequisites.length > 0 && (
+            {(level.prerequisites?.length ?? 0) > 0 && (
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
                   Prerequisites from Level {level.level - 1}

@@ -36,7 +36,7 @@ export function ConceptInput({
         </h2>
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">
           The best way to learn is to teach. Tell me what concept from{" "}
-          <span className="text-foreground font-medium">{topicName}</span> you
+          <span className="text-foreground font-medium">{topicName}</span>{" "}you
           want to truly understand — I&apos;ll guide you through explaining it
           until it clicks.
         </p>

@@ -192,8 +192,11 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   }, [isStatic, topicName]);
 
   // Dexie live query to detect existing calibration
+  // Note: Dexie's first() returns undefined when no records match,
+  // but useLiveQuery also returns undefined while loading.
+  // We normalize to null to distinguish "no results" from "still loading".
   const existingCalibration = useLiveQuery(
-    () => db.quizAttempts.where({ topicId }).first(),
+    async () => (await db.quizAttempts.where({ topicId }).first()) ?? null,
     [topicId]
   );
 

@@ -45,12 +45,14 @@ export function LadderContainer({ topicId, topicName }: LadderContainerProps) {
   const initDone = useRef(false);
 
   // Live queries
+  // Note: first() returns undefined when no records match, but useLiveQuery
+  // also returns undefined while loading. Normalize to null to distinguish.
   const cachedLadder = useLiveQuery(
-    () => db.ladderCache.where("topicId").equals(topicId).first(),
+    async () => (await db.ladderCache.where("topicId").equals(topicId).first()) ?? null,
     [topicId]
   );
   const levelProgress = useLiveQuery(
-    () => db.levelProgress.where("topicId").equals(topicId).first(),
+    async () => (await db.levelProgress.where("topicId").equals(topicId).first()) ?? null,
     [topicId]
   );
 
