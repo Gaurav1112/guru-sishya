@@ -85,37 +85,41 @@ export function DailyChallengeWidget() {
   // ── Generate challenge via AI ──────────────────────────────────────────────
 
   async function generateChallenge() {
-    if (!apiKey && aiProvider !== "ollama") {
+    if (false) { // Disabled — using pre-generated questions
       setError("Set your API key in Settings first.");
       return;
     }
     setGenerating(true);
     setError(null);
     try {
-      const topics = await db.topics.toArray();
-      const topicNames = topics.map((t) => t.name);
-      if (topicNames.length === 0) {
-        setError("Add a topic first to get a daily challenge.");
-        return;
-      }
+      // Load pre-generated questions (no AI needed)
+      const response = await fetch("/content/daily-questions.json");
+      if (!response.ok) throw new Error("Could not load daily questions");
+      const allQuestions = await response.json() as Array<{
+        question: string; options: string[]; correctAnswer: string;
+        explanation: string; category: string;
+      }>;
 
-      const ai = createAIProvider(aiProvider === "ollama" ? "ollama" : apiKey, aiProvider);
-      const { system, user } = dailyChallengePrompt(topicNames, level);
-      const raw = await ai.generateText(user, system, { temperature: 0.7 });
+      // Pick a consistent random question based on today's date
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const dayHash = todayStr.split("").reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0);
+      const index = dayHash % allQuestions.length;
+      const q = allQuestions[index];
 
-      const cleaned = raw
-        .replace(/^```(?:json)?\s*/i, "")
-        .replace(/```\s*$/i, "")
-        .trim();
-
-      const p = JSON.parse(cleaned) as ParsedChallenge;
+      const p: ParsedChallenge = {
+        question: q.question,
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation,
+        topic: q.category,
+      };
       setParsed(p);
 
       const today = new Date().toISOString().slice(0, 10);
       const id = await saveTodaysChallenge({
         date: today,
         topic: p.topic,
-        question: cleaned, // store full JSON for later parsing
+        question: JSON.stringify(p), // store full JSON for later parsing
         correctAnswer: p.correctAnswer,
         explanation: p.explanation,
         answered: false,

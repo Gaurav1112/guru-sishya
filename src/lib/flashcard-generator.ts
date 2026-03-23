@@ -121,12 +121,62 @@ export async function getDueCards(date?: Date): Promise<Flashcard[]> {
   const today = endOfDay(date ?? new Date());
 
   try {
-    return await db.flashcards
+    const dexieCards = await db.flashcards
       .where("nextReviewAt")
       .belowOrEqual(today)
       .toArray();
+
+    // If no cards in Dexie, seed from default flashcards
+    if (dexieCards.length === 0) {
+      const totalCards = await db.flashcards.count();
+      if (totalCards === 0) {
+        await seedDefaultFlashcards();
+        return db.flashcards
+          .where("nextReviewAt")
+          .belowOrEqual(today)
+          .toArray();
+      }
+    }
+
+    // If no due cards, return 5 random cards for practice (never show "all caught up")
+    if (dexieCards.length === 0) {
+      const allCards = await db.flashcards.toArray();
+      if (allCards.length > 0) {
+        // Shuffle and return 5 random cards for practice
+        const shuffled = allCards.sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, Math.min(5, shuffled.length));
+      }
+    }
+
+    return dexieCards;
   } catch {
     return [];
+  }
+}
+
+async function seedDefaultFlashcards(): Promise<void> {
+  try {
+    const response = await fetch("/content/default-flashcards.json");
+    if (!response.ok) return;
+    const cards = await response.json() as { front: string; back: string; category: string }[];
+
+    // Seed first 50 cards as due today, rest spread over next 30 days
+    const now = new Date();
+    const flashcards = cards.slice(0, 200).map((card, i) => ({
+      topicId: 0,
+      concept: `default::${card.front.substring(0, 50)}`,
+      front: card.front,
+      back: card.back,
+      easeFactor: 2.5,
+      interval: 0,
+      repetitions: 0,
+      nextReviewAt: new Date(now.getTime() + (i < 10 ? 0 : i * 86400000 / 7)),
+      source: "cheatsheet" as const,
+    }));
+
+    await db.flashcards.bulkAdd(flashcards);
+  } catch {
+    // Silently fail — default cards are optional
   }
 }
 
