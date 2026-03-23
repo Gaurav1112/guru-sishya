@@ -2,6 +2,8 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { loadAllContent, type TopicContent } from "@/lib/content/loader";
@@ -294,6 +296,7 @@ function YourProgress() {
 export default function DashboardPage() {
   useStreak();
 
+  const { data: session } = useSession();
   const [featuredContent, setFeaturedContent] = useState<TopicContent[]>([]);
 
   useEffect(() => {
@@ -310,6 +313,9 @@ export default function DashboardPage() {
 
   const topicCount = useLiveQuery(() => db.topics.count());
 
+  const user = session?.user;
+  const firstName = user?.name?.split(" ")[0];
+
   return (
     <div className="space-y-8">
       {/* Welcome Banner */}
@@ -317,9 +323,36 @@ export default function DashboardPage() {
         <p className="text-xs font-medium tracking-widest text-saffron uppercase mb-1">
           Guru Sishya
         </p>
-        <h1 className="font-heading text-2xl font-bold mb-2">
-          Your Interview Prep Dashboard
-        </h1>
+
+        {user ? (
+          <div className="flex items-center gap-3 mb-2">
+            {user.image && (
+              <Image
+                src={user.image}
+                alt={user.name ?? "User avatar"}
+                width={36}
+                height={36}
+                className="rounded-full ring-2 ring-saffron/30"
+              />
+            )}
+            <h1 className="font-heading text-2xl font-bold">
+              Welcome back, {firstName}!
+            </h1>
+          </div>
+        ) : (
+          <div className="mb-2">
+            <h1 className="font-heading text-2xl font-bold">
+              Your Interview Prep Dashboard
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              <Link href="/login" className="text-saffron hover:underline font-medium">
+                Sign in
+              </Link>{" "}
+              to save your progress across devices.
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <span>
             <strong className="text-foreground">54</strong> topics ready

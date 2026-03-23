@@ -47,6 +47,11 @@ function LandingNavbar() {
             Roadmap
           </Button>
         </Link>
+        <Link href="/login">
+          <Button variant="ghost" size="sm" className="text-sm">
+            Sign In
+          </Button>
+        </Link>
         <Link href="/app/topics">
           <Button size="sm" className="bg-saffron hover:bg-saffron/90">
             Start Free
@@ -73,9 +78,9 @@ function FinalCTA() {
               Start Free Today
             </Button>
           </Link>
-          <Link href="/app/roadmap">
+          <Link href="/login">
             <Button variant="outline" size="lg" className="min-w-[160px] text-base">
-              View Roadmap
+              Sign In
             </Button>
           </Link>
         </div>

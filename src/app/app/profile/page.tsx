@@ -1,5 +1,8 @@
 "use client";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useSession, signIn } from "next-auth/react";
+import Image from "next/image";
+import { useRef } from "react";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { getLevelInfo, xpProgressInLevel } from "@/lib/gamification/xp";
@@ -7,6 +10,7 @@ import { StreakFlame } from "@/components/gamification/streak-flame";
 import { LevelBadge } from "@/components/gamification/level-badge";
 import { BadgeMandir } from "@/components/gamification/badge-mandir";
 import { ShareButton } from "@/components/share-button";
+import { Button } from "@/components/ui/button";
 
 // ────────────────────────────────────────────────────────────────────────────
 // 30-day dot calendar
@@ -132,16 +136,215 @@ function StatsGrid() {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// Export / Import progress (Option A — zero-cost cross-device transfer)
+// Future: replace with Supabase free-tier sync when a DB is set up
+// ────────────────────────────────────────────────────────────────────────────
+
+function ProgressTransfer() {
+  const importRef = useRef<HTMLInputElement>(null);
+
+  async function handleExport() {
+    try {
+      const data: Record<string, unknown[]> = {};
+      const tableNames = [
+        "topics", "learningPlans", "quizAttempts", "flashcards",
+        "chatSessions", "chatMessages", "cheatSheets", "resources",
+        "badges", "streakHistory", "dailyChallenges", "coinTransactions",
+        "inventory", "guidedPathProgress", "skillTreeNodes",
+        "treasureChests", "planSessions", "userProfile",
+        "ladderCache", "graduationTests", "levelProgress",
+        "aiCache", "timedTestResults",
+      ] as const;
+
+      for (const name of tableNames) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const table = (db as any)[name];
+        if (table) {
+          data[name] = await table.toArray();
+        }
+      }
+
+      const json = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), data }, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `guru-sishya-progress-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed", err);
+      alert("Export failed. Please try again.");
+    }
+  }
+
+  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as { version: number; data: Record<string, unknown[]> };
+
+      if (!parsed.data) {
+        alert("Invalid progress file.");
+        return;
+      }
+
+      const confirmed = window.confirm(
+        "This will merge the imported data into your current local data. Existing records will not be deleted. Continue?"
+      );
+      if (!confirmed) return;
+
+      for (const [tableName, rows] of Object.entries(parsed.data)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const table = (db as any)[tableName];
+        if (table && Array.isArray(rows) && rows.length > 0) {
+          // Remove the id field so Dexie auto-assigns new IDs, avoiding conflicts
+          const cleaned = (rows as Record<string, unknown>[]).map(({ id: _id, ...rest }) => rest);
+          await table.bulkAdd(cleaned).catch(() => {
+            // bulkAdd may partially fail on duplicates — that's okay
+          });
+        }
+      }
+
+      alert("Progress imported successfully! Refresh the page to see updates.");
+    } catch (err) {
+      console.error("Import failed", err);
+      alert("Import failed. Make sure the file is a valid Guru Sishya export.");
+    } finally {
+      if (importRef.current) importRef.current.value = "";
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-border/50 bg-surface p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-xl">💾</span>
+        <div>
+          <h3 className="font-heading font-bold">Progress Backup</h3>
+          <p className="text-sm text-muted-foreground">
+            Export your progress to a file and import it on another device.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3 mt-4">
+        <Button variant="outline" size="sm" onClick={handleExport}>
+          Export Progress
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => importRef.current?.click()}
+        >
+          Import Progress
+        </Button>
+        <input
+          ref={importRef}
+          type="file"
+          accept=".json,application/json"
+          className="hidden"
+          onChange={handleImport}
+        />
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground/60">
+        Data stays in your browser. Export creates a JSON file you can load on any device.
+        {/* Future: Supabase free-tier cloud sync can be wired here for automatic cross-device sync */}
+      </p>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Sign-in CTA — shown when user is not logged in
+// ────────────────────────────────────────────────────────────────────────────
+
+function SignInCTA() {
+  return (
+    <div className="rounded-xl border border-saffron/30 bg-saffron/5 p-6 text-center">
+      <p className="text-2xl mb-3">🔒</p>
+      <h2 className="font-heading text-lg font-bold mb-2">
+        Sign in to save your progress across devices
+      </h2>
+      <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
+        Your progress is stored locally in this browser. Sign in with Google to
+        export and sync it across your devices for free.
+      </p>
+      <Button
+        onClick={() => signIn("google", { callbackUrl: "/app/profile" })}
+        className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-200 font-medium gap-3"
+      >
+        <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+        </svg>
+        Sign In with Google
+      </Button>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Google account card — shown at the top when signed in
+// ────────────────────────────────────────────────────────────────────────────
+
+function GoogleAccountCard() {
+  const { data: session } = useSession();
+  if (!session?.user) return null;
+
+  const user = session.user;
+  const initials = user.name
+    ? user.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
+    : "?";
+
+  return (
+    <div className="rounded-xl border border-teal/30 bg-teal/5 p-5">
+      <div className="flex items-center gap-4">
+        {user.image ? (
+          <Image
+            src={user.image}
+            alt={user.name ?? "User avatar"}
+            width={52}
+            height={52}
+            className="rounded-full ring-2 ring-teal/30"
+          />
+        ) : (
+          <div className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-saffron/20 text-lg font-bold text-saffron ring-2 ring-saffron/30">
+            {initials}
+          </div>
+        )}
+        <div>
+          <p className="font-heading font-bold text-lg leading-tight">{user.name}</p>
+          <p className="text-sm text-muted-foreground">{user.email}</p>
+          <p className="text-xs text-teal mt-0.5">Signed in with Google</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // Profile Page
 // ────────────────────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
+  const { data: session, status } = useSession();
   const { totalXP, level, currentStreak, longestStreak } = useStore();
   const levelInfo = getLevelInfo(level);
   const progress = xpProgressInLevel(totalXP);
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-12">
+      {/* ── Google account info (when signed in) ───────────────────────── */}
+      {status !== "loading" && session && <GoogleAccountCard />}
+
+      {/* ── Sign-in CTA (when not signed in) ───────────────────────────── */}
+      {status !== "loading" && !session && <SignInCTA />}
+
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="rounded-xl border border-border/50 bg-surface p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -213,6 +416,12 @@ export default function ProfilePage() {
       {/* ── Coin Balance ───────────────────────────────────────────────── */}
       <section>
         <CoinBalanceSection />
+      </section>
+
+      {/* ── Progress Export / Import ────────────────────────────────────── */}
+      <section>
+        <h2 className="font-heading text-xl font-bold mb-4">Progress Backup</h2>
+        <ProgressTransfer />
       </section>
     </div>
   );

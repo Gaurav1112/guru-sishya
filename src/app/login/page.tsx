@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { signIn } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { auth, signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
@@ -29,7 +30,20 @@ function GoogleIcon() {
   );
 }
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
+  // If already signed in, redirect to dashboard (or callbackUrl)
+  const session = await auth();
+  const params = await searchParams;
+  const callbackUrl = params.callbackUrl ?? "/app/dashboard";
+
+  if (session) {
+    redirect(callbackUrl);
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
       {/* Background accent */}
@@ -76,7 +90,7 @@ export default function LoginPage() {
           <form
             action={async () => {
               "use server";
-              await signIn("google", { redirectTo: "/app/dashboard" });
+              await signIn("google", { redirectTo: callbackUrl });
             }}
           >
             <Button
