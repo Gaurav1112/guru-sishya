@@ -15,7 +15,7 @@
   --popover-foreground: hsl(40 33% 97%);
   --primary: hsl(16 79% 53%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(271 100% 25%);
+  --secondary: hsl(271 80% 65%);
   --secondary-foreground: hsl(40 33% 97%);
   --muted: hsl(240 15% 20%);
   --muted-foreground: hsl(240 10% 55%);
@@ -31,7 +31,7 @@
   --gold: hsl(43 100% 49%);
   --teal: hsl(166 100% 37%);
   --saffron: hsl(16 79% 53%);
-  --indigo: hsl(271 100% 25%);
+  --indigo: hsl(271 100% 60%);
   --surface: hsl(240 25% 13%);
   --surface-hover: hsl(240 25% 19%);
 
