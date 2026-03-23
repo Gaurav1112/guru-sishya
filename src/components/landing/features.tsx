@@ -15,7 +15,7 @@ const features = [
   {
     title: "20-Hour Pareto Plan",
     description:
-      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 69 built-in topics.",
+      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 54 built-in topics.",
     icon: "📋",
   },
   {
@@ -27,7 +27,7 @@ const features = [
   {
     title: "Quiz Me Till I Break",
     description:
-      "1,633 pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
+      "1,301 pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
     icon: "🧠",
   },
   {

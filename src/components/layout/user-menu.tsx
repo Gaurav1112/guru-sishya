@@ -22,13 +22,17 @@ export function UserMenu() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  const authEnabled = process.env.NEXT_PUBLIC_AUTH_ENABLED === "true";
+
   if (status === "loading") {
+    if (!authEnabled) return null;
     return (
       <div className="h-7 w-7 rounded-full bg-muted/60 animate-pulse" />
     );
   }
 
   if (!session) {
+    if (!authEnabled) return null;
     return (
       <Link href="/login">
         <Button
