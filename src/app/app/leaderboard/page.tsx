@@ -211,12 +211,7 @@ export default function LeaderboardPage() {
                     isMe ? "text-saffron" : "text-foreground"
                   }`}
                 >
-                  {user.name}
-                  {isMe && (
-                    <span className="ml-1.5 text-xs font-normal text-saffron/70">
-                      (You)
-                    </span>
-                  )}
+                  {isMe ? "You" : user.name}
                 </p>
                 <p className="text-xs text-muted-foreground capitalize">
                   {user.archetype.replace("_", " ")}

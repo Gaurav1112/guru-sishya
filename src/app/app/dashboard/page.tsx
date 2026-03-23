@@ -13,7 +13,7 @@ import { DailyChallengeWidget } from "@/components/gamification/daily-challenge"
 import { useStreak } from "@/hooks/use-streak";
 import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
 import Link from "next/link";
-import { BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
 
 // ── Featured topics to show on dashboard ────────────────────────────────────
 
@@ -24,6 +24,16 @@ const FEATURED_TOPICS = [
   "JavaScript Fundamentals",
   "Design: URL Shortener (TinyURL)",
   "Arrays & Strings",
+];
+
+// Fallback cards shown if content fails to load
+const FALLBACK_TOPICS: TopicContent[] = [
+  { topic: "Load Balancing", category: "System Design", cheatSheet: "", resources: [], ladder: { levels: [] }, plan: { overview: "", skippedTopics: "", sessions: [] }, quizBank: [] },
+  { topic: "Dynamic Programming", category: "Algorithms", cheatSheet: "", resources: [], ladder: { levels: [] }, plan: { overview: "", skippedTopics: "", sessions: [] }, quizBank: [] },
+  { topic: "JavaScript Fundamentals", category: "Programming Languages", cheatSheet: "", resources: [], ladder: { levels: [] }, plan: { overview: "", skippedTopics: "", sessions: [] }, quizBank: [] },
+  { topic: "Arrays & Strings", category: "Data Structures", cheatSheet: "", resources: [], ladder: { levels: [] }, plan: { overview: "", skippedTopics: "", sessions: [] }, quizBank: [] },
+  { topic: "Design: URL Shortener (TinyURL)", category: "System Design Cases", cheatSheet: "", resources: [], ladder: { levels: [] }, plan: { overview: "", skippedTopics: "", sessions: [] }, quizBank: [] },
+  { topic: "System Design Fundamentals", category: "System Design", cheatSheet: "", resources: [], ladder: { levels: [] }, plan: { overview: "", skippedTopics: "", sessions: [] }, quizBank: [] },
 ];
 
 // ── Review Widget ─────────────────────────────────────────────────────────────
@@ -223,10 +233,10 @@ function QuickStartCard({ content }: { content: TopicContent }) {
 
 function CategoryLinks() {
   const CATS = [
-    { icon: "📐", label: "System Design Fundamentals", count: 31, color: "text-saffron", tab: "sd" },
-    { icon: "🏗️", label: "System Design Cases", count: 18, color: "text-teal", tab: "cases" },
-    { icon: "🧮", label: "DS & Algorithms", count: 10, color: "text-indigo", tab: "dsalgo" },
-    { icon: "💻", label: "Core CS & Languages", count: 10, color: "text-gold", tab: "cs" },
+    { icon: "📐", label: "System Design Fundamentals", color: "text-saffron", tab: "sd" },
+    { icon: "🏗️", label: "System Design Cases", color: "text-teal", tab: "cases" },
+    { icon: "🧮", label: "DS & Algorithms", color: "text-indigo", tab: "dsalgo" },
+    { icon: "💻", label: "Core CS & Languages", color: "text-gold", tab: "cs" },
   ];
 
   return (
@@ -240,7 +250,7 @@ function CategoryLinks() {
           <span className="text-2xl">{cat.icon}</span>
           <div>
             <p className={`font-semibold text-sm ${cat.color}`}>{cat.label}</p>
-            <p className="text-xs text-muted-foreground">{cat.count} topics</p>
+            <p className="text-xs text-muted-foreground">Browse topics →</p>
           </div>
         </Link>
       ))}
@@ -307,8 +317,10 @@ export default function DashboardPage() {
         );
         return match ? [match] : [];
       });
-      setFeaturedContent(featured);
-    }).catch(() => {});
+      setFeaturedContent(featured.length > 0 ? featured : FALLBACK_TOPICS);
+    }).catch(() => {
+      setFeaturedContent(FALLBACK_TOPICS);
+    });
   }, []);
 
   const topicCount = useLiveQuery(() => db.topics.count());

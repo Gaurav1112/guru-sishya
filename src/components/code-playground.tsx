@@ -20,6 +20,8 @@ export type PlaygroundLanguage = "javascript" | "typescript" | "python" | "java"
 
 interface CodePlaygroundProps {
   defaultCode?: string;
+  /** Per-language code map — when provided, switching language also switches code */
+  codeByLanguage?: Partial<Record<PlaygroundLanguage, string>>;
   language?: PlaygroundLanguage;
   testCases?: TestCase[];
   readOnly?: boolean;
@@ -166,8 +168,22 @@ const LANGUAGES: { value: PlaygroundLanguage; label: string; monacoLang: string;
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+// Simple heuristic: detect placeholder / stub code
+function isPlaceholderCode(code: string): boolean {
+  const lower = code.toLowerCase();
+  return (
+    lower.includes("# placeholder") ||
+    lower.includes("// placeholder") ||
+    lower.includes("pass  # implement") ||
+    lower.includes("pass # implement") ||
+    lower.includes("throw new unsupportedoperationexception") ||
+    (lower.includes("todo") && lower.includes("implement") && code.trim().split("\n").length < 10)
+  );
+}
+
 export function CodePlayground({
   defaultCode,
+  codeByLanguage,
   language: initialLanguage = "javascript",
   testCases,
   readOnly = false,
@@ -176,7 +192,8 @@ export function CodePlayground({
   className,
 }: CodePlaygroundProps) {
   const [language, setLanguage] = useState<PlaygroundLanguage>(initialLanguage);
-  const [code, setCode] = useState<string>(defaultCode ?? DEFAULT_CODE[initialLanguage]);
+  const initialCode = codeByLanguage?.[initialLanguage] ?? defaultCode ?? DEFAULT_CODE[initialLanguage];
+  const [code, setCode] = useState<string>(initialCode);
   const [output, setOutput] = useState<string>("");
   const [outputError, setOutputError] = useState<boolean>(false);
   const [running, setRunning] = useState(false);
@@ -237,21 +254,23 @@ export function CodePlayground({
   }, [code, language]);
 
   const handleReset = useCallback(() => {
-    setCode(defaultCode ?? DEFAULT_CODE[language]);
+    setCode(codeByLanguage?.[language] ?? defaultCode ?? DEFAULT_CODE[language]);
     setOutput("");
     setOutputError(false);
     setOutputVisible(false);
-  }, [defaultCode, language]);
+  }, [defaultCode, codeByLanguage, language]);
 
   const handleLanguageChange = useCallback((lang: PlaygroundLanguage) => {
     setLanguage(lang);
-    if (!defaultCode) {
+    if (codeByLanguage?.[lang] !== undefined) {
+      setCode(codeByLanguage[lang]!);
+    } else if (!defaultCode) {
       setCode(DEFAULT_CODE[lang]);
     }
     setOutput("");
     setOutputError(false);
     setOutputVisible(false);
-  }, [defaultCode]);
+  }, [defaultCode, codeByLanguage]);
 
   const monacoLang = LANGUAGES.find((l) => l.value === language)?.monacoLang ?? "javascript";
 
@@ -300,6 +319,13 @@ export function CodePlayground({
           )}
         </div>
       </div>
+
+      {/* ── Placeholder notice ───────────────────────────────────────────── */}
+      {isPlaceholderCode(code) && (
+        <div className="px-3 py-2 bg-[#252526] border-b border-[#3c3c3c] text-xs text-amber-400 italic">
+          Real implementation coming soon. Try the Java version above.
+        </div>
+      )}
 
       {/* ── Monaco Editor ────────────────────────────────────────────────── */}
       <div style={{ height }}>

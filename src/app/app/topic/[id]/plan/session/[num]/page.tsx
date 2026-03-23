@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { GeneratedPlan } from "@/lib/plan/types";
 import type { LangCode } from "@/components/code-tabs";
+import type { PlaygroundLanguage } from "@/components/code-playground";
 
 // Dynamic imports — Monaco must never run on the server
 const CodePlayground = dynamic(
@@ -84,7 +85,7 @@ function ReviewQuestion({ question, index }: { question: string; index: number }
         <>
           {revealed ? (
             <div className="rounded-md bg-muted/40 border border-border p-2.5 text-sm text-muted-foreground italic">
-              Try to answer this before checking your notes.
+              Refer to the lesson content above for the detailed explanation. Key points to remember: review the concepts covered in this session and try to articulate your understanding in your own words.
             </div>
           ) : (
             <button
@@ -491,6 +492,7 @@ export default function SessionViewPage({
           </p>
           <CodePlayground
             defaultCode={firstBlock.code}
+            codeByLanguage={Object.fromEntries(allCodeBlocks.map((b) => [b.language, b.code])) as Partial<Record<PlaygroundLanguage, string>>}
             language={playgroundLang}
             height={320}
             title="Interactive Example"

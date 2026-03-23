@@ -399,9 +399,11 @@ export default function TopicsPage() {
               }`}
             >
               {tab.label}
-              <span className="ml-1 tabular-nums opacity-70">
-                ({tab.count})
-              </span>
+              {!contentLoading && (
+                <span className="ml-1 tabular-nums opacity-70">
+                  ({tab.count})
+                </span>
+              )}
             </button>
           ))}
         </div>

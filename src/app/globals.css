@@ -119,4 +119,84 @@
   [data-slot="card"] {
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.25), 0 1px 2px rgb(0 0 0 / 0.15);
   }
+
+  /* Book-flip card system */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .flip-card {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .flip-card.flipped {
+    transform: rotateY(180deg);
+  }
+
+  /* Paper texture effect for question cards */
+  .paper-texture {
+    background-image:
+      radial-gradient(ellipse at 20% 50%, hsl(240 25% 15% / 0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, hsl(240 25% 15% / 0.3) 0%, transparent 60%);
+    box-shadow:
+      0 2px 8px rgb(0 0 0 / 0.3),
+      0 8px 32px rgb(0 0 0 / 0.2),
+      inset 0 1px 0 hsl(240 25% 20% / 0.5);
+  }
+
+  /* Book spine gradient on left side of card */
+  .book-spine {
+    background: linear-gradient(
+      90deg,
+      hsl(240 20% 10%) 0%,
+      hsl(240 25% 14%) 4px,
+      hsl(240 25% 16%) 8px,
+      transparent 12px
+    );
+  }
+
+  /* Glow effect on hover for cards */
+  .card-glow {
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .card-glow:hover {
+    box-shadow:
+      0 4px 16px hsl(16 79% 53% / 0.15),
+      0 8px 32px hsl(16 79% 53% / 0.08);
+  }
+
+  /* Progress bar animation */
+  .progress-fill {
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Book page number styling */
+  .page-number {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+  }
+
+  /* Category tab scrollbar styling */
+  .category-tabs::-webkit-scrollbar {
+    height: 2px;
+  }
+
+  .category-tabs::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .category-tabs::-webkit-scrollbar-thumb {
+    background: hsl(240 10% 25%);
+    border-radius: 1px;
+  }
 }

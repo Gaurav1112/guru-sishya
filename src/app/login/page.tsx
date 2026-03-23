@@ -58,9 +58,6 @@ export default async function LoginPage({
           <Link href="/" className="font-heading text-2xl font-black text-saffron tracking-wider">
             GURU SISHYA
           </Link>
-          <p className="mt-1 text-xs text-muted-foreground tracking-widest uppercase">
-            Dark Scholar Mode
-          </p>
         </div>
 
         {/* Card */}

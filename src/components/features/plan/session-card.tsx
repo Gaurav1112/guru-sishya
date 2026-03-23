@@ -236,7 +236,7 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
               <ul className="space-y-1.5">
                 {session.reviewQuestions.map((q, i) => (
                   <li key={i} className="text-sm text-muted-foreground italic">
-                    {i + 1}. {q}
+                    {i + 1}. {q.split(":::")[0].trim()}
                   </li>
                 ))}
               </ul>
