@@ -8,12 +8,6 @@ import type { Flashcard } from "@/lib/types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function startOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
 function endOfDay(date: Date): Date {
   const d = new Date(date);
   d.setHours(23, 59, 59, 999);

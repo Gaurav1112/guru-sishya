@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CalendarDays, Flame, BookOpen, ChevronRight, Clock } from "lucide-react";
+import { CalendarDays, Flame, BookOpen, ChevronRight, Clock, CalendarCheck, CalendarRange, Trophy } from "lucide-react";
 import Link from "next/link";
+import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { getDueCards, getReviewHistory } from "@/lib/flashcard-generator";
 import { FlashcardDeck } from "@/components/features/review/flashcard-deck";
 import { Button } from "@/components/ui/button";
 import type { Flashcard } from "@/lib/types";
+import type { TimedTestResult } from "@/lib/review/question-selector";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -180,6 +182,119 @@ function ReviewHistory({
   );
 }
 
+// ── Timed test cards ──────────────────────────────────────────────────────────
+
+function TimedTestCards() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday
+  const dateOfMonth = today.getDate();
+
+  const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+  const isWeeklyDay = dayOfWeek === 0;
+  const isMonthlyWeek = dateOfMonth <= 7;
+
+  // Days until first of next month
+  const firstOfNext = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const daysToMonthEnd = Math.ceil((firstOfNext.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+  const testHistory = useLiveQuery(
+    () => db.timedTestResults.orderBy("completedAt").reverse().limit(5).toArray(),
+    []
+  );
+
+  return (
+    <div className="space-y-3">
+      <h2 className="font-heading text-base font-semibold">Timed Tests</h2>
+
+      {/* Weekly */}
+      <Link href="/app/review/weekly" className="group block">
+        <div className="rounded-xl border border-border bg-surface hover:bg-surface-hover hover:border-teal/30 transition-all p-4 flex items-center gap-4">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal/30 bg-teal/10">
+            <CalendarCheck className="size-5 text-teal" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-sm">Weekly Test</span>
+              {isWeeklyDay ? (
+                <span className="text-[10px] font-semibold rounded-full border border-teal/40 bg-teal/10 text-teal px-2 py-0.5">
+                  Available today
+                </span>
+              ) : (
+                <span className="text-[10px] rounded-full border border-border text-muted-foreground px-2 py-0.5">
+                  Sunday{daysUntilSunday > 0 ? ` · ${daysUntilSunday}d` : ""}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              15–20 questions · 30 min · +50 XP +20 coins
+            </p>
+          </div>
+          <ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+        </div>
+      </Link>
+
+      {/* Monthly */}
+      <Link href="/app/review/monthly" className="group block">
+        <div className="rounded-xl border border-border bg-surface hover:bg-surface-hover hover:border-gold/30 transition-all p-4 flex items-center gap-4">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-gold/30 bg-gold/10">
+            <CalendarRange className="size-5 text-gold" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-sm">Monthly Test</span>
+              {isMonthlyWeek ? (
+                <span className="text-[10px] font-semibold rounded-full border border-gold/40 bg-gold/10 text-gold px-2 py-0.5">
+                  Available this week
+                </span>
+              ) : (
+                <span className="text-[10px] rounded-full border border-border text-muted-foreground px-2 py-0.5">
+                  First week · {daysToMonthEnd}d away
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              30–40 questions · 60 min · +100 XP +50 coins · certificate
+            </p>
+          </div>
+          <ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+        </div>
+      </Link>
+
+      {/* Recent test history */}
+      {testHistory && testHistory.length > 0 && (
+        <div className="rounded-xl border border-border/50 bg-surface p-4 mt-1">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Recent Tests
+          </h3>
+          <div className="space-y-2">
+            {testHistory.map((r: TimedTestResult) => {
+              const color =
+                r.score >= 70 ? "text-teal" : r.score >= 50 ? "text-saffron" : "text-destructive";
+              const dateStr = new Date(r.completedAt).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+              });
+              return (
+                <div key={r.id} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <Trophy className={`size-3.5 ${r.type === "monthly" ? "text-gold" : "text-saffron"}`} />
+                    <span className="capitalize text-muted-foreground">
+                      {r.type} · {dateStr}
+                    </span>
+                  </div>
+                  <span className={`font-semibold tabular-nums ${color}`}>
+                    {r.score}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Hub view (not in active review) ──────────────────────────────────────────
 
 interface HubViewProps {
@@ -231,12 +346,15 @@ function HubView({ dueCards, history, onStartReview }: HubViewProps) {
       {/* Streak Calendar */}
       <StreakCalendar history={history} />
 
+      {/* Timed tests */}
+      <TimedTestCards />
+
       {/* Upcoming */}
       <UpcomingReviews />
 
       {/* History */}
       <section>
-        <h2 className="font-heading text-base font-semibold mb-3">Review History</h2>
+        <h2 className="font-heading text-base font-semibold mb-3">Flashcard History</h2>
         <ReviewHistory history={history} />
       </section>
     </div>
