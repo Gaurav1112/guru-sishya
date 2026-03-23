@@ -1,4 +1,6 @@
 "use client";
+
+import { QuestionBanner } from "@/components/gamification/question-banner";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -408,6 +410,9 @@ export default function DashboardPage() {
 
       {/* Daily Challenge */}
       <DailyChallengeWidget />
+
+      {/* Question of the Day Banner */}
+      <QuestionBanner />
 
       {/* Your Progress */}
       <section>
