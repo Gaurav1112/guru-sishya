@@ -59,6 +59,9 @@ export interface Flashcard {
   interval: number;
   repetitions: number;
   nextReviewAt: Date;
+  lastReviewedAt?: Date;
+  createdAt?: Date;
+  source?: "quiz_wrong" | "session_takeaway" | "cheatsheet";
 }
 
 export interface MasteryScores {

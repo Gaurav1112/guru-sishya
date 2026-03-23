@@ -11,6 +11,7 @@ import { DailyChallengeWidget } from "@/components/gamification/daily-challenge"
 import { useStreak } from "@/hooks/use-streak";
 import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
 import Link from "next/link";
+import { BookOpen, ChevronRight } from "lucide-react";
 
 // ── Featured topics to show on dashboard ────────────────────────────────────
 
@@ -22,6 +23,65 @@ const FEATURED_TOPICS = [
   "Design: URL Shortener (TinyURL)",
   "Arrays & Strings",
 ];
+
+// ── Review Widget ─────────────────────────────────────────────────────────────
+
+function ReviewWidget() {
+  const dueCount = useLiveQuery(async () => {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return db.flashcards.where("nextReviewAt").belowOrEqual(today).count();
+  }, []);
+
+  const hour = new Date().getHours();
+
+  if (dueCount === undefined) return null;
+
+  let message: string;
+  let borderClass: string;
+  let bgClass: string;
+  let textClass: string;
+
+  if (dueCount === 0) {
+    message = "All caught up! Next review tomorrow.";
+    borderClass = "border-teal/30";
+    bgClass = "bg-teal/5";
+    textClass = "text-teal";
+  } else if (hour < 12) {
+    message = "Good morning! Start your day with a quick review.";
+    borderClass = "border-saffron/30";
+    bgClass = "bg-saffron/5";
+    textClass = "text-saffron";
+  } else {
+    message = `You have ${dueCount} overdue card${dueCount !== 1 ? "s" : ""} — let's catch up!`;
+    borderClass = "border-gold/30";
+    bgClass = "bg-gold/5";
+    textClass = "text-gold";
+  }
+
+  return (
+    <Link
+      href="/app/review"
+      className={`flex items-center gap-4 rounded-xl border ${borderClass} ${bgClass} p-4 transition-all hover:scale-[1.01] group`}
+    >
+      <div className={`flex size-10 shrink-0 items-center justify-center rounded-full border ${borderClass} ${bgClass}`}>
+        <BookOpen className={`size-5 ${textClass}`} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm font-semibold ${textClass}`}>
+          {dueCount > 0 ? `${dueCount} card${dueCount !== 1 ? "s" : ""} due for review` : "Flashcard Review"}
+        </p>
+        <p className="text-xs text-muted-foreground mt-0.5">{message}</p>
+      </div>
+      {dueCount > 0 && (
+        <div className={`shrink-0 flex items-center gap-1 rounded-lg border ${borderClass} ${bgClass} px-3 py-1.5 text-xs font-medium ${textClass} group-hover:opacity-80`}>
+          Review Now
+          <ChevronRight className="size-3.5" />
+        </div>
+      )}
+    </Link>
+  );
+}
 
 // ── Comeback Banner ──────────────────────────────────────────────────────────
 
@@ -275,6 +335,9 @@ export default function DashboardPage() {
       </div>
 
       <ComebackBanner />
+
+      {/* Review Widget */}
+      <ReviewWidget />
 
       {/* Daily Challenge */}
       <DailyChallengeWidget />

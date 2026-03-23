@@ -11,6 +11,7 @@ import { DiagnosticForm } from "./diagnostic-form";
 import { PlanViewer } from "./plan-viewer";
 import { planGenerationPrompt } from "@/lib/prompts/plan-generator";
 import { findTopicContent } from "@/lib/content/loader";
+import { generateFlashcardsFromSession } from "@/lib/flashcard-generator";
 import type { DiagnosticAnswer, GeneratedPlan, PlanViewStatus } from "@/lib/plan/types";
 
 interface PlanContainerProps {
@@ -245,12 +246,26 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
           addXP(20);
           addCoins(10, "plan_session_complete");
           queueCelebration({ type: "xp_gain", data: { amount: 20 } });
+
+          // Auto-generate flashcards from session review questions
+          const sessionData = generatedPlan?.sessions.find(
+            (s) => s.sessionNumber === sessionNumber
+          );
+          const sessionContent = (sessionData as unknown as { content?: string } | undefined)?.content ?? "";
+
+          if (sessionData?.reviewQuestions && sessionData.reviewQuestions.length > 0) {
+            generateFlashcardsFromSession(
+              topicId,
+              sessionContent,
+              sessionData.reviewQuestions
+            ).catch(() => {});
+          }
         }
       } finally {
         setCompletingSession(null);
       }
     },
-    [existingPlan?.id, addXP, addCoins, queueCelebration]
+    [existingPlan?.id, generatedPlan, topicId, addXP, addCoins, queueCelebration]
   );
 
   // ── Regenerate plan ─────────────────────────────────────────────────────────

@@ -2,9 +2,10 @@
 
 import { useState, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp } from "lucide-react";
+import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { runJava, runPython } from "@/lib/code-runner";
 
 // Monaco must be dynamically imported with ssr: false
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -15,7 +16,7 @@ export interface TestCase {
   description?: string;
 }
 
-export type PlaygroundLanguage = "javascript" | "typescript" | "python";
+export type PlaygroundLanguage = "javascript" | "typescript" | "python" | "java";
 
 interface CodePlaygroundProps {
   defaultCode?: string;
@@ -130,22 +131,37 @@ const person: Person = { name: "Ada", age: 36 };
 console.log(\`\${person.name} is \${person.age} years old\`);
 `,
   python: `# Python Playground
-# Python execution coming soon!
-# For now, try JavaScript or TypeScript above.
+# Runs via Piston API (free, no key needed)
 
 def greet(name):
     return f"Hello, {name}!"
 
 print(greet("World"))
+print("2 + 2 =", 2 + 2)
+`,
+  java: `// Java Playground
+// Runs via Piston API (free, no key needed)
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println(greet("World"));
+        System.out.println("2 + 2 = " + (2 + 2));
+    }
+
+    static String greet(String name) {
+        return "Hello, " + name + "!";
+    }
+}
 `,
 };
 
 // ── Language selector ─────────────────────────────────────────────────────────
 
-const LANGUAGES: { value: PlaygroundLanguage; label: string; monacoLang: string }[] = [
+const LANGUAGES: { value: PlaygroundLanguage; label: string; monacoLang: string; remote?: boolean }[] = [
   { value: "javascript", label: "JavaScript", monacoLang: "javascript" },
   { value: "typescript", label: "TypeScript", monacoLang: "typescript" },
-  { value: "python", label: "Python", monacoLang: "python" },
+  { value: "python", label: "Python", monacoLang: "python", remote: true },
+  { value: "java", label: "Java", monacoLang: "java", remote: true },
 ];
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -167,47 +183,57 @@ export function CodePlayground({
   const [outputVisible, setOutputVisible] = useState(false);
   const editorRef = useRef<unknown>(null);
 
-  const handleRun = useCallback(() => {
+  const handleRun = useCallback(async () => {
     setRunning(true);
     setOutputVisible(true);
 
-    // Small timeout to let the UI update (show spinner) before potentially blocking
-    setTimeout(() => {
-      try {
-        if (language === "python") {
-          setOutput("Python execution coming soon! Try JavaScript or TypeScript for live execution.");
-          setOutputError(false);
-        } else {
-          // TypeScript: strip type annotations via a naive regex before running
-          let runnable = code;
-          if (language === "typescript") {
-            // Strip TS-specific syntax (basic: type annotations, interfaces, as casts)
-            runnable = code
-              // Remove interface blocks
-              .replace(/interface\s+\w+\s*\{[^}]*\}/g, "")
-              // Remove type aliases
-              .replace(/type\s+\w+\s*=\s*[^;]+;/g, "")
-              // Remove return type annotations  :Type
-              .replace(/\)\s*:\s*[\w<>\[\]|&]+/g, ")")
-              // Remove parameter type annotations  param: Type
-              .replace(/(\w+)\s*:\s*[\w<>\[\]|&]+(\s*[,)])/g, "$1$2")
-              // Remove `as Type` casts
-              .replace(/\s+as\s+[\w<>\[\]|&]+/g, "")
-              // Remove const x: Type declarations
-              .replace(/:\s*[\w<>\[\]|&]+(\s*=)/g, "$1");
-          }
+    try {
+      if (language === "java") {
+        // Remote execution via Piston API
+        const result = await runJava(code);
+        const combined = [result.output, result.error].filter(Boolean).join("\n");
+        setOutput(combined || "(no output)");
+        setOutputError(result.isError);
+      } else if (language === "python") {
+        // Remote execution via Piston API
+        const result = await runPython(code);
+        const combined = [result.output, result.error].filter(Boolean).join("\n");
+        setOutput(combined || "(no output)");
+        setOutputError(result.isError);
+      } else {
+        // Local JS/TS execution
+        // Small timeout to let the UI update (show spinner) before potentially blocking
+        await new Promise((r) => setTimeout(r, 50));
 
-          const { output: out, error } = executeJavaScript(runnable);
-          setOutput(out);
-          setOutputError(error !== null);
+        // TypeScript: strip type annotations via a naive regex before running
+        let runnable = code;
+        if (language === "typescript") {
+          // Strip TS-specific syntax (basic: type annotations, interfaces, as casts)
+          runnable = code
+            // Remove interface blocks
+            .replace(/interface\s+\w+\s*\{[^}]*\}/g, "")
+            // Remove type aliases
+            .replace(/type\s+\w+\s*=\s*[^;]+;/g, "")
+            // Remove return type annotations  :Type
+            .replace(/\)\s*:\s*[\w<>\[\]|&]+/g, ")")
+            // Remove parameter type annotations  param: Type
+            .replace(/(\w+)\s*:\s*[\w<>\[\]|&]+(\s*[,)])/g, "$1$2")
+            // Remove `as Type` casts
+            .replace(/\s+as\s+[\w<>\[\]|&]+/g, "")
+            // Remove const x: Type declarations
+            .replace(/:\s*[\w<>\[\]|&]+(\s*=)/g, "$1");
         }
-      } catch (e) {
-        setOutput(e instanceof Error ? e.message : String(e));
-        setOutputError(true);
-      } finally {
-        setRunning(false);
+
+        const { output: out, error } = executeJavaScript(runnable);
+        setOutput(out);
+        setOutputError(error !== null);
       }
-    }, 50);
+    } catch (e) {
+      setOutput(e instanceof Error ? e.message : String(e));
+      setOutputError(true);
+    } finally {
+      setRunning(false);
+    }
   }, [code, language]);
 
   const handleReset = useCallback(() => {
@@ -321,9 +347,20 @@ export function CodePlayground({
             disabled={running}
             className="gap-1.5 bg-saffron text-black hover:bg-saffron/90 border-0 font-semibold text-xs h-7"
           >
-            <Play className="size-3 fill-current" />
+            {running ? (
+              <Loader2 className="size-3 animate-spin" />
+            ) : (
+              <Play className="size-3 fill-current" />
+            )}
             {running ? "Running..." : "Run Code"}
           </Button>
+
+          {/* Remote execution note for Java/Python */}
+          {(language === "java" || language === "python") && !running && (
+            <span className="text-[10px] text-muted-foreground/60 italic">
+              runs via Piston API
+            </span>
+          )}
 
           {outputVisible && (
             <button

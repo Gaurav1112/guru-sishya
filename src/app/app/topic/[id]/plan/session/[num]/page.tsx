@@ -10,14 +10,21 @@ import remarkGfm from "remark-gfm";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { generateFlashcardsFromSession } from "@/lib/flashcard-generator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { GeneratedPlan } from "@/lib/plan/types";
+import type { LangCode } from "@/components/code-tabs";
 
-// Dynamic import — Monaco must never run on the server
+// Dynamic imports — Monaco must never run on the server
 const CodePlayground = dynamic(
   () => import("@/components/code-playground").then((m) => m.CodePlayground),
+  { ssr: false }
+);
+
+const CodeTabs = dynamic(
+  () => import("@/components/code-tabs").then((m) => m.CodeTabs),
   { ssr: false }
 );
 
@@ -252,30 +259,55 @@ export default function SessionViewPage({
         queueCelebration({ type: "xp_gain", data: { amount: 20 } });
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 2000);
+
+        // Auto-generate flashcards from session review questions
+        if (session?.reviewQuestions && session.reviewQuestions.length > 0) {
+          generateFlashcardsFromSession(
+            topicId,
+            session.content ?? "",
+            session.reviewQuestions
+          ).catch(() => {});
+        }
       }
     } finally {
       setCompleting(false);
     }
   }
 
-  // ── Extract first fenced code block from session content ────────────────────
+  // ── Extract ALL fenced code blocks from session content ─────────────────────
 
-  function extractFirstCodeBlock(md: string | undefined): { code: string; lang: string } | null {
-    if (!md) return null;
-    const match = md.match(/```(\w*)\n([\s\S]*?)```/);
-    if (!match) return null;
-    const lang = match[1].toLowerCase() || "javascript";
-    const code = match[2].trim();
-    return { code, lang };
+  const SUPPORTED_LANGS = new Set(["python", "java", "javascript", "typescript", "py", "js", "ts"]);
+
+  function normalizeLang(raw: string): "python" | "java" | "javascript" | "typescript" {
+    const l = raw.toLowerCase();
+    if (l === "py") return "python";
+    if (l === "js") return "javascript";
+    if (l === "ts") return "typescript";
+    if (l === "python" || l === "java" || l === "javascript" || l === "typescript") return l;
+    return "javascript";
   }
 
-  const codeBlock = extractFirstCodeBlock(session.content);
-  const playgroundLang =
-    codeBlock?.lang === "typescript" || codeBlock?.lang === "ts"
-      ? "typescript"
-      : codeBlock?.lang === "python" || codeBlock?.lang === "py"
-      ? "python"
-      : "javascript";
+  function extractAllCodeBlocks(md: string | undefined): LangCode[] {
+    if (!md) return [];
+    const regex = /```(\w*)\n([\s\S]*?)```/g;
+    const blocks: LangCode[] = [];
+    const seen = new Set<string>();
+    let match;
+    while ((match = regex.exec(md)) !== null) {
+      const rawLang = match[1].toLowerCase() || "javascript";
+      if (!SUPPORTED_LANGS.has(rawLang)) continue; // skip shell, json, etc.
+      const lang = normalizeLang(rawLang);
+      if (seen.has(lang)) continue; // deduplicate by language
+      seen.add(lang);
+      blocks.push({ language: lang, code: match[2].trim() });
+    }
+    return blocks;
+  }
+
+  const allCodeBlocks = extractAllCodeBlocks(session.content);
+  // Primary code block for single-language playground fallback
+  const firstBlock = allCodeBlocks[0] ?? null;
+  const playgroundLang = firstBlock ? normalizeLang(firstBlock.language) : "javascript";
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
@@ -411,8 +443,28 @@ export default function SessionViewPage({
         </div>
       )}
 
+      {/* ── Multi-language code viewer ────────────────────────────────────── */}
+      {allCodeBlocks.length > 1 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Terminal className="size-4 text-foreground" />
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+              Code Examples
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Toggle between languages to compare implementations.
+          </p>
+          <CodeTabs
+            codes={allCodeBlocks}
+            height={320}
+            title="Language Comparison"
+          />
+        </div>
+      )}
+
       {/* ── Try it yourself (Code Playground) ────────────────────────────── */}
-      {codeBlock && (
+      {firstBlock && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Terminal className="size-4 text-saffron" />
@@ -422,9 +474,14 @@ export default function SessionViewPage({
           </div>
           <p className="text-xs text-muted-foreground">
             Modify and run the code below. Your changes stay local — experiment freely.
+            {(playgroundLang === "java" || playgroundLang === "python") && (
+              <span className="ml-1 text-muted-foreground/60 italic">
+                (runs via Piston API — may take 1–3 s)
+              </span>
+            )}
           </p>
           <CodePlayground
-            defaultCode={codeBlock.code}
+            defaultCode={firstBlock.code}
             language={playgroundLang}
             height={320}
             title="Interactive Example"

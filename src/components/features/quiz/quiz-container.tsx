@@ -21,6 +21,7 @@ import { calibrationPrompt } from "@/lib/prompts/quiz-calibration";
 import { quizQuestionPrompt, quizGradingPrompt } from "@/lib/prompts/quiz-generator";
 import { getNextLevel, calculateQuizResult, getStartingLevelFromCalibration } from "@/lib/quiz/engine";
 import { updateFlashcardsFromQuiz } from "@/lib/quiz/spaced-repetition-bridge";
+import { generateFlashcardsFromQuiz } from "@/lib/flashcard-generator";
 import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import { checkOneMoreRound } from "@/lib/gamification/one-more-round";
 import { xpProgressInLevel } from "@/lib/gamification/xp";
@@ -590,6 +591,17 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
 
       // Update flashcards for spaced repetition
       await updateFlashcardsFromQuiz(topicId, answers);
+
+      // Auto-generate review flashcards for weak answers (score < 7)
+      await generateFlashcardsFromQuiz(
+        topicId,
+        answers.map((a) => ({
+          question: a.question,
+          score: a.score,
+          feedback: a.feedback,
+          perfectAnswer: a.perfectAnswer,
+        }))
+      );
 
       // Award XP and coins
       if (result.xpEarned > 0) addXP(result.xpEarned);
