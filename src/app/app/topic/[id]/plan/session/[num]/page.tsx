@@ -140,6 +140,7 @@ export default function SessionViewPage({
 
   const [completing, setCompleting] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showConfirmComplete, setShowConfirmComplete] = useState(false);
 
   // Load topic
   const topic = useLiveQuery(
@@ -221,17 +222,9 @@ export default function SessionViewPage({
 
   // ── Mark complete handler ────────────────────────────────────────────────────
 
-  async function handleMarkComplete() {
+  async function doMarkComplete() {
     if (!existingPlan?.id) return;
-
-    // Marking incomplete doesn't need a confirmation
-    if (!isCompleted) {
-      const confirmed = window.confirm(
-        "Mark this session complete?\n\nThis will award +20 XP and +10 coins."
-      );
-      if (!confirmed) return;
-    }
-
+    setShowConfirmComplete(false);
     setCompleting(true);
     try {
       const nowCompleted = !isCompleted;
@@ -271,6 +264,16 @@ export default function SessionViewPage({
       }
     } finally {
       setCompleting(false);
+    }
+  }
+
+  function handleMarkComplete() {
+    if (!isCompleted) {
+      // Show inline confirmation instead of blocking window.confirm()
+      setShowConfirmComplete(true);
+    } else {
+      // Marking incomplete needs no confirmation
+      doMarkComplete();
     }
   }
 
@@ -602,7 +605,7 @@ export default function SessionViewPage({
       )}
 
       {/* ── Mark complete ─────────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-border bg-surface p-5">
+      <div className="rounded-xl border border-border bg-surface p-5 space-y-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <p className="font-medium text-sm">
@@ -636,6 +639,17 @@ export default function SessionViewPage({
             {isCompleted ? "Mark Incomplete" : "Mark Complete"}
           </Button>
         </div>
+
+        {showConfirmComplete && (
+          <div className="rounded-xl border border-teal/30 bg-teal/5 p-4 space-y-3">
+            <p className="text-sm font-medium">Mark this session complete?</p>
+            <p className="text-xs text-muted-foreground">This will award +20 XP and +10 coins.</p>
+            <div className="flex gap-2">
+              <Button onClick={doMarkComplete} size="sm" className="bg-teal text-white">Yes, Complete</Button>
+              <Button onClick={() => setShowConfirmComplete(false)} size="sm" variant="outline">Cancel</Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Session navigation ────────────────────────────────────────────── */}
