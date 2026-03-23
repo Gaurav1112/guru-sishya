@@ -478,9 +478,14 @@ export default function SessionViewPage({
           </div>
           <p className="text-xs text-muted-foreground">
             Modify and run the code below. Your changes stay local — experiment freely.
-            {(playgroundLang === "java" || playgroundLang === "python") && (
+            {playgroundLang === "python" && (
               <span className="ml-1 text-muted-foreground/60 italic">
-                (runs via Piston API — may take 1–3 s)
+                (runs via Wandbox API — may take 2–5 s)
+              </span>
+            )}
+            {playgroundLang === "java" && (
+              <span className="ml-1 text-muted-foreground/60 italic">
+                (click Run for local javac instructions)
               </span>
             )}
           </p>

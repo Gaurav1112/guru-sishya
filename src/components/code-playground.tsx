@@ -189,13 +189,13 @@ export function CodePlayground({
 
     try {
       if (language === "java") {
-        // Remote execution via Piston API
+        // Java: no free remote compiler available — show helpful fallback
         const result = await runJava(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
       } else if (language === "python") {
-        // Remote execution via Piston API
+        // Remote execution via Wandbox API
         const result = await runPython(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
@@ -355,10 +355,16 @@ export function CodePlayground({
             {running ? "Running..." : "Run Code"}
           </Button>
 
-          {/* Remote execution note for Java/Python */}
-          {(language === "java" || language === "python") && !running && (
+          {/* Remote execution note for Python */}
+          {language === "python" && !running && (
             <span className="text-[10px] text-muted-foreground/60 italic">
-              runs via Piston API
+              runs via Wandbox API
+            </span>
+          )}
+          {/* Java: no free remote compiler available */}
+          {language === "java" && !running && (
+            <span className="text-[10px] text-muted-foreground/60 italic">
+              run locally with javac, or click Run for instructions
             </span>
           )}
 
