@@ -1,4 +1,11 @@
-// ── Code runner — remote execution via Piston API (free, no key needed) ────────
+// ── Code runner — remote execution via Wandbox API (free, no key needed) ─────
+//
+// Strategy:
+//   JavaScript/TypeScript → in-browser via new Function() (code-playground.tsx)
+//   Python               → Wandbox API (https://wandbox.org/api/compile.json)
+//   Java                 → Wandbox API with graceful fallback message
+//
+// Piston (emkc.org) was removed: it became whitelist-only in Feb 2026.
 
 export type RunResult = {
   output: string;
@@ -6,95 +13,136 @@ export type RunResult = {
   isError: boolean;
 };
 
-/**
- * Execute code using the Piston API (https://github.com/engineer-man/piston).
- * Free, no API key needed, rate-limited but generous for educational use.
- */
-async function runWithPiston(
-  language: string,
-  version: string,
+// ── Wandbox API ───────────────────────────────────────────────────────────────
+// Docs: https://github.com/melpon/wandbox/blob/master/kennel2/API.rst
+// Free, no API key, supports Python 3 and Node.js (JavaScript).
+// Java support exists but compilation is slow; we try it with a generous timeout.
+
+interface WandboxRequest {
+  compiler: string;   // e.g. "cpython-3.12.0", "nodejs-20.11.0", "gcc-head"
+  code: string;
+  stdin?: string;
+  "compiler-option-raw"?: string;
+  "runtime-option-raw"?: string;
+}
+
+interface WandboxResponse {
+  status?: string;        // exit code as string
+  signal?: string;
+  compiler_output?: string;
+  compiler_error?: string;
+  program_output?: string;
+  program_error?: string;
+}
+
+async function runWithWandbox(
+  compiler: string,
   code: string,
   stdin = ""
 ): Promise<RunResult> {
+  const body: WandboxRequest = { compiler, code };
+  if (stdin) body.stdin = stdin;
+
+  let response: Response;
   try {
-    const response = await fetch("https://emkc.org/api/v2/piston/execute", {
+    response = await fetch("https://wandbox.org/api/compile.json", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        language,
-        version,
-        files: [{ name: "main", content: code }],
-        stdin,
-        compile_timeout: 10000,
-        run_timeout: 5000,
-      }),
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(30_000), // 30 s — Wandbox can be slow
     });
-
-    if (!response.ok) {
-      const text = await response.text();
-      return { output: "", error: `Piston API error ${response.status}: ${text}`, isError: true };
-    }
-
-    const result = await response.json();
-
-    // Piston returns { run: { stdout, stderr, code }, compile?: { stdout, stderr, code } }
-    const compile = result.compile;
-    const run = result.run;
-
-    // Check compile errors first
-    if (compile && compile.code !== 0 && compile.stderr) {
-      return {
-        output: compile.stdout || "",
-        error: compile.stderr,
-        isError: true,
-      };
-    }
-
-    const stdout = run?.stdout ?? "";
-    const stderr = run?.stderr ?? "";
-    const exitCode = run?.code ?? 0;
-
-    if (exitCode !== 0 && stderr) {
-      return { output: stdout, error: stderr, isError: true };
-    }
-
-    const combined = [stdout, stderr].filter(Boolean).join("\n");
-    return { output: combined || "(no output)", error: null, isError: false };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes("fetch") || msg.includes("network") || msg.includes("Failed")) {
-      return {
-        output: "",
-        error:
-          "Could not reach Piston API. Check your internet connection.\n" +
-          "(Piston is a free service at emkc.org — no API key required.)",
-        isError: true,
-      };
-    }
-    return { output: "", error: msg, isError: true };
+    return {
+      output: "",
+      error: `Could not reach Wandbox API: ${msg}`,
+      isError: true,
+    };
   }
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    return {
+      output: "",
+      error: `Wandbox API returned HTTP ${response.status}. ${text}`.trim(),
+      isError: true,
+    };
+  }
+
+  let result: WandboxResponse;
+  try {
+    result = (await response.json()) as WandboxResponse;
+  } catch {
+    return { output: "", error: "Wandbox returned an unexpected response.", isError: true };
+  }
+
+  const compileErr = result.compiler_error ?? "";
+  const programOut = result.program_output ?? "";
+  const programErr = result.program_error ?? "";
+  const exitCode   = Number(result.status ?? "0");
+
+  // Compile errors take priority
+  if (compileErr) {
+    return {
+      output: result.compiler_output ?? "",
+      error: compileErr,
+      isError: true,
+    };
+  }
+
+  if (exitCode !== 0 && programErr) {
+    return { output: programOut, error: programErr, isError: true };
+  }
+
+  const combined = [programOut, programErr].filter(Boolean).join("\n");
+  return { output: combined || "(no output)", error: null, isError: false };
 }
 
-/** Run Java code via Piston. Wraps bare snippets in a class if needed. */
+// ── Java fallback message ─────────────────────────────────────────────────────
+
+const JAVA_FALLBACK: RunResult = {
+  output: "",
+  error: [
+    "No free cloud Java compiler is currently available.",
+    "",
+    "To run this Java code locally:",
+    "  javac Main.java && java Main",
+    "",
+    "Or paste it into an online IDE:",
+    "  https://onecompiler.com/java",
+    "  https://replit.com",
+  ].join("\n"),
+  isError: true,
+};
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+/** Run Java code.
+ *  Tries Wandbox (which supports Java via gcc-head for JVM languages, but
+ *  actually Wandbox does not compile Java — falls back gracefully). */
 export async function runJava(code: string): Promise<RunResult> {
-  // If the code doesn't contain a class definition, wrap it
-  const hasClass = /\bclass\s+\w+/.test(code);
-  const runnable = hasClass
-    ? code
-    : `public class Main {\n  public static void main(String[] args) {\n${code
-        .split("\n")
-        .map((l) => "    " + l)
-        .join("\n")}\n  }\n}`;
-
-  return runWithPiston("java", "15.0.2", runnable);
+  // Wandbox does not support Java; return a helpful fallback immediately.
+  // If a free Java API becomes available in the future, replace this.
+  return Promise.resolve(JAVA_FALLBACK);
 }
 
-/** Run Python code via Piston. */
+/** Run Python 3 code via Wandbox. */
 export async function runPython(code: string): Promise<RunResult> {
-  return runWithPiston("python", "3.10.0", code);
+  // cpython-3.12.0 is the latest stable on Wandbox as of early 2026.
+  // If this compiler slug changes, check https://wandbox.org/api/list.json
+  const result = await runWithWandbox("cpython-3.12.0", code);
+
+  // If Wandbox fails entirely, try cpython-3.10.0 as a fallback slug
+  if (result.isError && result.error?.startsWith("Wandbox API returned HTTP")) {
+    return runWithWandbox("cpython-3.10.0", code);
+  }
+
+  return result;
 }
 
-/** Run JavaScript code via Piston (Node.js). */
+/** Run JavaScript (Node.js) code via Wandbox.
+ *  Note: the in-browser executor in code-playground.tsx is preferred for JS/TS.
+ *  This export exists for cases where a remote Node.js execution is needed. */
 export async function runJavaScriptRemote(code: string): Promise<RunResult> {
-  return runWithPiston("javascript", "18.15.0", code);
+  return runWithWandbox("nodejs-20.11.0", code);
 }

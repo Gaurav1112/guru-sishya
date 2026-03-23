@@ -131,7 +131,7 @@ const person: Person = { name: "Ada", age: 36 };
 console.log(\`\${person.name} is \${person.age} years old\`);
 `,
   python: `# Python Playground
-# Runs via Piston API (free, no key needed)
+# Runs via Wandbox API (free, no key needed)
 
 def greet(name):
     return f"Hello, {name}!"
@@ -140,7 +140,7 @@ print(greet("World"))
 print("2 + 2 =", 2 + 2)
 `,
   java: `// Java Playground
-// Runs via Piston API (free, no key needed)
+// Run locally: javac Main.java && java Main
 
 public class Main {
     public static void main(String[] args) {
