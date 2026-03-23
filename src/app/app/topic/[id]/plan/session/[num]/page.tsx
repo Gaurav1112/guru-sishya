@@ -353,7 +353,7 @@ export default function SessionViewPage({
         {totalMinutes > 0 && (
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Clock className="size-4" />
-            <span>{totalMinutes} minutes</span>
+            <span>{totalMinutes > 0 ? `${totalMinutes} minutes` : "~30 minutes"}</span>
           </div>
         )}
       </div>

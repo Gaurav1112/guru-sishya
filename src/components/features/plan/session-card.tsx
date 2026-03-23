@@ -84,7 +84,7 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
             </p>
             <div className="flex items-center gap-1 mt-1.5 text-xs text-muted-foreground">
               <Clock className="size-3" />
-              <span>{totalMinutes} min</span>
+              <span>{totalMinutes > 0 ? `${totalMinutes} min` : "~30 min"}</span>
             </div>
           </div>
 
