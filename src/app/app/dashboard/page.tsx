@@ -384,6 +384,28 @@ export default function DashboardPage() {
       {/* Review Widget */}
       <ReviewWidget />
 
+      {/* Important Questions Widget */}
+      <Link
+        href="/app/questions"
+        className="group flex items-center gap-4 rounded-xl border border-indigo/20 bg-gradient-to-r from-indigo/5 via-saffron/5 to-gold/5 p-4 transition-all hover:scale-[1.01] hover:border-indigo/30"
+      >
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-indigo/30 bg-indigo/10">
+          <Sparkles className="size-5 text-indigo" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground">
+            650+ Interview Questions
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Curated Java questions with book-style flip cards. Core Java, Spring Boot, Microservices, System Design & more.
+          </p>
+        </div>
+        <div className="shrink-0 flex items-center gap-1 rounded-lg border border-indigo/20 bg-indigo/10 px-3 py-1.5 text-xs font-medium text-indigo group-hover:opacity-80">
+          Start Now
+          <ChevronRight className="size-3.5" />
+        </div>
+      </Link>
+
       {/* Daily Challenge */}
       <DailyChallengeWidget />
 

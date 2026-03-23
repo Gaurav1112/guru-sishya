@@ -439,11 +439,11 @@ export default function QuestionsPage() {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<QuestionCategory>("All Questions");
-  const [search, setSearch] = useState("");
-  const [difficulty, setDifficulty] = useState<DifficultyFilter>("All");
-  const [companyFilter, setCompanyFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [activeCategory, setActiveCategoryRaw] = useState<QuestionCategory>("All Questions");
+  const [search, setSearchRaw] = useState("");
+  const [difficulty, setDifficultyRaw] = useState<DifficultyFilter>("All");
+  const [companyFilter, setCompanyFilterRaw] = useState("");
+  const [statusFilter, setStatusFilterRaw] = useState<StatusFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [quizMode, setQuizMode] = useState(false);
   const [direction, setDirection] = useState(0); // -1 = left, 1 = right
@@ -576,11 +576,32 @@ export default function QuestionsPage() {
     setCurrentIndex(newIdx);
   }, [currentIndex, totalFiltered]);
 
-  // Reset index when filters change
-  useEffect(() => {
+  // Wrapped setters that also reset navigation position
+  const setActiveCategory = useCallback((c: QuestionCategory) => {
+    setActiveCategoryRaw(c);
     setCurrentIndex(0);
     setIsFlipped(false);
-  }, [activeCategory, search, difficulty, companyFilter, statusFilter]);
+  }, []);
+  const setSearch = useCallback((s: string) => {
+    setSearchRaw(s);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  }, []);
+  const setDifficulty = useCallback((d: DifficultyFilter) => {
+    setDifficultyRaw(d);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  }, []);
+  const setCompanyFilter = useCallback((c: string) => {
+    setCompanyFilterRaw(c);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  }, []);
+  const setStatusFilter = useCallback((s: StatusFilter) => {
+    setStatusFilterRaw(s);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
