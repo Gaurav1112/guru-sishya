@@ -12,6 +12,7 @@ import { LevelBadge } from "@/components/gamification/level-badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
+import { UserMenu } from "@/components/layout/user-menu";
 
 const navItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
@@ -114,6 +115,7 @@ export function Topbar() {
         </div>
         <CoinDisplay coins={coins} />
         <LevelBadge level={level} size="sm" />
+        <UserMenu />
       </div>
     </header>
   );
