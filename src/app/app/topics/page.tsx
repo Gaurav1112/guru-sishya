@@ -132,7 +132,9 @@ function TopicCard({ content }: { content: TopicContent }) {
   const quizCount = content.quizBank?.length ?? 0;
   const planSessions = content.plan?.sessions?.length ?? 0;
   const hasCheatSheet = Boolean(content.cheatSheet);
-  const hasResources = (content.resources?.length ?? 0) > 0;
+  const hasResources = Array.isArray(content.resources)
+    ? content.resources.length > 0
+    : Boolean((content.resources as unknown as { categories?: unknown[] })?.categories?.length);
   const hasLadder = (content.ladder?.levels?.length ?? 0) > 0;
 
   async function handleClick() {
@@ -245,11 +247,15 @@ function CategorySection({
 
 export default function TopicsPage() {
   const [allContent, setAllContent] = useState<TopicContent[]>([]);
+  const [contentLoading, setContentLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
-    loadAllContent().then(setAllContent).catch(() => {});
+    loadAllContent()
+      .then(setAllContent)
+      .catch(() => {})
+      .finally(() => setContentLoading(false));
   }, []);
 
   // Deduplicate by topic name (some files have dupes)
@@ -338,13 +344,17 @@ export default function TopicsPage() {
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold font-heading text-saffron tabular-nums">
-              {totalTopics}
+              {contentLoading ? (
+                <span className="inline-block h-7 w-8 animate-pulse rounded bg-saffron/20" />
+              ) : totalTopics}
             </span>
             <span className="text-sm text-muted-foreground">Topics</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold font-heading text-gold tabular-nums">
-              {totalQuestions.toLocaleString()}
+              {contentLoading ? (
+                <span className="inline-block h-7 w-14 animate-pulse rounded bg-gold/20" />
+              ) : totalQuestions.toLocaleString()}
             </span>
             <span className="text-sm text-muted-foreground">Quiz Questions</span>
           </div>
@@ -398,9 +408,18 @@ export default function TopicsPage() {
       </div>
 
       {/* Category Sections */}
-      {totalTopics === 0 ? (
-        <div className="py-12 text-center text-muted-foreground">
-          Loading topics...
+      {contentLoading ? (
+        <div className="space-y-10">
+          {[12, 8, 10, 6].map((count, gi) => (
+            <section key={gi}>
+              <div className="h-6 w-48 rounded bg-muted/40 animate-pulse mb-4" />
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {Array.from({ length: count }).map((_, i) => (
+                  <div key={i} className="h-28 rounded-xl border border-border/30 bg-surface animate-pulse" />
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
       ) : tabFiltered.length === 0 ? (
         <div className="py-12 text-center text-muted-foreground">

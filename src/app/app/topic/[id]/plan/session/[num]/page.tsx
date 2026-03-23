@@ -81,23 +81,22 @@ function ReviewQuestion({ question, index }: { question: string; index: number }
           )}
         </>
       ) : (
-        <button
-          type="button"
-          onClick={() => setRevealed((v) => !v)}
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
+        <>
           {revealed ? (
-            <>
-              <ChevronUp className="size-3" />
-              Hide hint
-            </>
+            <div className="rounded-md bg-muted/40 border border-border p-2.5 text-sm text-muted-foreground italic">
+              Try to answer this before checking your notes.
+            </div>
           ) : (
-            <>
+            <button
+              type="button"
+              onClick={() => setRevealed(true)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
               <ChevronDown className="size-3" />
               Reflect on this...
-            </>
+            </button>
           )}
-        </button>
+        </>
       )}
     </div>
   );
@@ -351,10 +350,12 @@ export default function SessionViewPage({
           {session.paretoJustification}
         </p>
 
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Clock className="size-4" />
-          <span>{totalMinutes} minutes</span>
-        </div>
+        {totalMinutes > 0 && (
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Clock className="size-4" />
+            <span>{totalMinutes} minutes</span>
+          </div>
+        )}
       </div>
 
       {/* ── Divider ──────────────────────────────────────────────────────── */}
@@ -531,7 +532,7 @@ export default function SessionViewPage({
                   variant="outline"
                   className="shrink-0 font-mono text-xs border-teal/30 text-teal bg-teal/5 tabular-nums"
                 >
-                  {act.durationMinutes}m
+                  {act.durationMinutes} min
                 </Badge>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {act.description}

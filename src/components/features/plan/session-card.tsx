@@ -182,7 +182,7 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
                     className="flex items-start gap-2 text-sm rounded-lg bg-muted/40 p-2"
                   >
                     <Badge variant="outline" className="shrink-0 text-xs tabular-nums">
-                      {act.durationMinutes}m
+                      {act.durationMinutes} min
                     </Badge>
                     <span className="text-muted-foreground">{act.description}</span>
                   </div>

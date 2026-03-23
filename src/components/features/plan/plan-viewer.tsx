@@ -122,7 +122,7 @@ export function PlanViewer({
       {/* Sessions */}
       <div className="space-y-3">
         <h2 className="font-heading font-semibold text-sm uppercase tracking-wide text-muted-foreground">
-          10 Sessions — 2 Hours Each
+          {plan.sessions.length} Sessions
         </h2>
 
         {plan.sessions.map((session) => (
