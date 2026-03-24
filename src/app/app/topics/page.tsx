@@ -83,6 +83,27 @@ const CATEGORY_META: Record<
     badge: "bg-gold/20 text-gold border-gold/30",
     tab: "cs",
   },
+  "Distributed Systems": {
+    label: "DevOps & Infrastructure",
+    icon: "🔧",
+    color: "border-orange-400/40 bg-orange-400/10 text-orange-400",
+    badge: "bg-orange-400/20 text-orange-400 border-orange-400/30",
+    tab: "devops",
+  },
+  "Cloud Computing": {
+    label: "DevOps & Infrastructure",
+    icon: "☁️",
+    color: "border-orange-400/40 bg-orange-400/10 text-orange-400",
+    badge: "bg-orange-400/20 text-orange-400 border-orange-400/30",
+    tab: "devops",
+  },
+  "DevOps & Containers": {
+    label: "DevOps & Infrastructure",
+    icon: "🐳",
+    color: "border-orange-400/40 bg-orange-400/10 text-orange-400",
+    badge: "bg-orange-400/20 text-orange-400 border-orange-400/30",
+    tab: "devops",
+  },
 };
 
 // Map raw categories to a canonical tab ID
@@ -119,6 +140,13 @@ const GROUPS = [
     icon: "💻",
     color: "border-gold/40",
     headerColor: "text-gold",
+  },
+  {
+    tab: "devops",
+    label: "DevOps & Infrastructure",
+    icon: "🔧",
+    color: "border-orange-400/40",
+    headerColor: "text-orange-400",
   },
 ];
 
@@ -328,6 +356,11 @@ export default function TopicsPage() {
       id: "cs",
       label: "Core CS",
       count: dedupedContent.filter((t) => getTabId(t.category) === "cs").length,
+    },
+    {
+      id: "devops",
+      label: "DevOps & Infra",
+      count: dedupedContent.filter((t) => getTabId(t.category) === "devops").length,
     },
   ];
 

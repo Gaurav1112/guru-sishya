@@ -269,6 +269,44 @@ interface JsonQuestion {
   source?: string;
 }
 
+// ── Category normalization ──────────────────────────────────────────────────
+// Raw categories from batch files are granular ("Spring Boot Internals",
+// "Garbage Collection Algorithms"). Normalize to the UI categories.
+
+const CATEGORY_MAP: [RegExp, QuestionCategory][] = [
+  [/^stream|functional interface|lambda|java 8/i, "Stream API"],
+  [/concurren|thread|multithreading|synchroniz|parallel|blocking|race condition/i, "Concurrency & Threading"],
+  [/spring boot|spring security|spring cloud|spring framework|spring core|spring mvc|spring advanced|spring caching|autoconfiguration|bean lifecycle|dependency injection|application context|servlet container|configuration|actuator|devtools/i, "Spring Boot"],
+  [/microservice|resilience|distributed|event.?driven|event streaming|saga|circuit.?breaker|service mesh|api gateway/i, "Microservices"],
+  [/jpa|hibernate|database|sql|connection pool/i, "Database / JPA"],
+  [/system design|architecture|cqrs|design principle/i, "System Design"],
+  [/production|debug|monitoring|observability|profil|troubleshoot|performance|memory leak|gc |garbage collect|jvm|heap|metaspace|classload|jit|escape analysis|memory management|error handling|exception/i, "Production & Debugging"],
+  [/design pattern|singleton|factory|builder|observer|strategy|decorator|adapter|proxy|facade|command|repository|composite|flyweight|bridge|template method|chain of responsibility|state pattern|mediator|iterator|visitor/i, "Design Patterns"],
+  [/kafka|message queue/i, "Kafka"],
+  [/aws|ec2|s3|lambda|dynamodb|cloudformation|iam|vpc|sqs|sns|ecs|eks|fargate/i, "AWS"],
+  [/kubernetes|docker|container|k8s|helm|pod|deployment|kubectl/i, "Kubernetes & Docker"],
+  [/collection|hashmap|string|immutable|comparable|comparator|data type|autoboxing|reflection|serializ|core java|java core|coding|practical|scenario/i, "Core Java"],
+];
+
+function normalizeCategory(raw: string): QuestionCategory {
+  if (!raw || raw === "NONE") return "Core Java";
+
+  // Check if it's already a valid UI category
+  const validCategories: string[] = [
+    "Core Java", "Concurrency & Threading", "Spring Boot", "Microservices",
+    "Database / JPA", "System Design", "Production & Debugging", "Stream API",
+    "Company-Specific", "Kafka", "AWS", "Kubernetes & Docker", "Design Patterns",
+  ];
+  if (validCategories.includes(raw)) return raw as QuestionCategory;
+
+  // Try pattern matching
+  for (const [pattern, category] of CATEGORY_MAP) {
+    if (pattern.test(raw)) return category;
+  }
+
+  return "Core Java";
+}
+
 function extractQuestions(raw: unknown, batchLabel: string): JsonQuestion[] {
   // Handle different batch file formats:
   // 1. Array of questions: [{question, answer, ...}, ...]
@@ -289,32 +327,8 @@ async function loadFromJSON(): Promise<Question[] | null> {
   const parts: Question[] = [];
   let found = false;
 
-  // Try loading java-qa-all.json first (combined file)
-  try {
-    const response = await fetch("/content/java-qa-all.json");
-    if (response.ok) {
-      const data = (await response.json()) as JsonQuestion[];
-      if (Array.isArray(data) && data.length > 0) {
-        found = true;
-        for (const item of data) {
-          parts.push({
-            id: item.id ?? parts.length + 1,
-            question: item.question,
-            answer: item.answer,
-            category: (item.category as QuestionCategory) ?? "Core Java",
-            difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
-            companies: item.companies ?? [],
-            source: item.source ?? "java-qa",
-          });
-        }
-      }
-    }
-  } catch {
-    // ignore
-  }
-
-  // If java-qa-all.json didn't load, try individual batch files
-  if (!found) {
+  // Load from individual batch files (they have the best answers)
+  {
     for (let batchNum = 1; batchNum <= 20; batchNum++) {
       const padded = String(batchNum).padStart(2, "0");
       try {
@@ -328,7 +342,7 @@ async function loadFromJSON(): Promise<Question[] | null> {
             id: item.id ?? parts.length + 1,
             question: item.question,
             answer: item.answer,
-            category: (item.category as QuestionCategory) ?? "Core Java",
+            category: normalizeCategory(item.category ?? ""),
             difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
             companies: item.companies ?? [],
             source: item.source ?? `Batch ${batchNum}`,
@@ -353,7 +367,7 @@ async function loadFromJSON(): Promise<Question[] | null> {
             id: item.id ?? parts.length + 1,
             question: item.question,
             answer: item.answer,
-            category: (item.category as QuestionCategory) ?? "Core Java",
+            category: normalizeCategory(item.category ?? ""),
             difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
             companies: item.companies ?? [],
             source: item.source ?? `Part ${partNum}`,
