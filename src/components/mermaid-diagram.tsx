@@ -20,6 +20,7 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
         const mermaid = (await import("mermaid")).default;
         mermaid.initialize({
           startOnLoad: false,
+          securityLevel: "strict",
           theme: "dark",
           themeVariables: {
             primaryColor: "#e8521a",

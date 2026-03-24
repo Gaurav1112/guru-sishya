@@ -328,56 +328,57 @@ async function loadFromJSON(): Promise<Question[] | null> {
   const parts: Question[] = [];
   let found = false;
 
-  // Load from individual batch files (they have the best answers)
-  {
-    for (let batchNum = 1; batchNum <= 20; batchNum++) {
-      const padded = String(batchNum).padStart(2, "0");
-      try {
-        const response = await fetch(`/content/java-qa-batch${padded}.json`);
-        if (!response.ok) continue;
-        found = true;
-        const raw = await response.json();
-        const items = extractQuestions(raw, `batch${padded}`);
-        for (const item of items) {
-          parts.push({
-            id: item.id ?? parts.length + 1,
-            question: item.question,
-            answer: item.answer,
-            category: normalizeCategory(item.category ?? ""),
-            difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
-            companies: item.companies ?? [],
-            source: item.source ?? `Batch ${batchNum}`,
-          });
-        }
-      } catch {
-        continue;
-      }
-    }
-  }
+  // Load all batch files in parallel instead of sequentially
+  const batchPromises = Array.from({ length: 20 }, (_, i) => {
+    const padded = String(i + 1).padStart(2, "0");
+    return fetch(`/content/java-qa-batch${padded}.json`)
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+  });
+  const batchResults = await Promise.allSettled(batchPromises);
 
-  // Also try legacy java-qa-part*.json files
-  if (!found) {
-    for (let partNum = 1; partNum <= 20; partNum++) {
-      try {
-        const response = await fetch(`/content/java-qa-part${partNum}.json`);
-        if (!response.ok) break;
-        found = true;
-        const data = (await response.json()) as JsonQuestion[];
-        for (const item of data) {
-          parts.push({
-            id: item.id ?? parts.length + 1,
-            question: item.question,
-            answer: item.answer,
-            category: normalizeCategory(item.category ?? ""),
-            difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
-            companies: item.companies ?? [],
-            source: item.source ?? `Part ${partNum}`,
-          });
-        }
-      } catch {
-        break;
-      }
+  batchResults.forEach((result, i) => {
+    if (result.status !== "fulfilled" || result.value === null) return;
+    found = true;
+    const items = extractQuestions(result.value, `batch${String(i + 1).padStart(2, "0")}`);
+    for (const item of items) {
+      parts.push({
+        id: item.id ?? parts.length + 1,
+        question: item.question,
+        answer: item.answer,
+        category: normalizeCategory(item.category ?? ""),
+        difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
+        companies: item.companies ?? [],
+        source: item.source ?? `Batch ${i + 1}`,
+      });
     }
+  });
+
+  // Also try legacy java-qa-part*.json files in parallel (only if no batch files found)
+  if (!found) {
+    const partPromises = Array.from({ length: 20 }, (_, i) =>
+      fetch(`/content/java-qa-part${i + 1}.json`)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null)
+    );
+    const partResults = await Promise.allSettled(partPromises);
+
+    partResults.forEach((result, i) => {
+      if (result.status !== "fulfilled" || result.value === null) return;
+      found = true;
+      const data = result.value as JsonQuestion[];
+      for (const item of data) {
+        parts.push({
+          id: item.id ?? parts.length + 1,
+          question: item.question,
+          answer: item.answer,
+          category: normalizeCategory(item.category ?? ""),
+          difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
+          companies: item.companies ?? [],
+          source: item.source ?? `Part ${i + 1}`,
+        });
+      }
+    });
   }
 
   return found ? parts : null;
@@ -426,46 +427,51 @@ export async function loadImportantQuestions(): Promise<Question[]> {
     : 1;
   let nextId = startId;
 
-  for (const { file, category } of additionalFiles) {
-    try {
-      const response = await fetch(file);
-      if (!response.ok) continue;
-      const data = (await response.json()) as {
-        question: string;
-        answer: string;
-        category?: string;
-        difficulty?: string;
-        example?: string;
-      }[];
-      for (const item of data) {
-        const answer = item.example
-          ? `${item.answer}\n\n### Example\n\`\`\`\n${item.example}\n\`\`\``
-          : item.answer;
-        // Map sub-categories to the parent category from the file.
-        // Sub-categories like "Kafka Basics", "EC2", "Docker", "Creational"
-        // all get mapped to the parent: Kafka, AWS, Kubernetes & Docker, Design Patterns.
-        // For company-tech-qa.json the raw category field IS the company name.
-        const itemCategory: QuestionCategory = category;
-        const companies: string[] =
-          category === "Company-Specific" && item.category
-            ? [item.category as string]
-            : [];
-        allQuestions.push({
-          id: nextId++,
-          question: item.question,
-          answer,
-          category: itemCategory,
-          difficulty: mapDifficulty(item.difficulty),
-          companies,
-          source: category === "Company-Specific" && item.category
-            ? (item.category as string)
-            : category,
-        });
-      }
-    } catch {
-      // Non-critical — file may not exist yet
+  // Fetch all additional files in parallel
+  const additionalResults = await Promise.allSettled(
+    additionalFiles.map(({ file }) =>
+      fetch(file)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null)
+    )
+  );
+
+  additionalResults.forEach((result, idx) => {
+    if (result.status !== "fulfilled" || result.value === null) return;
+    const { category } = additionalFiles[idx];
+    const data = result.value as {
+      question: string;
+      answer: string;
+      category?: string;
+      difficulty?: string;
+      example?: string;
+    }[];
+    for (const item of data) {
+      const answer = item.example
+        ? `${item.answer}\n\n### Example\n\`\`\`\n${item.example}\n\`\`\``
+        : item.answer;
+      // Map sub-categories to the parent category from the file.
+      // Sub-categories like "Kafka Basics", "EC2", "Docker", "Creational"
+      // all get mapped to the parent: Kafka, AWS, Kubernetes & Docker, Design Patterns.
+      // For company-tech-qa.json the raw category field IS the company name.
+      const itemCategory: QuestionCategory = category;
+      const companies: string[] =
+        category === "Company-Specific" && item.category
+          ? [item.category as string]
+          : [];
+      allQuestions.push({
+        id: nextId++,
+        question: item.question,
+        answer,
+        category: itemCategory,
+        difficulty: mapDifficulty(item.difficulty),
+        companies,
+        source: category === "Company-Specific" && item.category
+          ? (item.category as string)
+          : category,
+      });
     }
-  }
+  });
 
   // Load STAR behavioral questions (company-grouped format)
   try {

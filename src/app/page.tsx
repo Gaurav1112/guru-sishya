@@ -38,9 +38,9 @@ function LandingNavbar() {
     <nav className="sticky top-0 z-50 bg-background/60 backdrop-blur-md border-b border-border/30">
       <div className="flex h-14 items-center justify-between px-6">
         <div className="flex items-center gap-6">
-          <span className="font-heading text-lg font-bold text-saffron tracking-wider">
+          <Link href="/" className="font-heading text-lg font-bold text-saffron tracking-wider hover:opacity-80 transition-opacity">
             GURU SISHYA
-          </span>
+          </Link>
           <div className="hidden sm:flex items-center gap-4">
             {NAV_LINKS.map((link) => (
               <Link

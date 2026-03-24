@@ -356,9 +356,10 @@ export default function ProfilePage() {
             <p className="text-muted-foreground">{levelInfo.tierDescription}</p>
           </div>
           <div className="text-right">
+            <p className="text-xs text-muted-foreground mb-0.5">Total XP earned</p>
             <p className="text-2xl font-bold text-gold">{totalXP.toLocaleString()} XP</p>
-            <p className="text-xs text-muted-foreground">
-              {progress.current}/{progress.needed} to next level
+            <p className="text-xs text-muted-foreground mt-1">
+              Level progress: {progress.current}/{progress.needed} XP to next level
             </p>
           </div>
         </div>

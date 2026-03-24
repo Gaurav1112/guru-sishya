@@ -8,6 +8,13 @@ import { ExpiryChecker } from "@/components/expiry-checker";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppProviders>
+      {/* Skip to main content — accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded-lg focus:bg-saffron focus:px-4 focus:py-2 focus:text-background focus:text-sm focus:font-semibold"
+      >
+        Skip to main content
+      </a>
       {/* Runs checkPremiumExpiry() on every page load (client-side only) */}
       <ExpiryChecker />
       <div className="flex h-screen flex-col">
@@ -16,7 +23,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SubscriptionBanner />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar />
-          <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">{children}</main>
+          <main id="main-content" className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">{children}</main>
         </div>
       </div>
       <CelebrationOverlay />

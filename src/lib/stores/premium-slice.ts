@@ -2,8 +2,14 @@ import type { StateCreator } from "zustand";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-/** The admin email — always gets permanent free premium access */
-export const ADMIN_EMAIL = "kgauravis016@gmail.com";
+/**
+ * The admin email — always gets permanent free premium access.
+ * Read from NEXT_PUBLIC_ADMIN_EMAIL so the literal value is not hardcoded in
+ * source. Tradeoff: it is still visible in the client bundle because of the
+ * NEXT_PUBLIC_ prefix; acceptable at this scale (₹129/month hobby project).
+ */
+export const ADMIN_EMAIL =
+  process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
 
 /**
  * FAR-FUTURE date used to represent "permanent" premium for allowlisted users.
