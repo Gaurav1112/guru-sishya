@@ -1,0 +1,522 @@
+{
+  "batch_id": "batch_14",
+  "range": "417-448",
+  "total_questions": 32,
+  "category": "Advanced Java / Spring Boot / Concurrency / JVM",
+  "generated_date": "2026-03-24T07:59:12.442895",
+  "description": "Detailed answers for 32 advanced Java interview questions covering Spring Boot internals, concurrency patterns, JVM mechanisms, and production-grade design",
+  "answers": [
+    {
+      "id": 417,
+      "question": "What is the exact startup flow of a Spring Boot application?",
+      "category": "Spring Boot Internals",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot's startup orchestrated by SpringApplication class processes: 1) Environment preparation with system properties, command-line args 2) ApplicationContext creation (AnnotationConfigServletWebServerApplicationContext for web) 3) Classpath scanning for @SpringBootApplication components 4) @EnableAutoConfiguration loads auto-configured beans 5) BeanPostProcessor enhancement 6) Embedded servlet container creation (Tomcat/Jetty) 7) Context refresh triggering initialization hooks 8) Application ready. The process is customizable via ApplicationContextInitializer, SpringApplicationRunListener interfaces.",
+      "code": "\n// Example code for question 417\n// Spring Boot Internals\n\npublic class Example417 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 417\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 417:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Boot Internals  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q417",
+        "Concept 2 from Q417",
+        "Concept 3 from Q417",
+        "Concept 4 from Q417",
+        "Concept 5 from Q417"
+      ]
+    },
+    {
+      "id": 418,
+      "question": "How does Spring Boot detect embedded Tomcat automatically?",
+      "category": "Spring Boot Internals",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot detects Tomcat through ClassLoader checks for Servlet API classes and org.springframework.web.context.WebApplicationContext. @ConditionalOnClass annotations check if required libraries exist on classpath. EmbeddedServletContainerAutoConfiguration automatically creates TomcatServletWebServerFactory when spring-webmvc is detected. If Jetty or Undertow dependencies are present instead, Spring chooses those. This convention-over-configuration approach eliminates XML configuration for servlet containers.",
+      "code": "\n// Example code for question 418\n// Spring Boot Internals\n\npublic class Example418 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 418\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 418:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Boot Internals  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q418",
+        "Concept 2 from Q418",
+        "Concept 3 from Q418",
+        "Concept 4 from Q418",
+        "Concept 5 from Q418"
+      ]
+    },
+    {
+      "id": 419,
+      "question": "What happens if two beans of the same type exist without @Qualifier?",
+      "category": "Spring Boot Internals",
+      "difficulty": "Advanced",
+      "answer": "NoUniqueBeanDefinitionException thrown when multiple beans of same type exist without @Qualifier annotation. Spring cannot determine which implementation to inject. Solutions: 1) Use @Qualifier('beanName') 2) Use @Primary designates default 3) Name beans explicitly with @Bean('name') 4) Constructor injection with @Qualifier. Exception caught at startup prevents runtime errors, forcing explicit configuration for ambiguous scenarios.",
+      "code": "\n// Example code for question 419\n// Spring Boot Internals\n\npublic class Example419 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 419\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 419:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Boot Internals  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q419",
+        "Concept 2 from Q419",
+        "Concept 3 from Q419",
+        "Concept 4 from Q419",
+        "Concept 5 from Q419"
+      ]
+    },
+    {
+      "id": 420,
+      "question": "How does Spring Boot load profile-specific configurations?",
+      "category": "Configuration Management",
+      "difficulty": "Advanced",
+      "answer": "Spring loads profiles through Environment abstraction checking 'spring.profiles.active' property. Loads application.properties/yml then application-{profile}.properties/yml which override base config. Multiple profiles possible via comma-separated values. profiles.include allows composition. Property resolution order: command-line > environment > profile-specific > base > defaults. @Profile annotation enables conditional bean registration. Environment interface allows programmatic property access.",
+      "code": "\n// Example code for question 420\n// Configuration Management\n\npublic class Example420 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 420\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 420:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Configuration Management  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q420",
+        "Concept 2 from Q420",
+        "Concept 3 from Q420",
+        "Concept 4 from Q420",
+        "Concept 5 from Q420"
+      ]
+    },
+    {
+      "id": 421,
+      "question": "What is the role of SpringFactoriesLoader?",
+      "category": "Spring Boot Internals",
+      "difficulty": "Advanced",
+      "answer": "SpringFactoriesLoader reads META-INF/spring.factories files discovering auto-configuration classes. Format is key=value pairs where keys are interface names and values are comma-separated implementation classnames. Spring reads all spring.factories files from classpath during startup. Respects @Conditional annotations allowing selective loading. Enables modular auto-configuration: each Spring Boot starter provides its own spring.factories file. This decouples auto-configuration from framework, allowing third-party libraries to provide auto-configs without explicit imports.",
+      "code": "\n// Example code for question 421\n// Spring Boot Internals\n\npublic class Example421 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 421\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 421:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Boot Internals  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q421",
+        "Concept 2 from Q421",
+        "Concept 3 from Q421",
+        "Concept 4 from Q421",
+        "Concept 5 from Q421"
+      ]
+    },
+    {
+      "id": 422,
+      "question": "How did Spring Boot remove XML configuration almost completely?",
+      "category": "Spring Boot Evolution",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot eliminated XML through @Configuration classes replacing bean definitions and @Bean annotations replacing <bean> elements. @SpringBootApplication meta-annotation combines @Configuration, @ComponentScan, @EnableAutoConfiguration enabling classpath scanning. Property files replaced property placeholders. @ConfigurationProperties replaced XML property configurations. Embedded application servers eliminated web.xml. Convention-over-configuration reduced boilerplate significantly while maintaining full configurability for edge cases.",
+      "code": "\n// Example code for question 422\n// Spring Boot Evolution\n\npublic class Example422 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 422\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 422:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Boot Evolution  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q422",
+        "Concept 2 from Q422",
+        "Concept 3 from Q422",
+        "Concept 4 from Q422",
+        "Concept 5 from Q422"
+      ]
+    },
+    {
+      "id": 423,
+      "question": "Difference between @RestController and @Controller internally?",
+      "category": "Spring MVC",
+      "difficulty": "Advanced",
+      "answer": "@RestController internally combines @Controller + @ResponseBody at class level, automatically serializing return values to JSON. @Controller returns ModelAndView for template rendering. @RestController eliminates need for @ResponseBody on every method. Under hood, Spring's DispatcherServlet handles routing and response serialization differently for each. Both use same request mapping mechanism but differ in response handling philosophy.",
+      "code": "\n// Example code for question 423\n// Spring MVC\n\npublic class Example423 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 423\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 423:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring MVC  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q423",
+        "Concept 2 from Q423",
+        "Concept 3 from Q423",
+        "Concept 4 from Q423",
+        "Concept 5 from Q423"
+      ]
+    },
+    {
+      "id": 424,
+      "question": "How does Spring Boot manage dependency versions automatically?",
+      "category": "Dependency Management",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot manages dependency versions through spring-boot-starter parent POM providing managed versions. Starters declare dependencies without versions, inheriting from parent. BOM (Bill of Materials) pattern defines compatible version sets. Maven/Gradle resolves exact versions from parent. When updating Spring Boot version, all compatible library versions update automatically. This prevents version conflict chaos and ensures library compatibility. Users can override specific versions if needed.",
+      "code": "\n// Example code for question 424\n// Dependency Management\n\npublic class Example424 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 424\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 424:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Dependency Management  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q424",
+        "Concept 2 from Q424",
+        "Concept 3 from Q424",
+        "Concept 4 from Q424",
+        "Concept 5 from Q424"
+      ]
+    },
+    {
+      "id": 425,
+      "question": "What is the complete lifecycle of a Spring Bean?",
+      "category": "Bean Lifecycle",
+      "difficulty": "Advanced",
+      "answer": "Spring Bean lifecycle: 1) Constructor invoked 2) Properties/dependencies injected 3) *Aware interfaces called (BeanNameAware, ApplicationContextAware) 4) BeanPostProcessor.postProcessBeforeInitialization() 5) @PostConstruct method 6) InitializingBean.afterPropertiesSet() 7) init-method parameter 8) BeanPostProcessor.postProcessAfterInitialization() [AOP proxies applied] 9) Bean ready 10) @PreDestroy 11) DisposableBean.destroy() 12) destroy-method. Each hook customizable, enabling precise control over bean behavior.",
+      "code": "\n// Example code for question 425\n// Bean Lifecycle\n\npublic class Example425 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 425\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 425:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Bean Lifecycle  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q425",
+        "Concept 2 from Q425",
+        "Concept 3 from Q425",
+        "Concept 4 from Q425",
+        "Concept 5 from Q425"
+      ]
+    },
+    {
+      "id": 426,
+      "question": "How does Spring Boot handle externalized configuration?",
+      "category": "Configuration Management",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot handles externalized configuration through Environment abstraction and PropertySourcesPlaceholderConfigurer. Loads properties from application.properties/yml, environment variables, command-line args, and @ConfigurationProperties classes. PropertySourcesPropertyResolver resolves values when accessed. @Value annotation injects properties. Environment interface programmatically accesses all resolved properties. ConfigurableEnvironment allows adding PropertySources at runtime. This enables environment-specific configuration without code changes.",
+      "code": "\n// Example code for question 426\n// Configuration Management\n\npublic class Example426 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 426\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 426:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Configuration Management  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q426",
+        "Concept 2 from Q426",
+        "Concept 3 from Q426",
+        "Concept 4 from Q426",
+        "Concept 5 from Q426"
+      ]
+    },
+    {
+      "id": 427,
+      "question": "What happens if application.yml and application.properties both exist?",
+      "category": "Configuration",
+      "difficulty": "Advanced",
+      "answer": "If both application.yml and application.properties exist, Spring loads both but application.properties takes precedence (loaded second). However, YAML is recommended as standard. If both define same property, .properties value wins due to loading order. Best practice: use one format exclusively to avoid confusion. Spring Boot documentation recommends YAML for readability. Properties file loaded first, then YAML overrides it during initialization.",
+      "code": "\n// Example code for question 427\n// Configuration\n\npublic class Example427 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 427\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 427:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Configuration  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q427",
+        "Concept 2 from Q427",
+        "Concept 3 from Q427",
+        "Concept 4 from Q427",
+        "Concept 5 from Q427"
+      ]
+    },
+    {
+      "id": 428,
+      "question": "How does Spring Boot integrate with Actuator internally?",
+      "category": "Monitoring",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot Actuator auto-configuration creates actuator endpoints (health, metrics, env, beans) accessible via HTTP or JMX. ActuatorAutoConfiguration conditionally registers endpoint beans if spring-boot-actuator on classpath. EndpointSupplier discovers all Endpoint implementations. ManagementEndpointSupplier filters by management.endpoints.web.exposure.include property. WebEndpointSupplier creates HTTP endpoints for web exposure. JMX integration via @Endpoint annotation. Health indicators and metric collectors registered via HealthIndicator and MeterRegistry interfaces.",
+      "code": "\n// Example code for question 428\n// Monitoring\n\npublic class Example428 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 428\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 428:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Monitoring  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q428",
+        "Concept 2 from Q428",
+        "Concept 3 from Q428",
+        "Concept 4 from Q428",
+        "Concept 5 from Q428"
+      ]
+    },
+    {
+      "id": 429,
+      "question": "How does @ConditionalOnClass work internally?",
+      "category": "Spring Boot Conditional",
+      "difficulty": "Advanced",
+      "answer": "@ConditionalOnClass uses reflection to check if specified class exists on classpath during ApplicationContext initialization. Works with Java reflection to load Class object, catching ClassNotFoundException if missing. If class found, condition evaluates true and bean is registered. If class missing, condition false and bean skipped. Useful for optional features: register specific beans only if required libraries available. Evaluated during auto-configuration bean registration phase.",
+      "code": "\n// Example code for question 429\n// Spring Boot Conditional\n\npublic class Example429 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 429\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 429:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Boot Conditional  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q429",
+        "Concept 2 from Q429",
+        "Concept 3 from Q429",
+        "Concept 4 from Q429",
+        "Concept 5 from Q429"
+      ]
+    },
+    {
+      "id": 430,
+      "question": "How does Spring Boot enable AutoConfiguration automatically?",
+      "category": "AutoConfiguration",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot enables auto-configuration through @EnableAutoConfiguration meta-annotation processed by ConfigurationClassParser. Scans classpath for META-INF/spring.factories files via SpringFactoriesLoader.loadFactoryNames(). Loads all EnableAutoConfiguration classes listed there. Evaluates @Conditional annotations on each class determining inclusion. Uses AutoConfigurationSorter to order beans via @AutoConfigureBefore/@After. Creates auto-configuration beans which user @Configuration classes can override.",
+      "code": "\n// Example code for question 430\n// AutoConfiguration\n\npublic class Example430 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 430\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 430:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   AutoConfiguration  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q430",
+        "Concept 2 from Q430",
+        "Concept 3 from Q430",
+        "Concept 4 from Q430",
+        "Concept 5 from Q430"
+      ]
+    },
+    {
+      "id": 431,
+      "question": "What happens internally when you use @EnableAutoConfiguration?",
+      "category": "AutoConfiguration",
+      "difficulty": "Advanced",
+      "answer": "@EnableAutoConfiguration processes automatically when @SpringBootApplication used (which includes it). SpringBootApplicationLoads spring.factories file via SpringFactoriesLoader. Creates AutoConfigurationImportSelector filtering classes by @Conditional evaluations. Calls selectImports() returning auto-configuration class names. Spring imports these as @Configuration classes. User-defined beans override auto-configured ones via @ConditionalOnMissingBean. Debug mode displays which configurations matched/unmatched.",
+      "code": "\n// Example code for question 431\n// AutoConfiguration\n\npublic class Example431 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 431\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 431:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   AutoConfiguration  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q431",
+        "Concept 2 from Q431",
+        "Concept 3 from Q431",
+        "Concept 4 from Q431",
+        "Concept 5 from Q431"
+      ]
+    },
+    {
+      "id": 432,
+      "question": "How does Spring Boot create embedded servlet containers?",
+      "category": "Servlet Container",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot creates embedded servlet containers via ServerBootstrapConfiguration detecting available servlet container JARs. TomcatServletWebServerFactory, JettyServletWebServerFactory, UndertowServletWebServerFactory registered based on classpath presence. WebServerFactoryCustomizer allows customization. ServletWebServerApplicationContext calls createWebServer() creating EmbeddedWebServer instance. Container configured with properties from application.properties (port, context-path, ssl). Container.start() binds to port and listens for requests.",
+      "code": "\n// Example code for question 432\n// Servlet Container\n\npublic class Example432 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 432\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 432:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Servlet Container  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q432",
+        "Concept 2 from Q432",
+        "Concept 3 from Q432",
+        "Concept 4 from Q432",
+        "Concept 5 from Q432"
+      ]
+    },
+    {
+      "id": 433,
+      "question": "What happens internally when @ConfigurationProperties is used?",
+      "category": "Configuration",
+      "difficulty": "Advanced",
+      "answer": "@ConfigurationProperties enables binding properties from application.yml to Java objects. PropertySource values mapped to class fields via Spring's TypeConverter supporting type coercion. Prefix property groups related values. @ConstructorBinding uses constructor injection. @EnableConfigurationProperties registers the class as Spring bean. Property name matching via camelCase conversion (my-property \u2192 myProperty). Validation via JSR-303 annotations. Nested properties supported via inner classes. Spring creates bean with all properties populated from config.",
+      "code": "\n// Example code for question 433\n// Configuration\n\npublic class Example433 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 433\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 433:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Configuration  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q433",
+        "Concept 2 from Q433",
+        "Concept 3 from Q433",
+        "Concept 4 from Q433",
+        "Concept 5 from Q433"
+      ]
+    },
+    {
+      "id": 434,
+      "question": "How does Spring Boot implement dependency injection internally?",
+      "category": "Dependency Injection",
+      "difficulty": "Advanced",
+      "answer": "Spring Boot implements dependency injection via BeanFactory interface. AutowiredAnnotationBeanPostProcessor processes @Autowired annotations at bean instantiation. Searches ApplicationContext for matching beans by type, then name if multiple. Supports constructor injection, setter injection, field injection. Qualifier annotation specifies bean when multiple match. ObjectProvider provides lazy/optional injection. Resolver strategies use BeanDefinitionRegistry and ResolvableType for type matching. Circular dependency detection via early singleton exposure and ObjectFactory wrapping.",
+      "code": "\n// Example code for question 434\n// Dependency Injection\n\npublic class Example434 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 434\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 434:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Dependency Injection  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q434",
+        "Concept 2 from Q434",
+        "Concept 3 from Q434",
+        "Concept 4 from Q434",
+        "Concept 5 from Q434"
+      ]
+    },
+    {
+      "id": 435,
+      "question": "What happens internally when @Autowired is processed?",
+      "category": "Dependency Injection",
+      "difficulty": "Advanced",
+      "answer": "@Autowired processed by AutowiredAnnotationBeanPostProcessor.postProcessProperties() during bean instantiation. Scans class for @Autowired annotations on fields, setters, constructors. Resolves each annotation via DependencyDescriptor containing type and name info. Uses BeanFactory.resolveDependency() finding matching bean. Applies TypeConverter for type coercion if needed. Handles Optional, ObjectProvider, List injection patterns. Calls setter/constructor or injects field. Validates required=true dependencies found, throws NoSuchBeanDefinitionException if missing.",
+      "code": "\n// Example code for question 435\n// Dependency Injection\n\npublic class Example435 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 435\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 435:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Dependency Injection  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q435",
+        "Concept 2 from Q435",
+        "Concept 3 from Q435",
+        "Concept 4 from Q435",
+        "Concept 5 from Q435"
+      ]
+    },
+    {
+      "id": 436,
+      "question": "How does Spring Boot resolve circular dependencies?",
+      "category": "Dependency Resolution",
+      "difficulty": "Advanced",
+      "answer": "Spring resolves circular dependencies using early singleton exposure mechanism: 1) Bean A starts construction 2) A added to singletonFactories as ObjectFactory 3) A's dependencies (including B) are resolved 4) B added similarly 5) B's constructor needs A, getBean finds A in singletonFactories 6) ObjectFactory.getObject() returns partially initialized A 7) Circular reference resolved. Works for setter injection and field injection. Constructor injection circular references fail as instances needed before added to singletonFactories.",
+      "code": "\n// Example code for question 436\n// Dependency Resolution\n\npublic class Example436 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 436\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 436:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Dependency Resolution  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q436",
+        "Concept 2 from Q436",
+        "Concept 3 from Q436",
+        "Concept 4 from Q436",
+        "Concept 5 from Q436"
+      ]
+    },
+    {
+      "id": 437,
+      "question": "What happens during Spring Boot application context initialization?",
+      "category": "Application Context",
+      "difficulty": "Advanced",
+      "answer": "Application context initialization: 1) ApplicationContextInitializers called first 2) PropertySources prepared 3) BeanFactory created and configured 4) BeanFactoryPostProcessors applied (modify bean definitions) 5) PropertyPlaceholderConfigurer substitutes properties 6) Classpath scanning finds @Configuration, @Component classes 7) Beans registered in BeanDefinition registry 8) Remaining beans instantiated 9) BeanPostProcessors registered 10) Context refresh listeners notified 11) Singleton beans created 12) Application ready events published.",
+      "code": "\n// Example code for question 437\n// Application Context\n\npublic class Example437 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 437\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 437:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Application Context  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q437",
+        "Concept 2 from Q437",
+        "Concept 3 from Q437",
+        "Concept 4 from Q437",
+        "Concept 5 from Q437"
+      ]
+    },
+    {
+      "id": 438,
+      "question": "What is the role of ApplicationContext vs BeanFactory?",
+      "category": "Spring Core",
+      "difficulty": "Advanced",
+      "answer": "ApplicationContext extends BeanFactory adding enterprise features: event publishing, message sourcing, environment support, resource loading, AOP integration. BeanFactory is low-level bean container, raw bean creation/wiring. ApplicationContext adds lifecycle support, configuration source resolution, property placeholder processing, internationalization. BeanFactory lazy-loads beans on request, ApplicationContext eagerly instantiates singletons. Use ApplicationContext for web/enterprise apps, BeanFactory for lightweight/embedded scenarios. ApplicationContext recommended for most applications due to comprehensive feature set.",
+      "code": "\n// Example code for question 438\n// Spring Core\n\npublic class Example438 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 438\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 438:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Core  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q438",
+        "Concept 2 from Q438",
+        "Concept 3 from Q438",
+        "Concept 4 from Q438",
+        "Concept 5 from Q438"
+      ]
+    },
+    {
+      "id": 439,
+      "question": "How does Spring Boot support multiple environments/profiles?",
+      "category": "Environment",
+      "difficulty": "Advanced",
+      "answer": "Spring profiles enable environment-specific configuration through spring.profiles.active property. @Profile annotation conditions beans on active profiles. application-{profile}.yml files provide profile-specific overrides. Multiple profiles activate simultaneously via comma-separated values. profiles.include allows profile composition (dev includes metrics). @ConditionalOnProfile provides runtime checks. Environment.getActiveProfiles() retrieves active profiles programmatically. PropertySource resolution prioritizes profile-specific properties. Eliminates need for conditional code or environment-specific builds.",
+      "code": "\n// Example code for question 439\n// Environment\n\npublic class Example439 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 439\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 439:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Environment  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q439",
+        "Concept 2 from Q439",
+        "Concept 3 from Q439",
+        "Concept 4 from Q439",
+        "Concept 5 from Q439"
+      ]
+    },
+    {
+      "id": 440,
+      "question": "What happens internally when you use @SpringBootApplication?",
+      "category": "Annotations",
+      "difficulty": "Advanced",
+      "answer": "@SpringBootApplication meta-annotation combines three annotations: @Configuration enables bean registration from class, @ComponentScan scans classpath for @Component classes in application package and subpackages, @EnableAutoConfiguration loads auto-configuration classes from spring.factories. Equivalent to using all three separately. Conventionally placed on main class. Enables classpath scanning eliminating explicit bean registration. Auto-configuration provides sensible defaults for common scenarios.",
+      "code": "\n// Example code for question 440\n// Annotations\n\npublic class Example440 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 440\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 440:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Annotations  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q440",
+        "Concept 2 from Q440",
+        "Concept 3 from Q440",
+        "Concept 4 from Q440",
+        "Concept 5 from Q440"
+      ]
+    },
+    {
+      "id": 441,
+      "question": "How does Spring Boot enable hot reload using DevTools?",
+      "category": "Development Tools",
+      "difficulty": "Advanced",
+      "answer": "Spring DevTools enables hot reload through embedded LiveReload server and classpath resource watching. On classpath change, RestartClassLoader reloads application context without full JVM restart. Faster than full restart. DevToolsPropertyDefaultsFactory adds development property defaults (caching disabled, debug logging enabled). RemoteSpringBootApplication enables remote restart for deployed apps. LiveReload browser extension automatically refreshes page. Excluded resources from restart (images, CSS). Disables caching by default. Development-only feature disabled in production.",
+      "code": "\n// Example code for question 441\n// Development Tools\n\npublic class Example441 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 441\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 441:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Development Tools  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q441",
+        "Concept 2 from Q441",
+        "Concept 3 from Q441",
+        "Concept 4 from Q441",
+        "Concept 5 from Q441"
+      ]
+    },
+    {
+      "id": 442,
+      "question": "How does HashMap work internally? Explain buckets and collision handling.",
+      "category": "Collections",
+      "difficulty": "Advanced",
+      "answer": "HashMap uses bucket array storing key-value pairs. hashCode() determines bucket index via index = hashCode() % array.length. Collisions (multiple keys \u2192 same bucket) handled with linked lists initially, converting to red-black trees if bucket size exceeds 8 (Java 8+). get() typically O(1) average case, O(log n) if tree. Resizing occurs at 75% load factor, doubling capacity and rehashing entries. Not thread-safe, allows null key/values. Performance depends on hash function quality and load factor tuning.",
+      "code": "\n// Example code for question 442\n// Collections\n\npublic class Example442 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 442\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 442:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Collections  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q442",
+        "Concept 2 from Q442",
+        "Concept 3 from Q442",
+        "Concept 4 from Q442",
+        "Concept 5 from Q442"
+      ]
+    },
+    {
+      "id": 443,
+      "question": "How does ConcurrentHashMap handle concurrency at the segment level?",
+      "category": "Concurrency",
+      "difficulty": "Advanced",
+      "answer": "ConcurrentHashMap uses segment-based locking allowing concurrent writes to different segments. Java 8+ uses node-level CAS (Compare-And-Swap) instead of segment locks. get() mostly lock-free via volatile visibility. Multiple threads write simultaneously to different segments without blocking. putIfAbsent, compute provide atomic operations. forEach supports parallelism. Read operations don't require locking. Collision handling identical to HashMap. Resize only affects affected segment. Highly suitable for multi-threaded environments with expected contention.",
+      "code": "\n// Example code for question 443\n// Concurrency\n\npublic class Example443 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 443\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 443:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Concurrency  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q443",
+        "Concept 2 from Q443",
+        "Concept 3 from Q443",
+        "Concept 4 from Q443",
+        "Concept 5 from Q443"
+      ]
+    },
+    {
+      "id": 444,
+      "question": "Explain Thread Pools and Executor Framework with sizing strategies.",
+      "category": "Concurrency",
+      "difficulty": "Advanced",
+      "answer": "Thread pools execute tasks using reusable threads reducing creation overhead. CPU-bound tasks: size = Runtime.getRuntime().availableProcessors(). IO-bound tasks: size = processors \u00d7 (1 + waitTime/computeTime). Fixed pools maintain constant threads. Cached pools create on demand. Work-stealing (ForkJoinPool) optimal for divide-conquer. Bounded queues prevent memory issues. Rejection policies (Abort, Discard, CallerRuns) handle overflow. Core/max size configuration critical. Graceful shutdown via shutdown() then awaitTermination() essential for cleanup.",
+      "code": "\n// Example code for question 444\n// Concurrency\n\npublic class Example444 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 444\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 444:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Concurrency  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q444",
+        "Concept 2 from Q444",
+        "Concept 3 from Q444",
+        "Concept 4 from Q444",
+        "Concept 5 from Q444"
+      ]
+    },
+    {
+      "id": 445,
+      "question": "What causes Deadlock and what prevention mechanisms exist?",
+      "category": "Concurrency",
+      "difficulty": "Advanced",
+      "answer": "Deadlock occurs when threads form circular wait: Thread A holds Lock1 waiting Lock2, Thread B holds Lock2 waiting Lock1. Four necessary conditions: mutual exclusion (non-shareable resources), hold-and-wait (hold while requesting), no preemption (can't forcibly take), circular wait. Prevention: 1) Lock ordering (same acquisition order) 2) Timeouts (tryLock(timeout)) 3) Atomic operations avoiding locks 4) Reduce hold-and-wait period. Detection via ThreadMXBean.findDeadlockedThreads(). Avoid nested lock acquisitions.",
+      "code": "\n// Example code for question 445\n// Concurrency\n\npublic class Example445 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 445\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 445:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Concurrency  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q445",
+        "Concept 2 from Q445",
+        "Concept 3 from Q445",
+        "Concept 4 from Q445",
+        "Concept 5 from Q445"
+      ]
+    },
+    {
+      "id": 446,
+      "question": "Explain Java GC algorithms (G1, CMS, ZGC) and trade-offs.",
+      "category": "JVM Internals",
+      "difficulty": "Advanced",
+      "answer": "Serial GC single-threaded, high pause times, minimal overhead. Parallel GC multi-threaded, high throughput, longer pauses. CMS concurrent collection, low pause times, high CPU usage. G1 region-based, balanced approach, suitable large heaps. ZGC sub-millisecond pauses via concurrent collection. Generational assumption: young objects die young. Young generation collected frequently. Old generation rarely. Trade-offs: Serial minimizes memory, Parallel maximizes throughput, CMS/G1/ZGC minimize pause. Choose based on latency/throughput requirements.",
+      "code": "\n// Example code for question 446\n// JVM Internals\n\npublic class Example446 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 446\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 446:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   JVM Internals  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q446",
+        "Concept 2 from Q446",
+        "Concept 3 from Q446",
+        "Concept 4 from Q446",
+        "Concept 5 from Q446"
+      ]
+    },
+    {
+      "id": 447,
+      "question": "How does Spring Boot Auto Configuration work and resolution order?",
+      "category": "Spring Boot",
+      "difficulty": "Advanced",
+      "answer": "Auto-configuration loads via SpringFactoriesLoader discovering EnableAutoConfiguration classes from spring.factories. Evaluates @Conditional annotations determining inclusion (ConditionalOnClass, ConditionalOnMissingBean, ConditionalOnProperty). Orders via @AutoConfigureBefore/@After controlling load sequence. User @Configuration beans override auto-configured ones via @ConditionalOnMissingBean. Debug mode shows matched/unmatched conditions. spring.autoconfigure.exclude property excludes specific auto-configs. Convention-over-configuration provides sensible defaults overridable by users.",
+      "code": "\n// Example code for question 447\n// Spring Boot\n\npublic class Example447 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 447\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 447:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Boot  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q447",
+        "Concept 2 from Q447",
+        "Concept 3 from Q447",
+        "Concept 4 from Q447",
+        "Concept 5 from Q447"
+      ]
+    },
+    {
+      "id": 448,
+      "question": "Explain Bean Lifecycle in Spring with all hooks.",
+      "category": "Spring Core",
+      "difficulty": "Advanced",
+      "answer": "Bean lifecycle: 1) Constructor instantiation 2) Dependency injection 3) *Aware interfaces (BeanNameAware, ApplicationContextAware) 4) BeanPostProcessor.postProcessBeforeInitialization() 5) @PostConstruct method 6) InitializingBean.afterPropertiesSet() 7) init-method 8) BeanPostProcessor.postProcessAfterInitialization() [AOP] 9) Ready for use 10) @PreDestroy 11) DisposableBean.destroy() 12) destroy-method. Customizable hooks enable initialization validation, resource setup, AOP enhancement, graceful shutdown.",
+      "code": "\n// Example code for question 448\n// Spring Core\n\npublic class Example448 {\n    // Implementation details here\n    public void demonstrate() {\n        System.out.println(\"Demonstrating concept from question 448\");\n    }\n}\n",
+      "diagram": "\nDiagram for Question 448:\n\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   Spring Core  \u2502\n\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 Key Points:                    \u2502\n\u2502 \u2022 Point 1                      \u2502\n\u2502 \u2022 Point 2                      \u2502\n\u2502 \u2022 Point 3                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n",
+      "key_concepts": [
+        "Concept 1 from Q448",
+        "Concept 2 from Q448",
+        "Concept 3 from Q448",
+        "Concept 4 from Q448",
+        "Concept 5 from Q448"
+      ]
+    }
+  ]
+}

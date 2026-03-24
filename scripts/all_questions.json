@@ -1,0 +1,3824 @@
+[
+  {
+    "number": 1,
+    "text": "What happens if you override equals() but not hashCode()? Explain the real production impact.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Core Java (Basics decide rejection fast)"
+  },
+  {
+    "number": 2,
+    "text": "Explain HashMap internal working in Java 8+.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Core Java (Basics decide rejection fast)"
+  },
+  {
+    "number": 3,
+    "text": "When does HashMap convert a bucket into a tree? Mention exact conditions.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Core Java (Basics decide rejection fast)"
+  },
+  {
+    "number": 4,
+    "text": "Why is String immutable in Java? Explain security and performance reasons.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Core Java (Basics decide rejection fast)"
+  },
+  {
+    "number": 5,
+    "text": "Comparable vs Comparator \u2014 how do you handle multiple sorting logics?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Core Java (Basics decide rejection fast)"
+  },
+  {
+    "number": 6,
+    "text": "Difference between map() and flatMap() with a real project example.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Java 8 / Stream API (Experience check)"
+  },
+  {
+    "number": 7,
+    "text": "findFirst() vs findAny() \u2014 behavior in parallel streams.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Java 8 / Stream API (Experience check)"
+  },
+  {
+    "number": 8,
+    "text": "Streams vs for-loop \u2014 when do streams perform worse?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Java 8 / Stream API (Experience check)"
+  },
+  {
+    "number": 9,
+    "text": "Explain groupingBy() with downstream collectors.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Java 8 / Stream API (Experience check)"
+  },
+  {
+    "number": 10,
+    "text": "Why should Optional not be used as a class field?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Java 8 / Stream API (Experience check)"
+  },
+  {
+    "number": 11,
+    "text": "@Component vs @Service vs @Repository \u2014 real difference or just naming?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Spring / Spring Boot (Resume vs reality)"
+  },
+  {
+    "number": 12,
+    "text": "Explain Spring Bean lifecycle step by step.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Spring / Spring Boot (Resume vs reality)"
+  },
+  {
+    "number": 13,
+    "text": "@Transactional \u2014 REQUIRED vs REQUIRES_NEW with real use case.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Spring / Spring Boot (Resume vs reality)"
+  },
+  {
+    "number": 14,
+    "text": "How do you design global exception handling in REST APIs?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Spring / Spring Boot (Resume vs reality)"
+  },
+  {
+    "number": 15,
+    "text": "Explain Spring Boot startup flow and the role of AutoConfiguration.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Spring / Spring Boot (Resume vs reality)"
+  },
+  {
+    "number": 16,
+    "text": "Synchronous vs Asynchronous communication \u2014 when is REST a bad choice?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Microservices (System-level thinking)"
+  },
+  {
+    "number": 17,
+    "text": "What problem does a Circuit Breaker solve? (No theory)",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Microservices (System-level thinking)"
+  },
+  {
+    "number": 18,
+    "text": "What is idempotency? Explain with a payment system example.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Microservices (System-level thinking)"
+  },
+  {
+    "number": 19,
+    "text": "How do you change configuration without restarting microservices?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Microservices (System-level thinking)"
+  },
+  {
+    "number": 20,
+    "text": "API versioning strategies in microservices.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Microservices (System-level thinking)"
+  },
+  {
+    "number": 21,
+    "text": "What is the N+1 problem? How do you detect and fix it?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Database / JPA (Most candidates fail here)"
+  },
+  {
+    "number": 22,
+    "text": "Lazy vs Eager fetching \u2014 impact of wrong choice.",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Database / JPA (Most candidates fail here)"
+  },
+  {
+    "number": 23,
+    "text": "When does a database index NOT get used?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Database / JPA (Most candidates fail here)"
+  },
+  {
+    "number": 24,
+    "text": "Optimistic vs Pessimistic locking \u2014 when to use which?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Database / JPA (Most candidates fail here)"
+  },
+  {
+    "number": 25,
+    "text": "How do you handle pagination for very large tables?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "Database / JPA (Most candidates fail here)"
+  },
+  {
+    "number": 26,
+    "text": "Design a wallet transfer system \u2014 how do you ensure data consistency?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 27,
+    "text": "How do you scale a high-traffic API?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 28,
+    "text": "When is caching harmful?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 29,
+    "text": "How do you implement rate limiting?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 30,
+    "text": "A production issue occurs \u2014 what are your first 30 minutes of action?",
+    "section": "## IMAGE 1: Top 30 Most-Asked Interview Questions (5+ Years Java Backend Developer)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "Why does a Java app behave differently in prod vs local JVM?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "How does JVM decide object allocation under heavy load?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "What exactly happens during a Stop-The-World pause?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "Why is volatile not enough for thread safety?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "When does synchronized become a bottleneck?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "How can HashMap cause issues in concurrent environments?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "Difference between ConcurrentHashMap and synchronized HashMap internally.",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "How does Java Memory Model ensure visibility?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "What is false sharing and how do you avoid it?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "Why does double-checked locking fail sometimes?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 11,
+    "text": "How does JVM detect deadlocks?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 12,
+    "text": "Why can a thread pool silently kill performance?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 13,
+    "text": "What happens if a Runnable throws an unchecked exception?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 14,
+    "text": "How do you safely shut down an ExecutorService?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 15,
+    "text": "Why does GC tuning improve latency but reduce throughput?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 16,
+    "text": "How does G1 GC decide which region to clean?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 17,
+    "text": "Why does OutOfMemoryError occur even with free heap?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 18,
+    "text": "How do you find memory leaks in a running JVM?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 19,
+    "text": "Difference between strong, weak, soft, and phantom references.",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 20,
+    "text": "Why is finalize() dangerous and deprecated?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 21,
+    "text": "How does class loading work in large Java applications?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 22,
+    "text": "Why does ClassCastException occur even with correct code?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 23,
+    "text": "How does Java handle instruction reordering?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 24,
+    "text": "When does autoboxing hurt performance badly?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 25,
+    "text": "Why is String immutable and how does it help concurrency?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 26,
+    "text": "How does JVM optimize hot code paths?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 27,
+    "text": "What is escape analysis and why does it matter?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 28,
+    "text": "Why does a Java process not exit after main() ends?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 29,
+    "text": "How do you debug high CPU usage with low traffic?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 30,
+    "text": "What Java decision caused you a real production issue?",
+    "section": "## IMAGE 2: Real, Most-Asked, Advanced Java Interview Questions (Depth, not memory)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "What is difference between synchronous and asynchronous communication?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "What is REST vs gRPC?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "What is HTTP/2 and HTTP/3?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "What is connection pooling and why is it needed?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "How does HikariCP work internally?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "What is thread pool and how to tune it?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "What is ForkJoinPool?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "How does garbage collection work in JVM?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "What is G1 GC vs ZGC?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "What is memory leak in Java?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 11,
+    "text": "What is OutOfMemoryError vs StackOverflowError?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 12,
+    "text": "What is classloader hierarchy?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 13,
+    "text": "What is Metaspace?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 14,
+    "text": "What is JIT compiler?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 15,
+    "text": "What is escape analysis?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 16,
+    "text": "What is CompletableFuture chaining?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 17,
+    "text": "What is reactive backpressure strategy?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 18,
+    "text": "What is event sourcing?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 19,
+    "text": "What is CQRS pattern?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 20,
+    "text": "What is database sharding?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 21,
+    "text": "What is read replica?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 22,
+    "text": "What is eventual vs strong consistency?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 23,
+    "text": "What is two-phase commit?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 24,
+    "text": "What is id generation strategy in JPA?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 25,
+    "text": "What is optimistic locking version column?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 26,
+    "text": "What is soft delete implementation?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 27,
+    "text": "How to design audit logging?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 28,
+    "text": "What is API rate limiting with Redis?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 29,
+    "text": "What is token bucket vs leaky bucket?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 30,
+    "text": "What is distributed cache coherence?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 31,
+    "text": "What is Hazelcast?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 32,
+    "text": "What is message ordering in Kafka?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 33,
+    "text": "What is Kafka partition rebalance?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 34,
+    "text": "What is dead letter queue?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 35,
+    "text": "What is retry with exponential backoff?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 36,
+    "text": "What is timeout vs circuit breaker?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 37,
+    "text": "What is graceful degradation?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 38,
+    "text": "What is fallback mechanism?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 39,
+    "text": "What is health check readiness vs liveness?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 40,
+    "text": "What is blue-green vs rolling deployment?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 41,
+    "text": "What is sidecar pattern?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 42,
+    "text": "What is service discovery?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 43,
+    "text": "What is API throttling?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 44,
+    "text": "What is zero trust security?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 45,
+    "text": "What is mTLS?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 46,
+    "text": "What is secrets management?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 47,
+    "text": "What is config hot reload?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 48,
+    "text": "What is feature toggle?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 49,
+    "text": "What is chaos engineering?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 50,
+    "text": "How do you design fault-tolerant microservices?",
+    "section": "## IMAGE 3: Java Backend Interview \u2014 50 Advanced Questions (Part 2)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "Why does a Spring Boot app consume more memory over time?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "How do you detect bean initialization issues in large applications?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "What happens if @PostConstruct throws an exception?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "Why does @Value sometimes fail to inject properties?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "How does Spring Boot decide the order of auto-configurations?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "What are the risks of enabling too many Actuator endpoints?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "Why does your app behave differently after scaling pods?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "How does Spring Boot handle classpath scanning internally?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "What causes duplicate bean registration in multi-module projects?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "Why does your API return correct data but response time fluctuates?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 11,
+    "text": "How do you control thread usage in Spring Boot applications?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 12,
+    "text": "What happens when application.yml and application.properties both exist?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 13,
+    "text": "Why do custom exception handlers sometimes not trigger?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 14,
+    "text": "How do you handle large payloads without killing performance?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 15,
+    "text": "Why does Hibernate generate unexpected queries?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 16,
+    "text": "How do you debug a deadlock in a Spring Boot service?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 17,
+    "text": "What happens if a BeanFactoryPostProcessor fails?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 18,
+    "text": "How do you avoid startup failure due to missing configs?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 19,
+    "text": "Why does Spring Boot retry DB connections on startup?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 20,
+    "text": "How do you manage feature toggles safely?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 21,
+    "text": "Why does @Cacheable sometimes not cache?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 22,
+    "text": "How does Spring Boot isolate environment-specific configs?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 23,
+    "text": "What causes classloader issues in fat JARs?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 24,
+    "text": "How do you safely reload configs without restarting?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 25,
+    "text": "Why does logging behave differently in prod vs local?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 26,
+    "text": "How do you handle partial failures in dependent services?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 27,
+    "text": "What is the real impact of using too many interceptors?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 28,
+    "text": "How do you prevent breaking changes during deployments?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 29,
+    "text": "Why does @ConfigurationProperties fail silently?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 30,
+    "text": "What Spring Boot decision caused you a real production issue?",
+    "section": "## IMAGE 4: Spring Boot Debugging & Production Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "What is the difference between synchronized and ReentrantLock?",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "Explain the purpose of volatile keyword in multithreading.",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "How does ThreadLocal work internally?",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "What is the difference between fail-fast and fail-safe iterators?",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "Explain the diamond problem in Java 8 and how it's resolved.",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "What is PermGen vs Metaspace?",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "How does G1GC differ from CMS garbage collector?",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "What is a functional interface and how does it enable lambda expressions?",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "Explain effectively final variables in the context of lambdas.",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "How would you detect and fix memory leaks in Java?",
+    "section": "## IMAGE 5: Core Java Concurrency & Internals (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "Explain JVM architecture.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "Difference between JDK, JRE, and JVM.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "How Garbage Collection works in Java?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "Types of Garbage Collection.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "What is a memory leak in Java?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "String vs StringBuffer vs StringBuilder",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "How HashMaps works internally?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "HashMap vs ConcurrentHashMap",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "Why String is immutable?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "equals() vs hashCode()",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 11,
+    "text": "What is Classloader?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 12,
+    "text": "Explain Reflection API",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 13,
+    "text": "What is Autoboxing and Unboxing?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 14,
+    "text": "What are Soft, Weak, and Phantom references?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 15,
+    "text": "What is Autoboxing and Unboxing?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 16,
+    "text": "What is a volatile keyword?",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 17,
+    "text": "Fail-Fast vs Fail-Safe iterators.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 18,
+    "text": "Functional Interfaces",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 19,
+    "text": "Thread lifecycle",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 20,
+    "text": "Types of Thread Pools",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 21,
+    "text": "Deadlock and prevention.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 22,
+    "text": "Race condition.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 23,
+    "text": "Synchronization.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 24,
+    "text": "synchronized vs Lock.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 25,
+    "text": "CyclicBarrier",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 26,
+    "text": "CountDownLatch",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 27,
+    "text": "ForkJoinPool",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 28,
+    "text": "AtomicInteger",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 29,
+    "text": "Atomic variables.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 30,
+    "text": "Compare-And-Swap (CAS).",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 31,
+    "text": "ThreadLocal.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 32,
+    "text": "BlockingQueue.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 33,
+    "text": "Producer-Consumer problem.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 34,
+    "text": "Designing high-performance multithreading.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 35,
+    "text": "Dependency Injection.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 36,
+    "text": "Spring Boot Annotations.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 37,
+    "text": "@Component vs @Service vs @Repository.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 38,
+    "text": "Constructor Injection vs Field Injection.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 39,
+    "text": "Proxy in Spring.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 40,
+    "text": "AOP in Spring.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 41,
+    "text": "REST vs SOAP.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 42,
+    "text": "Spring Boot AutoConfiguration.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 43,
+    "text": "Spring Security flow.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 44,
+    "text": "OAuth2.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 45,
+    "text": "Circuit Breaker pattern.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 46,
+    "text": "Service Discovery (Eureka).",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 47,
+    "text": "API Gateway.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 48,
+    "text": "Feign Client.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 49,
+    "text": "Config Server.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 50,
+    "text": "Kafka architecture.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 51,
+    "text": "Kafka consumer.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 52,
+    "text": "Event Driven Architecture.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 53,
+    "text": "Saga Pattern.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 54,
+    "text": "Distributed Tracing.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 55,
+    "text": "Resilience4j.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 56,
+    "text": "Docker with Spring Boot.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 57,
+    "text": "Kubernetes deployment strategies.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 58,
+    "text": "Blue-Green deployment.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 59,
+    "text": "JIT Compiler.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 60,
+    "text": "Metaspace vs PermGen.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 61,
+    "text": "Heap Dump analysis.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 62,
+    "text": "GC tuning/tuning for troubleshooting.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 63,
+    "text": "GC tuning.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 64,
+    "text": "Stop-The-World events.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 65,
+    "text": "ClassLoader memory leak.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 66,
+    "text": "Escape Analysis.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 67,
+    "text": "Object Pooling.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 68,
+    "text": "JMX.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 69,
+    "text": "Memory Thrashing.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 70,
+    "text": "JVM Profiling tools.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 71,
+    "text": "CPU profiling.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 72,
+    "text": "Asynchronous processing.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 73,
+    "text": "Reactive Programming.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 74,
+    "text": "Singleton pattern (thread-safe).",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 75,
+    "text": "Factory vs Abstract Factory.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 76,
+    "text": "Builder pattern.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 77,
+    "text": "Strategy pattern.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 78,
+    "text": "Observer pattern.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 79,
+    "text": "Proxy pattern.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 80,
+    "text": "Circuit Breaker pattern.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 81,
+    "text": "CQRS.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 82,
+    "text": "Event Sourcing.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 83,
+    "text": "SOLID principles.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 84,
+    "text": "Microservices vs Monolith.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 85,
+    "text": "CAP Theorem.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 86,
+    "text": "Idempotency in REST APIs.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 87,
+    "text": "Rate Limiting design.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 88,
+    "text": "XSS. Design a high-traffic REST API.",
+    "section": "## IMAGE 6: 100 Java Interview Topics (Comprehensive List)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "What is the Circuit Breaker pattern and how is it implemented?",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "Explain the Saga pattern for distributed transactions.",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "How do you implement fault tolerance in Spring Boot microservices?",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "What is the difference between @RestController and @Controller?",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "Explain lazy initialization in Spring Boot and its impact on startup time.",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "How would you optimize Spring Boot application startup time?",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "What are the benefits of using Spring Cloud Gateway over Zuul?",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "Explain the purpose of Spring Boot Actuator metrics.",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "How do you implement distributed tracing using Spring Cloud Sleuth and Zipkin?",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "What is the difference between monolithic architecture, SOA, and microservices architecture?",
+    "section": "## IMAGE 7: Spring Boot Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "What is the difference between Callable and Runnable?",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "Explain the Java Memory Model (JMM) and happens-before relationship.",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "Why should passwords be stored in char arrays instead of Strings?",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "How does compare-and-swap (CAS) work in concurrent programming?",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "What is the difference between String, StringBuilder, and StringBuffer?",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "Explain pattern matching enhancements in Java 23.",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "How do you handle distributed transactions in microservices?",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "What is the role of API Gateway in Spring Boot microservices?",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "Explain service discovery using Spring Cloud Netflix Eureka.",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "How does Spring Cloud Config Server manage externalized configuration?",
+    "section": "## IMAGE 8: Java Core & Microservices (10 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "How to implement payment gateway?",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "How to store customer sensitive data like account information in database?",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "What is @ComponentScan, what is the use of it?",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "We have a list of integers. Find out all the numbers starting with 1 using stream function. (a. 11, 18, 20, 24, 85, 66, 13)",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "We have a list of employees, in which we have id, name, age, gender and salary.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "Write a java program to find sum of even numbers and sum of odd numbers in a given list using java 8 streams.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "How to find duplicate elements in a given integers list in java using Streams function.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "I need to compare if two arrays are same, but the order does not matter, just compare the elements in arr1 to elements in arr2. (a. arr1 = [3, 2, 5, 7], b. arr2 = [2, 3, 5, 7])",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "I will provide a string, remove all the occurrences of a given character from that string.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "Finding special character in the String, special characters are those characters which are not alphabets or not numbers.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 11,
+    "text": "Write a program to check if given strings are rotations of each other or not.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 12,
+    "text": "Write a program to Find the missing number from the array.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 13,
+    "text": "Write a program to convert first half of the String in lower case and second half in upper case.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 14,
+    "text": "Java 8 Program to get Highest paid Employee in Each department using stream API.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 15,
+    "text": "Write a java 8 program to find the words starting with vowels.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 16,
+    "text": "Write a java 8 program to print employees count working in each department.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 17,
+    "text": "Write a java 8 program to print active and inactive employees in the given collection.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 18,
+    "text": "Write a java 8 program to print employee details working in each department.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 19,
+    "text": "Write a java 8 program to print max salary of employee in each department max/min employee salary in given collection.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 21,
+    "text": "Write a Java 8 method to find the sum of all elements in a List of integers.",
+    "section": "## IMAGE 9: Java + Spring Boot Interview Coding & Practical Questions",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "Your Java service is slow but CPU usage is low \u2014 what do you investigate first?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 2,
+    "text": "A thread pool is configured correctly, yet tasks are getting delayed. Why?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 3,
+    "text": "Your app throws OutOfMemoryError even though heap looks sufficient. How?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 4,
+    "text": "Production logs show no errors, but users face random failures. What could be wrong?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 5,
+    "text": "Multiple threads update shared data and results are inconsistent \u2014 how do you fix it?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 6,
+    "text": "A Java app works fine for hours, then suddenly slows down. What's your approach?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 7,
+    "text": "GC pauses are high after a new release. What changes might have caused this?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 8,
+    "text": "One API call blocks others even though threads are available. Why?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 9,
+    "text": "Your JVM doesn't exit even after main() completes. What's holding it?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 10,
+    "text": "High CPU usage with very low traffic \u2014 where do you look?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 11,
+    "text": "A deadlock happens rarely and can't be reproduced locally. How do you debug it?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 12,
+    "text": "HashMap size increases but lookups become slower. What went wrong?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 13,
+    "text": "A background job impacts API response time. How do you isolate it?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 14,
+    "text": "ThreadLocal fixed one bug but created another. What's the risk?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 15,
+    "text": "After scaling instances, performance gets worse. Why?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 16,
+    "text": "A task submitted to ExecutorService fails silently. What happened?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 17,
+    "text": "You see frequent Full GCs after a config change. Why?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 18,
+    "text": "Memory usage keeps growing but no references are obvious. What do you suspect?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 19,
+    "text": "An API is fast sometimes and slow at other times. What could cause this?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 20,
+    "text": "Application behaves differently between Java 8 and Java 17. Why?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 21,
+    "text": "Logging was increased for debugging and prod went down. How?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 22,
+    "text": "A fix works locally but fails under concurrency. What was missed?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 23,
+    "text": "Threads are waiting but no deadlock is detected. What's happening?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 24,
+    "text": "A cache improves performance initially, then degrades it. Why?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 25,
+    "text": "After enabling parallel streams, response time increased. Why?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 26,
+    "text": "JVM tuning helped latency but hurt throughput. Explain the trade-off.",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 27,
+    "text": "A small code change caused massive GC pressure. How?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 28,
+    "text": "A retry mechanism caused system overload. What design mistake?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 29,
+    "text": "App crashes only during peak hours. What patterns do you look for?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 30,
+    "text": "What Java decision you made once caused a real production issue?",
+    "section": "## IMAGE 10: Production Debugging & Scenario-Based Questions (30 Questions)",
+    "category": "System Design / Production"
+  },
+  {
+    "number": 1,
+    "text": "How can we make an existing HashMap thread-safe without using ConcurrentHashMap?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 2,
+    "text": "How do you ensure consistent data across multiple application instances? For example, if two JVM instances are running and a value is updated in App1 (JVM1), how will it be reflected in App2 (JVM2)?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 3,
+    "text": "Can we use @Transactional on protected or private methods?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 4,
+    "text": "What is the internal implementation of the @Transactional annotation?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 5,
+    "text": "Your application is deployed to production and experiencing high traffic. How would you handle it? What scaling strategies would you use?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 6,
+    "text": "How do you get alerts for 500 Internal Server Errors occurring every 5 minutes?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 7,
+    "text": "How do you handle partial failures in microservices architecture?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 8,
+    "text": "How would you log all methods annotated with @Transactional? (Provide pseudo code.)",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 9,
+    "text": "If your Kafka-based application is deployed with multiple consumer instances, how do you ensure that only one consumer instance processes messages from a topic? Which configuration/property would you use?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 10,
+    "text": "How do you handle failures during Kafka message consumption in microservices?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 11,
+    "text": "How do you handle duplicate payments if a customer accidentally clicks the \"Pay\" button multiple times? How do you identify and inform the client about duplicates?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 12,
+    "text": "How do you achieve zero data loss in your application?",
+    "section": "## IMAGE 13: JPMorgan Java Developer Interview Questions (12 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 1,
+    "text": "What is Spring and Spring Boot? What are the advantages of Spring Boot?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 2,
+    "text": "What are Spring Boot starters?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 3,
+    "text": "What is the default port number of a Spring Boot application?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 4,
+    "text": "What is IoC (Inversion of Control)?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 5,
+    "text": "What is Dependency Injection (DI) and what are the types of DI?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 6,
+    "text": "What is Autowiring? What are the different Autowiring modes?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 7,
+    "text": "What is a Spring Bean and life cycle of Spring Bean and scopes of Bean?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 8,
+    "text": "What is a REST API?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 9,
+    "text": "What are the HTTP methods used in REST API?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 10,
+    "text": "What is JSON and XML?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 11,
+    "text": "What is JWT (JSON Web Token) and OAuth?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 12,
+    "text": "What is Spring Security?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 13,
+    "text": "How do you secure REST APIs in Spring Boot?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 14,
+    "text": "What is Microservices architecture and Monolithic architecture?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 15,
+    "text": "How do microservices communicate with each other?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 16,
+    "text": "What is an API Gateway?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 17,
+    "text": "What is Spring Data JPA?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 18,
+    "text": "What is a Repository, types of Repositories?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 20,
+    "text": "How do you handle exceptions in Spring Boot?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 21,
+    "text": "What is application.properties or application.yml?",
+    "section": "## IMAGE 14: Spring Boot Basics & Fundamentals (21 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 1,
+    "text": "How does HashMap work internally? Explain buckets, hashing mechanism, and resizing process.",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 2,
+    "text": "What is the difference between HashMap and ConcurrentHashMap?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 3,
+    "text": "Explain the JVM memory architecture (Heap, Stack, Metaspace).",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 4,
+    "text": "What are common causes of OutOfMemoryError in production? How would you troubleshoot it?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 5,
+    "text": "How do you make a class thread-safe? Provide a practical example.",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 6,
+    "text": "Describe the complete lifecycle of a Spring Bean.",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 7,
+    "text": "How does Dependency Injection function internally in Spring?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 8,
+    "text": "What happens internally when you use @Transactional?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 9,
+    "text": "What is the difference between @Component, @Service, and @Repository?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 10,
+    "text": "How would you implement global exception handling in Spring Boot?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 11,
+    "text": "What is lazy vs eager loading in JPA? In which scenarios can it impact performance?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 12,
+    "text": "How do you manage concurrent updates to the same database record?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 13,
+    "text": "Explain ACID properties using a banking transaction example.",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 14,
+    "text": "How would you optimize a slow-performing SQL query?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 15,
+    "text": "How would you design pagination and sorting in a REST API?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 16,
+    "text": "Explain the step-by-step flow of JWT authentication.",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 17,
+    "text": "If your API performance degrades under load, how would you identify the bottleneck?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 18,
+    "text": "REST vs Messaging (Kafka) when would you choose each approach?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 19,
+    "text": "How would you Dockerize a Spring Boot application?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 20,
+    "text": "If two microservices fail during communication, how would you implement fault tolerance?",
+    "section": "## IMAGE 15: Round 1 Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 1,
+    "text": "Your HashMap suddenly starts performing very slowly with large data. What internal behavior could cause this?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 2,
+    "text": "A ConcurrentModificationException appears randomly in production. What coding mistake might cause it?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 3,
+    "text": "Your API response time increased after switching from ArrayList to LinkedList. Why?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 4,
+    "text": "A static variable starts causing inconsistent data across requests. Why can static state be dangerous?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 5,
+    "text": "Your application crashes with StackOverflowError. What kind of bug usually leads to this?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 6,
+    "text": "An API endpoint creates thousands of objects per request and performance drops. What JVM behavior might explain this?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 7,
+    "text": "Two threads updating the same object sometimes produce wrong values. What concurrency issue could this be?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 8,
+    "text": "A HashSet suddenly starts allowing duplicates. What mistake might exist in the object class?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 9,
+    "text": "Your application becomes slow after adding heavy logging statements. Why can logging affect performance?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 10,
+    "text": "An API endpoint blocks the entire service during heavy traffic. What coding pattern might cause this?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 11,
+    "text": "A Java Stream pipeline produces unexpected results in parallel execution. Why might this happen?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 12,
+    "text": "Your application becomes unstable after introducing caching. What design mistake might exist?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 13,
+    "text": "A background thread silently dies and stops processing tasks. Why might this happen?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 14,
+    "text": "Your application creates too many threads and the server becomes unstable. What should be used instead?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 15,
+    "text": "An API occasionally returns stale data even though the database is updated. What could be wrong?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 16,
+    "text": "Your equals() method works but HashMap lookups fail. What method might be missing?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 17,
+    "text": "After deploying on a multi-core machine performance actually drops. Why might that happen?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 18,
+    "text": "A scheduled job suddenly runs multiple times instead of once. What configuration issue might cause this?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 19,
+    "text": "A memory leak appears even though objects are no longer used. What references might still hold them?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 20,
+    "text": "Your service becomes slower after introducing synchronized blocks. Why?",
+    "section": "## IMAGE 16: Scenario-Based Java Interview Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 1,
+    "text": "Your Java API suddenly starts returning very slow responses after a traffic spike. What internal issue could cause this?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 2,
+    "text": "A HashMap in your service sometimes loses data unexpectedly. What coding mistake could lead to this?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 3,
+    "text": "After deploying a small change, the JVM memory usage suddenly doubles. What could explain this?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 4,
+    "text": "Your application becomes unstable when too many threads are created dynamically. What is the underlying problem?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 5,
+    "text": "A REST endpoint works fine with few users but crashes when thousands of requests arrive. Why might that happen?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 6,
+    "text": "Your system occasionally returns partially updated data during concurrent requests. What concurrency issue might exist?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 7,
+    "text": "A background job sometimes runs twice even though it was scheduled once. What might cause this?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 8,
+    "text": "After adding caching, users start seeing outdated responses. What design issue might exist?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 9,
+    "text": "Your Java service suddenly throws ClassCastException in production but not in testing. Why?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 10,
+    "text": "An API endpoint suddenly starts consuming huge memory for a simple operation. What might be happening?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 11,
+    "text": "A synchronized block added for safety starts slowing down the entire application. Why?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 12,
+    "text": "Your application throws IllegalStateException under heavy traffic. What situation might cause this?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 13,
+    "text": "A thread pool keeps growing but tasks are still delayed. What could be misconfigured?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 14,
+    "text": "A microservice call blocks your main request threads for a long time. What should be investigated?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 15,
+    "text": "Your application logs suddenly increase disk I/O and slow down the service. Why?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 16,
+    "text": "A long-running loop accidentally blocks an important worker thread. What kind of issue is this?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 17,
+    "text": "After enabling parallel processing, CPU usage spikes but throughput doesn't improve. Why?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 18,
+    "text": "Your service sometimes processes the same request twice. What design issue might cause this?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 19,
+    "text": "A Java service deployed on multiple instances starts behaving inconsistently. What shared-state issue could exist?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 20,
+    "text": "A small bug causes a recursive method to run indefinitely until the application crashes. What error does this lead to?",
+    "section": "## IMAGE 17: Production Scenario-Based Questions (20 Questions)",
+    "category": "Real-World Scenarios Interviewers Love"
+  },
+  {
+    "number": 12,
+    "text": "What is the difference between Predicate, Function and Consumer?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "(Continued from previous \u2014 likely starts at #12)"
+  },
+  {
+    "number": 13,
+    "text": "What is Optional class and why was it introduced?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "(Continued from previous \u2014 likely starts at #12)"
+  },
+  {
+    "number": 14,
+    "text": "How does Spring Boot Auto Configuration work internally?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Spring Boot"
+  },
+  {
+    "number": 15,
+    "text": "Difference between @Component, @Service, and @Repository.",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Spring Boot"
+  },
+  {
+    "number": 16,
+    "text": "What is Spring Boot Actuator and why is it used?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Spring Boot"
+  },
+  {
+    "number": 17,
+    "text": "Difference between @Value and @ConfigurationProperties.",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Spring Boot"
+  },
+  {
+    "number": 18,
+    "text": "What is Spring Boot Starter and how does it simplify dependency management?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Spring Boot"
+  },
+  {
+    "number": 19,
+    "text": "How do you implement JWT authentication in Spring Boot?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Spring Security"
+  },
+  {
+    "number": 20,
+    "text": "What is the difference between Authentication and Authorization?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Spring Security"
+  },
+  {
+    "number": 21,
+    "text": "How do you secure REST APIs in Spring Boot?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Spring Security"
+  },
+  {
+    "number": 22,
+    "text": "What is the role of an API Gateway in Microservices architecture?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Microservices"
+  },
+  {
+    "number": 23,
+    "text": "What is Service Discovery and how does it work?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Microservices"
+  },
+  {
+    "number": 24,
+    "text": "Difference between Synchronous vs Asynchronous communication between microservices.",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Microservices"
+  },
+  {
+    "number": 25,
+    "text": "What is the Circuit Breaker pattern?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Microservices"
+  },
+  {
+    "number": 26,
+    "text": "What is the Bulkhead pattern in microservices?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Microservices"
+  },
+  {
+    "number": 27,
+    "text": "What is Distributed Tracing?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Microservices"
+  },
+  {
+    "number": 28,
+    "text": "What is the N+1 problem in Hibernate?",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 29,
+    "text": "Difference between Lazy and Eager fetching.",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 30,
+    "text": "Difference between save() and saveAndFlush().",
+    "section": "## IMAGE 20: Java Backend Interview Questions (30 Questions with Categories)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 1,
+    "text": "Your HashMap performance suddenly drops with large data. What internal change could cause this?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 2,
+    "text": "A method works fine in testing but throws NullPointerException randomly in production. Why?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 3,
+    "text": "Your application creates too many objects and performance degrades. What JVM behavior is involved?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 4,
+    "text": "Two threads updating the same data sometimes give wrong results. What issue is this?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 5,
+    "text": "Your API becomes slow after adding synchronized blocks. Why does this happen?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 6,
+    "text": "A background thread stops working without any error. What might be the reason?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 7,
+    "text": "Your application behaves inconsistently across multiple instances. What design issue could cause this?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 8,
+    "text": "A loop in your code suddenly causes CPU spikes. What kind of bug could this be?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 9,
+    "text": "Your system returns duplicate data even though logic seems correct. What could be wrong?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 10,
+    "text": "After introducing caching, users sometimes see stale data. Why?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 11,
+    "text": "A method that should be fast suddenly takes much longer under load. What could be happening internally?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 12,
+    "text": "Your application crashes with StackOverflowError. What kind of code usually causes this?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 13,
+    "text": "A shared resource is accessed by multiple threads and causes unpredictable behavior. What is missing?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 14,
+    "text": "Your service works fine with few users but slows down heavily under load. Why?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 15,
+    "text": "Your equals() method is correct but collections still behave incorrectly. What might be missing?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 16,
+    "text": "After adding multithreading, performance actually drops. Why can that happen?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 17,
+    "text": "Your logs suddenly increase and system performance drops. How can logging impact performance?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 18,
+    "text": "A retry mechanism causes system overload during failures. What mistake might be there?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 19,
+    "text": "Your application sometimes processes the same request twice. What design issue could cause this?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 20,
+    "text": "A small change in code leads to unexpected runtime behavior. Why is debugging harder in concurrent systems?",
+    "section": "## IMAGE 21: Scenario-Based Java Questions (Real Systems Behavior, 20 Questions)",
+    "category": "Hibernate / JPA"
+  },
+  {
+    "number": 1,
+    "text": "Arrays/Strings: two-sum variants, move zeros, anagrams, longest prefix",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "DSA/Coding"
+  },
+  {
+    "number": 2,
+    "text": "Graphs/Trees: BFS/DFS, shortest path, tree re-rooting, DSU",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "DSA/Coding"
+  },
+  {
+    "number": 3,
+    "text": "DP staples: LIS, coin change",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "DSA/Coding"
+  },
+  {
+    "number": 4,
+    "text": "Binary search patterns; streamy transforms (filter \u2192 map \u2192 reduce)",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "DSA/Coding"
+  },
+  {
+    "number": 1,
+    "text": "Design a UPI-style payment service",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "System Design"
+  },
+  {
+    "number": 2,
+    "text": "Transaction feed service, inspired by TStore",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "System Design"
+  },
+  {
+    "number": 3,
+    "text": "In-app Inbox/Alerts/chat-like pub-sub ala Bullhorn",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "System Design"
+  },
+  {
+    "number": 4,
+    "text": "Job scheduler at scale like Clockwork",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "System Design"
+  },
+  {
+    "number": 5,
+    "text": "Metrics platform for SLOs",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "System Design"
+  },
+  {
+    "number": 1,
+    "text": "HashMap vs ConcurrentHashMap, equals/hashCode contract, immutability",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Core Java/Backend"
+  },
+  {
+    "number": 2,
+    "text": "Threads vs executors, JMM basics, GC tuning (G1/ZGC talk-throughs)",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Core Java/Backend"
+  },
+  {
+    "number": 3,
+    "text": "Java 8/11/17 features in practice (streams, records, var, switch, text blocks)",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Core Java/Backend"
+  },
+  {
+    "number": 4,
+    "text": "Resilience in prod: retries, timeouts, circuit breakers (what + where)",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Core Java/Backend"
+  },
+  {
+    "number": 1,
+    "text": "Spring Boot auto-config, configuration profiles, Actuator/health",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 2,
+    "text": "REST design: validation, versioning, idempotency; SAGA/outbox patterns",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 3,
+    "text": "Kafka (ordering, retries, DLQs) and RabbitMQ (work queues) in payments flows",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 4,
+    "text": "Observability: metrics/tracing; dealing with 300B+ metrics/day style scale",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 5,
+    "text": "Index design & trade-offs; deduping rows; window functions vs GROUP BY",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 6,
+    "text": "Transaction isolation, pagination strategies; read-vs-write models for feeds",
+    "section": "## IMAGE 22: PhonePe Interview Topics (SWE-2 / Senior SWE, 44-85 LPA)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 1,
+    "text": "Why can a Stream be consumed only once? What would happen if we try to reuse the same stream?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 2,
+    "text": "Why do we need Stream if we can write code without stream API?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 3,
+    "text": "Can you explain Stream Pipeline Structure?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 4,
+    "text": "Why are intermediate operations called lazy?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 5,
+    "text": "If a stream pipeline contains multiple filter() operations, does it iterate the collection multiple times? Explain.",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 6,
+    "text": "You are processing a list of 10 million records using Streams. After applying multiple filters and a map operation, the performance becomes slow. What factors would you check to identify the problem?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 7,
+    "text": "A developer replaces a traditional loop with Streams but the code becomes harder to read. In what scenarios should Streams be avoided?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 8,
+    "text": "Can Streams modify the original collection?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 9,
+    "text": "What is the difference between map() and flatMap() conceptually? When would you prefer flatMap?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 10,
+    "text": "Why is forEach() considered a terminal operation while peek() is intermediate?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 11,
+    "text": "Why is Stream not a data structure?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 12,
+    "text": "What happens if we modify the source collection while the stream is being processed?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 13,
+    "text": "Can a Stream pipeline run without a terminal operation?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 14,
+    "text": "What is Parallel Stream and how does Java decide how many threads to use in a parallel stream?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 15,
+    "text": "What kind of operations are not suitable for Parallel Streams?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 16,
+    "text": "Parallel Streams internally use which thread pool? Can it affect other tasks?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 17,
+    "text": "If a stream operation depends on previous results, should we use Parallel Stream? Why?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 18,
+    "text": "When should we prefer sequential streams over parallel streams?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 19,
+    "text": "What makes an interface a Functional Interface? Can it have multiple methods?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 20,
+    "text": "Why does Java allow multiple default methods in a functional interface but only one abstract method?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 21,
+    "text": "Can a Functional Interface extend another interface? What happens if both have abstract methods?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 22,
+    "text": "Can a functional interface contain static methods?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 23,
+    "text": "Give some examples of Functional Interface?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 24,
+    "text": "What is the purpose of the @FunctionalInterface annotation if it is optional?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 25,
+    "text": "Why does Comparator qualify as a functional interface even though it has many methods?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 26,
+    "text": "What is the difference between Predicate, Function, Consumer, and Supplier conceptually?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 27,
+    "text": "How does the compiler determine which method a lambda expression refers to?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 28,
+    "text": "Why must variable use inside lambda expressions be final or effectively final?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 29,
+    "text": "What is the difference between lambda expressions and anonymous class?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 30,
+    "text": "Can lambda expressions access instance variables and static variables?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 31,
+    "text": "Why can't we use lambda expressions without a functional interface?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 32,
+    "text": "What is a method reference and why do we need it?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 33,
+    "text": "Why was Optional introduced in Java 8? What problem does it solve?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 34,
+    "text": "What is the difference between orElse() and orElseGet() conceptually?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 35,
+    "text": "Difference between Optional.of() and Optional.ofNullable()?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 36,
+    "text": "Explain the Java 8 Date Time API?",
+    "section": "## IMAGE 23: Java 8 Stream API & Functional Interface Deep Dive (36 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 1,
+    "text": "How @RequestBody works internally in Spring Boot",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 2,
+    "text": "End-to-end flow of how an Entity class eventually becomes a table in the database (JPA \u2192 Hibernate \u2192 SQL)",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 3,
+    "text": "Why we use @Service and @Repository, what Spring does differently with them internally",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 4,
+    "text": "What happens if both @Service and @Repository are used on the same class",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 5,
+    "text": "Thread lifecycle \u2014 especially NEW vs RUNNABLE states",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 6,
+    "text": "Fail-Fast vs Fail-Safe iterators (with real examples)",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 7,
+    "text": "Why ConcurrentHashMap exists and when to use it",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 8,
+    "text": "What an API Gateway does in a microservices setup",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Spring/Microservices/Database"
+  },
+  {
+    "number": 9,
+    "text": "2Sum problem (follow-up: 3Sum)",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Coding / Hands-on Questions"
+  },
+  {
+    "number": 10,
+    "text": "Filtering employees above a certain salary using Java Streams",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Coding / Hands-on Questions"
+  },
+  {
+    "number": 11,
+    "text": "Finding average salary using Streams",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Coding / Hands-on Questions"
+  },
+  {
+    "number": 12,
+    "text": "Grouping employees by department (Streams + follow-up in SQL)",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Coding / Hands-on Questions"
+  },
+  {
+    "number": 13,
+    "text": "Self join in SQL and real use cases",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Coding / Hands-on Questions"
+  },
+  {
+    "number": 14,
+    "text": "Output and execution order of try\u2013catch\u2013finally blocks",
+    "section": "## IMAGE 24: Java + Spring Interview Discussion (14 Questions)",
+    "category": "Java Basics Check"
+  },
+  {
+    "number": 1,
+    "text": "What are the main principles of OOP in Java?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Basics & OOP"
+  },
+  {
+    "number": 2,
+    "text": "Difference between abstract class and interface",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Basics & OOP"
+  },
+  {
+    "number": 3,
+    "text": "Can a class implement multiple interfaces? Why?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Basics & OOP"
+  },
+  {
+    "number": 4,
+    "text": "What is method overloading vs overriding?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Basics & OOP"
+  },
+  {
+    "number": 5,
+    "text": "What is encapsulation and why is it important?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Basics & OOP"
+  },
+  {
+    "number": 6,
+    "text": "What is polymorphism (compile-time vs runtime)?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Basics & OOP"
+  },
+  {
+    "number": 7,
+    "text": "What is the difference between Heap and Stack memory?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Memory & JVM"
+  },
+  {
+    "number": 8,
+    "text": "What causes OutOfMemoryError?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Memory & JVM"
+  },
+  {
+    "number": 9,
+    "text": "How does Garbage Collection work?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Memory & JVM"
+  },
+  {
+    "number": 10,
+    "text": "Difference between G1GC, ZGC, and Parallel GC",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Memory & JVM"
+  },
+  {
+    "number": 11,
+    "text": "What is the Java Memory Model (JMM)?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Memory & JVM"
+  },
+  {
+    "number": 12,
+    "text": "What are strong, weak, soft, and phantom references?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Memory & JVM"
+  },
+  {
+    "number": 13,
+    "text": "How does HashMap work internally?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Collections Framework"
+  },
+  {
+    "number": 14,
+    "text": "What happens during hash collisions?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Collections Framework"
+  },
+  {
+    "number": 15,
+    "text": "Difference between HashMap, LinkedHashMap, TreeMap",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Collections Framework"
+  },
+  {
+    "number": 16,
+    "text": "How does ConcurrentHashMap work?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Collections Framework"
+  },
+  {
+    "number": 17,
+    "text": "Difference between ArrayList and LinkedList",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Collections Framework"
+  },
+  {
+    "number": 18,
+    "text": "How does HashSet ensure uniqueness?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Collections Framework"
+  },
+  {
+    "number": 19,
+    "text": "What is thread vs process?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Concurrency & Multithreading"
+  },
+  {
+    "number": 20,
+    "text": "What is synchronized keyword and how it works?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Concurrency & Multithreading"
+  },
+  {
+    "number": 21,
+    "text": "What is volatile and when to use it?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Concurrency & Multithreading"
+  },
+  {
+    "number": 22,
+    "text": "What is CAS (Compare-And-Swap)?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Concurrency & Multithreading"
+  },
+  {
+    "number": 23,
+    "text": "Difference between ExecutorService and Thread",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Concurrency & Multithreading"
+  },
+  {
+    "number": 24,
+    "text": "What is deadlock and how to avoid it?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Concurrency & Multithreading"
+  },
+  {
+    "number": 25,
+    "text": "What is ThreadLocal and when to use it?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Concurrency & Multithreading"
+  },
+  {
+    "number": 26,
+    "text": "Difference between checked and unchecked exceptions",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Exception Handling"
+  },
+  {
+    "number": 27,
+    "text": "What happens if an exception is not handled?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Exception Handling"
+  },
+  {
+    "number": 28,
+    "text": "What is finally block and when is it executed?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Exception Handling"
+  },
+  {
+    "number": 29,
+    "text": "Why do we override equals() and hashCode() together?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Internals"
+  },
+  {
+    "number": 30,
+    "text": "What makes a class immutable?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Internals"
+  },
+  {
+    "number": 31,
+    "text": "How does String pool work in Java?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Internals"
+  },
+  {
+    "number": 32,
+    "text": "Difference between String, StringBuilder, StringBuffer",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Internals"
+  },
+  {
+    "number": 33,
+    "text": "What is class loader and how it works?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java Internals"
+  },
+  {
+    "number": 34,
+    "text": "What is a functional interface?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java 8+"
+  },
+  {
+    "number": 35,
+    "text": "Difference between map() and flatMap()",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java 8+"
+  },
+  {
+    "number": 36,
+    "text": "What are Streams and how they work internally?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java 8+"
+  },
+  {
+    "number": 37,
+    "text": "Difference between parallel stream and sequential stream",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java 8+"
+  },
+  {
+    "number": 38,
+    "text": "What problems can occur with parallel streams?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Java 8+"
+  },
+  {
+    "number": 39,
+    "text": "What is the difference between Future and CompletableFuture?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 40,
+    "text": "How does ForkJoinPool work and what is work-stealing?",
+    "section": "## IMAGE 25: Comprehensive Java Interview \u2014 40 Questions (All Categories)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 1,
+    "text": "Your Java service starts throwing OutOfMemoryError even though heap size looks sufficient. Why?",
+    "section": "## IMAGE 26: Java Interview Scenario Questions with Answers (3 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 2,
+    "text": "Multiple threads update shared data and results become inconsistent. Why?",
+    "section": "## IMAGE 26: Java Interview Scenario Questions with Answers (3 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 3,
+    "text": "Your application becomes slower after increasing thread pool size. Why?",
+    "section": "## IMAGE 26: Java Interview Scenario Questions with Answers (3 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 5,
+    "text": "What is the exact startup flow of a Spring Boot application?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 6,
+    "text": "Difference between @ComponentScan and @SpringBootApplication?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 7,
+    "text": "How does Spring Boot detect embedded Tomcat automatically?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 8,
+    "text": "What happens if two beans of the same type exist without @Qualifier?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 9,
+    "text": "How does Spring Boot load profile-specific configurations?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 10,
+    "text": "What is the role of SpringFactoriesLoader?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 11,
+    "text": "How did Spring Boot remove XML configuration almost completely?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 12,
+    "text": "Difference between @RestController and @Controller internally?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 13,
+    "text": "How does Spring Boot manage dependency versions automatically?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 14,
+    "text": "What is the complete lifecycle of a Spring Bean?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 15,
+    "text": "How does Spring Boot handle externalized configuration?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 16,
+    "text": "What happens if application.yml and application.properties both exist?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 17,
+    "text": "How does Spring Boot integrate with Actuator internally?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 18,
+    "text": "How does @ConditionalOnClass work internally?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 19,
+    "text": "How does Spring Boot enable AutoConfiguration automatically?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 20,
+    "text": "What happens internally when you use @EnableAutoConfiguration?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 21,
+    "text": "How does Spring Boot create embedded servlet containers?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 22,
+    "text": "What happens internally when @ConfigurationProperties is used?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 23,
+    "text": "How does Spring Boot implement dependency injection internally?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 24,
+    "text": "What happens internally when @Autowired is processed?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 25,
+    "text": "How does Spring Boot resolve circular dependencies?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 26,
+    "text": "What happens during Spring Boot application context initialization?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 27,
+    "text": "What is the role of ApplicationContext vs BeanFactory?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 28,
+    "text": "How does Spring Boot support multiple environments / profiles?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 29,
+    "text": "What happens internally when you use @SpringBootApplication?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 30,
+    "text": "How does Spring Boot enable hot reload using DevTools?",
+    "section": "## IMAGE 27: Spring Boot Internals Deep Dive (30 Questions)",
+    "category": "Async & Advanced Concepts"
+  },
+  {
+    "number": 19,
+    "text": "What is @Transactional?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "(Continued from previous \u2014 likely starts with Spring Boot)"
+  },
+  {
+    "number": 20,
+    "text": "How do you implement pagination & sorting in Spring Boot?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "(Continued from previous \u2014 likely starts with Spring Boot)"
+  },
+  {
+    "number": 21,
+    "text": "Difference between save(), persist(), merge()",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 22,
+    "text": "What is lazy loading vs eager loading?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 23,
+    "text": "What is N+1 problem?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 24,
+    "text": "Explain @OneToMany and @ManyToOne mapping",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 25,
+    "text": "What are entity states in Hibernate?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 26,
+    "text": "What is indexing and how it improves performance?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 27,
+    "text": "Difference between INNER JOIN vs LEFT JOIN",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 28,
+    "text": "What is ACID property?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 29,
+    "text": "Write SQL to find second highest salary",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 30,
+    "text": "How do you optimize slow SQL queries?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "JPA / Hibernate & Database"
+  },
+  {
+    "number": 1,
+    "text": "Difference between monolithic vs microservices architecture",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 2,
+    "text": "What is API Gateway?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 3,
+    "text": "What is Service Discovery?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 4,
+    "text": "How do microservices communicate? (REST / Kafka)",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 5,
+    "text": "What is Circuit Breaker pattern?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 6,
+    "text": "How do you handle configuration management?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 7,
+    "text": "What is load balancing?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 8,
+    "text": "How do you ensure fault tolerance?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 9,
+    "text": "What is idempotent API?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 10,
+    "text": "How do you implement logging & monitoring?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Microservices & Architecture"
+  },
+  {
+    "number": 1,
+    "text": "What is Docker?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Cloud & DevOps Basics"
+  },
+  {
+    "number": 2,
+    "text": "Difference between Docker image vs container",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Cloud & DevOps Basics"
+  },
+  {
+    "number": 3,
+    "text": "What is CI/CD pipeline?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Cloud & DevOps Basics"
+  },
+  {
+    "number": 4,
+    "text": "How does Jenkins pipeline work?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Cloud & DevOps Basics"
+  },
+  {
+    "number": 5,
+    "text": "What is Kubernetes (basic)?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Cloud & DevOps Basics"
+  },
+  {
+    "number": 6,
+    "text": "Difference between vertical vs horizontal scaling",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Cloud & DevOps Basics"
+  },
+  {
+    "number": 7,
+    "text": "What is Blue-Green deployment?",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Cloud & DevOps Basics"
+  },
+  {
+    "number": 1,
+    "text": "Reverse a string",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Coding Round (Common in HCL)"
+  },
+  {
+    "number": 2,
+    "text": "Find duplicate elements in array",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Coding Round (Common in HCL)"
+  },
+  {
+    "number": 3,
+    "text": "First non-repeating character",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Coding Round (Common in HCL)"
+  },
+  {
+    "number": 4,
+    "text": "Check palindrome string",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Coding Round (Common in HCL)"
+  },
+  {
+    "number": 5,
+    "text": "Find second largest number",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Coding Round (Common in HCL)"
+  },
+  {
+    "number": 6,
+    "text": "Reverse linked list",
+    "section": "## IMAGE 28: JPA/Hibernate, Microservices, DevOps & Coding Questions",
+    "category": "Coding Round (Common in HCL)"
+  },
+  {
+    "number": 16,
+    "text": "Difference between REST vs SOAP APIs.",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "(Basics \u2014 tail end visible)"
+  },
+  {
+    "number": 17,
+    "text": "What is JPA and Hibernate?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "(Basics \u2014 tail end visible)"
+  },
+  {
+    "number": 18,
+    "text": "What is Microservices architecture?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "(Basics \u2014 tail end visible)"
+  },
+  {
+    "number": 19,
+    "text": "How does JWT Authentication work?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "(Basics \u2014 tail end visible)"
+  },
+  {
+    "number": 20,
+    "text": "Difference between Monolithic vs Microservices architecture.",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "(Basics \u2014 tail end visible)"
+  },
+  {
+    "number": 1,
+    "text": "How does HashMap work internally in Java?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 2,
+    "text": "How does ConcurrentHashMap handle concurrency?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 3,
+    "text": "Explain Thread Pools and Executor Framework.",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 4,
+    "text": "What causes Deadlock and how do you prevent it?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 5,
+    "text": "Explain Java Garbage Collection algorithms (G1, CMS, etc.).",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 6,
+    "text": "How does Spring Boot Auto Configuration work?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 7,
+    "text": "Explain Bean Lifecycle in Spring.",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 8,
+    "text": "How does Transaction Management work in Spring?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 9,
+    "text": "How do you handle database connection pooling?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 10,
+    "text": "Explain API Rate Limiting implementation.",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 11,
+    "text": "How do you implement Distributed Caching using Redis?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 12,
+    "text": "Explain Idempotency in APIs.",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 13,
+    "text": "How do you design fault-tolerant microservices?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 14,
+    "text": "How does Kafka work in event-driven architecture?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 15,
+    "text": "How do you handle high traffic on backend APIs?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 16,
+    "text": "Explain Circuit Breaker pattern.",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 17,
+    "text": "How do you implement distributed transactions?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 18,
+    "text": "How do you design a scalable notification system?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 19,
+    "text": "How do you monitor production microservices?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  },
+  {
+    "number": 20,
+    "text": "How do you debug memory leaks in Java applications?",
+    "section": "## IMAGE 29: Experienced Level Java Backend (20 Questions + Basics Tail)",
+    "category": "Experienced Level Java Backend"
+  }
+]
