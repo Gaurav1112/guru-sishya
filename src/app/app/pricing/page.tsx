@@ -107,8 +107,14 @@ function useRazorpayScript() {
 
 export default function PricingPage() {
   const router = useRouter();
-  const { isPremium, premiumUntil, setPremiumStatus, activateFreeTrial, checkPremiumExpiry } =
-    useStore();
+  const {
+    isPremium,
+    premiumUntil,
+    planType: storedPlanType,
+    setPremiumStatus,
+    activateFreeTrial,
+    checkPremiumExpiry,
+  } = useStore();
   const razorpayLoaded = useRazorpayScript();
 
   const [loadingPlan, setLoadingPlan] = useState<PlanType | null>(null);
@@ -122,6 +128,14 @@ export default function PricingPage() {
 
   const isActive =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+
+  // True when the user previously had a paid plan (not free trial) that has now expired
+  const hadPaidPlan =
+    !isActive &&
+    storedPlanType != null &&
+    storedPlanType !== "free_trial" &&
+    storedPlanType !== "admin_free" &&
+    storedPlanType !== "allowlist_free";
 
   const handleBuyPlan = useCallback(
     async (planType: PlanType) => {
@@ -185,8 +199,13 @@ export default function PricingPage() {
                   throw new Error(verifyData.error ?? "Payment verification failed.");
                 }
 
-                // 4. Update store with premium status
-                setPremiumStatus(true, verifyData.premiumUntil, verifyData.paymentId);
+                // 4. Update store with premium status (including planType)
+                setPremiumStatus(
+                  true,
+                  verifyData.premiumUntil,
+                  verifyData.paymentId,
+                  verifyData.planType ?? planType
+                );
                 resolve();
               } catch (verifyErr) {
                 reject(verifyErr);
@@ -317,6 +336,8 @@ export default function PricingPage() {
                 ? "Processing..."
                 : isActive
                 ? "Current Plan"
+                : hadPaidPlan
+                ? `Renew ${plan.label}`
                 : `Get ${plan.label}`}
             </button>
           </div>

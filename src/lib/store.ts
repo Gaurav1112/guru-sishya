@@ -46,6 +46,7 @@ type PersistedState = Pick<
   | "isPremium"
   | "premiumUntil"
   | "paymentId"
+  | "planType"
 >;
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -98,6 +99,7 @@ export const useStore = create<StoreState>()(
         isPremium: state.isPremium,
         premiumUntil: state.premiumUntil,
         paymentId: state.paymentId,
+        planType: state.planType,
       }),
     }
   )
