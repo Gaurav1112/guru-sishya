@@ -18,6 +18,7 @@ import Link from "next/link";
 import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
 import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
 import { StarSection } from "@/components/features/star/star-section";
+import { PageTransition } from "@/components/page-transition";
 
 // ── Featured topics to show on dashboard ────────────────────────────────────
 
@@ -333,7 +334,8 @@ export default function DashboardPage() {
   const firstName = user?.name?.split(" ")[0];
 
   return (
-    <div className="space-y-8">
+    <PageTransition>
+      <div className="space-y-8">
       {/* Welcome Banner */}
       <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-teal/5 p-6">
         <p className="text-xs font-medium tracking-widest text-saffron uppercase mb-1">
@@ -452,8 +454,17 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="h-32 rounded-xl border border-dashed border-border/50 flex items-center justify-center text-sm text-muted-foreground">
-            Loading topics...
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="animate-pulse rounded-xl border border-border/30 bg-surface p-4 flex flex-col gap-2"
+              >
+                <div className="h-4 w-3/4 bg-muted/40 rounded" />
+                <div className="h-3 w-1/2 bg-muted/30 rounded" />
+                <div className="h-3 w-1/4 bg-muted/20 rounded mt-auto" />
+              </div>
+            ))}
           </div>
         )}
       </section>
@@ -464,5 +475,6 @@ export default function DashboardPage() {
         <CategoryLinks />
       </section>
     </div>
+    </PageTransition>
   );
 }

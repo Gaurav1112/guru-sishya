@@ -7,6 +7,19 @@ import { Testimonials } from "@/components/landing/testimonials";
 import { FAQ } from "@/components/landing/faq";
 import { Button } from "@/components/ui/button";
 
+const COMPANIES = [
+  "Google",
+  "Amazon",
+  "Microsoft",
+  "Meta",
+  "Apple",
+  "Netflix",
+  "Flipkart",
+  "Razorpay",
+  "Uber",
+  "Goldman Sachs",
+];
+
 function LandingNavbar() {
   return (
     <nav className="sticky top-0 z-50 flex h-14 items-center justify-between bg-background/60 px-6 backdrop-blur-md border-b border-border/30">
@@ -62,6 +75,28 @@ function LandingNavbar() {
   );
 }
 
+function CompanyLogoStrip() {
+  return (
+    <section className="border-y border-border/30 bg-surface/30 py-6 px-6">
+      <div className="mx-auto max-w-5xl">
+        <p className="text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-4">
+          Prepare for interviews at
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {COMPANIES.map((company) => (
+            <span
+              key={company}
+              className="rounded-full border border-border/50 bg-surface px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-saffron/40 hover:text-foreground transition-colors"
+            >
+              {company}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCTA() {
   return (
     <section className="px-6 py-20 text-center">
@@ -70,7 +105,7 @@ function FinalCTA() {
           Ready to Crack Your Interview?
         </h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          Join thousands of developers who used Guru Sishya to land their dream job. No signup, no credit card.
+          56 topics, 710+ questions, 58 STAR behavioral answers — all free. No signup, no credit card.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/app/topics">
@@ -97,30 +132,63 @@ export default function LandingPage() {
     <main className="min-h-screen">
       <LandingNavbar />
       <Hero />
+      <CompanyLogoStrip />
       <HowItWorks />
       <Features />
-      <Pricing />
       <Testimonials />
+      <Pricing />
       <FAQ />
       <FinalCTA />
-      <footer className="border-t border-border/50 py-8 text-center text-sm text-muted-foreground">
-        <p className="font-heading text-base font-semibold text-saffron mb-1">
-          GURU SISHYA
-        </p>
-        <p>Ace Your Software Engineering Interview &mdash; Free, Always.</p>
-        <div className="mt-3 flex items-center justify-center gap-4 text-xs">
-          <Link href="/app/topics" className="hover:text-foreground transition-colors">
-            Topics
-          </Link>
-          <Link href="/app/roadmap" className="hover:text-foreground transition-colors">
-            Roadmap
-          </Link>
-          <Link href="#pricing" className="hover:text-foreground transition-colors">
-            Pricing
-          </Link>
-          <Link href="#faq" className="hover:text-foreground transition-colors">
-            FAQ
-          </Link>
+      <footer className="border-t border-border/50 py-10 px-6">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
+            <div className="text-center md:text-left">
+              <p className="font-heading text-base font-semibold text-saffron mb-1">
+                GURU SISHYA
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Ace Your Software Engineering Interview &mdash; Free, Always.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+              <Link href="/app/topics" className="hover:text-foreground transition-colors">
+                Topics
+              </Link>
+              <Link href="/app/roadmap" className="hover:text-foreground transition-colors">
+                Roadmap
+              </Link>
+              <Link href="#pricing" className="hover:text-foreground transition-colors">
+                Pricing
+              </Link>
+              <Link href="#faq" className="hover:text-foreground transition-colors">
+                FAQ
+              </Link>
+              <Link href="/about" className="hover:text-foreground transition-colors">
+                About
+              </Link>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">
+                Terms
+              </Link>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                GitHub
+              </a>
+              <Link href="/contact" className="hover:text-foreground transition-colors">
+                Contact
+              </Link>
+            </div>
+          </div>
+          <div className="border-t border-border/40 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground/60">
+            <p>Made with ❤️ in India</p>
+            <p>Payments secured by Razorpay</p>
+          </div>
         </div>
       </footer>
     </main>

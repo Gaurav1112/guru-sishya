@@ -10,31 +10,35 @@ interface FAQItem {
 const FAQS: FAQItem[] = [
   {
     q: "Is it really free? What's the catch?",
-    a: "Yes — 54 topics, 1,301 quiz questions, the code playground, and all progress tracking are free forever. No credit card, no email required. We plan a Pro tier (₹129/month) for AI-powered features like the Feynman Technique and custom topic generation, but the core prep content will always be free.",
+    a: "Yes — 56 topics, 710+ quiz questions with answers, 591 full lessons, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (₹129/month or ₹999/year) for AI-powered features like the Feynman Technique and custom topic generation, but the core prep content will always be free.",
   },
   {
     q: "Do I need an API key or AI subscription?",
-    a: "No. All lesson content, quiz questions, cheat sheets, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Only the optional AI features (Feynman Technique, custom topics) require an AI provider key — and those are Pro features.",
+    a: "No. All lesson content, quiz questions, cheat sheets, STAR behavioral answers, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Only the optional AI features (Feynman Technique, custom topics) require a Pro plan.",
   },
   {
     q: "What topics does Guru Sishya cover?",
-    a: "System Design Fundamentals (load balancing, caching, databases, message queues, CDNs), System Design Case Studies (Twitter, YouTube, Uber, etc.), Data Structures & Algorithms (arrays, trees, dynamic programming, graphs), and Core CS (operating systems, networking, databases, compilers). 54 topics total with more being added regularly.",
+    a: "56 topics across four domains: System Design Fundamentals (load balancing, caching, databases, message queues, CDNs), System Design Case Studies (Twitter, YouTube, Uber, etc.), Data Structures & Algorithms (arrays, trees, dynamic programming, graphs), and Core CS (operating systems, networking, databases, compilers). More topics are added regularly.",
   },
   {
-    q: "How is this different from other prep sites?",
-    a: "Guru Sishya combines multiple evidence-based learning techniques in one place: Pareto-focused 20-hour study plans, Feynman Technique for true understanding, spaced-repetition quizzes, a skill ladder, and a live code playground — all without needing to juggle multiple platforms or subscriptions.",
+    q: "How is this different from LeetCode, AlgoExpert, or NeetCode?",
+    a: "Guru Sishya is the only platform that combines all of this in one place for free: 710+ questions with full answers (not just hints), 58 STAR behavioral answers, 32 system design topics, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes. Competitors charge ₹991–₹2,917/month and still lack behavioral prep and offline support.",
+  },
+  {
+    q: "Does it cover behavioral interviews?",
+    a: "Yes. Guru Sishya includes 58 pre-written STAR behavioral answers for the most common interview questions at Google, Amazon, Microsoft, Meta, Apple, and Netflix. These cover leadership, conflict resolution, ownership, impact, and more.",
   },
   {
     q: "Will my progress be saved?",
-    a: "Yes. All progress is saved locally in your browser using IndexedDB (no account required). This means your data is private and works offline. If you clear your browser data, your progress will reset — so be careful with browser storage settings.",
+    a: "Yes. All progress is saved locally in your browser using IndexedDB — no account required. Your data is private and works offline. If you clear your browser data, your progress will reset, so be mindful of browser storage settings.",
   },
   {
-    q: "When is the Pro plan launching?",
-    a: "We're actively working on the Pro features. Sign up for early access updates on our launch page. Early adopters will get a discounted rate.",
+    q: "What is the Pro plan and what does it include?",
+    a: "Pro (₹129/month or ₹999/year) unlocks AI-powered features: the Feynman Technique interactive chat for deep understanding, custom topic generation, priority support, and a certificate of completion. All core prep content remains free forever.",
   },
 ];
 
-function FAQItem({ item, index }: { item: FAQItem; index: number }) {
+function FAQRow({ item, index }: { item: FAQItem; index: number }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -97,13 +101,13 @@ export function FAQ() {
           Frequently Asked Questions
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Have more questions? Everything you need to know about the platform
+          Everything you need to know about the platform
         </p>
       </motion.div>
 
       <div className="mx-auto max-w-2xl space-y-3">
         {FAQS.map((item, i) => (
-          <FAQItem key={item.q} item={item} index={i} />
+          <FAQRow key={item.q} item={item} index={i} />
         ))}
       </div>
     </section>

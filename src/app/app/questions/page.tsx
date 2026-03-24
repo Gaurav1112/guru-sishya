@@ -37,6 +37,85 @@ import {
 type DifficultyFilter = "All" | "Easy" | "Medium" | "Hard";
 type StatusFilter = "all" | "bookmarked" | "known" | "review" | "unseen";
 
+// Categories that support a company sub-filter row
+const COMPANY_FILTER_CATEGORIES: QuestionCategory[] = [
+  "Company-Specific",
+  "Behavioral (STAR)",
+];
+
+// Fixed set of companies shown in the sub-filter, with brand accent colors
+const COMPANY_BUTTONS: { name: string; color: string }[] = [
+  { name: "Google",    color: "#4285F4" },
+  { name: "Amazon",    color: "#FF9900" },
+  { name: "Microsoft", color: "#00A4EF" },
+  { name: "Meta",      color: "#0866FF" },
+  { name: "Apple",     color: "#A2AAAD" },
+  { name: "Netflix",   color: "#E50914" },
+];
+
+// ── Company Sub-Filter ───────────────────────────────────────────────────────
+
+function CompanySubFilter({
+  selected,
+  onChange,
+}: {
+  selected: string;
+  onChange: (company: string) => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.2 }}
+      className="flex items-center gap-2 flex-wrap"
+    >
+      <span className="text-[10px] text-muted-foreground uppercase tracking-wider shrink-0">
+        Company:
+      </span>
+      <button
+        type="button"
+        onClick={() => onChange("")}
+        className={cn(
+          "shrink-0 rounded-lg border px-3 py-1 text-xs font-medium transition-all duration-150",
+          selected === ""
+            ? "bg-saffron/15 text-saffron border-saffron/30"
+            : "bg-surface text-muted-foreground border-border/50 hover:text-foreground hover:bg-surface-hover"
+        )}
+      >
+        All Companies
+      </button>
+      {COMPANY_BUTTONS.map(({ name, color }) => {
+        const isActive = selected === name;
+        return (
+          <button
+            key={name}
+            type="button"
+            onClick={() => onChange(isActive ? "" : name)}
+            style={
+              isActive
+                ? {
+                    backgroundColor: color + "26", // ~15% opacity hex
+                    borderColor: color + "66",      // ~40% opacity hex
+                    color,
+                  }
+                : undefined
+            }
+            className={cn(
+              "shrink-0 rounded-lg border px-3 py-1 text-xs font-medium transition-all duration-150",
+              isActive
+                ? ""
+                : "bg-surface text-muted-foreground border-border/50 hover:text-foreground hover:bg-surface-hover"
+            )}
+          >
+            {name}
+          </button>
+        );
+      })}
+    </motion.div>
+  );
+}
+
 // ── Category Tab Component ───────────────────────────────────────────────────
 
 function CategoryTabs({
@@ -459,6 +538,8 @@ export default function QuestionsPage() {
   const [search, setSearchRaw] = useState("");
   const [difficulty, setDifficultyRaw] = useState<DifficultyFilter>("All");
   const [companyFilter, setCompanyFilterRaw] = useState("");
+  // Sub-filter: selected company for Company-Specific / Behavioral (STAR) categories
+  const [selectedCompany, setSelectedCompanyRaw] = useState("");
   const [statusFilter, setStatusFilterRaw] = useState<StatusFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [quizMode, setQuizMode] = useState(false);
@@ -541,9 +622,17 @@ export default function QuestionsPage() {
       qs = qs.filter((q) => q.difficulty === difficulty);
     }
 
-    // Company
+    // Company (from the filter panel — applies across all categories)
     if (companyFilter) {
       qs = qs.filter((q) => q.companies.includes(companyFilter));
+    }
+
+    // Company sub-filter (secondary row for Company-Specific / Behavioral categories)
+    if (
+      selectedCompany &&
+      COMPANY_FILTER_CATEGORIES.includes(activeCategory)
+    ) {
+      qs = qs.filter((q) => q.companies.includes(selectedCompany));
     }
 
     // Status
@@ -566,7 +655,7 @@ export default function QuestionsPage() {
     }
 
     return qs;
-  }, [allQuestions, activeCategory, search, difficulty, companyFilter, statusFilter, bookmarkMap]);
+  }, [allQuestions, activeCategory, search, difficulty, companyFilter, selectedCompany, statusFilter, bookmarkMap]);
 
   const currentQuestion = filteredQuestions[currentIndex] ?? null;
   const totalFiltered = filteredQuestions.length;
@@ -602,6 +691,8 @@ export default function QuestionsPage() {
   // Wrapped setters that also reset navigation position
   const setActiveCategory = useCallback((c: QuestionCategory) => {
     setActiveCategoryRaw(c);
+    // Clear the company sub-filter when switching categories
+    setSelectedCompanyRaw("");
     setCurrentIndex(0);
     setIsFlipped(false);
   }, []);
@@ -617,6 +708,11 @@ export default function QuestionsPage() {
   }, []);
   const setCompanyFilter = useCallback((c: string) => {
     setCompanyFilterRaw(c);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  }, []);
+  const setSelectedCompany = useCallback((c: string) => {
+    setSelectedCompanyRaw(c);
     setCurrentIndex(0);
     setIsFlipped(false);
   }, []);
@@ -781,16 +877,84 @@ export default function QuestionsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        >
-          <BookOpen className="size-8 text-saffron" />
-        </motion.div>
-        <p className="text-sm text-muted-foreground">
-          Loading interview questions...
-        </p>
+      <div className="space-y-4 pb-8">
+        {/* Header skeleton */}
+        <div className="animate-pulse flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-7 w-56 bg-muted/40 rounded" />
+            <div className="h-4 w-72 bg-muted/30 rounded" />
+          </div>
+          <div className="hidden sm:flex items-center gap-3">
+            <div className="h-4 w-16 bg-muted/30 rounded" />
+            <div className="h-4 w-16 bg-muted/30 rounded" />
+            <div className="h-4 w-16 bg-muted/30 rounded" />
+          </div>
+        </div>
+
+        {/* Category tabs skeleton */}
+        <div className="animate-pulse flex gap-1.5 overflow-x-hidden pb-1">
+          {[80, 96, 72, 88, 64, 80].map((w, i) => (
+            <div
+              key={i}
+              className="shrink-0 h-7 bg-muted/30 rounded-lg"
+              style={{ width: `${w}px` }}
+            />
+          ))}
+        </div>
+
+        {/* Search + controls skeleton */}
+        <div className="animate-pulse flex items-center gap-2">
+          <div className="h-9 flex-1 max-w-sm bg-muted/30 rounded-lg" />
+          <div className="h-9 w-20 bg-muted/30 rounded-lg" />
+          <div className="h-9 w-20 bg-muted/30 rounded-lg" />
+          <div className="h-9 w-20 bg-muted/30 rounded-lg" />
+        </div>
+
+        {/* Card skeleton with spinner overlay */}
+        <div className="relative">
+          {/* Progress bar skeleton */}
+          <div className="animate-pulse mb-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="h-3 w-28 bg-muted/30 rounded" />
+              <div className="h-3 w-40 bg-muted/20 rounded" />
+            </div>
+            <div className="h-1 w-full bg-muted/30 rounded-full" />
+          </div>
+
+          {/* Flip card skeleton */}
+          <div
+            className="animate-pulse w-full max-w-2xl mx-auto rounded-2xl border border-border/30 bg-surface p-6 sm:p-8"
+            style={{ minHeight: "380px" }}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-5 w-20 bg-muted/30 rounded-full" />
+              <div className="h-5 w-14 bg-muted/20 rounded-full" />
+            </div>
+            <div className="flex items-center py-8">
+              <div className="w-full space-y-3">
+                <div className="h-6 w-5/6 bg-muted/40 rounded" />
+                <div className="h-6 w-4/6 bg-muted/30 rounded" />
+              </div>
+            </div>
+            <div className="mt-auto pt-3 border-t border-border/20 flex justify-between items-center">
+              <div className="h-3 w-28 bg-muted/20 rounded" />
+              <div className="h-3 w-16 bg-muted/20 rounded" />
+            </div>
+          </div>
+
+          {/* Spinner centred over the skeleton card */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              <BookOpen className="size-8 text-saffron" />
+            </motion.div>
+            <p className="text-sm text-muted-foreground">
+              Loading interview questions...
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -856,13 +1020,25 @@ export default function QuestionsPage() {
         </div>
       </div>
 
-      {/* Category tabs */}
+      {/* Category tabs — hide tabs with 0 questions loaded */}
       <CategoryTabs
-        categories={getCategories()}
+        categories={getCategories().filter(
+          (cat) => cat === "All Questions" || (categoryCounts[cat] ?? 0) > 0
+        )}
         active={activeCategory}
         onChange={setActiveCategory}
         counts={categoryCounts}
       />
+
+      {/* Company sub-filter — shown only for Company-Specific / Behavioral (STAR) */}
+      <AnimatePresence>
+        {COMPANY_FILTER_CATEGORIES.includes(activeCategory) && (
+          <CompanySubFilter
+            selected={selectedCompany}
+            onChange={setSelectedCompany}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Search + Controls */}
       <div className="flex items-center gap-2">
@@ -962,6 +1138,7 @@ export default function QuestionsPage() {
               setSearch("");
               setDifficulty("All");
               setCompanyFilter("");
+              setSelectedCompany("");
               setStatusFilter("all");
               setActiveCategory("All Questions");
             }}

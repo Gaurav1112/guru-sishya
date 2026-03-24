@@ -10,10 +10,19 @@ const TRUST_BADGES = [
 ];
 
 const STATS = [
-  { value: "54", label: "Topics", color: "text-saffron" },
-  { value: "555", label: "Lessons", color: "text-teal" },
-  { value: "1,301", label: "Quiz Questions", color: "text-gold" },
-  { value: "Free", label: "Forever", color: "text-indigo" },
+  { value: "56", label: "Topics", color: "text-saffron" },
+  { value: "710+", label: "Questions", color: "text-teal" },
+  { value: "591", label: "Lessons", color: "text-gold" },
+  { value: "100%", label: "Free", color: "text-indigo" },
+];
+
+const FAANG_COMPANIES = [
+  "Google",
+  "Amazon",
+  "Microsoft",
+  "Meta",
+  "Apple",
+  "Netflix",
 ];
 
 export function Hero() {
@@ -43,15 +52,14 @@ export function Hero() {
 
         {/* Headline */}
         <h1 className="font-heading text-4xl font-bold leading-tight md:text-6xl bg-gradient-to-r from-saffron via-gold to-teal bg-clip-text text-transparent">
-          Crack Any Software Engineering Interview
+          Crack Your Software Engineering Interview
         </h1>
 
-        {/* Subheadline — stat-driven */}
+        {/* Subheadline */}
         <p className="mx-auto mt-5 max-w-xl text-base text-muted-foreground leading-relaxed">
-          <span className="text-foreground font-semibold">54 topics</span> &bull;{" "}
-          <span className="text-foreground font-semibold">555 lessons</span> &bull;{" "}
-          <span className="text-foreground font-semibold">1,301 quiz questions</span> &bull;{" "}
-          Code playground &bull; Zero setup
+          <span className="text-foreground font-semibold">56 topics</span>,{" "}
+          <span className="text-foreground font-semibold">710+ curated questions</span>,{" "}
+          <span className="text-foreground font-semibold">STAR behavioral prep</span> for Google, Amazon, Microsoft, Meta &mdash; all free
         </p>
 
         {/* Stats grid */}
@@ -93,11 +101,29 @@ export function Hero() {
           </Link>
         </motion.div>
 
+        {/* FAANG company badges */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45, duration: 0.5 }}
+          className="mt-6 flex flex-wrap items-center justify-center gap-2"
+        >
+          <span className="text-xs text-muted-foreground/70 mr-1">Prepare for:</span>
+          {FAANG_COMPANIES.map((company, i) => (
+            <span
+              key={company}
+              className="rounded-full border border-border/50 bg-surface/80 px-3 py-1 text-xs font-medium text-muted-foreground hover:border-saffron/40 hover:text-foreground transition-colors"
+            >
+              {company}
+            </span>
+          ))}
+        </motion.div>
+
         {/* Trust badges */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          transition={{ delay: 0.55, duration: 0.5 }}
           className="mt-5 flex flex-wrap items-center justify-center gap-3"
         >
           {TRUST_BADGES.map((badge) => (

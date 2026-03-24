@@ -1,36 +1,78 @@
 "use client";
 import { motion } from "framer-motion";
 
-const TESTIMONIALS = [
+const WHAT_YOU_GET = [
   {
-    name: "Priya S.",
-    role: "SDE-2 at Amazon",
-    avatar: "PS",
-    avatarColor: "bg-saffron/20 text-saffron",
-    quote:
-      "The Feynman Technique sessions caught every gap in my understanding. I used to think I knew caching — turns out I had several blind spots. Got the offer after 3 weeks.",
+    number: "56",
+    title: "Expert-Curated Topics",
+    description: "System Design, DS&A, Core CS — every domain you'll face in a top-tier interview.",
+    badges: ["System Design", "DS&A", "Core CS"],
+    color: "text-saffron",
+    borderColor: "border-saffron/30",
+    bgColor: "bg-saffron/5",
+    badgeColor: "bg-saffron/10 text-saffron border-saffron/20",
+    span: "md:col-span-2",
   },
   {
-    name: "Rohan M.",
-    role: "Backend Engineer at Google",
-    avatar: "RM",
-    avatarColor: "bg-teal/20 text-teal",
-    quote:
-      "The system design roadmap is exactly what I needed. No more wondering 'what do I study next?' — it's all laid out clearly. The quiz questions are brutal (in a good way).",
+    number: "710+",
+    title: "Interview Questions",
+    description: "Detailed answers, not just hints. Every question comes with a full explanation so you actually learn.",
+    badges: ["Detailed Answers"],
+    color: "text-teal",
+    borderColor: "border-teal/30",
+    bgColor: "bg-teal/5",
+    badgeColor: "bg-teal/10 text-teal border-teal/20",
+    span: "",
   },
   {
-    name: "Aditya K.",
-    role: "Full-Stack Dev, targeting FAANG",
-    avatar: "AK",
-    avatarColor: "bg-gold/20 text-gold",
-    quote:
-      "Zero API key setup, works in my browser, and covers everything from DB sharding to DP patterns. I open this every morning for my 30-minute prep session.",
+    number: "58",
+    title: "STAR Behavioral Answers",
+    description: "Pre-written behavioral answers for the most common questions at top companies.",
+    badges: ["Google", "Amazon", "Microsoft", "Meta", "Apple", "Netflix"],
+    color: "text-gold",
+    borderColor: "border-gold/30",
+    bgColor: "bg-gold/5",
+    badgeColor: "bg-gold/10 text-gold border-gold/20",
+    span: "",
+  },
+  {
+    number: "2000+",
+    title: "Flashcards",
+    description: "SM-2 spaced repetition algorithm surfaces the cards you need to review, exactly when you need to.",
+    badges: ["SM-2 Algorithm", "Spaced Repetition"],
+    color: "text-indigo",
+    borderColor: "border-indigo/30",
+    bgColor: "bg-indigo/5",
+    badgeColor: "bg-indigo/10 text-indigo border-indigo/20",
+    span: "",
+  },
+  {
+    number: "5",
+    title: "Adaptive Quiz Levels",
+    description: "Bloom's taxonomy difficulty progression — from recall to application to synthesis, per topic.",
+    badges: ["Bloom's Taxonomy", "Adaptive Difficulty"],
+    color: "text-saffron",
+    borderColor: "border-saffron/30",
+    bgColor: "bg-saffron/5",
+    badgeColor: "bg-saffron/10 text-saffron border-saffron/20",
+    span: "",
+  },
+  {
+    number: "591",
+    title: "Full Lessons",
+    description: "Complete teaching content — not just activity lists. Each lesson covers theory, examples, and code.",
+    badges: ["Python", "TypeScript"],
+    color: "text-teal",
+    borderColor: "border-teal/30",
+    bgColor: "bg-teal/5",
+    badgeColor: "bg-teal/10 text-teal border-teal/20",
+    span: "md:col-span-2",
   },
 ];
 
 export function Testimonials() {
   return (
-    <section id="testimonials" className="px-6 py-20">
+    <section id="what-you-get" className="px-6 py-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -38,64 +80,44 @@ export function Testimonials() {
         viewport={{ once: true }}
         className="text-center mb-12"
       >
-        {/* Social proof number */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-teal/30 bg-teal/10 px-4 py-1.5 mb-4">
-          <span className="text-xs font-semibold text-teal">
-            Join 1,000+ developers preparing for their dream job
-          </span>
-        </div>
         <h2 className="font-heading text-3xl font-bold mb-3">
-          Developers Love Guru Sishya
+          What You Get
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Real results from engineers who used structured prep to land offers
+          Everything is pre-built, verified, and ready — no AI key, no setup, no subscription required
         </p>
       </motion.div>
 
-      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-        {TESTIMONIALS.map((t, i) => (
+      <div className="mx-auto max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-4">
+        {WHAT_YOU_GET.map((item, i) => (
           <motion.div
-            key={t.name}
+            key={item.title}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.12, duration: 0.5 }}
+            transition={{ delay: i * 0.08, duration: 0.5 }}
             viewport={{ once: true }}
-            className="rounded-2xl border border-border/60 bg-surface p-6 flex flex-col gap-4"
+            className={`rounded-2xl border ${item.borderColor} ${item.bgColor} p-6 flex flex-col gap-3 ${item.span}`}
           >
-            {/* Stars */}
-            <div className="flex gap-0.5">
-              {Array.from({ length: 5 }).map((_, j) => (
-                <svg key={j} className="h-4 w-4 text-gold" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              ))}
+            <div className={`font-heading text-5xl font-black ${item.color} leading-none`}>
+              {item.number}
             </div>
-
-            {/* Quote */}
-            <p className="text-sm text-muted-foreground leading-relaxed flex-1">
-              &ldquo;{t.quote}&rdquo;
-            </p>
-
-            {/* Author */}
-            <div className="flex items-center gap-3">
-              <div
-                className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${t.avatarColor}`}
-              >
-                {t.avatar}
-              </div>
-              <div>
-                <p className="text-sm font-semibold">{t.name}</p>
-                <p className="text-xs text-muted-foreground">{t.role}</p>
-              </div>
+            <div>
+              <h3 className="font-heading text-lg font-bold mb-1">{item.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
+              {item.badges.map((badge) => (
+                <span
+                  key={badge}
+                  className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${item.badgeColor}`}
+                >
+                  {badge}
+                </span>
+              ))}
             </div>
           </motion.div>
         ))}
       </div>
-
-      {/* Disclaimer */}
-      <p className="mt-8 text-center text-xs text-muted-foreground/50">
-        * Testimonials are illustrative of typical user experiences
-      </p>
     </section>
   );
 }

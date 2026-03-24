@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { loadAllContent, type TopicContent } from "@/lib/content/loader";
 import { TopicInput } from "@/components/topic-input";
 import { Input } from "@/components/ui/input";
+import { PageTransition } from "@/components/page-transition";
 
 // ── Category metadata ────────────────────────────────────────────────────────
 
@@ -365,7 +366,8 @@ export default function TopicsPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <PageTransition>
+      <div className="space-y-8">
       {/* Stats Banner */}
       <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-teal/5 p-6">
         <p className="text-xs font-medium tracking-widest text-saffron uppercase mb-1">
@@ -483,5 +485,6 @@ export default function TopicsPage() {
         <TopicInput />
       </div>
     </div>
+    </PageTransition>
   );
 }

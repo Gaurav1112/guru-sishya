@@ -5,31 +5,40 @@ import { Button } from "@/components/ui/button";
 
 interface PlanFeature {
   text: string;
-  pro?: boolean;
+  highlight?: boolean;
 }
 
 const FREE_FEATURES: PlanFeature[] = [
-  { text: "54 topics with full lessons" },
-  { text: "1,301 quiz questions" },
-  { text: "Code playground — no setup" },
+  { text: "56 topics with full lessons" },
+  { text: "710+ quiz questions with answers" },
+  { text: "591 complete lessons" },
   { text: "Progress tracking & gamification" },
   { text: "Learning ladder (5 levels per topic)" },
   { text: "Visual cheat sheets" },
   { text: "Curated resource library" },
+  { text: "Works offline — no setup" },
 ];
 
-const PRO_FEATURES: PlanFeature[] = [
-  { text: "Everything in Free", pro: false },
-  { text: "AI-powered Feynman Technique", pro: true },
-  { text: "Custom topic generation", pro: true },
-  { text: "Priority support", pro: true },
-  { text: "Certificate of completion", pro: true },
+const PRO_MONTHLY_FEATURES: PlanFeature[] = [
+  { text: "Everything in Free" },
+  { text: "AI-powered Feynman Technique", highlight: true },
+  { text: "Custom topic generation", highlight: true },
+  { text: "Priority support", highlight: true },
+  { text: "Certificate of completion", highlight: true },
 ];
 
-function CheckIcon({ pro }: { pro?: boolean }) {
+const PRO_ANNUAL_FEATURES: PlanFeature[] = [
+  { text: "Everything in Pro Monthly" },
+  { text: "Save ₹549 vs monthly", highlight: true },
+  { text: "Early access to new features", highlight: true },
+  { text: "Priority support", highlight: true },
+  { text: "Certificate of completion", highlight: true },
+];
+
+function CheckIcon({ highlight }: { highlight?: boolean }) {
   return (
     <svg
-      className={`h-4 w-4 flex-shrink-0 ${pro ? "text-saffron" : "text-teal"}`}
+      className={`h-4 w-4 flex-shrink-0 ${highlight ? "text-saffron" : "text-teal"}`}
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -58,7 +67,7 @@ export function Pricing() {
         </p>
       </motion.div>
 
-      <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
+      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
         {/* Free plan */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -75,6 +84,7 @@ export function Pricing() {
               <span className="font-heading text-4xl font-bold">₹0</span>
               <span className="text-muted-foreground mb-1">/month</span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">No credit card needed</p>
           </div>
 
           <ul className="space-y-3 flex-1 mb-8">
@@ -88,12 +98,12 @@ export function Pricing() {
 
           <Link href="/app/topics">
             <Button variant="outline" className="w-full" size="lg">
-              Start Free
+              Get Started Free
             </Button>
           </Link>
         </motion.div>
 
-        {/* Pro plan */}
+        {/* Pro Monthly */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -101,16 +111,15 @@ export function Pricing() {
           viewport={{ once: true }}
           className="rounded-2xl border-2 border-saffron/50 bg-gradient-to-br from-saffron/10 via-surface to-surface p-7 flex flex-col relative overflow-hidden"
         >
-          {/* Most popular badge */}
           <div className="absolute top-4 right-4">
             <span className="rounded-full bg-saffron px-3 py-1 text-xs font-bold text-white">
-              Coming Soon
+              Most Popular
             </span>
           </div>
 
           <div className="mb-6">
             <p className="text-xs font-semibold tracking-widest text-saffron uppercase mb-2">
-              Pro
+              Pro Monthly
             </p>
             <div className="flex items-end gap-1">
               <span className="font-heading text-4xl font-bold text-saffron">₹129</span>
@@ -122,28 +131,88 @@ export function Pricing() {
           </div>
 
           <ul className="space-y-3 flex-1 mb-8">
-            {PRO_FEATURES.map((f) => (
+            {PRO_MONTHLY_FEATURES.map((f) => (
               <li key={f.text} className="flex items-start gap-2.5 text-sm">
-                <CheckIcon pro={f.pro} />
-                <span className={f.pro ? "text-foreground font-medium" : "text-muted-foreground"}>
+                <CheckIcon highlight={f.highlight} />
+                <span className={f.highlight ? "text-foreground font-medium" : "text-muted-foreground"}>
                   {f.text}
                 </span>
               </li>
             ))}
           </ul>
 
-          <Button
-            disabled
-            className="w-full bg-saffron hover:bg-saffron/90 opacity-70 cursor-not-allowed"
-            size="lg"
-          >
-            Notify Me at Launch
-          </Button>
+          <Link href="/app/pricing">
+            <Button className="w-full bg-saffron hover:bg-saffron/90" size="lg">
+              Get Started
+            </Button>
+          </Link>
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            No payment needed now
+            Cancel anytime
+          </p>
+        </motion.div>
+
+        {/* Pro Annual */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          viewport={{ once: true }}
+          className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-gold/8 via-surface to-surface p-7 flex flex-col relative overflow-hidden"
+        >
+          <div className="absolute top-4 right-4">
+            <span className="rounded-full bg-gold/20 border border-gold/40 px-3 py-1 text-xs font-bold text-gold">
+              Best Value
+            </span>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-xs font-semibold tracking-widest text-gold uppercase mb-2">
+              Pro Annual
+            </p>
+            <div className="flex items-end gap-1">
+              <span className="font-heading text-4xl font-bold text-gold">₹999</span>
+              <span className="text-muted-foreground mb-1">/year</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              ₹83/month &mdash; save ₹549 vs monthly
+            </p>
+          </div>
+
+          <ul className="space-y-3 flex-1 mb-8">
+            {PRO_ANNUAL_FEATURES.map((f) => (
+              <li key={f.text} className="flex items-start gap-2.5 text-sm">
+                <CheckIcon highlight={f.highlight} />
+                <span className={f.highlight ? "text-foreground font-medium" : "text-muted-foreground"}>
+                  {f.text}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <Link href="/app/pricing">
+            <Button
+              variant="outline"
+              className="w-full border-gold/50 text-gold hover:bg-gold/10 hover:text-gold"
+              size="lg"
+            >
+              Get Started
+            </Button>
+          </Link>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Billed once annually
           </p>
         </motion.div>
       </div>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        viewport={{ once: true }}
+        className="mt-6 text-center text-xs text-muted-foreground/60"
+      >
+        Payments secured by Razorpay &bull; 7-day money-back guarantee on Pro plans
+      </motion.p>
     </section>
   );
 }

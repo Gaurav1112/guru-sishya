@@ -540,7 +540,7 @@ export function StarSection() {
             for (const group of data as { company: string; questions: Record<string, unknown>[] }[]) {
               for (const q of group.questions) {
                 flat.push({
-                  id: String(q.id ?? flat.length + 1),
+                  id: `${group.company}-${q.id ?? flat.length + 1}`,
                   company: (q.company as string) ?? group.company,
                   principle: (q.principle as string) ?? "",
                   difficulty: (q.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",

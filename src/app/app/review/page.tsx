@@ -438,8 +438,51 @@ export default function ReviewPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-32">
-        <div className="size-6 border-2 border-saffron border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-6 max-w-2xl mx-auto animate-pulse">
+        {/* Hero skeleton */}
+        <div className="rounded-2xl border border-border/30 bg-surface p-6 space-y-3">
+          <div className="h-3 w-24 bg-muted/40 rounded" />
+          <div className="h-7 w-48 bg-muted/40 rounded" />
+          <div className="h-4 w-72 bg-muted/30 rounded" />
+          <div className="h-10 w-40 bg-muted/30 rounded-lg mt-2" />
+        </div>
+
+        {/* Streak calendar skeleton */}
+        <div className="rounded-xl border border-border/30 bg-surface p-4 space-y-3">
+          <div className="h-4 w-28 bg-muted/40 rounded" />
+          <div className="flex gap-1.5 flex-wrap">
+            {Array.from({ length: 14 }, (_, i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div className="h-2 w-6 bg-muted/30 rounded" />
+                <div className="size-7 bg-muted/30 rounded-md" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Timed tests skeleton */}
+        <div className="space-y-3">
+          <div className="h-5 w-24 bg-muted/40 rounded" />
+          {[1, 2].map((i) => (
+            <div key={i} className="rounded-xl border border-border/30 bg-surface p-4 flex items-center gap-4">
+              <div className="size-10 shrink-0 rounded-xl bg-muted/30" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-32 bg-muted/40 rounded" />
+                <div className="h-3 w-48 bg-muted/30 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* History rows skeleton */}
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-lg border border-border/30 bg-surface px-4 py-3 flex items-center justify-between">
+              <div className="h-4 w-32 bg-muted/30 rounded" />
+              <div className="h-4 w-16 bg-muted/20 rounded" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

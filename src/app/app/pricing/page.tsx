@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Sparkles, Crown, Zap } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { PageTransition } from "@/components/page-transition";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -238,7 +239,8 @@ export default function PricingPage() {
   }, [activateFreeTrial, router]);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-12 py-4">
+    <PageTransition>
+      <div className="mx-auto max-w-5xl space-y-12 py-4">
       {/* Header */}
       <div className="text-center space-y-3">
         <p className="text-xs font-medium tracking-widest text-saffron uppercase">
@@ -429,5 +431,6 @@ export default function PricingPage() {
         ))}
       </div>
     </div>
+    </PageTransition>
   );
 }

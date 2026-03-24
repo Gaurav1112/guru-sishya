@@ -25,6 +25,7 @@ export type QuestionCategory =
   | "Production & Debugging"
   | "Stream API"
   | "Company-Specific"
+  | "Behavioral (STAR)"
   | "Kafka"
   | "AWS"
   | "Kubernetes & Docker"
@@ -295,7 +296,7 @@ function normalizeCategory(raw: string): QuestionCategory {
   const validCategories: string[] = [
     "Core Java", "Concurrency & Threading", "Spring Boot", "Microservices",
     "Database / JPA", "System Design", "Production & Debugging", "Stream API",
-    "Company-Specific", "Kafka", "AWS", "Kubernetes & Docker", "Design Patterns",
+    "Company-Specific", "Behavioral (STAR)", "Kafka", "AWS", "Kubernetes & Docker", "Design Patterns",
   ];
   if (validCategories.includes(raw)) return raw as QuestionCategory;
 
@@ -411,12 +412,13 @@ export async function loadImportantQuestions(): Promise<Question[]> {
     }
   }
 
-  // Load additional Q&A files (Kafka, AWS, K8s/Docker)
+  // Load additional Q&A files (Kafka, AWS, K8s/Docker, Company-Specific, Behavioral)
   const additionalFiles: { file: string; category: QuestionCategory }[] = [
     { file: "/content/kafka-qa.json", category: "Kafka" },
     { file: "/content/aws-qa.json", category: "AWS" },
     { file: "/content/k8s-docker-qa.json", category: "Kubernetes & Docker" },
     { file: "/content/design-patterns-qa.json", category: "Design Patterns" },
+    { file: "/content/company-tech-qa.json", category: "Company-Specific" },
   ];
 
   const startId = allQuestions.length > 0
@@ -442,20 +444,75 @@ export async function loadImportantQuestions(): Promise<Question[]> {
         // Map sub-categories to the parent category from the file.
         // Sub-categories like "Kafka Basics", "EC2", "Docker", "Creational"
         // all get mapped to the parent: Kafka, AWS, Kubernetes & Docker, Design Patterns.
+        // For company-tech-qa.json the raw category field IS the company name.
         const itemCategory: QuestionCategory = category;
+        const companies: string[] =
+          category === "Company-Specific" && item.category
+            ? [item.category as string]
+            : [];
         allQuestions.push({
           id: nextId++,
           question: item.question,
           answer,
           category: itemCategory,
           difficulty: mapDifficulty(item.difficulty),
-          companies: [],
-          source: category,
+          companies,
+          source: category === "Company-Specific" && item.category
+            ? (item.category as string)
+            : category,
         });
       }
     } catch {
       // Non-critical — file may not exist yet
     }
+  }
+
+  // Load STAR behavioral questions (company-grouped format)
+  try {
+    const starResponse = await fetch("/content/star-questions.json");
+    if (starResponse.ok) {
+      const starData = (await starResponse.json()) as {
+        company: string;
+        questions: {
+          question: string;
+          difficulty?: string;
+          starAnswer: {
+            situation: string;
+            task: string;
+            action: string;
+            result: string;
+          };
+        }[];
+      }[];
+      for (const companyBlock of starData) {
+        const companyName = companyBlock.company;
+        for (const item of companyBlock.questions ?? []) {
+          const { situation, task, action, result } = item.starAnswer ?? {};
+          const formattedAnswer = [
+            "## STAR Answer",
+            "",
+            "**Situation:** " + (situation ?? ""),
+            "",
+            "**Task:** " + (task ?? ""),
+            "",
+            "**Action:** " + (action ?? ""),
+            "",
+            "**Result:** " + (result ?? ""),
+          ].join("\n");
+          allQuestions.push({
+            id: nextId++,
+            question: item.question,
+            answer: formattedAnswer,
+            category: "Behavioral (STAR)",
+            difficulty: mapDifficulty(item.difficulty),
+            companies: [companyName],
+            source: "STAR",
+          });
+        }
+      }
+    }
+  } catch {
+    // Non-critical — file may not exist yet
   }
 
   _questionsCache = allQuestions;
@@ -489,6 +546,7 @@ export function getCategories(): QuestionCategory[] {
     "Kubernetes & Docker",
     "Design Patterns",
     "Company-Specific",
+    "Behavioral (STAR)",
   ];
 }
 
