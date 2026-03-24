@@ -750,6 +750,33 @@ export default function QuestionsPage() {
     }),
   };
 
+  // ── Premium gate helpers ───────────────────────────────────────────────────
+  // NOTE: ALL hooks MUST be before any early returns (Rules of Hooks)
+
+  const isAnswerLocked = useCallback(
+    (questionId: number): boolean => {
+      if (isActivePremium) return false;
+      if (revealedAnswerIds.has(questionId)) return false;
+      return revealedAnswerIds.size >= FREE_ANSWER_LIMIT;
+    },
+    [isActivePremium, revealedAnswerIds]
+  );
+
+  const handleFlip = useCallback(
+    (questionId: number) => {
+      setIsFlipped((f) => {
+        const nextFlipped = !f;
+        if (nextFlipped && !isActivePremium && !revealedAnswerIds.has(questionId)) {
+          if (revealedAnswerIds.size < FREE_ANSWER_LIMIT) {
+            setRevealedAnswerIds((prev) => new Set([...prev, questionId]));
+          }
+        }
+        return nextFlipped;
+      });
+    },
+    [isActivePremium, revealedAnswerIds]
+  );
+
   // ── Loading state ──────────────────────────────────────────────────────────
 
   if (loading) {
@@ -784,37 +811,6 @@ export default function QuestionsPage() {
       </div>
     );
   }
-
-  // ── Premium gate helpers ───────────────────────────────────────────────────
-
-  // Returns true if this question's answer is locked for a free user
-  const isAnswerLocked = useCallback(
-    (questionId: number): boolean => {
-      if (isActivePremium) return false;
-      // If already revealed, not locked
-      if (revealedAnswerIds.has(questionId)) return false;
-      // Locked if we have already hit the reveal limit
-      return revealedAnswerIds.size >= FREE_ANSWER_LIMIT;
-    },
-    [isActivePremium, revealedAnswerIds]
-  );
-
-  // Called when user flips a card — track reveals for free users
-  const handleFlip = useCallback(
-    (questionId: number) => {
-      setIsFlipped((f) => {
-        const nextFlipped = !f;
-        // When flipping TO the answer side, record the reveal
-        if (nextFlipped && !isActivePremium && !revealedAnswerIds.has(questionId)) {
-          if (revealedAnswerIds.size < FREE_ANSWER_LIMIT) {
-            setRevealedAnswerIds((prev) => new Set([...prev, questionId]));
-          }
-        }
-        return nextFlipped;
-      });
-    },
-    [isActivePremium, revealedAnswerIds]
-  );
 
   // ── Stats ──────────────────────────────────────────────────────────────────
 
