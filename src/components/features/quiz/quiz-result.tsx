@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Trophy, Star, Zap, Target, BarChart3, Swords } from "lucide-react";
@@ -30,7 +31,6 @@ function buildChallengeUrl(
   if (typeof window === "undefined") return { url: "", seed };
 
   const base = `${window.location.protocol}//${window.location.host}`;
-  const scoreInt = Math.round(averageScore * 10); // 0-100
   const params = new URLSearchParams({
     topic: topicName,
     seed: String(seed),
@@ -82,6 +82,17 @@ export function QuizResultScreen({
 }: QuizResultProps) {
   const router = useRouter();
   const weakAnswers = answers.filter((a) => a.score < 5);
+
+  // Build challenge link once (lazy — derived on first render in the client)
+  const [challengeData] = useState<{ url: string; seed: number }>(() => {
+    if (topicName) {
+      return buildChallengeUrl(topicName, result.averageScore);
+    }
+    return { url: "", seed: 0 };
+  });
+
+  const myPct = Math.round(result.averageScore * 10);
+  const challengeShareText = `I scored ${myPct}% on the ${topicName ?? "quiz"} quiz on Guru Sishya! Can you beat me?`;
 
   return (
     <motion.div
@@ -193,6 +204,30 @@ export function QuizResultScreen({
                 </li>
               ))}
             </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Challenge a Friend */}
+      {topicName && challengeData.url && (
+        <Card className="border-saffron/20 bg-gradient-to-br from-saffron/5 to-gold/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2 text-saffron">
+              <Swords className="size-4" />
+              Challenge a Friend
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <p className="text-xs text-muted-foreground">
+              You scored{" "}
+              <span className="font-bold text-foreground">{myPct}%</span> on{" "}
+              <span className="font-medium text-foreground">{topicName}</span>.
+              Dare your friends to beat your score!
+            </p>
+            <ShareButtons
+              shareUrl={challengeData.url}
+              shareText={challengeShareText}
+            />
           </CardContent>
         </Card>
       )}
