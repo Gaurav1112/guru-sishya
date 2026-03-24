@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Trophy, Star, Zap, Target, BarChart3 } from "lucide-react";
+import { Trophy, Star, Zap, Target, BarChart3, Swords } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BLOOM_LABELS, type BloomLevel } from "@/lib/quiz/types";
@@ -10,6 +10,34 @@ import type { QuizResult } from "@/lib/quiz/types";
 import type { AnsweredQuestion } from "@/lib/quiz/types";
 import { cn } from "@/lib/utils";
 import { ShareButton } from "@/components/share-button";
+import { ShareButtons } from "@/components/share-buttons";
+
+// ── Challenge URL builder ─────────────────────────────────────────────────
+
+/**
+ * Build a shareable challenge URL.
+ *
+ * The seed is derived from the current timestamp, clamped to a 6-digit number
+ * so URLs stay short. The seed is only used to reproducibly shuffle the quiz
+ * bank on the challenge page — it doesn't need to be cryptographically strong.
+ */
+function buildChallengeUrl(
+  topicName: string,
+  averageScore: number
+): { url: string; seed: number } {
+  // Generate a seed once per result (uses epoch seconds, 6 digits)
+  const seed = Math.floor(Date.now() / 1000) % 999983; // prime mod keeps it 6 digits
+  if (typeof window === "undefined") return { url: "", seed };
+
+  const base = `${window.location.protocol}//${window.location.host}`;
+  const scoreInt = Math.round(averageScore * 10); // 0-100
+  const params = new URLSearchParams({
+    topic: topicName,
+    seed: String(seed),
+    score: String(averageScore.toFixed(1)),
+  });
+  return { url: `${base}/app/challenge?${params.toString()}`, seed };
+}
 
 interface QuizResultProps {
   result: QuizResult;

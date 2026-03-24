@@ -19,6 +19,7 @@ import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
 import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
 import { CompanyQuestionsSection } from "@/components/features/company-questions/company-questions-section";
 import { PageTransition } from "@/components/page-transition";
+import { DailyQuests } from "@/components/gamification/daily-quests";
 
 // ── Featured topics to show on dashboard ────────────────────────────────────
 
@@ -417,6 +418,12 @@ export default function DashboardPage() {
 
       {/* Question of the Day Banner */}
       <QuestionBanner />
+
+      {/* Daily Quests */}
+      <section>
+        <h2 className="font-heading text-lg font-semibold mb-3">Daily Quests</h2>
+        <DailyQuests />
+      </section>
 
       {/* Company-Specific Technical Questions */}
       <CompanyQuestionsSection />

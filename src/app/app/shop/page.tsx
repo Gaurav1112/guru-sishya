@@ -11,6 +11,7 @@ interface ShopItem {
   id: string;
   name: string;
   description: string;
+  effectDetail: string;
   cost: number;
   icon: string;
 }
@@ -20,6 +21,7 @@ const SHOP_ITEMS: ShopItem[] = [
     id: "streak_freeze",
     name: "Streak Freeze",
     description: "Protect your streak for one missed day",
+    effectDetail: "Auto-applied when you miss a day. One freeze = one day of protection.",
     cost: 50,
     icon: "🧊",
   },
@@ -27,13 +29,15 @@ const SHOP_ITEMS: ShopItem[] = [
     id: "quiz_hint_token",
     name: "Quiz Hint Token",
     description: "Remove one wrong answer in quizzes",
+    effectDetail: "During any MCQ question, tap 'Use hint token' to eliminate one wrong option.",
     cost: 30,
     icon: "💡",
   },
   {
     id: "double_xp_boost",
     name: "Double XP Boost",
-    description: "1.5x XP for your next quiz session",
+    description: "1.5x XP for the next hour",
+    effectDetail: "Applies 1.5× multiplier to all XP earned for 60 minutes after purchase.",
     cost: 75,
     icon: "⚡",
   },
@@ -41,10 +45,25 @@ const SHOP_ITEMS: ShopItem[] = [
     id: "streak_repair",
     name: "Streak Repair",
     description: "Restore a broken streak within 24 hours",
+    effectDetail: "Resets a recently broken streak. Must be used within 24 hours of breaking it.",
     cost: 200,
     icon: "🔧",
   },
 ];
+
+// ────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ────────────────────────────────────────────────────────────────────────────
+
+/** Returns a human-readable time-remaining string for the XP boost, or null. */
+function xpBoostTimeLeft(activeXPBoost: string | null): string | null {
+  if (!activeXPBoost) return null;
+  const expiresAt = new Date(activeXPBoost).getTime();
+  const msLeft = expiresAt - Date.now();
+  if (msLeft <= 0) return null;
+  const minutes = Math.ceil(msLeft / 60_000);
+  return `${minutes} min remaining`;
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // ShopItemCard
@@ -56,7 +75,26 @@ function ShopItemCard({ item, coins }: { item: ShopItem; coins: number }) {
   const activateXPBoost = useStore((s) => s.activateXPBoost);
   const addHintToken = useStore((s) => s.addHintToken);
   const activateStreakRepair = useStore((s) => s.activateStreakRepair);
+  const streakFreezes = useStore((s) => s.streakFreezes);
+  const hintTokens = useStore((s) => s.hintTokens);
+  const activeXPBoost = useStore((s) => s.activeXPBoost);
+  const streakRepairAvailable = useStore((s) => s.streakRepairAvailable);
   const canAfford = coins >= item.cost;
+
+  // Owned-count badge text for items tracked in the store
+  const ownedBadge: string | null = (() => {
+    if (item.id === "streak_freeze" && streakFreezes > 0)
+      return `${streakFreezes} owned`;
+    if (item.id === "quiz_hint_token" && hintTokens > 0)
+      return `${hintTokens} owned`;
+    if (item.id === "double_xp_boost") {
+      const left = xpBoostTimeLeft(activeXPBoost);
+      return left ? `Active — ${left}` : null;
+    }
+    if (item.id === "streak_repair" && streakRepairAvailable)
+      return "Active";
+    return null;
+  })();
 
   async function handleBuy() {
     const success = spendCoins(item.cost, item.name);
@@ -106,8 +144,16 @@ function ShopItemCard({ item, coins }: { item: ShopItem; coins: number }) {
       <div className="flex items-start gap-3">
         <span className="text-4xl">{item.icon}</span>
         <div className="flex-1 min-w-0">
-          <h3 className="font-heading font-bold text-foreground leading-tight">{item.name}</h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-heading font-bold text-foreground leading-tight">{item.name}</h3>
+            {ownedBadge && (
+              <span className="rounded-full border border-saffron/40 bg-saffron/10 px-2 py-0.5 text-[10px] font-semibold text-saffron">
+                {ownedBadge}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+          <p className="text-xs text-muted-foreground/70 mt-1 italic">{item.effectDetail}</p>
         </div>
       </div>
 

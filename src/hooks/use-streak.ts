@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import {
   checkStreak,
@@ -10,6 +11,10 @@ import {
 /**
  * Runs on app load to check and update the streak for today.
  * Updates the Zustand store and records activity in Dexie.
+ *
+ * Handles streak-freeze auto-consumption: when the user missed exactly one
+ * day but has a freeze available, the freeze is consumed, the streak is kept,
+ * and a saffron toast notifies the user.
  */
 export function useStreak() {
   const { currentStreak, longestStreak, streakFreezes, setStreak, addXP, addCoins, queueCelebration } =
@@ -18,6 +23,13 @@ export function useStreak() {
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     const lastActivityDate = localStorage.getItem("lastStreakDate") ?? "";
+
+    // Guard: never fire twice for the same calendar day
+    if (lastActivityDate === today) return;
+
+    // Guard: don't fire the freeze-used toast twice for the same missed date
+    const yesterday = new Date(Date.now() - 86400_000).toISOString().slice(0, 10);
+    const freezeUsedKey = `gs-streak-freeze-used-${yesterday}`;
 
     const state: StreakState = {
       currentStreak,
@@ -39,16 +51,39 @@ export function useStreak() {
     // Record in Dexie (fire-and-forget)
     recordDailyActivity(today).catch(() => {});
 
-    // Handle milestone rewards
+    // ── Streak freeze was auto-consumed ──────────────────────────────────────
+    if (result.status === "frozen") {
+      // Deduct one freeze from the store (checkStreak already decremented
+      // freezesAvailable in newState, so sync the store to match)
+      useStore.setState((s) => ({
+        streakFreezes: Math.max(0, s.streakFreezes - 1),
+      }));
+
+      // Show notification only once per missed day
+      if (!localStorage.getItem(freezeUsedKey)) {
+        localStorage.setItem(freezeUsedKey, "1");
+        const savedStreak = result.newState.currentStreak;
+        toast("Your streak freeze saved your streak!", {
+          description: `Your ${savedStreak}-day streak is protected. You have ${result.newState.freezesAvailable} freeze${result.newState.freezesAvailable !== 1 ? "s" : ""} remaining.`,
+          icon: "🧊",
+          duration: 5000,
+          style: {
+            borderColor: "hsl(var(--saffron) / 0.5)",
+            backgroundColor: "hsl(var(--saffron) / 0.08)",
+            color: "hsl(var(--foreground))",
+          },
+        });
+      }
+      return;
+    }
+
+    // ── Handle milestone rewards ─────────────────────────────────────────────
     if (result.milestone) {
       const { milestone } = result;
       if (milestone.xp > 0) {
         addXP(milestone.xp);
       }
       if (milestone.freeze && milestone.freeze > 0) {
-        // Streak freezes are stored in the zustand store's streakFreezes field
-        // We update via setStreak with a side-effect through addCoins as a proxy
-        // Actually update directly via store set — use a workaround via the existing API
         useStore.setState((s) => ({ streakFreezes: s.streakFreezes + (milestone.freeze ?? 0) }));
       }
       queueCelebration({
