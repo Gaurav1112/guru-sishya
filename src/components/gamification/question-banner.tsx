@@ -60,7 +60,13 @@ export function QuestionBanner() {
   if (questions.length === 0) return null;
 
   const q = questions[currentIndex];
-  const isCorrect = selected === q.correctAnswer;
+  // correctAnswer is a letter like "B", options are "B) Some text..."
+  // Match by checking if the selected option starts with the correct letter
+  const isCorrect = selected !== null && (
+    selected === q.correctAnswer ||
+    selected.startsWith(`${q.correctAnswer})`) ||
+    selected.startsWith(`${q.correctAnswer} `)
+  );
 
   return (
     <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-surface to-gold/5 overflow-hidden">
@@ -130,19 +136,25 @@ export function QuestionBanner() {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-2"
               >
-                {/* Result */}
-                <div
-                  className={`rounded-lg p-3 text-xs ${
-                    isCorrect
-                      ? "bg-teal/10 border border-teal/30 text-teal"
-                      : "bg-destructive/10 border border-destructive/30 text-destructive"
-                  }`}
-                >
-                  <span className="font-bold">
-                    {isCorrect ? "✅ Correct!" : "❌ Incorrect."}
-                  </span>{" "}
-                  Answer: {q.correctAnswer}
-                </div>
+                {isCorrect ? (
+                  /* Correct answer — green */
+                  <div className="rounded-lg p-3 text-xs bg-teal/10 border border-teal/30 text-teal">
+                    <span className="font-bold">✅ Correct!</span>{" "}
+                    {selected}
+                  </div>
+                ) : (
+                  /* Wrong answer — red for user's pick, green for correct */
+                  <>
+                    <div className="rounded-lg p-3 text-xs bg-destructive/10 border border-destructive/30 text-destructive">
+                      <span className="font-bold">❌ Your answer:</span>{" "}
+                      {selected}
+                    </div>
+                    <div className="rounded-lg p-3 text-xs bg-teal/10 border border-teal/30 text-teal">
+                      <span className="font-bold">✅ Correct answer:</span>{" "}
+                      {q.options.find((o) => o.startsWith(`${q.correctAnswer})`)) ?? q.correctAnswer}
+                    </div>
+                  </>
+                )}
                 {/* Explanation */}
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {q.explanation}

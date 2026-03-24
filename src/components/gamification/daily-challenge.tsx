@@ -138,7 +138,10 @@ export function DailyChallengeWidget() {
 
   async function handleSubmit() {
     if (!challenge?.id || !selected) return;
-    const isCorrect = selected === parsed?.correctAnswer;
+    const ca = parsed?.correctAnswer ?? "";
+    const isCorrect = selected === ca ||
+      selected.startsWith(`${ca})`) ||
+      selected.startsWith(`${ca} `);
     const score = isCorrect ? 100 : 0;
 
     await submitDailyChallenge(challenge.id, selected, score);
@@ -257,25 +260,26 @@ export function DailyChallengeWidget() {
           </p>
 
           {/* Show selected answer with colour */}
-          {challenge.userAnswer && (
-            <div
-              className={`rounded-lg border px-3 py-2 text-sm mb-3 ${
-                challenge.userAnswer === parsed.correctAnswer
-                  ? "border-green-500/40 bg-green-500/10 text-green-400"
-                  : "border-destructive/40 bg-destructive/10 text-destructive"
-              }`}
-            >
-              {challenge.userAnswer === parsed.correctAnswer ? (
-                <span>Correct! {parsed.correctAnswer}</span>
-              ) : (
-                <span>
-                  Your answer: {challenge.userAnswer}
-                  <br />
-                  Correct: {parsed.correctAnswer}
-                </span>
-              )}
-            </div>
-          )}
+          {challenge.userAnswer && (() => {
+            const ua = challenge.userAnswer;
+            const ca = parsed.correctAnswer;
+            const userCorrect = ua === ca || ua.startsWith(`${ca})`) || ua.startsWith(`${ca} `);
+            const correctFull = parsed.options.find((o) => o.startsWith(`${ca})`)) ?? ca;
+            return userCorrect ? (
+              <div className="rounded-lg border px-3 py-2 text-sm mb-3 border-green-500/40 bg-green-500/10 text-green-400">
+                <span className="font-bold">Correct!</span> {ua}
+              </div>
+            ) : (
+              <>
+                <div className="rounded-lg border px-3 py-2 text-sm mb-2 border-destructive/40 bg-destructive/10 text-destructive">
+                  <span className="font-bold">Your answer:</span> {ua}
+                </div>
+                <div className="rounded-lg border px-3 py-2 text-sm mb-3 border-green-500/40 bg-green-500/10 text-green-400">
+                  <span className="font-bold">Correct answer:</span> {correctFull}
+                </div>
+              </>
+            );
+          })()}
 
           {/* Explanation */}
           <p className="text-xs text-muted-foreground mb-3">

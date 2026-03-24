@@ -44,6 +44,9 @@ const CONTENT_FILES = [
   "/content/design-patterns.json",
   "/content/estimation.json",
   "/content/interview-framework.json",
+  "/content/kafka.json",
+  "/content/aws.json",
+  "/content/k8s-docker.json",
 ];
 
 let _contentCache: TopicContent[] | null = null;

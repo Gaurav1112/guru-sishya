@@ -1,0 +1,654 @@
+[
+  {
+    "topic": "AWS Cloud Services",
+    "category": "Cloud Computing",
+    "cheatSheet": "# AWS Cloud Services Quick Reference\n\n## Global Infrastructure\n- **Region**: Geographic area with 2+ AZs (us-east-1, ap-south-1)\n- **Availability Zone (AZ)**: Isolated data center(s) within a region\n- **Edge Location**: CloudFront CDN PoP for caching\n- **Rule**: Deploy across 2+ AZs for high availability\n\n## IAM\n- **User**: Person or service with credentials\n- **Group**: Collection of users sharing policies\n- **Role**: Temporary permissions assumed by services/users\n- **Policy**: JSON document defining Allow/Deny on actions+resources\n- **Principle of Least Privilege**: Grant only what is needed\n- Root account: enable MFA, never use for daily work\n\n## EC2\n- **Instance families**: t3 (burstable), m6i (general), c6i (compute), r6i (memory), i3 (storage)\n- **AMI**: Amazon Machine Image — OS + software snapshot\n- **User Data**: Bootstrap script run on first launch\n- **Security Group**: Stateful firewall at instance level\n- **Key Pair**: SSH access — never lose private key\n- **Auto Scaling Group (ASG)**: Min/desired/max + scaling policies\n- **ALB**: Layer 7, path/host routing, HTTP/HTTPS\n- **NLB**: Layer 4, ultra-low latency, static IP, TCP/UDP\n\n## S3\n- **Storage classes**: Standard → Intelligent-Tiering → Standard-IA → One Zone-IA → Glacier Instant → Glacier Flexible → Glacier Deep Archive\n- **Versioning**: Keeps all object versions; enables MFA Delete\n- **Lifecycle policy**: Auto-transition or expire objects by age\n- **Presigned URL**: Time-limited access without exposing credentials\n- **Encryption**: SSE-S3 (AES-256), SSE-KMS, SSE-C, CSE\n- **Static website**: Enable via bucket properties; use CloudFront in front\n- **Cross-region replication**: Requires versioning enabled on both buckets\n\n## Lambda\n- **Cold start**: First invocation bootstraps execution environment\n- **Concurrency**: Simultaneous executions; reserved vs provisioned\n- **Timeout**: Max 15 minutes; default 3 seconds\n- **Memory**: 128 MB – 10 GB; CPU scales proportionally\n- **Triggers**: API Gateway, S3, SQS, DynamoDB Streams, EventBridge, SNS\n- **Layers**: Shared code/dependencies across functions\n- **Step Functions**: Orchestrate Lambdas with state machines (Express or Standard)\n\n## DynamoDB\n- **Partition key**: Hash key — must be unique if no sort key\n- **Sort key**: Range key — together with PK forms composite primary key\n- **GSI**: Global Secondary Index — different PK+SK, eventual consistency\n- **LSI**: Local Secondary Index — same PK, different SK, must be created at table creation\n- **DAX**: In-memory cache, microsecond reads, write-through\n- **Streams**: Change data capture for triggers and replication\n- **Read modes**: Eventually consistent (cheaper), Strongly consistent\n- **Capacity**: On-demand or provisioned (with auto-scaling)\n\n## RDS\n- **Multi-AZ**: Synchronous standby in another AZ; automatic failover ~1-2 min\n- **Read Replica**: Asynchronous replication; offload reads; can promote\n- **Aurora**: AWS-managed MySQL/PostgreSQL; 6-way replication across 3 AZs; up to 15 read replicas\n- **Parameter Group**: DB engine configuration\n- **Snapshot**: Point-in-time backup; can restore to new instance\n- **RDS Proxy**: Connection pooling to reduce DB load from Lambda\n\n## SQS / SNS\n- **SQS Standard**: At-least-once delivery, best-effort ordering, unlimited throughput\n- **SQS FIFO**: Exactly-once processing, strict ordering, 3000 msg/s with batching\n- **Visibility Timeout**: Time a message is hidden after received (default 30s)\n- **Dead Letter Queue (DLQ)**: Holds messages that fail processing N times\n- **SNS**: Pub/Sub fan-out; topics push to SQS, Lambda, HTTP, email\n- **SNS+SQS fan-out pattern**: SNS topic → multiple SQS queues for parallel processing\n\n## VPC\n- **CIDR block**: IP range for the VPC (e.g., 10.0.0.0/16)\n- **Public subnet**: Route table has route to Internet Gateway\n- **Private subnet**: No direct internet access; uses NAT Gateway for outbound\n- **Internet Gateway (IGW)**: Allows public subnet traffic to/from internet\n- **NAT Gateway**: Allows private subnet outbound internet; managed, HA per AZ\n- **Security Group**: Stateful, instance-level, allow rules only\n- **NACL**: Stateless, subnet-level, allow + deny rules, numbered order\n- **VPC Peering**: Private routing between two VPCs (no transitive peering)\n- **VPC Endpoints**: Private access to AWS services without internet (Gateway for S3/DynamoDB, Interface for others)\n\n## CloudFormation\n- **Stack**: Collection of AWS resources defined as a single unit\n- **Template sections**: AWSTemplateFormatVersion, Description, Parameters, Mappings, Conditions, Resources (required), Outputs\n- **Change Set**: Preview changes before applying\n- **Drift detection**: Identify manual changes that deviate from template\n- **Cross-stack references**: Export outputs, import with !ImportValue\n- **Nested stacks**: Reusable templates referenced by parent stack\n\n## Key Numbers to Memorize\n| Service | Limit |\n|---------|-------|\n| S3 object max size | 5 TB |\n| Lambda timeout | 15 min |\n| Lambda memory max | 10 GB |\n| SQS message size | 256 KB |\n| SQS retention | 14 days |\n| DynamoDB item size | 400 KB |\n| EC2 Security Groups per instance | 5 |\n| VPC subnets | /16 to /28 |",
+    "resources": [
+      {
+        "title": "AWS Certified Solutions Architect – Associate (SAA-C03)",
+        "author": "AWS Training & Certification",
+        "category": "interactive",
+        "justification": "Official AWS exam prep covers every core service with hands-on labs and practice exams directly aligned to interview topics.",
+        "bestFor": "Beginner",
+        "estimatedTime": "40 hours",
+        "cost": "Free",
+        "confidence": "HIGH"
+      },
+      {
+        "title": "AWS in Action, 3rd Edition",
+        "author": "Michael Wittig & Andreas Wittig",
+        "category": "books",
+        "justification": "Practical, code-driven book covering EC2, S3, Lambda, RDS, VPC with real architectures and CloudFormation templates.",
+        "bestFor": "Competent",
+        "estimatedTime": "30 hours",
+        "cost": "Paid",
+        "confidence": "HIGH"
+      },
+      {
+        "title": "AWS Well-Architected Framework",
+        "author": "Amazon Web Services",
+        "category": "documentation",
+        "justification": "Five pillars (Operational Excellence, Security, Reliability, Performance, Cost) are the gold standard for architecture interview answers.",
+        "bestFor": "Proficient",
+        "estimatedTime": "10 hours",
+        "cost": "Free",
+        "confidence": "HIGH"
+      },
+      {
+        "title": "Stephane Maarek's AWS Solutions Architect Course",
+        "author": "Stephane Maarek",
+        "category": "video",
+        "justification": "Best-rated Udemy AWS course with 500K+ students; covers every service with demos and cheat sheets used widely in interview prep.",
+        "bestFor": "Beginner",
+        "estimatedTime": "25 hours",
+        "cost": "Paid",
+        "confidence": "HIGH"
+      }
+    ],
+    "ladder": {
+      "levels": [
+        {
+          "level": 1,
+          "name": "Cloud Novice",
+          "description": "Understands what AWS is and can navigate the console. Can launch an EC2 instance and upload to S3 manually.",
+          "observableSkills": [
+            "Explain Regions vs AZs",
+            "Launch EC2 from console",
+            "Upload file to S3",
+            "Describe the Shared Responsibility Model"
+          ],
+          "milestoneProject": {
+            "title": "Host a static website",
+            "description": "Upload HTML/CSS to S3, enable static hosting, and access via public URL."
+          },
+          "estimatedHours": 10
+        },
+        {
+          "level": 2,
+          "name": "Cloud Practitioner",
+          "description": "Uses AWS CLI and SDKs. Understands IAM roles, security groups, and can build a simple 3-tier architecture.",
+          "observableSkills": [
+            "Write IAM policies with least-privilege",
+            "Configure Security Groups and NACLs",
+            "Deploy EC2 with user data scripts",
+            "Use AWS CLI for common operations"
+          ],
+          "milestoneProject": {
+            "title": "3-tier web app",
+            "description": "ALB → EC2 (private subnet) → RDS. Configure IAM role for EC2 to access S3."
+          },
+          "estimatedHours": 25
+        },
+        {
+          "level": 3,
+          "name": "Cloud Developer",
+          "description": "Builds serverless applications, integrates SQS/SNS, understands DynamoDB data modeling, and uses CloudFormation.",
+          "observableSkills": [
+            "Design Lambda with API Gateway",
+            "Model DynamoDB with GSI for query patterns",
+            "Build SQS-triggered processing pipeline",
+            "Write CloudFormation templates"
+          ],
+          "milestoneProject": {
+            "title": "Serverless order processing",
+            "description": "API Gateway → Lambda → DynamoDB + SQS → fulfillment Lambda + SNS notification."
+          },
+          "estimatedHours": 45
+        },
+        {
+          "level": 4,
+          "name": "Cloud Architect",
+          "description": "Designs for HA, DR, and cost optimization. Applies Well-Architected Framework. Can evaluate trade-offs across services.",
+          "observableSkills": [
+            "Design multi-region active-passive DR",
+            "Optimize costs with Reserved Instances and Savings Plans",
+            "Choose between Aurora, RDS, DynamoDB for given requirements",
+            "Design VPC with proper segmentation and endpoints"
+          ],
+          "milestoneProject": {
+            "title": "Highly available microservices",
+            "description": "Multi-AZ ECS Fargate services behind ALB, Aurora multi-AZ, ElastiCache, DLQ error handling, CloudWatch dashboards."
+          },
+          "estimatedHours": 80
+        },
+        {
+          "level": 5,
+          "name": "Cloud Expert",
+          "description": "Deep expertise across 20+ services. Guides architecture decisions, leads cost optimization, implements advanced security and compliance patterns.",
+          "observableSkills": [
+            "Design event-driven architectures with EventBridge",
+            "Implement service control policies and AWS Organizations",
+            "Build CI/CD pipelines with CodePipeline and CloudFormation StackSets",
+            "Troubleshoot complex networking and performance issues"
+          ],
+          "milestoneProject": {
+            "title": "Multi-account landing zone",
+            "description": "AWS Organizations, Service Control Policies, centralized logging, security hub, cross-account CI/CD pipeline."
+          },
+          "estimatedHours": 150
+        }
+      ]
+    },
+    "plan": {
+      "overview": "Master AWS Cloud Services for software engineering interviews.",
+      "skippedTopics": "Advanced vendor-specific features rarely asked in interviews.",
+      "sessions": [
+        {
+          "sessionNumber": 1,
+          "title": "AWS Fundamentals: Regions, IAM, and Shared Responsibility",
+          "content": "## AWS Fundamentals\n\n### Global Infrastructure\n\nAWS operates in **Regions** — geographic locations each containing 2 or more **Availability Zones (AZs)**. An AZ is one or more physically separated data centers with independent power, cooling, and networking.\n\n```\nus-east-1 (N. Virginia)\n├── us-east-1a  (AZ)\n├── us-east-1b  (AZ)\n├── us-east-1c  (AZ)\n└── us-east-1d  (AZ)\n```\n\n**Key rule**: Deploy across at least 2 AZs for high availability. A single-AZ deployment has a single point of failure.\n\nEdge Locations (200+ worldwide) serve CloudFront CDN content from locations close to end users.\n\n### Shared Responsibility Model\n\nThis is a critical interview concept:\n\n| AWS Responsible For | Customer Responsible For |\n|---------------------|-------------------------|\n| Physical hardware | OS patching (EC2) |\n| Network infrastructure | Application security |\n| Hypervisor | IAM configuration |\n| Managed service internals (RDS engine) | Data encryption |\n| Global infrastructure | Security group rules |\n\n**Mnemonic**: AWS manages security **OF** the cloud. You manage security **IN** the cloud.\n\n### IAM: Identity and Access Management\n\nIAM controls **who** can do **what** to **which** AWS resources.\n\n**Core components**:\n- **User**: Long-term credentials for a person or application\n- **Group**: Attach policies to multiple users at once\n- **Role**: Temporary credentials assumed by services or users\n- **Policy**: JSON document with Allow/Deny statements\n\n```json\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\"s3:GetObject\", \"s3:PutObject\"],\n      \"Resource\": \"arn:aws:s3:::my-bucket/*\"\n    }\n  ]\n}\n```\n\n**Policy evaluation logic**: Explicit Deny > Allow > implicit Deny. If no policy allows an action, it is denied by default.\n\n### AWS CLI Basics\n\n```bash\n# Configure credentials\naws configure\n# AWS Access Key ID: AKIA...\n# AWS Secret Access Key: ...\n# Default region: us-east-1\n# Default output format: json\n\n# Test authentication\naws sts get-caller-identity\n\n# List IAM users\naws iam list-users --output table\n\n# Create an IAM role for EC2\naws iam create-role \\\n  --role-name MyEC2Role \\\n  --assume-role-policy-document file://trust-policy.json\n\n# Attach a managed policy\naws iam attach-role-policy \\\n  --role-name MyEC2Role \\\n  --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess\n```\n\n### Java SDK v2: STS — Who Am I?\n\n```java\nimport software.amazon.awssdk.services.sts.StsClient;\nimport software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;\n\npublic class IamDemo {\n    public static void main(String[] args) {\n        try (StsClient sts = StsClient.create()) {\n            GetCallerIdentityResponse identity = sts.getCallerIdentity();\n            System.out.println(\"Account: \" + identity.account());\n            System.out.println(\"UserID:  \" + identity.userId());\n            System.out.println(\"ARN:     \" + identity.arn());\n        }\n    }\n}\n```\n\n### IAM Best Practices\n1. Enable MFA on the root account — never use root for daily tasks\n2. Grant least privilege — start with read-only, add as needed\n3. Prefer roles over access keys for services running on AWS\n4. Rotate access keys every 90 days\n5. Use AWS Organizations + Service Control Policies for multi-account guardrails\n\n### Billing and Cost Management\n\n- **AWS Free Tier**: 750 hrs/month EC2 t2.micro, 5 GB S3, 1M Lambda invocations\n- **Cost Explorer**: Visualize spending by service, region, tag\n- **Budgets**: Alert when spending exceeds threshold\n- **Trusted Advisor**: Checks for cost, security, and performance improvements\n\n```bash\n# Check current month cost\naws ce get-cost-and-usage \\\n  --time-period Start=2025-01-01,End=2025-02-01 \\\n  --granularity MONTHLY \\\n  --metrics BlendedCost\n```\n\n**Interview tip**: Always mention the Shared Responsibility Model and IAM least privilege in any AWS security question. These two concepts appear in nearly every senior-level interview.",
+          "objectives": [
+            "Explain the difference between Regions and Availability Zones",
+            "Describe the AWS Shared Responsibility Model with examples",
+            "Create IAM users, groups, roles, and policies",
+            "Apply the principle of least privilege to IAM policies",
+            "Use the AWS CLI for basic IAM and STS operations"
+          ],
+          "activities": [
+            {
+              "description": "Create an IAM policy that allows read-only access to a specific S3 bucket and attach it to a role. Then assume the role using AWS CLI and verify you cannot write to the bucket.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Draw a diagram of the AWS global infrastructure showing 2 regions, each with 3 AZs. Annotate where you would place EC2, RDS Multi-AZ, and CloudFront.",
+              "durationMinutes": 15
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between an IAM User and an IAM Role?:::An IAM User has permanent long-term credentials (access key + secret) and represents a specific person or service account. An IAM Role has no permanent credentials — it issues temporary STS credentials when assumed. Roles are assumed by AWS services (EC2 instance profiles, Lambda execution roles), other accounts (cross-account access), or federated identities. Best practice: use roles for services running on AWS, never embed access keys in code.",
+            "What does the Shared Responsibility Model say about OS patches on EC2?:::The customer is responsible for patching the OS on EC2 instances. AWS manages the underlying hypervisor and physical hardware, but once you launch an EC2 instance, you own the operating system, middleware, and application stack. For managed services like RDS, AWS patches the database engine — you only manage the data and configuration.",
+            "How does IAM policy evaluation work when a user has both an Allow and a Deny on the same action?:::An explicit Deny always wins, regardless of any Allow policies. The evaluation order is: (1) Check for explicit Deny — if found, access is denied immediately. (2) Check for explicit Allow — if found, access is granted. (3) If neither, implicit Deny applies. This means an SCP Deny at the Organizations level overrides any Allow in the account's IAM policies."
+          ],
+          "successCriteria": "Can explain the Shared Responsibility Model, create properly scoped IAM policies, and distinguish IAM Users from Roles in an interview context."
+        },
+        {
+          "sessionNumber": 2,
+          "title": "Compute: EC2 — Instances, Auto Scaling, and Load Balancers",
+          "content": "## EC2: Elastic Compute Cloud\n\n### Instance Types and Families\n\nChoose based on your workload's CPU-to-memory ratio:\n\n| Family | Use Case | Examples |\n|--------|----------|---------|\n| General Purpose | Web servers, small DBs | t3.medium, m6i.large |\n| Compute Optimized | Batch processing, gaming | c6i.xlarge |\n| Memory Optimized | In-memory DBs, caches | r6i.2xlarge |\n| Storage Optimized | Data warehouses, Kafka | i3.large |\n| Accelerated | ML training, graphics | p3.2xlarge |\n\nFor Java Spring Boot microservices: start with **m6i.large** (2 vCPU, 8 GB RAM). Set `-Xmx` to ~60% of total RAM.\n\n### AMIs and Launch Templates\n\nAn **AMI** (Amazon Machine Image) captures: OS, installed software, EBS volume snapshots, and permissions.\n\n```bash\n# Find latest Amazon Linux 2023 AMI\naws ec2 describe-images \\\n  --owners amazon \\\n  --filters \"Name=name,Values=al2023-ami-*\" \\\n  --query 'sort_by(Images, &CreationDate)[-1].ImageId'\n\n# Launch an instance with a user data script\naws ec2 run-instances \\\n  --image-id ami-0abcdef1234567890 \\\n  --instance-type m6i.large \\\n  --key-name my-key-pair \\\n  --security-group-ids sg-0abc123 \\\n  --subnet-id subnet-0def456 \\\n  --iam-instance-profile Name=MyEC2Role \\\n  --user-data file://userdata.sh \\\n  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=my-app}]'\n```\n\n**userdata.sh** — runs as root on first boot:\n```bash\n#!/bin/bash\nyum update -y\nyum install -y java-21-amazon-corretto\naws s3 cp s3://my-deploy-bucket/app.jar /opt/app.jar\nsystemctl enable myapp\nsystemctl start myapp\n```\n\n### Security Groups\n\nStateful firewall at the instance/ENI level:\n- Only **allow** rules (no explicit deny)\n- Return traffic is automatically permitted (stateful)\n- Default: deny all inbound, allow all outbound\n\n```bash\n# Create security group\naws ec2 create-security-group \\\n  --group-name web-sg \\\n  --description \"Web server SG\" \\\n  --vpc-id vpc-0abc\n\n# Allow HTTP from ALB security group only\naws ec2 authorize-security-group-ingress \\\n  --group-id sg-web \\\n  --protocol tcp --port 8080 \\\n  --source-group sg-alb\n```\n\n### Auto Scaling Group (ASG)\n\n```bash\n# Create launch template\naws ec2 create-launch-template \\\n  --launch-template-name my-lt \\\n  --launch-template-data '{\n    \"ImageId\": \"ami-0abc\",\n    \"InstanceType\": \"m6i.large\",\n    \"IamInstanceProfile\": {\"Name\": \"MyEC2Role\"}\n  }'\n\n# Create ASG with target tracking\naws autoscaling create-auto-scaling-group \\\n  --auto-scaling-group-name my-asg \\\n  --launch-template LaunchTemplateName=my-lt,Version='$Latest' \\\n  --min-size 2 --desired-capacity 2 --max-size 10 \\\n  --vpc-zone-identifier \"subnet-aaa,subnet-bbb\"\n\n# Add CPU-based scaling policy\naws autoscaling put-scaling-policy \\\n  --auto-scaling-group-name my-asg \\\n  --policy-name cpu-tracking \\\n  --policy-type TargetTrackingScaling \\\n  --target-tracking-configuration \\\n    'TargetValue=60.0,PredefinedMetricSpecification={PredefinedMetricType=ASGAverageCPUUtilization}'\n```\n\n### ALB vs NLB\n\n| Feature | ALB | NLB |\n|---------|-----|-----|\n| Layer | 7 (HTTP) | 4 (TCP/UDP) |\n| Routing | Path, host, header | IP + port |\n| Latency | ~1ms | Ultra-low |\n| Static IP | No (DNS) | Yes |\n| Use case | Web apps, microservices | Gaming, IoT, gRPC |\n\n### Java SDK v2: Describe Running Instances\n\n```java\nimport software.amazon.awssdk.services.ec2.Ec2Client;\nimport software.amazon.awssdk.services.ec2.model.*;\n\npublic class Ec2Demo {\n    public static void main(String[] args) {\n        try (Ec2Client ec2 = Ec2Client.create()) {\n            Filter runningFilter = Filter.builder()\n                .name(\"instance-state-name\")\n                .values(\"running\")\n                .build();\n            DescribeInstancesResponse resp = ec2.describeInstances(\n                DescribeInstancesRequest.builder().filters(runningFilter).build()\n            );\n            resp.reservations().stream()\n                .flatMap(r -> r.instances().stream())\n                .forEach(i -> System.out.printf(\"%s  %s  %s%n\",\n                    i.instanceId(), i.instanceType(), i.publicIpAddress()));\n        }\n    }\n}\n```\n\n**Interview tip**: Always mention deploying ASG across multiple AZs, setting min=2 so a single AZ failure doesn't take down the service, and using ALB health checks to drain connections before terminating instances.",
+          "objectives": [
+            "Select the right EC2 instance type for a given workload",
+            "Write an EC2 user data bootstrap script",
+            "Configure Security Groups following least privilege",
+            "Set up an Auto Scaling Group with target tracking",
+            "Explain the differences between ALB and NLB"
+          ],
+          "activities": [
+            {
+              "description": "Launch an EC2 instance with a user data script that installs Java and starts a sample app. Verify the app is accessible via the instance's public IP on port 8080.",
+              "durationMinutes": 40
+            },
+            {
+              "description": "Create an ASG with min=2, max=4. Use the AWS CLI to manually trigger a scaling event and watch instances launch in different AZs.",
+              "durationMinutes": 25
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between a Launch Template and a Launch Configuration?:::Launch Templates are the modern replacement for Launch Configurations. Templates support versioning, multiple instance types (mixed instances policy for spot+on-demand), and all current EC2 features. Launch Configurations are legacy, cannot be modified after creation, and do not support newer features like T2/T3 unlimited mode. Always use Launch Templates.",
+            "How does EC2 Auto Scaling decide when to scale in (remove instances)?:::ASG scale-in is governed by scaling policies and the scale-in protection setting. For target tracking policies, when the metric drops below the target, ASG waits for the cooldown period (default 300s) before terminating instances. The termination policy (default: OldestInstance, then closest to billing hour) determines which instance to remove. Enable scale-in protection on instances processing long jobs to prevent premature termination.",
+            "How would you achieve zero-downtime deployments with EC2 Auto Scaling?:::Use a rolling update strategy: set the ASG update policy to replace instances in batches (e.g., 25% at a time). The ALB health check must pass before the old instance is terminated (connection draining / deregistration delay, default 300s). Alternatively, use Blue/Green deployment: create a second ASG with the new version, register it with the ALB, shift traffic gradually, then decommission the old ASG."
+          ],
+          "successCriteria": "Can design and explain an Auto Scaling architecture with ALB, configure security groups with least privilege, and describe zero-downtime deployment strategies."
+        },
+        {
+          "sessionNumber": 3,
+          "title": "Storage: S3 — Buckets, Storage Classes, and Presigned URLs",
+          "content": "## S3: Simple Storage Service\n\nS3 is object storage — not a file system. Objects are accessed by **bucket name + key**. Single object maximum: **5 TB**. Buckets are globally named but region-specific.\n\n### Core Operations\n\n```bash\n# Create a bucket (region required outside us-east-1)\naws s3api create-bucket \\\n  --bucket my-app-bucket-2025 \\\n  --region ap-south-1 \\\n  --create-bucket-configuration LocationConstraint=ap-south-1\n\n# Upload with server-side encryption\naws s3 cp app-logs.tar.gz s3://my-app-bucket-2025/logs/ \\\n  --sse aws:kms --sse-kms-key-id alias/my-key\n\n# Sync a local directory\naws s3 sync ./build s3://my-app-bucket-2025/static/ --delete\n\n# Generate a presigned URL (expires in 1 hour)\naws s3 presign s3://my-app-bucket-2025/reports/q1.pdf \\\n  --expires-in 3600\n```\n\n### Storage Classes Comparison\n\n| Class | Min Duration | Retrieval | Use Case |\n|-------|-------------|-----------|----------|\n| Standard | None | Immediate | Active data |\n| Intelligent-Tiering | None | Immediate | Unpredictable access |\n| Standard-IA | 30 days | Immediate | Backups, DR |\n| One Zone-IA | 30 days | Immediate | Re-creatable data |\n| Glacier Instant | 90 days | Milliseconds | Archives accessed quarterly |\n| Glacier Flexible | 90 days | Minutes–hours | Compliance archives |\n| Deep Archive | 180 days | Up to 12 hours | 7+ year retention |\n\n### Lifecycle Policy\n\n```json\n{\n  \"Rules\": [{\n    \"Id\": \"log-archival\",\n    \"Status\": \"Enabled\",\n    \"Filter\": {\"Prefix\": \"logs/\"},\n    \"Transitions\": [\n      {\"Days\": 30, \"StorageClass\": \"STANDARD_IA\"},\n      {\"Days\": 90, \"StorageClass\": \"GLACIER\"}\n    ],\n    \"Expiration\": {\"Days\": 365}\n  }]\n}\n```\n\n```bash\naws s3api put-bucket-lifecycle-configuration \\\n  --bucket my-app-bucket-2025 \\\n  --lifecycle-configuration file://lifecycle.json\n```\n\n### Versioning and MFA Delete\n\nVersioning preserves every version of every object. Once enabled, it can only be **suspended**, not disabled.\n\n```bash\n# Enable versioning\naws s3api put-bucket-versioning \\\n  --bucket my-app-bucket-2025 \\\n  --versioning-configuration Status=Enabled\n\n# List object versions\naws s3api list-object-versions --bucket my-app-bucket-2025 --prefix logs/\n```\n\n### Java SDK v2: Upload, Presigned URL, Lifecycle\n\n```java\nimport software.amazon.awssdk.services.s3.S3Client;\nimport software.amazon.awssdk.services.s3.model.*;\nimport software.amazon.awssdk.services.s3.presigner.S3Presigner;\nimport software.amazon.awssdk.services.s3.presigner.model.*;\nimport java.time.Duration;\nimport java.nio.file.Paths;\n\npublic class S3Demo {\n    static final String BUCKET = \"my-app-bucket-2025\";\n\n    public static void upload(S3Client s3, String key, String filePath) {\n        s3.putObject(\n            PutObjectRequest.builder()\n                .bucket(BUCKET).key(key)\n                .serverSideEncryption(ServerSideEncryption.AWS_KMS)\n                .build(),\n            Paths.get(filePath)\n        );\n        System.out.println(\"Uploaded: \" + key);\n    }\n\n    public static String presign(String key) {\n        try (S3Presigner presigner = S3Presigner.create()) {\n            GetObjectPresignRequest req = GetObjectPresignRequest.builder()\n                .signatureDuration(Duration.ofMinutes(15))\n                .getObjectRequest(r -> r.bucket(BUCKET).key(key))\n                .build();\n            return presigner.presignGetObject(req).url().toString();\n        }\n    }\n\n    public static void main(String[] args) {\n        try (S3Client s3 = S3Client.create()) {\n            upload(s3, \"reports/q1-2025.pdf\", \"/tmp/q1-2025.pdf\");\n            System.out.println(\"Presigned URL: \" + presign(\"reports/q1-2025.pdf\"));\n        }\n    }\n}\n```\n\n### Encryption Options\n\n- **SSE-S3**: AWS manages keys with AES-256. No extra cost.\n- **SSE-KMS**: AWS KMS manages keys. Audit trail via CloudTrail. Small per-request cost.\n- **SSE-C**: Customer provides key per request. AWS discards after use.\n- **CSE**: Encrypt before upload; AWS never sees plaintext.\n\n**Interview tip**: For compliance-heavy workloads (HIPAA, PCI), use SSE-KMS with a customer-managed CMK. This provides key rotation, access control, and a full audit trail via CloudTrail. Bucket policies can enforce encryption: deny any PutObject without `x-amz-server-side-encryption` header.",
+          "objectives": [
+            "Choose the right S3 storage class for a given access pattern",
+            "Configure S3 lifecycle policies for cost optimization",
+            "Enable and use S3 versioning",
+            "Generate presigned URLs for temporary object access",
+            "Apply server-side encryption with SSE-KMS"
+          ],
+          "activities": [
+            {
+              "description": "Create an S3 bucket, enable versioning, upload a file twice, then list versions. Apply a lifecycle rule that moves to Standard-IA after 30 days and expires after 1 year.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Write a Java method that accepts a file path, uploads it to S3 with SSE-KMS, and returns a presigned URL valid for 5 minutes. Test it from the command line.",
+              "durationMinutes": 30
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between S3 Standard-IA and S3 Intelligent-Tiering?:::Standard-IA is a fixed storage class — you pay a lower per-GB storage price but a retrieval fee on every access. It has a 30-day minimum storage duration. Best for data you know is accessed infrequently (monthly or less). Intelligent-Tiering monitors access patterns and automatically moves objects between Frequent Access, Infrequent Access, and Archive tiers with no retrieval fees and no performance impact. Small monthly monitoring fee per object. Best for unpredictable or changing access patterns.",
+            "How do S3 presigned URLs work and what are the security considerations?:::A presigned URL is generated server-side using the signer's IAM credentials and an expiration time. It embeds an AWS Signature V4 signature so the recipient can access the object without their own AWS credentials. Security considerations: set tight expiration (5-15 minutes for downloads, shorter for uploads), use HTTPS only, do not cache and reuse URLs across users (different users should get different presigned URLs), and ensure the signing IAM role has the minimum required permissions.",
+            "Can you delete an S3 bucket that still has objects in it?:::No. AWS requires a bucket to be completely empty before deletion. For versioned buckets, this means deleting all versions and delete markers (not just current versions). Use the AWS CLI with `aws s3 rm s3://bucket --recursive` to delete current objects, then delete all versions with `aws s3api delete-objects` using a list of versions. Alternatively, add a lifecycle rule that expires all objects and versions, wait for it to execute, then delete the bucket."
+          ],
+          "successCriteria": "Can design an S3 storage strategy with appropriate storage classes, lifecycle policies, versioning, and encryption for a production workload."
+        },
+        {
+          "sessionNumber": 4,
+          "title": "Serverless: Lambda, API Gateway, and Step Functions",
+          "content": "## AWS Lambda\n\nLambda runs code without managing servers. You pay only for actual execution time (per 1ms). Max timeout: **15 minutes**. Memory: **128 MB – 10 GB** (CPU scales proportionally).\n\n### Cold Starts\n\nWhen a new execution environment is initialized:\n1. Download function code\n2. Start the runtime (JVM, Node.js, Python interpreter)\n3. Run initialization code (static blocks, DB connection setup)\n4. **Then** invoke your handler\n\nCold starts are worst for Java (500ms – 2s) due to JVM startup. Mitigations:\n- **Provisioned Concurrency**: Keep N environments warm — eliminates cold starts\n- **Lambda SnapStart** (Java): Snapshot the initialized JVM, restore in ~1s\n- Keep packages small, avoid heavy initialization in handler\n\n### Concurrency Model\n\n- **Unreserved concurrency**: Shared pool across account (default 1000 per region)\n- **Reserved concurrency**: Guarantee N executions for this function; caps it too\n- **Provisioned concurrency**: Pre-initialized environments — no cold start\n\n```bash\n# Deploy a Lambda function\naws lambda create-function \\\n  --function-name order-processor \\\n  --runtime java21 \\\n  --role arn:aws:iam::123456789:role/lambda-exec-role \\\n  --handler com.example.OrderHandler::handleRequest \\\n  --zip-file fileb://function.zip \\\n  --timeout 30 \\\n  --memory-size 512\n\n# Set reserved concurrency\naws lambda put-function-concurrency \\\n  --function-name order-processor \\\n  --reserved-concurrent-executions 50\n\n# Configure provisioned concurrency\naws lambda put-provisioned-concurrency-config \\\n  --function-name order-processor \\\n  --qualifier prod \\\n  --provisioned-concurrent-executions 10\n\n# Invoke synchronously\naws lambda invoke \\\n  --function-name order-processor \\\n  --payload '{\"orderId\": \"ord-123\"}' \\\n  --cli-binary-format raw-in-base64-out \\\n  output.json\n```\n\n### Java Lambda Handler\n\n```java\nimport com.amazonaws.services.lambda.runtime.Context;\nimport com.amazonaws.services.lambda.runtime.RequestHandler;\nimport software.amazon.awssdk.services.dynamodb.DynamoDbClient;\nimport software.amazon.awssdk.services.dynamodb.model.*;\nimport java.util.Map;\n\npublic class OrderHandler implements RequestHandler<Map<String,String>, String> {\n    // Static init runs once per container (cold start cost)\n    private static final DynamoDbClient DYNAMO = DynamoDbClient.create();\n    private static final String TABLE = System.getenv(\"ORDER_TABLE\");\n\n    @Override\n    public String handleRequest(Map<String,String> event, Context ctx) {\n        String orderId = event.get(\"orderId\");\n        ctx.getLogger().log(\"Processing order: \" + orderId);\n\n        PutItemRequest req = PutItemRequest.builder()\n            .tableName(TABLE)\n            .item(Map.of(\n                \"orderId\", AttributeValue.fromS(orderId),\n                \"status\",  AttributeValue.fromS(\"RECEIVED\")\n            )).build();\n        DYNAMO.putItem(req);\n        return \"Order \" + orderId + \" saved.\";\n    }\n}\n```\n\n### API Gateway + Lambda\n\n```\nClient → HTTPS → API Gateway → Lambda (sync invoke) → Response\n```\n\n- **REST API**: Full features, per-request pricing\n- **HTTP API**: Lower latency, cheaper, fewer features — use for simple proxy\n- **WebSocket API**: Real-time bidirectional communication\n\n```bash\n# Create an HTTP API and Lambda integration\naws apigatewayv2 create-api \\\n  --name order-api \\\n  --protocol-type HTTP \\\n  --target arn:aws:lambda:us-east-1:123456789:function:order-processor\n```\n\n### Step Functions: Orchestrate Lambdas\n\nStep Functions manage multi-step workflows without spaghetti Lambda-calls-Lambda:\n\n```json\n{\n  \"StartAt\": \"ValidateOrder\",\n  \"States\": {\n    \"ValidateOrder\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:lambda:::function:validate-order\",\n      \"Next\": \"ChargePayment\",\n      \"Catch\": [{\"ErrorEquals\": [\"States.ALL\"], \"Next\": \"HandleError\"}]\n    },\n    \"ChargePayment\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:lambda:::function:charge-payment\",\n      \"Next\": \"FulfillOrder\"\n    },\n    \"FulfillOrder\": {\"Type\": \"Task\", \"Resource\": \"arn:aws:lambda:::function:fulfill\", \"End\": true},\n    \"HandleError\": {\"Type\": \"Fail\", \"Error\": \"OrderFailed\"}\n  }\n}\n```\n\n- **Standard Workflow**: Exactly-once, 1-year max duration, durable state, auditable\n- **Express Workflow**: At-least-once, 5-min max, higher throughput, cheaper\n\n**Interview tip**: \"I use Lambda for event-driven, stateless, short-duration tasks. Step Functions for multi-step workflows requiring error handling, retries, and audit trails. I avoid Lambda-calls-Lambda directly — it creates tight coupling and loses retry/error visibility.\"",
+          "objectives": [
+            "Explain Lambda cold starts and how to mitigate them for Java",
+            "Configure Lambda concurrency: reserved vs provisioned",
+            "Build a Lambda function triggered by API Gateway",
+            "Design a Step Functions workflow with error handling",
+            "Identify appropriate Lambda event sources for common patterns"
+          ],
+          "activities": [
+            {
+              "description": "Write a Java Lambda that reads an S3 event, logs the bucket and key, then stores metadata in DynamoDB. Deploy it and trigger it by uploading a file to S3.",
+              "durationMinutes": 45
+            },
+            {
+              "description": "Design a Step Functions state machine for a 3-step order flow: validate → charge → fulfill. Include a Catch block that sends an SNS alert on failure.",
+              "durationMinutes": 20
+            }
+          ],
+          "reviewQuestions": [
+            "What causes Lambda cold starts and how does Provisioned Concurrency help?:::A cold start occurs when Lambda must initialize a new execution environment — bootstrapping the runtime (JVM, Node.js), loading your code package, and running static initialization code. For Java, this can take 500ms–2s. Provisioned Concurrency keeps a specified number of environments pre-initialized and ready to respond instantly, eliminating cold start latency. You pay for the provisioned environments whether they are used or not. Use it for latency-sensitive endpoints. Lambda SnapStart (Java) takes a snapshot of the initialized environment and restores it, achieving ~1s init from a snapshot.",
+            "How does Lambda handle failures from SQS triggers?:::When Lambda polls SQS and the handler throws an exception, the message becomes visible again after the visibility timeout expires and Lambda retries. After the configured maximum receive count is exhausted, SQS moves the message to the Dead Letter Queue (DLQ). Best practice: set a DLQ on the SQS queue, configure maxReceiveCount (e.g., 3), and alarm on DLQ depth. Lambda can also report batch item failures by returning a specific response shape, allowing partial batch success.",
+            "When would you choose Step Functions Express over Standard Workflow?:::Use Express Workflow for high-volume, short-duration (under 5 minutes), event-processing workloads where at-least-once execution is acceptable (e.g., IoT pipelines, streaming data processing). Express is significantly cheaper per execution. Use Standard Workflow when you need exactly-once execution guarantees, executions lasting up to 1 year, human approval steps (Wait for Token), and a full visual audit trail in the console."
+          ],
+          "successCriteria": "Can write and deploy a Java Lambda, explain cold start mitigation strategies, configure API Gateway integration, and design a Step Functions workflow with error handling."
+        },
+        {
+          "sessionNumber": 5,
+          "title": "Databases: RDS, Aurora, and DynamoDB",
+          "content": "## RDS: Relational Database Service\n\nRDS is a managed relational DB — AWS handles: hardware, OS patching, DB engine upgrades, automated backups, and failover.\n\n**Supported engines**: MySQL, PostgreSQL, Oracle, SQL Server, MariaDB, Aurora\n\n### Multi-AZ vs Read Replicas\n\n| Feature | Multi-AZ | Read Replica |\n|---------|----------|--------------|\n| Purpose | High Availability | Read Scaling |\n| Replication | Synchronous | Asynchronous |\n| Failover | Automatic (~1-2 min) | Manual promote |\n| Readable? | No (standby only) | Yes |\n| Cross-region? | No | Yes |\n\n```bash\n# Create RDS PostgreSQL with Multi-AZ\naws rds create-db-instance \\\n  --db-instance-identifier prod-postgres \\\n  --db-instance-class db.m6g.large \\\n  --engine postgres \\\n  --master-username admin \\\n  --master-user-password MySecret123! \\\n  --allocated-storage 100 \\\n  --multi-az \\\n  --storage-encrypted \\\n  --vpc-security-group-ids sg-0db\n\n# Create Read Replica\naws rds create-db-instance-read-replica \\\n  --db-instance-identifier prod-postgres-ro \\\n  --source-db-instance-identifier prod-postgres\n```\n\n### Aurora\n\nAurora is AWS's cloud-native relational DB (MySQL/PostgreSQL compatible):\n- Storage auto-scales up to **128 TB**\n- **6 copies** of data across **3 AZs** — survives loss of 2 copies for writes, 3 for reads\n- Up to **15 read replicas** with sub-10ms replica lag\n- **Aurora Serverless v2**: auto-scales compute in fractions of ACUs (Aurora Capacity Units)\n\n```bash\n# Create Aurora PostgreSQL cluster\naws rds create-db-cluster \\\n  --db-cluster-identifier my-aurora \\\n  --engine aurora-postgresql \\\n  --master-username admin \\\n  --master-user-password MySecret123! \\\n  --vpc-security-group-ids sg-0db\n```\n\n### RDS Proxy\n\nFor Lambda connecting to RDS: Lambda can have thousands of concurrent instances, each opening a DB connection. RDS Proxy pools and reuses connections, preventing DB connection exhaustion.\n\n## DynamoDB\n\nDynamoDB is a fully managed NoSQL key-value + document store. Single-digit millisecond latency at any scale.\n\n### Key Design\n\nEvery item needs a **primary key**:\n- **Simple PK**: Partition key only (must be unique)\n- **Composite PK**: Partition key + Sort key (combination must be unique)\n\nPartition key determines the partition (shard). Design for **even distribution** — avoid hot partitions.\n\n```bash\n# Create DynamoDB table\naws dynamodb create-table \\\n  --table-name Orders \\\n  --attribute-definitions \\\n    AttributeName=userId,AttributeType=S \\\n    AttributeName=orderId,AttributeType=S \\\n    AttributeName=status,AttributeType=S \\\n  --key-schema \\\n    AttributeName=userId,KeyType=HASH \\\n    AttributeName=orderId,KeyType=RANGE \\\n  --billing-mode PAY_PER_REQUEST \\\n  --global-secondary-indexes '[\n    {\n      \"IndexName\": \"status-index\",\n      \"KeySchema\": [{\"AttributeName\":\"status\",\"KeyType\":\"HASH\"}],\n      \"Projection\": {\"ProjectionType\":\"INCLUDE\",\"NonKeyAttributes\":[\"userId\",\"orderId\",\"createdAt\"]}\n    }\n  ]'\n```\n\n### GSI vs LSI\n\n| | GSI | LSI |\n|--|-----|-----|\n| Partition key | Different from base | Same as base |\n| Sort key | Any attribute | Different from base |\n| Creation | Any time | At table creation only |\n| Consistency | Eventually consistent | Strongly consistent available |\n| Throughput | Separate capacity | Shares base table capacity |\n\n### Java SDK v2: DynamoDB Operations\n\n```java\nimport software.amazon.awssdk.services.dynamodb.DynamoDbClient;\nimport software.amazon.awssdk.services.dynamodb.model.*;\nimport java.util.Map;\n\npublic class DynamoDemo {\n    private static final DynamoDbClient DYNAMO = DynamoDbClient.create();\n\n    public static void putOrder(String userId, String orderId, String status) {\n        DYNAMO.putItem(PutItemRequest.builder()\n            .tableName(\"Orders\")\n            .item(Map.of(\n                \"userId\",  AttributeValue.fromS(userId),\n                \"orderId\", AttributeValue.fromS(orderId),\n                \"status\",  AttributeValue.fromS(status)\n            )).build());\n    }\n\n    public static void queryByUser(String userId) {\n        QueryResponse resp = DYNAMO.query(QueryRequest.builder()\n            .tableName(\"Orders\")\n            .keyConditionExpression(\"userId = :uid\")\n            .expressionAttributeValues(Map.of(\n                \":uid\", AttributeValue.fromS(userId)\n            )).build());\n        resp.items().forEach(item ->\n            System.out.println(item.get(\"orderId\").s() + \" -> \" + item.get(\"status\").s()));\n    }\n}\n```\n\n### DAX: DynamoDB Accelerator\n\nIn-memory cache for DynamoDB — microsecond read latency. Write-through cache: writes go to DynamoDB AND DAX. Compatible with DynamoDB SDK (just change endpoint). Not suitable for strongly consistent reads.\n\n**Interview tip**: \"Choose DynamoDB over RDS when you need massive scale (millions of req/s), single-digit ms latency, or a schemaless model. Choose RDS/Aurora for complex queries, joins, transactions, or existing SQL workloads. The key DynamoDB design mistake is not modeling access patterns upfront — always start with 'what queries will I run?' and design your keys around those.\"",
+          "objectives": [
+            "Explain RDS Multi-AZ vs Read Replicas and when to use each",
+            "Describe Aurora's storage architecture and advantages",
+            "Design a DynamoDB table with composite key and GSI for given access patterns",
+            "Write DynamoDB queries using Java SDK v2",
+            "Explain when to use DynamoDB vs RDS"
+          ],
+          "activities": [
+            {
+              "description": "Given an e-commerce access pattern (get order by orderId, list all orders for a user, query orders by status), design the DynamoDB table schema: choose PK/SK, identify which access patterns need a GSI, and specify GSI projection.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Write Java code using DynamoDB SDK v2 to: (1) put an order item, (2) query all orders for a user sorted by orderId, (3) query the status GSI for all PENDING orders.",
+              "durationMinutes": 35
+            }
+          ],
+          "reviewQuestions": [
+            "Why can DynamoDB only filter by primary key in Query operations?:::DynamoDB is a distributed key-value store that partitions data by partition key. The Query operation only reads items within a single partition (same partition key value) and can filter by sort key range. This enables O(1) partition lookup. Scanning across all partitions (like a SQL full table scan) is expensive and slow on DynamoDB's distributed architecture. To query by a non-key attribute (e.g., status), you must create a GSI with that attribute as the partition key, which maintains a separate sorted index automatically.",
+            "What is the difference between RDS Multi-AZ and an Aurora Read Replica in terms of failover?:::RDS Multi-AZ maintains a single synchronous standby in another AZ. Failover is automatic (DNS cutover in ~1-2 minutes) but the standby cannot serve reads during normal operation. Aurora uses a different model: all replicas share the same underlying 6-copy distributed storage, so a replica promotion to primary is nearly instantaneous (seconds, not minutes) because there is no data to copy. Aurora also supports up to 15 read replicas versus RDS's 5.",
+            "What is a DynamoDB hot partition and how do you prevent it?:::A hot partition occurs when too many requests target the same partition key value, overwhelming that shard's capacity. Example: using user_id='admin' as PK where one super-admin account has vastly more activity than others. Prevention: (1) Use high-cardinality partition keys (UUID, userId with many distinct values). (2) Shard hot keys by appending a random suffix (userId#1, userId#2) and scatter-gather queries. (3) Use DAX to cache hot reads. (4) Use On-Demand capacity mode so AWS handles burst automatically."
+          ],
+          "successCriteria": "Can design a DynamoDB table for real-world access patterns with appropriate GSI, explain RDS Multi-AZ vs Read Replica trade-offs, and choose between relational and NoSQL databases for given requirements."
+        },
+        {
+          "sessionNumber": 6,
+          "title": "Networking: VPC — Subnets, Security, and Connectivity",
+          "content": "## VPC: Virtual Private Cloud\n\nA VPC is your private, logically isolated network within AWS. You control: IP ranges, subnets, route tables, gateways, and security.\n\n### Core Architecture\n\n```\nVPC: 10.0.0.0/16\n├── Public Subnet A  10.0.1.0/24  (us-east-1a)  → IGW\n├── Public Subnet B  10.0.2.0/24  (us-east-1b)  → IGW\n├── Private Subnet A 10.0.3.0/24  (us-east-1a)  → NAT-GW-A\n├── Private Subnet B 10.0.4.0/24  (us-east-1b)  → NAT-GW-B\n├── DB Subnet A      10.0.5.0/24  (us-east-1a)  → no internet\n└── DB Subnet B      10.0.6.0/24  (us-east-1b)  → no internet\n```\n\n**Rule**: DB instances in isolated subnets (no internet route). App servers in private subnets. Load balancers and bastion hosts in public subnets.\n\n### Internet Gateway and Route Tables\n\n```bash\n# Create VPC\nVPC_ID=$(aws ec2 create-vpc \\\n  --cidr-block 10.0.0.0/16 \\\n  --query Vpc.VpcId --output text)\n\n# Create Internet Gateway and attach\nIGW_ID=$(aws ec2 create-internet-gateway --query InternetGateway.InternetGatewayId --output text)\naws ec2 attach-internet-gateway --internet-gateway-id $IGW_ID --vpc-id $VPC_ID\n\n# Create public subnet\nPUB_SUBNET=$(aws ec2 create-subnet \\\n  --vpc-id $VPC_ID --cidr-block 10.0.1.0/24 \\\n  --availability-zone us-east-1a \\\n  --query Subnet.SubnetId --output text)\n\n# Create public route table with IGW route\nPUB_RT=$(aws ec2 create-route-table --vpc-id $VPC_ID --query RouteTable.RouteTableId --output text)\naws ec2 create-route --route-table-id $PUB_RT \\\n  --destination-cidr-block 0.0.0.0/0 \\\n  --gateway-id $IGW_ID\naws ec2 associate-route-table --route-table-id $PUB_RT --subnet-id $PUB_SUBNET\n```\n\n### NAT Gateway\n\nAllows private subnet instances to initiate outbound internet connections (package updates, API calls) without being reachable from the internet.\n\n```bash\n# Allocate EIP and create NAT Gateway in public subnet\nEIP=$(aws ec2 allocate-address --domain vpc --query AllocationId --output text)\nNAT_GW=$(aws ec2 create-nat-gateway \\\n  --subnet-id $PUB_SUBNET \\\n  --allocation-id $EIP \\\n  --query NatGateway.NatGatewayId --output text)\n\n# Private route table routes internet traffic to NAT GW\nPRIV_RT=$(aws ec2 create-route-table --vpc-id $VPC_ID --query RouteTable.RouteTableId --output text)\naws ec2 create-route --route-table-id $PRIV_RT \\\n  --destination-cidr-block 0.0.0.0/0 \\\n  --nat-gateway-id $NAT_GW\n```\n\n**Cost note**: NAT Gateway charges per hour + per GB. For HA, deploy one NAT Gateway per AZ — cross-AZ traffic incurs data transfer charges.\n\n### Security Groups vs Network ACLs\n\n| Feature | Security Group | Network ACL |\n|---------|---------------|-------------|\n| Level | Instance (ENI) | Subnet |\n| State | Stateful | Stateless |\n| Rules | Allow only | Allow + Deny |\n| Evaluation | All rules | In number order |\n| Default | Deny all in, allow all out | Allow all |\n\n**Stateful (SG)**: If you allow inbound port 8080, the response is automatically allowed out — no separate outbound rule needed.\n\n**Stateless (NACL)**: You must explicitly allow both the inbound request AND the outbound response (including ephemeral ports 1024-65535).\n\n```bash\n# Security Group: allow only ALB SG to reach app\naws ec2 authorize-security-group-ingress \\\n  --group-id sg-app \\\n  --protocol tcp --port 8080 \\\n  --source-group sg-alb\n\n# NACL: deny a specific malicious IP at subnet level\naws ec2 create-network-acl-entry \\\n  --network-acl-id acl-0abc \\\n  --rule-number 90 --protocol tcp \\\n  --rule-action deny \\\n  --cidr-block 203.0.113.0/24 \\\n  --port-range From=0,To=65535 \\\n  --ingress\n```\n\n### VPC Peering and Endpoints\n\n**VPC Peering**: Direct private routing between two VPCs (same or different accounts/regions). No transitive peering — A↔B and B↔C does NOT mean A↔C.\n\n**VPC Endpoints** — access AWS services privately without internet:\n- **Gateway Endpoint**: S3 and DynamoDB — free, added to route table\n- **Interface Endpoint** (PrivateLink): All other services — ENI in your subnet, hourly cost\n\n```bash\n# Create S3 Gateway Endpoint (free)\naws ec2 create-vpc-endpoint \\\n  --vpc-id $VPC_ID \\\n  --service-name com.amazonaws.us-east-1.s3 \\\n  --route-table-ids $PRIV_RT\n```\n\n### Java SDK v2: Describe VPC and Subnets\n\n```java\nimport software.amazon.awssdk.services.ec2.Ec2Client;\nimport software.amazon.awssdk.services.ec2.model.*;\n\npublic class VpcDemo {\n    public static void main(String[] args) {\n        try (Ec2Client ec2 = Ec2Client.create()) {\n            ec2.describeVpcs().vpcs().forEach(vpc ->\n                System.out.printf(\"VPC: %s  CIDR: %s  Default: %b%n\",\n                    vpc.vpcId(), vpc.cidrBlock(), vpc.isDefault()));\n\n            ec2.describeSubnets().subnets().forEach(s ->\n                System.out.printf(\"  Subnet: %s  %s  AZ: %s  Public: %b%n\",\n                    s.subnetId(), s.cidrBlock(), s.availabilityZone(), s.mapPublicIpOnLaunch()));\n        }\n    }\n}\n```\n\n**Interview tip**: When asked to design a secure 3-tier architecture, always place: ALB in public subnets, application servers in private subnets (access the internet via NAT GW), databases in isolated subnets with no route to NAT GW. Use Security Groups to enforce the principle of least privilege between layers: DB SG only accepts from App SG, App SG only accepts from ALB SG.",
+          "objectives": [
+            "Design a multi-AZ VPC with public, private, and isolated subnets",
+            "Configure Internet Gateway and NAT Gateway for the correct subnet types",
+            "Explain the difference between Security Groups and Network ACLs with examples",
+            "Set up VPC Endpoints to access S3 and DynamoDB privately",
+            "Describe when to use VPC Peering and its limitations"
+          ],
+          "activities": [
+            {
+              "description": "Using AWS CLI commands, create a VPC with a public and private subnet in two AZs. Add an IGW, NAT Gateway, and correct route tables. Verify by launching an instance in the private subnet and confirming it can reach the internet via NAT GW but is not directly reachable.",
+              "durationMinutes": 45
+            },
+            {
+              "description": "Design security group rules for a 3-tier app: (1) ALB SG: accept 443 from 0.0.0.0/0. (2) App SG: accept 8080 from ALB SG only. (3) DB SG: accept 5432 from App SG only. Write the AWS CLI commands for each.",
+              "durationMinutes": 20
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between a public subnet and a private subnet in AWS?:::A public subnet has a route in its route table directing 0.0.0.0/0 traffic to an Internet Gateway (IGW). Instances in a public subnet with a public IP can send and receive traffic from the internet directly. A private subnet has no route to an IGW — its 0.0.0.0/0 route (if any) points to a NAT Gateway, allowing outbound-only internet access. Instances in private subnets are not directly reachable from the internet.",
+            "Why must you add inbound AND outbound rules in a NACL when allowing web traffic, but only an inbound rule in a Security Group?:::Security Groups are stateful — they track connection state. If an inbound connection is allowed, the return traffic is automatically permitted regardless of outbound rules. NACLs are stateless — they evaluate each packet independently with no connection tracking. For a client connecting to port 80, you must allow: inbound TCP port 80 AND outbound TCP ephemeral ports 1024-65535 (the client's response port). Without the outbound ephemeral port rule, the response is dropped.",
+            "What are VPC Endpoints and why should you use them for S3 access from a private subnet?:::Without a VPC Endpoint, traffic from a private subnet to S3 goes out through the NAT Gateway to the public internet and back. This incurs NAT Gateway data processing charges and exposes S3 traffic to the public internet. A Gateway VPC Endpoint for S3 creates a private route in your route table that keeps S3 traffic within the AWS network — no NAT Gateway, no internet exposure, and no cost for the endpoint itself. Bucket policies can also require access only from your VPC Endpoint, preventing accidental public access."
+          ],
+          "successCriteria": "Can design a secure multi-AZ VPC from scratch with proper subnet segmentation, security group chaining, NAT Gateway, and VPC endpoints. Can explain Security Group vs NACL in an interview."
+        },
+        {
+          "sessionNumber": 7,
+          "title": "Messaging: SQS, SNS, and EventBridge",
+          "paretoJustification": "Decoupled messaging is core to every distributed AWS architecture. SQS, SNS, and EventBridge appear in almost every system-design interview involving AWS, and understanding their trade-offs is essential for senior-level discussions.",
+          "objectives": [
+            "Distinguish SQS Standard queues from FIFO queues and know when to use each",
+            "Implement the fanout pattern using SNS + SQS subscriptions",
+            "Configure dead-letter queues (DLQ) and understand redrive policies",
+            "Compare Kinesis Data Streams with SQS for streaming vs. queuing workloads",
+            "Build event-driven rules with EventBridge to route events between AWS services"
+          ],
+          "activities": [
+            {
+              "description": "Create a Standard SQS queue and a FIFO queue via CLI, send messages, and observe ordering guarantees",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Build a fanout architecture: one SNS topic subscribed to by two SQS queues (email and order-processing)",
+              "durationMinutes": 25
+            },
+            {
+              "description": "Attach a DLQ to a queue, deliberately poison messages, and inspect failed messages in the DLQ",
+              "durationMinutes": 15
+            },
+            {
+              "description": "Create an EventBridge rule that matches S3 PutObject events and routes them to a Lambda target",
+              "durationMinutes": 20
+            }
+          ],
+          "content": "## SQS: Simple Queue Service\n\nSQS is a fully managed message queue that decouples producers and consumers. Messages persist up to 14 days. Visibility timeout (default 30 s) hides a message from other consumers while one consumer is processing it — if processing fails, the message reappears.\n\n```bash\n# Create a Standard queue\naws sqs create-queue --queue-name orders\n\n# Create a FIFO queue (name MUST end in .fifo)\naws sqs create-queue \\\n  --queue-name orders.fifo \\\n  --attributes FifoQueue=true,ContentBasedDeduplication=true\n\n# Send a message\naws sqs send-message \\\n  --queue-url https://sqs.us-east-1.amazonaws.com/123456789/orders \\\n  --message-body '{\"orderId\": \"ORD-001\", \"amount\": 49.99}'\n\n# Receive messages (long-polling, waits up to 20 s)\naws sqs receive-message \\\n  --queue-url https://sqs.us-east-1.amazonaws.com/123456789/orders \\\n  --wait-time-seconds 20 \\\n  --max-number-of-messages 10\n\n# Delete a processed message\naws sqs delete-message \\\n  --queue-url https://sqs.us-east-1.amazonaws.com/123456789/orders \\\n  --receipt-handle \"<ReceiptHandle from receive response>\"\n```\n\n### Standard vs. FIFO Queues\n\n| Feature | Standard | FIFO |\n|---|---|---|\n| Throughput | Unlimited (nearly) | 300 msg/s (3000 with batching) |\n| Ordering | Best-effort | Strict FIFO within a group |\n| Delivery | At-least-once | Exactly-once |\n| Use case | High-throughput, order-tolerant | Financial transactions, inventory |\n\n### Dead-Letter Queues (DLQ)\n\nA DLQ captures messages that fail processing after N attempts (maxReceiveCount). Both Standard and FIFO queues support DLQs.\n\n```bash\n# Create DLQ first\naws sqs create-queue --queue-name orders-dlq\n\n# Get DLQ ARN\nDLQ_ARN=$(aws sqs get-queue-attributes \\\n  --queue-url https://sqs.us-east-1.amazonaws.com/123456789/orders-dlq \\\n  --attribute-names QueueArn \\\n  --query Attributes.QueueArn --output text)\n\n# Attach DLQ with redrive policy (max 3 retries)\naws sqs set-queue-attributes \\\n  --queue-url https://sqs.us-east-1.amazonaws.com/123456789/orders \\\n  --attributes \"{\\\"RedrivePolicy\\\":\\\"{\\\\\\\"deadLetterTargetArn\\\\\\\":\\\\\\\"$DLQ_ARN\\\\\\\",\\\\\\\"maxReceiveCount\\\\\\\":\\\\\\\"3\\\\\\\"}\\\"}\" \n```\n\n## SNS: Simple Notification Service — Fanout Pattern\n\nSNS is a pub/sub service. Publishers send to a topic; subscribers (SQS, Lambda, HTTP, email, SMS) all receive a copy. This fanout pattern decouples the publisher from N consumers.\n\n```bash\n# Create SNS topic\naws sns create-topic --name order-events\n\n# Subscribe an SQS queue to the topic\naws sns subscribe \\\n  --topic-arn arn:aws:sns:us-east-1:123456789:order-events \\\n  --protocol sqs \\\n  --notification-endpoint arn:aws:sqs:us-east-1:123456789:orders\n\n# Publish an event\naws sns publish \\\n  --topic-arn arn:aws:sns:us-east-1:123456789:order-events \\\n  --message '{\"orderId\": \"ORD-001\"}' \\\n  --subject \"NewOrder\"\n```\n\n**Fanout pattern:** `OrderService → SNS topic → [SQS inventory queue, SQS email queue, SQS analytics queue]`. Each queue is processed by a separate service independently.\n\n## EventBridge\n\nEventBridge is a serverless event bus. It routes events from AWS services, SaaS apps, or custom applications using JSON-pattern rules.\n\n```bash\n# Create a custom event bus\naws events create-event-bus --name my-app-bus\n\n# Create a rule: match S3 PutObject on a specific bucket\naws events put-rule \\\n  --name s3-upload-rule \\\n  --event-bus-name my-app-bus \\\n  --event-pattern '{\n    \"source\": [\"aws.s3\"],\n    \"detail-type\": [\"Object Created\"],\n    \"detail\": { \"bucket\": { \"name\": [\"my-uploads-bucket\"] } }\n  }' \\\n  --state ENABLED\n\n# Add Lambda as target\naws events put-targets \\\n  --rule s3-upload-rule \\\n  --event-bus-name my-app-bus \\\n  --targets '[{\"Id\": \"1\", \"Arn\": \"arn:aws:lambda:us-east-1:123456789:function:ProcessUpload\"}]'\n```\n\n## Kinesis vs SQS\n\n| Aspect | SQS | Kinesis Data Streams |\n|---|---|---|\n| Model | Queue (each message consumed once) | Log (replay from any offset) |\n| Consumers | One consumer per message | Multiple consumers, each reads full stream |\n| Retention | Up to 14 days | 1–365 days |\n| Ordering | FIFO only with FIFO queue | Per-shard ordering |\n| Use case | Task queues, work distribution | Real-time analytics, event sourcing |\n\n**Rule of thumb:** Use SQS when you want messages consumed once by one worker. Use Kinesis when multiple services need to independently read the same stream (e.g., analytics + ML + archival simultaneously).",
+          "reviewQuestions": [
+            "What is the difference between SQS Standard and FIFO queues?:::Standard queues offer unlimited throughput and at-least-once, best-effort ordering. FIFO queues guarantee exactly-once delivery and strict FIFO ordering within a message group, but are capped at 300 msg/s (3,000 with batching). Use FIFO for financial transactions or any case where duplicate or out-of-order messages cause data corruption.",
+            "Explain the SQS visibility timeout and what happens if a consumer crashes.:::When a consumer receives a message, SQS hides it for the visibility timeout duration (default 30 s). If the consumer deletes the message before the timeout, processing is complete. If the consumer crashes or takes longer than the timeout, the message reappears in the queue and another consumer can pick it up. This guarantees at-least-once delivery.",
+            "What is a dead-letter queue and when do messages end up there?:::A DLQ is a separate SQS queue that receives messages that failed processing more than maxReceiveCount times. After N failed attempts (message reappears N times without being deleted), SQS moves the message to the DLQ. You then inspect and diagnose why those messages failed without losing them.",
+            "Describe the fanout pattern using SNS and SQS.:::A single SNS topic has multiple SQS queues as subscribers. When a publisher sends one message to the SNS topic, SNS delivers a copy to every subscribed queue simultaneously. Each queue is independently processed by its own consumer service. This decouples the publisher from knowing how many consumers exist.",
+            "When would you choose Kinesis Data Streams over SQS?:::Choose Kinesis when multiple independent consumers need to read the same data stream (e.g., a real-time dashboard AND a machine learning pipeline both consuming the same click-stream events). Kinesis is also better when you need to replay historical events or maintain strict per-shard ordering at high throughput. SQS is better for simple work-queue patterns where each task must be processed exactly once by one worker.",
+            "What is EventBridge and how does it differ from SNS?:::EventBridge is a serverless event bus that routes events using JSON content-based filtering rules. Unlike SNS (which is push-based to pre-configured subscribers), EventBridge supports sophisticated pattern matching on event content, built-in integration with 200+ AWS services as event sources, schema registry, and event replay. EventBridge is preferred for building loosely coupled event-driven architectures across services."
+          ],
+          "successCriteria": "You can explain Standard vs FIFO trade-offs, draw a fanout architecture with SNS+SQS, configure a DLQ with redrive policy, and articulate when to use Kinesis vs SQS and EventBridge vs SNS."
+        },
+        {
+          "sessionNumber": 8,
+          "title": "Containers: ECS and EKS",
+          "paretoJustification": "Containers are the dominant deployment unit in AWS. ECS is used at companies of all sizes; EKS is standard for teams already on Kubernetes. Both appear heavily in AWS Solutions Architect and DevOps interviews.",
+          "objectives": [
+            "Write an ECS task definition with container definitions, CPU/memory limits, and environment variables",
+            "Understand the difference between Fargate and EC2 launch types",
+            "Create an ECS service with desired count, load balancer integration, and auto-scaling",
+            "Understand EKS cluster components: control plane, node groups, pods, and services",
+            "Use ECR to build, tag, push, and pull container images"
+          ],
+          "activities": [
+            {
+              "description": "Build a Docker image, push it to ECR, and verify the image appears in the repository",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Register an ECS task definition via CLI and launch a standalone Fargate task",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Create an ECS service with 2 desired tasks behind an Application Load Balancer",
+              "durationMinutes": 25
+            },
+            {
+              "description": "Review EKS core concepts: kubectl commands, deployment YAML, service types (ClusterIP, NodePort, LoadBalancer)",
+              "durationMinutes": 15
+            }
+          ],
+          "content": "## ECR: Elastic Container Registry\n\nECR is a fully managed Docker-compatible container registry. Each AWS account gets a private registry; you create repositories per image.\n\n```bash\n# Authenticate Docker to ECR\naws ecr get-login-password --region us-east-1 | \\\n  docker login --username AWS \\\n  --password-stdin 123456789.dkr.ecr.us-east-1.amazonaws.com\n\n# Create a repository\naws ecr create-repository --repository-name my-api\n\n# Build, tag, and push\ndocker build -t my-api .\ndocker tag my-api:latest \\\n  123456789.dkr.ecr.us-east-1.amazonaws.com/my-api:latest\ndocker push \\\n  123456789.dkr.ecr.us-east-1.amazonaws.com/my-api:latest\n```\n\n## ECS: Elastic Container Service\n\n### Core Concepts\n\n- **Cluster**: Logical grouping of tasks/services (Fargate or EC2)\n- **Task Definition**: Blueprint — image, CPU, memory, ports, env vars, IAM role\n- **Task**: Running instance of a task definition (analogous to a pod)\n- **Service**: Maintains N running tasks, integrates with ALB, handles rolling updates\n\n### Task Definition\n\n```bash\n# task-definition.json\ncat > task-definition.json << 'EOF'\n{\n  \"family\": \"my-api\",\n  \"networkMode\": \"awsvpc\",\n  \"requiresCompatibilities\": [\"FARGATE\"],\n  \"cpu\": \"256\",\n  \"memory\": \"512\",\n  \"executionRoleArn\": \"arn:aws:iam::123456789:role/ecsTaskExecutionRole\",\n  \"containerDefinitions\": [\n    {\n      \"name\": \"my-api\",\n      \"image\": \"123456789.dkr.ecr.us-east-1.amazonaws.com/my-api:latest\",\n      \"portMappings\": [{\"containerPort\": 8080, \"protocol\": \"tcp\"}],\n      \"environment\": [\n        {\"name\": \"ENV\", \"value\": \"production\"},\n        {\"name\": \"PORT\", \"value\": \"8080\"}\n      ],\n      \"logConfiguration\": {\n        \"logDriver\": \"awslogs\",\n        \"options\": {\n          \"awslogs-group\": \"/ecs/my-api\",\n          \"awslogs-region\": \"us-east-1\",\n          \"awslogs-stream-prefix\": \"ecs\"\n        }\n      },\n      \"essential\": true\n    }\n  ]\n}\nEOF\n\n# Register the task definition\naws ecs register-task-definition \\\n  --cli-input-json file://task-definition.json\n```\n\n### Fargate vs EC2 Launch Type\n\n| Aspect | Fargate | EC2 |\n|---|---|---|\n| Server management | None — AWS manages | You manage EC2 instances |\n| Pricing | Per vCPU/memory-second | Per EC2 instance-hour |\n| Density control | None | Full control |\n| Use case | Most workloads, simplicity | GPU workloads, custom AMIs, cost optimization at scale |\n\n### ECS Service\n\n```bash\n# Create an ECS cluster\naws ecs create-cluster --cluster-name production\n\n# Create a service with 2 tasks\naws ecs create-service \\\n  --cluster production \\\n  --service-name my-api-service \\\n  --task-definition my-api:1 \\\n  --desired-count 2 \\\n  --launch-type FARGATE \\\n  --network-configuration \\\n    \"awsvpcConfiguration={subnets=[subnet-abc123,subnet-def456],securityGroups=[sg-xyz789],assignPublicIp=ENABLED}\"\n\n# Update service (rolling deployment)\naws ecs update-service \\\n  --cluster production \\\n  --service my-api-service \\\n  --task-definition my-api:2\n\n# Check deployment status\naws ecs describe-services \\\n  --cluster production \\\n  --services my-api-service \\\n  --query 'services[0].deployments'\n```\n\n## EKS: Elastic Kubernetes Service\n\nEKS is a managed Kubernetes control plane. AWS runs etcd and the API server; you manage worker node groups (EC2 or Fargate).\n\n```bash\n# Create cluster (takes ~15 min)\neksctl create cluster \\\n  --name my-cluster \\\n  --region us-east-1 \\\n  --nodegroup-name workers \\\n  --node-type t3.medium \\\n  --nodes 3\n\n# Update kubeconfig\naws eks update-kubeconfig \\\n  --region us-east-1 \\\n  --name my-cluster\n\n# Deploy an application\nkubectl apply -f deployment.yaml\nkubectl get pods -n default\nkubectl get services\n```\n\n### Kubernetes Deployment YAML (for reference)\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: my-api\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: my-api\n  template:\n    metadata:\n      labels:\n        app: my-api\n    spec:\n      containers:\n      - name: my-api\n        image: 123456789.dkr.ecr.us-east-1.amazonaws.com/my-api:latest\n        ports:\n        - containerPort: 8080\n        resources:\n          requests:\n            cpu: \"250m\"\n            memory: \"256Mi\"\n          limits:\n            cpu: \"500m\"\n            memory: \"512Mi\"\n```\n\n### ECS vs EKS Choice\n\n- **ECS**: Simpler, AWS-native, less operational overhead. Good for teams not already using Kubernetes.\n- **EKS**: Full Kubernetes API compatibility, better for multi-cloud portability, advanced scheduling, or existing K8s expertise.",
+          "reviewQuestions": [
+            "What is the difference between an ECS task and an ECS service?:::A task is a single running instance of a task definition (like a single pod). A service is a long-running construct that ensures N tasks are always running, restarts failed tasks, integrates with load balancers, and orchestrates rolling deployments when the task definition is updated.",
+            "Compare Fargate and EC2 launch types for ECS.:::Fargate is serverless — AWS manages the underlying infrastructure. You specify CPU and memory per task and pay per second of usage. No EC2 instances to patch or right-size. EC2 launch type requires you to manage the EC2 instances in the cluster but gives more control (custom AMIs, GPU support, reserved instance pricing, bin-packing multiple tasks per host for cost efficiency at scale).",
+            "What does an ECS task definition contain?:::A task definition is a JSON blueprint specifying: container image(s) and version, CPU and memory allocation, port mappings, environment variables, secrets references (from Secrets Manager or SSM), IAM execution role, logging configuration (e.g., CloudWatch Logs), and network mode (awsvpc is required for Fargate).",
+            "What is ECR and why would you use it instead of Docker Hub?:::ECR is AWS's managed container registry. Benefits over Docker Hub: images are stored in your own AWS account (private by default), IAM controls access, images can be pulled from ECS/EKS without extra credentials (using execution role), vulnerability scanning is built in, and there is no egress cost between ECR and ECS/EKS in the same region.",
+            "What are the main Kubernetes resource types you need to know for EKS?:::Pod (smallest deployable unit, one or more containers), Deployment (manages replica sets, rolling updates), Service (stable network endpoint for pods — ClusterIP, NodePort, LoadBalancer), ConfigMap (non-sensitive config), Secret (sensitive config), Ingress (HTTP routing rules), and Namespace (logical isolation). On EKS, a LoadBalancer service type automatically provisions an AWS ELB.",
+            "How does ECS handle rolling deployments?:::When you update a service with a new task definition revision, ECS starts new tasks with the new version and, once healthy (passing load balancer health checks), terminates old tasks. You control the pace with minimumHealthyPercent (default 100) and maximumPercent (default 200). A 100/200 setting means ECS can double capacity during deployment and will not go below current desired count."
+          ],
+          "successCriteria": "You can write an ECS task definition, explain Fargate vs EC2 trade-offs, describe how ECS services maintain availability during deployments, and know when to choose ECS vs EKS."
+        },
+        {
+          "sessionNumber": 9,
+          "title": "DevOps: CloudFormation and CI/CD Pipelines",
+          "paretoJustification": "Infrastructure as Code and CI/CD pipelines are core DevOps competencies expected in any AWS role. CloudFormation and the Code* suite are the native AWS stack and appear in every DevOps interview.",
+          "objectives": [
+            "Write a CloudFormation template with parameters, resources, and outputs",
+            "Understand stacks, change sets, and stack rollback behavior",
+            "Know the AWS CDK workflow (synth, diff, deploy) and how it generates CloudFormation",
+            "Build a CodePipeline with Source (CodeCommit/GitHub), Build (CodeBuild), and Deploy (CodeDeploy) stages",
+            "Configure a CodeBuild buildspec.yml for a Node.js or Java build"
+          ],
+          "activities": [
+            {
+              "description": "Write a CloudFormation template that provisions an S3 bucket with versioning and a lifecycle rule, deploy with change sets",
+              "durationMinutes": 25
+            },
+            {
+              "description": "Create a CodeBuild project with a buildspec.yml that runs tests and produces an artifact",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Assemble a three-stage CodePipeline (Source → Build → Deploy) and trigger it by pushing code",
+              "durationMinutes": 25
+            },
+            {
+              "description": "Explore AWS CDK: initialize a project, define an S3 bucket in TypeScript, run cdk synth to view generated CloudFormation",
+              "durationMinutes": 15
+            }
+          ],
+          "content": "## CloudFormation\n\nCloudFormation provisions and manages AWS resources using declarative JSON or YAML templates. The collection of resources deployed together is called a **stack**.\n\n### Template Anatomy\n\n```yaml\n# cloudformation/api-stack.yaml\nAWSTemplateFormatVersion: '2010-09-09'\nDescription: API service stack\n\nParameters:\n  Environment:\n    Type: String\n    AllowedValues: [dev, staging, prod]\n    Default: dev\n  InstanceType:\n    Type: String\n    Default: t3.micro\n\nResources:\n  # S3 bucket for artifacts\n  ArtifactBucket:\n    Type: AWS::S3::Bucket\n    Properties:\n      BucketName: !Sub 'artifacts-${Environment}-${AWS::AccountId}'\n      VersioningConfiguration:\n        Status: Enabled\n      LifecycleConfiguration:\n        Rules:\n          - Id: DeleteOldVersions\n            Status: Enabled\n            NoncurrentVersionExpirationInDays: 30\n\n  # DynamoDB table\n  OrdersTable:\n    Type: AWS::DynamoDB::Table\n    Properties:\n      TableName: !Sub 'orders-${Environment}'\n      BillingMode: PAY_PER_REQUEST\n      AttributeDefinitions:\n        - AttributeName: orderId\n          AttributeType: S\n      KeySchema:\n        - AttributeName: orderId\n          KeyType: HASH\n\nOutputs:\n  BucketName:\n    Value: !Ref ArtifactBucket\n    Export:\n      Name: !Sub '${AWS::StackName}-BucketName'\n  TableArn:\n    Value: !GetAtt OrdersTable.Arn\n```\n\n### CLI Operations\n\n```bash\n# Validate template syntax\naws cloudformation validate-template \\\n  --template-body file://api-stack.yaml\n\n# Create a change set (preview before deploying)\naws cloudformation create-change-set \\\n  --stack-name api-production \\\n  --template-body file://api-stack.yaml \\\n  --parameters ParameterKey=Environment,ParameterValue=prod \\\n  --change-set-name update-v2\n\n# Review the change set\naws cloudformation describe-change-set \\\n  --stack-name api-production \\\n  --change-set-name update-v2\n\n# Execute the change set\naws cloudformation execute-change-set \\\n  --stack-name api-production \\\n  --change-set-name update-v2\n\n# Deploy shorthand (create or update)\naws cloudformation deploy \\\n  --template-file api-stack.yaml \\\n  --stack-name api-production \\\n  --parameter-overrides Environment=prod \\\n  --capabilities CAPABILITY_NAMED_IAM\n\n# Delete a stack\naws cloudformation delete-stack --stack-name api-production\n```\n\n### Stack Rollback\n\nIf any resource creation fails during a deploy, CloudFormation automatically rolls back the entire stack to its last known good state. You can disable rollback for debugging: `--on-failure DO_NOTHING`.\n\n## AWS CDK\n\nCDK lets you define infrastructure in TypeScript, Python, Java, or Go. `cdk synth` compiles your code to a CloudFormation template.\n\n```typescript\n// lib/my-stack.ts\nimport * as cdk from 'aws-cdk-lib';\nimport * as s3 from 'aws-cdk-lib/aws-s3';\nimport * as lambda from 'aws-cdk-lib/aws-lambda';\n\nexport class MyStack extends cdk.Stack {\n  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {\n    super(scope, id, props);\n\n    const bucket = new s3.Bucket(this, 'ArtifactBucket', {\n      versioned: true,\n      removalPolicy: cdk.RemovalPolicy.DESTROY,\n      lifecycleRules: [{\n        noncurrentVersionExpiration: cdk.Duration.days(30),\n      }],\n    });\n\n    const fn = new lambda.Function(this, 'ProcessorFn', {\n      runtime: lambda.Runtime.NODEJS_20_X,\n      handler: 'index.handler',\n      code: lambda.Code.fromAsset('lambda'),\n      environment: { BUCKET: bucket.bucketName },\n    });\n\n    bucket.grantReadWrite(fn); // Adds IAM policy automatically\n  }\n}\n```\n\n```bash\nnpx cdk synth    # Generate CloudFormation template\nnpx cdk diff     # Show what will change\nnpx cdk deploy   # Deploy the stack\nnpx cdk destroy  # Delete the stack\n```\n\n## CodePipeline + CodeBuild + CodeDeploy\n\n### buildspec.yml (CodeBuild)\n\n```yaml\n# buildspec.yml — placed at root of repository\nversion: 0.2\n\nphases:\n  install:\n    runtime-versions:\n      nodejs: 20\n    commands:\n      - npm ci\n  pre_build:\n    commands:\n      - echo Running tests...\n      - npm test\n  build:\n    commands:\n      - npm run build\n      - echo Build completed\n  post_build:\n    commands:\n      - echo Packaging artifact...\n\nartifacts:\n  files:\n    - '**/*'\n  base-directory: dist\n\ncache:\n  paths:\n    - node_modules/**/*\n```\n\n### Create a CodePipeline via CLI\n\n```bash\n# Create CodeBuild project\naws codebuild create-project \\\n  --name my-api-build \\\n  --source '{\"type\": \"CODEPIPELINE\"}' \\\n  --artifacts '{\"type\": \"CODEPIPELINE\"}' \\\n  --environment '{\"type\": \"LINUX_CONTAINER\", \"computeType\": \"BUILD_GENERAL1_SMALL\", \"image\": \"aws/codebuild/standard:7.0\"}' \\\n  --service-role arn:aws:iam::123456789:role/CodeBuildRole\n\n# Pipelines are most easily created via CloudFormation or CDK\n# but the pipeline structure has 3 stages:\n# Stage 1 — Source: GitHub/CodeCommit triggers on push\n# Stage 2 — Build: CodeBuild runs buildspec.yml\n# Stage 3 — Deploy: CodeDeploy pushes to ECS/EC2/Lambda\n```\n\n**CodeDeploy deployment strategies:**\n- **AllAtOnce**: Fastest, zero capacity during deployment\n- **HalfAtATime**: 50% capacity maintained\n- **OneAtATime**: Slowest, safest (zero downtime)\n- **Canary10Percent5Minutes**: Shift 10% traffic, wait 5 min, then 100%",
+          "reviewQuestions": [
+            "What is a CloudFormation change set and why use one?:::A change set is a preview of the changes CloudFormation will make to a running stack before you execute them. You create a change set, review which resources will be Added, Modified, or Removed, and only then execute it. This prevents accidental destructive changes, especially on production stacks where a resource replacement would cause downtime or data loss.",
+            "What does CAPABILITY_NAMED_IAM mean in CloudFormation deployments?:::CloudFormation requires explicit acknowledgment when a template creates or modifies IAM resources (roles, policies) that are named. Passing --capabilities CAPABILITY_NAMED_IAM tells CloudFormation you understand the security implications and consent to creating named IAM resources. Without it, the deploy fails with InsufficientCapabilitiesException.",
+            "Explain the AWS CDK workflow from code to deployed AWS resources.:::You write infrastructure in a typed language (e.g., TypeScript). `cdk synth` compiles it to a CloudFormation template and outputs it to the `cdk.out/` directory. `cdk diff` compares the synthesized template against the currently deployed stack and shows what will change. `cdk deploy` uploads the template and calls CloudFormation to apply the changes. CDK also handles asset bundling (e.g., Lambda zip files) automatically.",
+            "What is a buildspec.yml and what phases does CodeBuild execute?:::buildspec.yml is a YAML file at the repository root (or specified separately) that tells CodeBuild how to build your project. Phases are: install (install runtimes/tools), pre_build (pre-build steps like login to ECR, run linters), build (the actual compilation and testing), post_build (packaging, tagging). The artifacts section specifies which files to pass to the next pipeline stage.",
+            "What is the difference between CodeBuild and CodeDeploy?:::CodeBuild is a build and test service — it compiles source code, runs tests, and produces artifacts (e.g., a Docker image or a zip file). CodeDeploy is a deployment service — it takes the built artifact and deploys it to target compute (EC2 instances, ECS services, Lambda functions). They are separate concerns deliberately: you could use GitHub Actions for build and CodeDeploy for deployment.",
+            "How does CloudFormation handle rollback on deployment failure?:::If a resource fails to create during a stack create or update, CloudFormation rolls back all changes in that operation to restore the stack to its previous stable state. For a new stack creation failure, the stack is deleted entirely. You can inspect the Events tab in the console to see the specific resource and error that caused the failure. Using --on-failure DO_NOTHING during a create lets you inspect the partial state for debugging."
+          ],
+          "successCriteria": "You can write a valid CloudFormation template with parameters and outputs, explain change sets, describe the CDK synth-diff-deploy workflow, and assemble a CodePipeline with proper buildspec.yml phases."
+        },
+        {
+          "sessionNumber": 10,
+          "title": "Security: KMS, WAF, Shield, and IAM Deep Dive",
+          "paretoJustification": "Security is non-negotiable in AWS. KMS, IAM policies, WAF, and GuardDuty are the most commonly tested security services in AWS certifications and interviews, and understanding the shared responsibility model is foundational.",
+          "objectives": [
+            "Manage KMS keys (CMK creation, key rotation, key policies vs. IAM policies)",
+            "Use Secrets Manager to store and auto-rotate database credentials",
+            "Write IAM policies with least-privilege using condition keys",
+            "Configure WAF rules to block SQL injection and rate-limit by IP",
+            "Understand Shield Standard vs. Advanced and GuardDuty threat detection"
+          ],
+          "activities": [
+            {
+              "description": "Create a KMS CMK, encrypt/decrypt a file, and inspect the key policy to understand who can administer vs. use the key",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Store a database password in Secrets Manager, retrieve it via CLI, and observe automatic rotation configuration",
+              "durationMinutes": 15
+            },
+            {
+              "description": "Write an IAM policy that allows S3 read access only from a specific VPC endpoint, test with aws iam simulate-principal-policy",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Create a WAF Web ACL with AWS Managed Rules (AWSManagedRulesCommonRuleSet) and attach it to an ALB",
+              "durationMinutes": 20
+            }
+          ],
+          "content": "## KMS: Key Management Service\n\nKMS manages encryption keys. Customer Managed Keys (CMKs) give you full control: key policy, rotation, and audit via CloudTrail.\n\n```bash\n# Create a symmetric CMK\naws kms create-key \\\n  --description \"Production data encryption key\" \\\n  --key-usage ENCRYPT_DECRYPT \\\n  --origin AWS_KMS\n\n# Create a human-readable alias\naws kms create-alias \\\n  --alias-name alias/prod-data-key \\\n  --target-key-id <key-id>\n\n# Encrypt a file\naws kms encrypt \\\n  --key-id alias/prod-data-key \\\n  --plaintext fileb://secret.txt \\\n  --query CiphertextBlob \\\n  --output text | base64 --decode > secret.enc\n\n# Decrypt\naws kms decrypt \\\n  --ciphertext-blob fileb://secret.enc \\\n  --query Plaintext \\\n  --output text | base64 --decode\n\n# Enable automatic annual key rotation\naws kms enable-key-rotation --key-id alias/prod-data-key\n```\n\n### Key Policy vs IAM Policy\n\nKMS uses a dual-authorization model. **Both** must allow the action:\n- **Key policy** (resource-based): controls who can administer and use the key\n- **IAM policy** (identity-based): the user/role must also have kms:Decrypt in their IAM policy\n\nIf the key policy grants access to root (`arn:aws:iam::ACCOUNT:root`), then IAM policies in that account can grant key usage. If the key policy restricts to specific principals, those restrictions override IAM policies.\n\n## Secrets Manager\n\nSecrets Manager stores credentials, API keys, and tokens with built-in rotation.\n\n```bash\n# Store a database secret\naws secretsmanager create-secret \\\n  --name prod/myapp/db-password \\\n  --description \"RDS master password\" \\\n  --secret-string '{\"username\":\"admin\",\"password\":\"s3cr3t!\"}'\n\n# Retrieve at runtime (in app startup)\nSECRET=$(aws secretsmanager get-secret-value \\\n  --secret-id prod/myapp/db-password \\\n  --query SecretString --output text)\nDB_PASS=$(echo $SECRET | python3 -c \"import sys,json; print(json.load(sys.stdin)['password'])\")\n\n# Enable auto-rotation (Lambda rotator for RDS)\naws secretsmanager rotate-secret \\\n  --secret-id prod/myapp/db-password \\\n  --rotation-lambda-arn arn:aws:lambda:us-east-1:123456789:function:SecretsManagerRDSRotator \\\n  --rotation-rules AutomaticallyAfterDays=30\n```\n\n## IAM: Least-Privilege Policies\n\n```json\n// Least-privilege: S3 read only from specific VPC endpoint\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\"s3:GetObject\", \"s3:ListBucket\"],\n      \"Resource\": [\n        \"arn:aws:s3:::my-secure-bucket\",\n        \"arn:aws:s3:::my-secure-bucket/*\"\n      ],\n      \"Condition\": {\n        \"StringEquals\": {\n          \"aws:SourceVpce\": \"vpce-0123456789abcdef0\"\n        }\n      }\n    }\n  ]\n}\n```\n\n```bash\n# Simulate policy evaluation\naws iam simulate-principal-policy \\\n  --policy-source-arn arn:aws:iam::123456789:role/MyAppRole \\\n  --action-names s3:GetObject \\\n  --resource-arns arn:aws:s3:::my-secure-bucket/data.csv\n\n# Common IAM best practices\n# 1. Never use root account credentials\n# 2. Require MFA for console access\n# 3. Use roles for EC2/Lambda (not access keys on instances)\n# 4. Use IAM Access Analyzer to find overly permissive policies\naws accessanalyzer create-analyzer \\\n  --analyzer-name prod-analyzer \\\n  --type ACCOUNT\n```\n\n## WAF: Web Application Firewall\n\nWAF sits in front of ALB, CloudFront, or API Gateway. It evaluates HTTP requests against rules and either allows or blocks them.\n\n```bash\n# Create a WAF Web ACL\naws wafv2 create-web-acl \\\n  --name my-web-acl \\\n  --scope REGIONAL \\\n  --default-action Allow={} \\\n  --rules '[\n    {\n      \"Name\": \"AWSManagedRulesCommonRuleSet\",\n      \"Priority\": 1,\n      \"OverrideAction\": {\"None\": {}},\n      \"Statement\": {\n        \"ManagedRuleGroupStatement\": {\n          \"VendorName\": \"AWS\",\n          \"Name\": \"AWSManagedRulesCommonRuleSet\"\n        }\n      },\n      \"VisibilityConfig\": {\n        \"SampledRequestsEnabled\": true,\n        \"CloudWatchMetricsEnabled\": true,\n        \"MetricName\": \"CommonRuleSetMetric\"\n      }\n    }\n  ]' \\\n  --visibility-config SampledRequestsEnabled=true,CloudWatchMetricsEnabled=true,MetricName=my-web-acl\n\n# Associate Web ACL with ALB\naws wafv2 associate-web-acl \\\n  --web-acl-arn arn:aws:wafv2:us-east-1:123456789:regional/webacl/my-web-acl/xxx \\\n  --resource-arn arn:aws:elasticloadbalancing:us-east-1:123456789:loadbalancer/app/my-alb/xxx\n```\n\n## Shield and GuardDuty\n\n**Shield Standard** (free, automatic): protects all AWS resources against common layer 3/4 DDoS attacks (SYN floods, UDP reflection).\n\n**Shield Advanced** ($3,000/month): adds layer 7 DDoS protection, 24/7 DRT (DDoS Response Team) access, financial protection (cost credits during attack), and real-time attack visibility.\n\n**GuardDuty**: ML-based threat detection. Analyzes CloudTrail, VPC Flow Logs, and DNS logs to detect unusual API calls, compromised IAM credentials, crypto-mining, and port scanning.\n\n```bash\n# Enable GuardDuty\naws guardduty create-detector --enable\n\n# List findings\naws guardduty list-findings \\\n  --detector-id <detector-id> \\\n  --finding-criteria '{\"Criterion\":{\"severity\":{\"Gte\":7}}}'\n```",
+          "reviewQuestions": [
+            "What is the difference between a KMS key policy and an IAM policy, and which takes precedence?:::Both must grant the action for it to succeed — KMS uses a dual-authorization model. The key policy is a resource-based policy attached to the KMS key. The IAM policy is attached to the identity (user/role). If the key policy grants kms:Decrypt to the AWS account root, then IAM policies in that account can grant usage. If the key policy restricts access to specific principals only, those restrictions cannot be overridden by IAM policies.",
+            "Why should you use Secrets Manager instead of environment variables for database passwords?:::Environment variables are visible in process listings, crash dumps, and logs. They do not rotate automatically and require redeployment to change. Secrets Manager stores secrets encrypted (using KMS), provides fine-grained IAM access control, supports automatic rotation (a Lambda function rotates the secret and updates the database), and provides an audit trail via CloudTrail of every access. Applications retrieve the current secret at runtime without a redeploy.",
+            "What are IAM condition keys and give a real-world example?:::Condition keys add context-based restrictions to IAM policy statements. Examples: aws:SourceIp (restrict to specific IP ranges), aws:SourceVpce (restrict to a VPC endpoint), aws:RequestedRegion (restrict to specific regions), aws:MultiFactorAuthPresent (require MFA), s3:prefix (restrict S3 access to specific prefixes). Real example: deny all S3 PutObject unless aws:MultiFactorAuthPresent is true — protecting against accidental or malicious writes.",
+            "What does AWS WAF protect against that Shield does not?:::Shield protects against network-layer DDoS (layer 3/4) — volumetric attacks like SYN floods that try to overwhelm network capacity. WAF protects at layer 7 (HTTP/HTTPS) — it inspects HTTP request content to block SQL injection, cross-site scripting (XSS), bad bots, malicious user agents, and rate-based attacks (too many requests from one IP). Shield Advanced includes some layer 7 protection but WAF provides the detailed rule-based control.",
+            "How does GuardDuty detect threats without installing agents?:::GuardDuty is agentless. It ingests and analyzes three data sources already available in AWS: AWS CloudTrail event logs (API calls made in your account), VPC Flow Logs (network traffic metadata — who talked to whom, port, bytes), and DNS query logs (DNS resolutions made by EC2 instances). It applies machine learning and threat intelligence to detect anomalies like API calls from known malicious IPs, unusual IAM usage patterns, or DNS queries to known command-and-control domains.",
+            "What is the AWS Shared Responsibility Model?:::AWS is responsible for security OF the cloud — physical hardware, host OS, hypervisor, network infrastructure, and the managed service itself. The customer is responsible for security IN the cloud — the guest OS on EC2, application code, IAM permissions, data encryption (at rest and in transit), security group rules, and network ACL configuration. For managed services like RDS, AWS handles the database engine patching; you handle encryption and access control."
+          ],
+          "successCriteria": "You can explain the KMS dual-authorization model, describe Secrets Manager's rotation mechanism, write a least-privilege IAM policy with condition keys, and articulate the difference between WAF, Shield, and GuardDuty."
+        },
+        {
+          "sessionNumber": 11,
+          "title": "Architecture: Well-Architected Framework and Patterns",
+          "paretoJustification": "AWS Well-Architected Framework is the lens through which all AWS architecture decisions are evaluated. The 6 pillars directly map to interview questions on reliability, performance, cost, and security trade-offs.",
+          "objectives": [
+            "Name and explain all 6 pillars of the AWS Well-Architected Framework",
+            "Design a multi-tier (presentation/application/data) architecture on AWS",
+            "Understand microservices decomposition patterns and how they map to AWS services",
+            "Define RTO and RPO and design disaster recovery strategies (Backup/Restore, Pilot Light, Warm Standby, Multi-Site Active-Active)",
+            "Apply the Well-Architected Framework to critique a given architecture"
+          ],
+          "activities": [
+            {
+              "description": "Walk through each of the 6 pillars and write one concrete AWS decision that exemplifies it",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Draw a multi-tier AWS architecture for an e-commerce application (Route 53 → CloudFront → ALB → ECS → RDS + ElastiCache + S3)",
+              "durationMinutes": 25
+            },
+            {
+              "description": "Compare the four DR strategies by filling in a table of RTO, RPO, cost, and AWS services used for each",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Identify Well-Architected violations in a given single-AZ, single-instance, no-backup architecture and list remediations",
+              "durationMinutes": 15
+            }
+          ],
+          "content": "## The 6 Pillars of the AWS Well-Architected Framework\n\n### 1. Operational Excellence\nRunning and monitoring systems to deliver business value and continually improving processes.\n\n- Perform operations as code (CloudFormation, CDK, Ansible)\n- Make frequent, small, reversible changes (CI/CD pipelines)\n- Anticipate failure: game days, chaos engineering (AWS Fault Injection Simulator)\n- Learn from operational events: post-mortems, runbooks in AWS Systems Manager\n\n### 2. Security\nProtecting data, systems, and assets while delivering business value.\n\n- Implement a strong identity foundation: IAM roles with least-privilege, no long-lived keys\n- Enable traceability: CloudTrail, Config, VPC Flow Logs\n- Apply security at all layers: VPC, SG, NACL, WAF, encryption at rest (KMS) and in transit (TLS)\n- Automate security best practices: AWS Config rules, Security Hub\n\n### 3. Reliability\nThe ability to recover from failures and dynamically acquire resources to meet demand.\n\n- Design for failure: multi-AZ RDS, ECS across multiple AZs, S3 cross-region replication\n- Use managed services: they handle underlying infrastructure failures\n- Implement health checks and auto-healing: ECS service restarts failed tasks\n- Test recovery procedures: actually run DR drills, not just plan them\n\n### 4. Performance Efficiency\nUsing computing resources efficiently to meet requirements as demand changes.\n\n- Select the right resource type: Graviton3 EC2 for 40% better price/performance for most workloads\n- Use caching: ElastiCache Redis for session data, CloudFront for static assets\n- Use serverless: Lambda eliminates over-provisioning entirely\n- Monitor performance: CloudWatch metrics, X-Ray distributed tracing\n\n### 5. Cost Optimization\nAvoiding unnecessary costs and spending only on what is needed.\n\n- Right-size resources: use Compute Optimizer recommendations\n- Use appropriate pricing models: Savings Plans for predictable workloads, Spot for fault-tolerant batch\n- Implement lifecycle policies: S3 Intelligent-Tiering, Glacier for archival\n- Use serverless to eliminate idle capacity\n\n### 6. Sustainability (added 2021)\nMinimizing the environmental impact of cloud workloads.\n\n- Maximize utilization: run fewer, larger instances at higher utilization vs. many small ones\n- Use managed services: AWS manages energy-efficient hardware refresh cycles\n- Use Graviton (Arm-based): 60% better energy efficiency than x86 equivalents\n- Reduce data transfer: cache at edge with CloudFront, minimize cross-region traffic\n\n## Multi-Tier AWS Architecture\n\n```\nInternet\n    |\nRoute 53 (DNS + health checks)\n    |\nCloudFront (CDN — static assets, edge caching)\n    |\nALB (Application Load Balancer — multi-AZ)\n    |\nECS Fargate (Application tier — stateless, auto-scaled)\n    |           |\n    |     ElastiCache Redis (Session + query cache)\n    |\nRDS Aurora (Multi-AZ — write primary + read replica)\n    |\nS3 (Object storage — user uploads, static files)\n```\n\n**Key design decisions:**\n- CloudFront serves static assets from edge caches, reducing ALB load\n- ALB routes across multiple AZs; ECS auto-scales on CPU/memory\n- Aurora Multi-AZ provides automatic failover in ~30 seconds\n- ElastiCache reduces read load on Aurora by 80%+ for repeated queries\n\n## Microservices Patterns on AWS\n\n**Strangler Fig Pattern**: Gradually replace a monolith by routing specific endpoints to new microservices via ALB path-based routing, leaving the rest on the monolith until fully migrated.\n\n**Saga Pattern**: For distributed transactions across microservices. Each service publishes events (via SQS/SNS/EventBridge); compensating transactions roll back failed steps.\n\n**CQRS (Command Query Responsibility Segregation)**: Separate write operations (DynamoDB as write store) from read operations (OpenSearch or ElastiCache as read-optimized projections).\n\n## Disaster Recovery Strategies\n\n| Strategy | RTO | RPO | Cost | AWS Architecture |\n|---|---|---|---|---|\n| Backup & Restore | Hours | Hours | Lowest | S3 backups + CloudFormation to rebuild |\n| Pilot Light | 10–30 min | Minutes | Low | Minimal core infra in DR region, scale on failover |\n| Warm Standby | Minutes | Seconds | Medium | Scaled-down but running replica in DR region |\n| Multi-Site Active-Active | Near-zero | Near-zero | Highest | Full capacity in both regions, Route 53 routing |\n\n**RTO (Recovery Time Objective)**: Maximum acceptable time for the system to be unavailable after a failure.\n\n**RPO (Recovery Point Objective)**: Maximum acceptable amount of data loss measured in time.\n\n```bash\n# Test RDS failover (simulates AZ failure)\naws rds failover-db-cluster \\\n  --db-cluster-identifier my-aurora-cluster\n\n# Route 53 health-check based failover\naws route53 create-health-check \\\n  --caller-reference 2024-01-01 \\\n  --health-check-config \\\n    'IPAddress=203.0.113.1,Port=443,Type=HTTPS,ResourcePath=/health,FullyQualifiedDomainName=api.myapp.com,RequestInterval=30,FailureThreshold=3'\n```",
+          "reviewQuestions": [
+            "Name the 6 pillars of the AWS Well-Architected Framework.:::Operational Excellence (run and improve operations), Security (protect data and systems), Reliability (recover from failures and scale), Performance Efficiency (use resources efficiently), Cost Optimization (avoid unnecessary costs), and Sustainability (minimize environmental impact). The first five existed from the start; Sustainability was added in 2021.",
+            "What is the difference between RTO and RPO?:::RTO (Recovery Time Objective) is the maximum acceptable downtime — how long the business can tolerate the system being unavailable before the impact is unacceptable. RPO (Recovery Point Objective) is the maximum acceptable data loss — how old can the recovered data be. A hospital might have RPO = 0 (zero data loss) and RTO = 15 minutes. A blog might accept RPO = 24 hours and RTO = 4 hours.",
+            "Describe the Pilot Light disaster recovery strategy.:::Pilot Light keeps a minimal, always-on version of the critical core infrastructure running in the DR region (the 'pilot light' — just enough to ignite quickly). For example, RDS is replicated to the DR region but EC2 and ECS are not running. On failover, you point DNS to the DR region, scale up ECS, and restore from the replicated RDS. RTO is 10–30 minutes. It is much cheaper than Warm Standby or Active-Active.",
+            "How does multi-AZ deployment address reliability?:::Spreading resources across multiple Availability Zones means a single AZ failure (which can happen due to power, cooling, or network failures) does not take down the application. ALB routes to healthy ECS tasks in other AZs. RDS Aurora promotes a read replica in another AZ as the new primary. Each AZ is a physically separate data center with independent power and networking within the same region.",
+            "What is the Strangler Fig pattern and when would you use it?:::The Strangler Fig pattern is a microservices migration strategy for breaking apart a monolith incrementally. You place a proxy (e.g., ALB or API Gateway) in front of the monolith. For each feature you want to extract, you build a new microservice, then reroute that traffic path to the new service. The monolith gradually shrinks ('strangled') until all routes are migrated and the monolith is decommissioned. This is safer than a 'big bang' rewrite.",
+            "How does CloudFront improve both performance and cost in a multi-tier architecture?:::CloudFront caches content at edge locations close to users, reducing latency for static assets (images, JS, CSS) from the origin server's region-level latency to sub-10ms edge latency. This also reduces origin load — the ALB and ECS tasks see far fewer requests for cacheable content. CloudFront also absorbs DDoS attacks (with Shield) before they reach the ALB, and HTTPS termination at the edge reduces TLS overhead on origin servers."
+          ],
+          "successCriteria": "You can name all 6 pillars with examples, draw a multi-tier AWS architecture with correct service placement, define RTO and RPO, and compare the four DR strategies by cost and recovery time."
+        },
+        {
+          "sessionNumber": 12,
+          "title": "Cost Optimization and AWS Best Practices",
+          "paretoJustification": "Cost optimization is a top priority for every engineering team using AWS. Interviewers at senior levels regularly ask how you have reduced cloud costs. Understanding pricing models, rightsizing, and tagging is essential.",
+          "objectives": [
+            "Explain On-Demand, Reserved Instances, Savings Plans, and Spot Instance pricing models",
+            "Right-size EC2 instances using AWS Compute Optimizer",
+            "Implement S3 cost optimization with lifecycle policies and Intelligent-Tiering",
+            "Use cost allocation tags to attribute spending to teams and projects",
+            "Read and interpret an AWS Cost and Usage Report (CUR)"
+          ],
+          "activities": [
+            {
+              "description": "Use the AWS Pricing Calculator to estimate the monthly cost of a 3-tier web application (EC2, RDS, ALB, CloudFront)",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Enable Compute Optimizer for the account and review rightsizing recommendations for EC2 instances",
+              "durationMinutes": 15
+            },
+            {
+              "description": "Create an S3 lifecycle policy that transitions objects to Infrequent Access after 30 days and Glacier after 90 days",
+              "durationMinutes": 20
+            },
+            {
+              "description": "Set up a billing alarm in CloudWatch and enable Cost Anomaly Detection for the account",
+              "durationMinutes": 15
+            }
+          ],
+          "content": "## AWS Pricing Models\n\n### On-Demand\nPay per second (Linux EC2) or per hour (Windows), no commitment. Most expensive per unit but no upfront cost. Use for unpredictable or short-lived workloads.\n\n### Reserved Instances (RI)\n1-year or 3-year commitment. Up to 72% savings vs. On-Demand.\n- **Standard RI**: locked to specific instance type/AZ. Greatest discount.\n- **Convertible RI**: can change instance family during term. ~54% savings.\n- Payment options: All Upfront (deepest discount), Partial Upfront, No Upfront.\n\n### Savings Plans\nMore flexible than RIs. Commit to a $/hour spend (e.g., $0.10/hr) for 1 or 3 years.\n- **Compute Savings Plans**: apply to EC2 (any family, region, OS), Fargate, and Lambda. ~66% savings.\n- **EC2 Instance Savings Plans**: apply to a specific EC2 instance family in a region. ~72% savings.\n- **SageMaker Savings Plans**: for SageMaker usage.\n\n**Savings Plans vs RI**: Savings Plans are generally preferred because they are simpler and apply automatically to matching usage — no AZ or instance-type lock-in.\n\n### Spot Instances\nBid on unused EC2 capacity. Up to 90% savings vs. On-Demand. **Caveat**: AWS can reclaim Spot instances with 2-minute notice when capacity is needed.\n\nUse Spot for: batch processing, CI/CD build agents, EMR data processing, fault-tolerant ML training.\n\n```bash\n# Request a Spot instance\naws ec2 request-spot-instances \\\n  --instance-count 1 \\\n  --type one-time \\\n  --launch-specification '{\n    \"ImageId\": \"ami-0abcdef1234567890\",\n    \"InstanceType\": \"m5.large\",\n    \"KeyName\": \"my-key\",\n    \"SecurityGroupIds\": [\"sg-abc123\"]\n  }' \\\n  --spot-price \"0.05\"  # max price per hour\n\n# Use Spot with Auto Scaling (preferred — handles interruptions)\naws autoscaling create-auto-scaling-group \\\n  --auto-scaling-group-name my-asg \\\n  --mixed-instances-policy '{\n    \"InstancesDistribution\": {\n      \"OnDemandPercentageAboveBaseCapacity\": 20,\n      \"SpotAllocationStrategy\": \"capacity-optimized\"\n    }\n  }' \\\n  --min-size 2 --max-size 20 --desired-capacity 5\n```\n\n## Rightsizing with Compute Optimizer\n\n```bash\n# Enable Compute Optimizer\naws compute-optimizer update-enrollment-status --status Active\n\n# Get EC2 recommendations\naws compute-optimizer get-ec2-instance-recommendations \\\n  --query 'instanceRecommendations[].{\n    Instance: instanceArn,\n    Current: currentInstanceType,\n    Recommended: recommendationOptions[0].instanceType,\n    Savings: recommendationOptions[0].estimatedMonthlySavings.value\n  }' \\\n  --output table\n```\n\nCompute Optimizer analyzes 14 days of CloudWatch metrics (CPU, memory, network, disk) to suggest downsizing over-provisioned instances or upgrading undersized ones.\n\n## S3 Cost Optimization\n\nS3 storage tiers by cost (highest to lowest):\n1. **S3 Standard**: $0.023/GB — frequently accessed\n2. **S3 Standard-IA**: $0.0125/GB — infrequent access, min 30-day retention\n3. **S3 One Zone-IA**: $0.01/GB — non-critical, single AZ\n4. **S3 Glacier Instant Retrieval**: $0.004/GB — archive, millisecond retrieval\n5. **S3 Glacier Deep Archive**: $0.00099/GB — long-term archive, 12h retrieval\n\n```bash\n# Create lifecycle policy: IA after 30 days, Glacier after 90 days\naws s3api put-bucket-lifecycle-configuration \\\n  --bucket my-data-bucket \\\n  --lifecycle-configuration '{\n    \"Rules\": [{\n      \"Id\": \"ArchiveOldData\",\n      \"Status\": \"Enabled\",\n      \"Filter\": {\"Prefix\": \"logs/\"},\n      \"Transitions\": [\n        {\"Days\": 30, \"StorageClass\": \"STANDARD_IA\"},\n        {\"Days\": 90, \"StorageClass\": \"GLACIER\"}\n      ],\n      \"Expiration\": {\"Days\": 365}\n    }]\n  }'\n\n# Enable Intelligent-Tiering (automatic tiering based on access patterns)\naws s3api put-bucket-intelligent-tiering-configuration \\\n  --bucket my-data-bucket \\\n  --id EntireBucket \\\n  --intelligent-tiering-configuration '{\n    \"Id\": \"EntireBucket\",\n    \"Status\": \"Enabled\",\n    \"Tierings\": [\n      {\"Days\": 90, \"AccessTier\": \"ARCHIVE_ACCESS\"},\n      {\"Days\": 180, \"AccessTier\": \"DEEP_ARCHIVE_ACCESS\"}\n    ]\n  }'\n```\n\n## Cost Allocation Tags and Governance\n\n```bash\n# Tag resources for cost attribution\naws ec2 create-tags \\\n  --resources i-1234567890abcdef0 \\\n  --tags Key=Project,Value=checkout-service \\\n         Key=Team,Value=payments \\\n         Key=Environment,Value=production \\\n         Key=CostCenter,Value=CC-1042\n\n# Activate user-defined cost allocation tags in Billing console\n# (done via console or API — required before tags appear in CUR)\naws ce update-cost-allocation-tags-status \\\n  --cost-allocation-tags-status '[{\"TagKey\": \"Project\", \"Status\": \"Active\"}]'\n\n# Set a billing alarm\naws cloudwatch put-metric-alarm \\\n  --alarm-name MonthlyBudgetAlert \\\n  --metric-name EstimatedCharges \\\n  --namespace AWS/Billing \\\n  --statistic Maximum \\\n  --period 86400 \\\n  --threshold 500 \\\n  --comparison-operator GreaterThanThreshold \\\n  --alarm-actions arn:aws:sns:us-east-1:123456789:billing-alerts \\\n  --dimensions Name=Currency,Value=USD\n\n# Enable Cost Anomaly Detection\naws ce create-anomaly-monitor \\\n  --anomaly-monitor '{\n    \"MonitorName\": \"MyMonitor\",\n    \"MonitorType\": \"DIMENSIONAL\",\n    \"MonitorDimension\": \"SERVICE\"\n  }'\n```\n\n## Cost Optimization Summary Matrix\n\n| Workload | Recommended Model | Savings |\n|---|---|---|\n| 24/7 steady-state (web servers) | Savings Plans (1-year Compute) | ~40-66% |\n| Batch jobs, CI/CD | Spot Instances + On-Demand base | ~60-90% |\n| Databases | Reserved Instances (1-year) | ~40-60% |\n| Serverless APIs | Lambda On-Demand (no RI needed) | Already optimized |\n| Dev/Test environments | Schedule-based stop/start | ~65% (12h/day) |\n\n**Stop Dev instances on a schedule** (save ~65% by running only 12h/day):\n```bash\n# EventBridge rule to stop instances at 7 PM\naws events put-rule --name StopDevInstances --schedule-expression \"cron(0 19 ? * MON-FRI *)\"\n```",
+          "reviewQuestions": [
+            "What is the difference between Reserved Instances and Savings Plans?:::Reserved Instances commit to a specific instance type, AZ, and OS for 1 or 3 years, giving up to 72% savings. Savings Plans commit to a dollar-per-hour spend rate for 1 or 3 years and automatically apply to any matching usage (any EC2 family, any region for Compute Savings Plans, or Fargate and Lambda). Savings Plans are more flexible and simpler to manage because you do not need to specify exact instance types upfront. AWS now recommends Savings Plans over RIs for most use cases.",
+            "When should you use Spot Instances and what is the risk?:::Spot Instances are ideal for fault-tolerant, stateless, or checkpointing workloads: batch data processing, EMR jobs, CI/CD build agents, ML training with checkpointing, and rendering. The risk is that AWS can reclaim Spot capacity with a 2-minute warning when demand for that instance type increases. Applications must handle interruptions gracefully — save state, drain connections, or use Auto Scaling with multiple instance types and On-Demand base capacity to maintain availability.",
+            "How does AWS Compute Optimizer recommend rightsizing?:::Compute Optimizer analyzes 14 days of CloudWatch utilization metrics (CPU utilization, network in/out, disk read/write for EC2; memory if CloudWatch agent is installed). It compares actual usage against the instance type's capacity and recommends: downsize if CPU < 40% consistently, upsize if CPU > 90%, or switch to a different family (e.g., from m5 to c5 for CPU-intensive workloads or r5 for memory-intensive). It provides estimated monthly savings for each recommendation.",
+            "Explain S3 storage tiers and when to use each.:::S3 Standard ($0.023/GB) is for frequently accessed data. Standard-IA ($0.0125/GB) is for data accessed less than once a month — lower storage cost but a retrieval fee. Glacier Instant Retrieval ($0.004/GB) is for archive data with millisecond access needs. Glacier Deep Archive ($0.001/GB) is the lowest cost for data accessed less than once a year with 12-hour retrieval tolerance. S3 Intelligent-Tiering automatically moves objects between tiers based on access patterns — ideal when access is unpredictable.",
+            "What are cost allocation tags and why are they important?:::Cost allocation tags are key-value pairs you attach to AWS resources (EC2, RDS, S3, etc.). After activation in the Billing console, they appear in the Cost and Usage Report, allowing you to break down costs by team, project, environment, or cost center. Without tags, you see a single AWS bill with no insight into which product or team drove the cost. Tags enable chargebacks (billing teams for their usage), budgets per project, and identification of cost anomalies by service.",
+            "What is Cost Anomaly Detection and how does it differ from billing alarms?:::A billing alarm triggers when the month-to-date estimated charge exceeds a fixed dollar threshold. Cost Anomaly Detection uses machine learning to establish a baseline spending pattern per service (or by linked account, cost category, or tag) and alerts when spending deviates unexpectedly — even if the absolute amount is below your billing alarm threshold. For example, if EC2 normally costs $500/day and suddenly spikes to $2,000/day, Anomaly Detection catches it even if the monthly total is still within your alarm threshold. It is more sensitive for catching sudden unexpected charges."
+          ],
+          "successCriteria": "You can explain when to use On-Demand vs Savings Plans vs Spot, describe how to rightsize with Compute Optimizer, configure S3 lifecycle policies, and explain why cost allocation tags are critical for organizational cost governance."
+        }
+      ]
+    },
+    "quizBank": [
+      {
+        "question": "Which AWS feature provides automatic failover for RDS within the same region when the primary DB instance fails?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Remember",
+        "options": [
+          "A) Read Replica",
+          "B) Multi-AZ",
+          "C) Aurora Global Database",
+          "D) RDS Proxy"
+        ],
+        "correctAnswer": "B",
+        "explanation": "RDS Multi-AZ maintains a synchronous standby replica in a different AZ. On failure, AWS automatically updates the DNS endpoint to point to the standby within 1-2 minutes. Read Replicas are asynchronous and used for read scaling, not automatic failover."
+      },
+      {
+        "question": "An S3 presigned URL is generated server-side. Which of the following is true about its security?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) It requires the client to have AWS credentials",
+          "B) It embeds the signer's credentials and expires after a set time",
+          "C) It bypasses bucket policies entirely",
+          "D) It can only be used for GET requests"
+        ],
+        "correctAnswer": "B",
+        "explanation": "A presigned URL uses AWS Signature V4 to embed the signer's identity and an expiration timestamp into the URL. The client needs no AWS credentials — the signature proves authorization. Bucket policies still apply; deny rules on the bucket can still block access. Presigned URLs can be used for PUT (upload) as well as GET."
+      },
+      {
+        "question": "What is a Lambda cold start, and which configuration reduces it most effectively for latency-sensitive workloads?",
+        "format": "open_ended",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "explanation": "A cold start occurs when Lambda must initialize a new execution environment — downloading code, starting the runtime, and running initialization code outside the handler. This adds latency (100ms to 1s+ for JVM). For latency-sensitive workloads, Provisioned Concurrency keeps N environments warm and initialized, eliminating cold starts entirely. Other mitigations: keep package size small, use Lambda SnapStart for Java, avoid heavy initialization in handler."
+      },
+      {
+        "question": "You have a DynamoDB table with userId as partition key. You need to query orders by status across all users. What do you add?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) Local Secondary Index on status",
+          "B) Global Secondary Index with status as partition key",
+          "C) Scan the table with a filter expression",
+          "D) Add status as a sort key to the base table"
+        ],
+        "correctAnswer": "B",
+        "explanation": "A GSI allows a completely different partition key (status) and sort key, enabling efficient queries across all users by status. LSI requires the same partition key as the base table, so it cannot query across all users. Scans read every item and are expensive. Changing the base table's sort key would only let you query per-user by status."
+      },
+      {
+        "question": "What is the difference between a Security Group and a Network ACL (NACL) in a VPC?",
+        "format": "open_ended",
+        "difficulty": 3,
+        "bloomLabel": "Analyze",
+        "explanation": "Security Groups are stateful (return traffic is automatically allowed), operate at the instance/ENI level, and only support allow rules. NACLs are stateless (you must explicitly allow inbound AND outbound for each flow), operate at the subnet level, and support both allow and deny rules. Use Security Groups for most cases; NACLs add a subnet-level explicit deny layer (e.g., blocking a specific IP range)."
+      },
+      {
+        "question": "Which SQS queue type guarantees exactly-once processing and strict message ordering?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Remember",
+        "options": [
+          "A) Standard Queue",
+          "B) FIFO Queue",
+          "C) Dead Letter Queue",
+          "D) Priority Queue"
+        ],
+        "correctAnswer": "B",
+        "explanation": "SQS FIFO queues guarantee exactly-once processing (deduplication via message deduplication ID) and strict first-in-first-out ordering within a message group. Standard queues offer at-least-once delivery and best-effort ordering with virtually unlimited throughput. FIFO queues support up to 3000 messages/second with batching."
+      },
+      {
+        "question": "What is the purpose of a NAT Gateway and where must it be placed?",
+        "format": "open_ended",
+        "difficulty": 2,
+        "bloomLabel": "Understand",
+        "explanation": "A NAT Gateway allows instances in private subnets to initiate outbound internet connections (e.g., to download packages or call external APIs) while preventing the internet from initiating inbound connections to those instances. It must be placed in a public subnet (one with a route to an Internet Gateway). Private subnet route tables then route 0.0.0.0/0 to the NAT Gateway. For HA, deploy one NAT Gateway per AZ."
+      },
+      {
+        "question": "In AWS IAM, what is an IAM Role and how does it differ from an IAM User?",
+        "format": "open_ended",
+        "difficulty": 2,
+        "bloomLabel": "Understand",
+        "explanation": "An IAM User has permanent long-term credentials (username/password, access keys) and represents a specific person or service account. An IAM Role has no permanent credentials — instead it provides temporary security credentials via STS when assumed. Roles are assumed by AWS services (EC2 instance profile, Lambda execution role), other IAM users (cross-account access), or federated users. Best practice: assign roles to services, never embed access keys in code."
+      },
+      {
+        "question": "An application processes images uploaded to S3. Which architecture is most cost-effective and scalable?",
+        "format": "mcq",
+        "difficulty": 4,
+        "bloomLabel": "Evaluate",
+        "options": [
+          "A) EC2 instance polling S3 with a cron job every minute",
+          "B) S3 Event Notification → SNS → SQS → Lambda",
+          "C) EC2 Auto Scaling Group reading directly from S3",
+          "D) CloudWatch Events polling S3 bucket for changes"
+        ],
+        "correctAnswer": "B",
+        "explanation": "S3 Event Notification → SNS → SQS → Lambda is the canonical event-driven pattern. S3 publishes an event on upload, SNS fans it out (enabling multiple consumers), SQS provides buffering and retry with DLQ, and Lambda processes without any idle server cost. Option A wastes money on an always-on EC2 polling loop. Lambda scales automatically to concurrency without managing servers."
+      },
+      {
+        "question": "What is the purpose of a DynamoDB GSI's projection and how does it affect cost?",
+        "format": "open_ended",
+        "difficulty": 4,
+        "bloomLabel": "Analyze",
+        "explanation": "A GSI projection defines which attributes are copied from the base table into the index. Options: KEYS_ONLY (just PK+SK), INCLUDE (specific attributes), ALL (every attribute). Projecting only what your query needs reduces index storage cost and read capacity units consumed. Projecting ALL is convenient but doubles storage and read cost for large items. Design rule: project only the attributes your access pattern actually reads."
+      }
+    ]
+  }
+]

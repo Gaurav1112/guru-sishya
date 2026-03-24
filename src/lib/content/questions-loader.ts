@@ -24,7 +24,11 @@ export type QuestionCategory =
   | "System Design"
   | "Production & Debugging"
   | "Stream API"
-  | "Company-Specific";
+  | "Company-Specific"
+  | "Kafka"
+  | "AWS"
+  | "Kubernetes & Docker"
+  | "Design Patterns";
 
 // ── Category detection ─────────────────────────────────────────────────────
 
@@ -265,32 +269,99 @@ interface JsonQuestion {
   source?: string;
 }
 
+function extractQuestions(raw: unknown, batchLabel: string): JsonQuestion[] {
+  // Handle different batch file formats:
+  // 1. Array of questions: [{question, answer, ...}, ...]
+  // 2. Object with "questions" array: {metadata: ..., questions: [...]}
+  // 3. Object with "answers" dict: {answers: {"65": {question, answer, ...}, ...}}
+  if (Array.isArray(raw)) return raw as JsonQuestion[];
+  if (raw && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    if (Array.isArray(obj.questions)) return obj.questions as JsonQuestion[];
+    if (obj.answers && typeof obj.answers === "object") {
+      return Object.values(obj.answers as Record<string, JsonQuestion>);
+    }
+  }
+  return [];
+}
+
 async function loadFromJSON(): Promise<Question[] | null> {
   const parts: Question[] = [];
-  let partNum = 1;
   let found = false;
 
-  // Try loading java-qa-part1.json, part2.json, etc.
-  while (partNum <= 20) {
-    try {
-      const response = await fetch(`/content/java-qa-part${partNum}.json`);
-      if (!response.ok) break;
-      found = true;
+  // Try loading java-qa-all.json first (combined file)
+  try {
+    const response = await fetch("/content/java-qa-all.json");
+    if (response.ok) {
       const data = (await response.json()) as JsonQuestion[];
-      for (const item of data) {
-        parts.push({
-          id: item.id ?? parts.length + 1,
-          question: item.question,
-          answer: item.answer,
-          category: (item.category as QuestionCategory) ?? "Core Java",
-          difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
-          companies: item.companies ?? [],
-          source: item.source ?? `Part ${partNum}`,
-        });
+      if (Array.isArray(data) && data.length > 0) {
+        found = true;
+        for (const item of data) {
+          parts.push({
+            id: item.id ?? parts.length + 1,
+            question: item.question,
+            answer: item.answer,
+            category: (item.category as QuestionCategory) ?? "Core Java",
+            difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
+            companies: item.companies ?? [],
+            source: item.source ?? "java-qa",
+          });
+        }
       }
-      partNum++;
-    } catch {
-      break;
+    }
+  } catch {
+    // ignore
+  }
+
+  // If java-qa-all.json didn't load, try individual batch files
+  if (!found) {
+    for (let batchNum = 1; batchNum <= 20; batchNum++) {
+      const padded = String(batchNum).padStart(2, "0");
+      try {
+        const response = await fetch(`/content/java-qa-batch${padded}.json`);
+        if (!response.ok) continue;
+        found = true;
+        const raw = await response.json();
+        const items = extractQuestions(raw, `batch${padded}`);
+        for (const item of items) {
+          parts.push({
+            id: item.id ?? parts.length + 1,
+            question: item.question,
+            answer: item.answer,
+            category: (item.category as QuestionCategory) ?? "Core Java",
+            difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
+            companies: item.companies ?? [],
+            source: item.source ?? `Batch ${batchNum}`,
+          });
+        }
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  // Also try legacy java-qa-part*.json files
+  if (!found) {
+    for (let partNum = 1; partNum <= 20; partNum++) {
+      try {
+        const response = await fetch(`/content/java-qa-part${partNum}.json`);
+        if (!response.ok) break;
+        found = true;
+        const data = (await response.json()) as JsonQuestion[];
+        for (const item of data) {
+          parts.push({
+            id: item.id ?? parts.length + 1,
+            question: item.question,
+            answer: item.answer,
+            category: (item.category as QuestionCategory) ?? "Core Java",
+            difficulty: (item.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
+            companies: item.companies ?? [],
+            source: item.source ?? `Part ${partNum}`,
+          });
+        }
+      } catch {
+        break;
+      }
     }
   }
 
@@ -311,26 +382,78 @@ export async function loadImportantQuestions(): Promise<Question[]> {
 
   // Try JSON files first
   const jsonQuestions = await loadFromJSON();
-  if (jsonQuestions && jsonQuestions.length > 0) {
-    _questionsCache = jsonQuestions;
-    return jsonQuestions;
+  let allQuestions: Question[] = jsonQuestions ?? [];
+
+  // If no Java Q&A JSON files, fall back to MD parsing
+  if (allQuestions.length === 0) {
+    try {
+      const response = await fetch("/content/java_interview_questions_master.md");
+      if (response.ok) {
+        const md = await response.text();
+        allQuestions = parseMasterMD(md);
+      }
+    } catch {
+      // ignore
+    }
   }
 
-  // Fall back to MD parsing
-  try {
-    const response = await fetch("/content/java_interview_questions_master.md");
-    if (!response.ok) {
-      _questionsCache = [];
-      return [];
+  // Load additional Q&A files (Kafka, AWS, K8s/Docker)
+  const additionalFiles: { file: string; category: QuestionCategory }[] = [
+    { file: "/content/kafka-qa.json", category: "Kafka" },
+    { file: "/content/aws-qa.json", category: "AWS" },
+    { file: "/content/k8s-docker-qa.json", category: "Kubernetes & Docker" },
+    { file: "/content/design-patterns-qa.json", category: "Design Patterns" },
+  ];
+
+  const startId = allQuestions.length > 0
+    ? Math.max(...allQuestions.map((q) => q.id)) + 1
+    : 1;
+  let nextId = startId;
+
+  for (const { file, category } of additionalFiles) {
+    try {
+      const response = await fetch(file);
+      if (!response.ok) continue;
+      const data = (await response.json()) as {
+        question: string;
+        answer: string;
+        category?: string;
+        difficulty?: string;
+        example?: string;
+      }[];
+      for (const item of data) {
+        const answer = item.example
+          ? `${item.answer}\n\n### Example\n\`\`\`\n${item.example}\n\`\`\``
+          : item.answer;
+        // Map sub-categories to the parent category from the file.
+        // Sub-categories like "Kafka Basics", "EC2", "Docker", "Creational"
+        // all get mapped to the parent: Kafka, AWS, Kubernetes & Docker, Design Patterns.
+        const itemCategory: QuestionCategory = category;
+        allQuestions.push({
+          id: nextId++,
+          question: item.question,
+          answer,
+          category: itemCategory,
+          difficulty: mapDifficulty(item.difficulty),
+          companies: [],
+          source: category,
+        });
+      }
+    } catch {
+      // Non-critical — file may not exist yet
     }
-    const md = await response.text();
-    const questions = parseMasterMD(md);
-    _questionsCache = questions;
-    return questions;
-  } catch {
-    _questionsCache = [];
-    return [];
   }
+
+  _questionsCache = allQuestions;
+  return allQuestions;
+}
+
+function mapDifficulty(d?: string): "Easy" | "Medium" | "Hard" {
+  if (!d) return "Medium";
+  const lower = d.toLowerCase();
+  if (lower === "beginner" || lower === "easy") return "Easy";
+  if (lower === "advanced" || lower === "hard") return "Hard";
+  return "Medium";
 }
 
 /**
@@ -347,6 +470,10 @@ export function getCategories(): QuestionCategory[] {
     "System Design",
     "Production & Debugging",
     "Stream API",
+    "Kafka",
+    "AWS",
+    "Kubernetes & Docker",
+    "Design Patterns",
     "Company-Specific",
   ];
 }
