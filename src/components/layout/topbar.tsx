@@ -173,7 +173,7 @@ export function Topbar() {
           <XPBar totalXP={totalXP} level={level} />
         </div>
         <CoinDisplay coins={coins} />
-        <LevelBadge level={level} size="sm" />
+        <LevelBadge level={level} size="sm" className="hidden sm:inline-flex" />
         <UserMenu />
       </div>
     </header>

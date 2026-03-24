@@ -395,15 +395,9 @@ export default function TopicsPage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold font-heading text-teal">
-              100%
+              6
             </span>
-            <span className="text-sm text-muted-foreground">Free</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold font-heading text-indigo">
-              0
-            </span>
-            <span className="text-sm text-muted-foreground">API Keys Needed</span>
+            <span className="text-sm text-muted-foreground">FAANG Companies</span>
           </div>
         </div>
       </div>

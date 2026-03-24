@@ -4,6 +4,7 @@ import { getLevelInfo } from "@/lib/gamification/xp";
 interface LevelBadgeProps {
   level: number;
   size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 const TIER_BORDER: Record<string, string> = {
@@ -22,14 +23,14 @@ const SIZE_MAP = {
   lg: "text-base px-4 py-1.5 border-2",
 };
 
-export function LevelBadge({ level, size = "md" }: LevelBadgeProps) {
+export function LevelBadge({ level, size = "md", className = "" }: LevelBadgeProps) {
   const info = getLevelInfo(level);
   const colorClass = TIER_BORDER[info.tier] ?? TIER_BORDER.Shishya;
   const sizeClass = SIZE_MAP[size];
 
   return (
     <span
-      className={`inline-flex items-center rounded-full font-heading font-semibold tracking-wide ${sizeClass} ${colorClass}`}
+      className={`inline-flex items-center rounded-full font-heading font-semibold tracking-wide ${sizeClass} ${colorClass} ${className}`}
     >
       {info.tier} {info.subLevel}
     </span>
