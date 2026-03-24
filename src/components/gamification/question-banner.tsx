@@ -17,14 +17,53 @@ export function QuestionBanner() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
-  // Load questions
+  // Load questions — deterministic daily rotation, no repeats until all 2000 seen
   useEffect(() => {
     fetch("/content/daily-questions.json")
       .then((r) => r.json())
       .then((data: BannerQuestion[]) => {
-        // Pick 20 random questions
-        const shuffled = [...data].sort(() => Math.random() - 0.5);
-        setQuestions(shuffled.slice(0, 20));
+        // Use day-of-year as seed for deterministic shuffle
+        const now = new Date();
+        const dayOfYear = Math.floor(
+          (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000
+        );
+
+        // Track seen question indices in localStorage
+        const STORAGE_KEY = "gs-seen-banner-questions";
+        let seen: number[] = [];
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) seen = JSON.parse(stored);
+          // Reset if all questions have been seen
+          if (seen.length >= data.length) {
+            seen = [];
+            localStorage.setItem(STORAGE_KEY, "[]");
+          }
+        } catch { /* ignore */ }
+
+        const seenSet = new Set(seen);
+
+        // Seeded shuffle (deterministic per day)
+        const seed = dayOfYear * 2654435761;
+        const indices = Array.from({ length: data.length }, (_, i) => i)
+          .filter((i) => !seenSet.has(i));
+
+        // Deterministic shuffle using seed
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.abs((seed * (i + 1) * 2246822507) % (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+
+        // Pick 20 unseen questions
+        const picked = indices.slice(0, 20).map((i) => data[i]);
+
+        // Mark these as seen
+        const newSeen = [...seen, ...indices.slice(0, 20)];
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(newSeen));
+        } catch { /* ignore */ }
+
+        setQuestions(picked);
       })
       .catch(() => {});
   }, []);
