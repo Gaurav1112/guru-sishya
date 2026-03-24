@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+"""Generate detailed Q&A batch 03 for Java interview questions 65-96"""
+
+import json
+from datetime import datetime
+
+qa_batch_03 = {
+    "batch": 3,
+    "range": "Q65-Q96",
+    "total_questions": 32,
+    "generated_at": datetime.now().isoformat(),
+    "answers": {}
+}
+
+# Question 65
+qa_batch_03["answers"]["65"] = {
+    "question": "What happens if a Runnable throws an unchecked exception?",
+    "category": "Multithreading & Exception Handling",
+    "complexity": "Advanced",
+    "keywords": ["UncaughtExceptionHandler", "thread death", "ExecutionException"],
+    "answer": "When a Runnable throws an unchecked exception, the thread execution terminates abruptly. Unlike the main thread where exceptions can be caught at the top level, exceptions thrown in a worker thread are not automatically propagated to the caller. The thread dies silently, which is often a critical production issue.\n\nBy default, uncaught exceptions are handled by the default UncaughtExceptionHandler, printing to System.err. Set a custom handler with Thread.setDefaultUncaughtExceptionHandler() for monitoring. When using ExecutorService, submit tasks as Callable and use Future.get() to catch ExecutionException wrapping the original exception.\n\nProduction best practice: Always wrap Runnable with try-catch, or use Callable/Future instead. Monitor thread pool task failures with custom handlers."
+}
+
+# Question 66
+qa_batch_03["answers"]["66"] = {
+    "question": "How do you safely shut down an ExecutorService?",
+    "category": "Thread Pool Management",
+    "complexity": "Intermediate",
+    "keywords": ["shutdown", "awaitTermination", "graceful termination", "resource cleanup"],
+    "answer": "Safely shut down with three-step sequence: (1) Call shutdown() to stop accepting new tasks, (2) Call awaitTermination() to wait for existing tasks, (3) If timeout expires, call shutdownNow() to force termination.\n\nRecommended pattern:\n```\nexecutor.shutdown();\nif (!executor.awaitTermination(30, TimeUnit.SECONDS)) {\n    List<Runnable> remaining = executor.shutdownNow();\n    if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {\n        System.err.println(\"Executor did not terminate\");\n    }\n}\n```\n\nKey points: shutdown() returns immediately after signaling, awaitTermination() blocks until tasks complete or timeout. shutdownNow() returns list of unstarted tasks. Always handle InterruptedException by calling shutdownNow(). Monitor unfinished tasks for debugging."
+}
+
+# Question 67
+qa_batch_03["answers"]["67"] = {
+    "question": "Why does GC tuning improve latency but reduce throughput?",
+    "category": "Garbage Collection & Performance",
+    "complexity": "Advanced",
+    "keywords": ["GC tuning", "latency vs throughput", "pause time", "CPU overhead"],
+    "answer": "Fundamental trade-off: shorter pauses require more frequent collections, consuming more CPU overhead, reducing overall throughput.\n\nLow latency tuning (CMS, G1 -XX:MaxGCPauseMillis=50): Concurrent GC threads run continuously, keeping pauses <100ms, but consume 20-30% of CPU resources, reducing throughput by 10-20%.\n\nHigh throughput tuning (-XX:+UseParallelGC): Fewer, longer GC cycles (potentially 500ms+), but lower CPU overhead (2-5%), higher throughput since less time spent in GC.\n\nDecision point: For latency-critical systems (payment processing), accept throughput loss. For batch processing, accept longer pauses for higher throughput. Cannot optimize both simultaneously."
+}
+
+# Question 68
+qa_batch_03["answers"]["68"] = {
+    "question": "How does G1 GC decide which region to clean?",
+    "category": "Garbage Collection Algorithm",
+    "complexity": "Advanced",
+    "keywords": ["G1GC", "region selection", "benefit-cost ratio", "pause time control"],
+    "answer": "G1 divides heap into 1-32MB regions and uses cost-benefit heuristic for collection: (garbage_bytes / collection_time_ms) ratio. Regions are sorted by ratio descending, then selected until approaching MaxGCPauseMillis.\n\nRegions with high garbage-to-time ratio collected first (most garbage, quick cleanup). Empty regions always collected (zero cost). Regions with expensive collection deferred.\n\nBenefits: Minimizes pause time while maximizing reclaimed memory. Prevents full GC until necessary. Balances throughput and latency dynamically.\n\nTuning: -XX:+UseG1GC -XX:MaxGCPauseMillis=50 sets 50ms target. G1 adapts region selection to meet target."
+}
+
+# Question 69
+qa_batch_03["answers"]["69"] = {
+    "question": "Why does OutOfMemoryError occur even with free heap?",
+    "category": "Memory Management & Troubleshooting",
+    "complexity": "Advanced",
+    "keywords": ["heap fragmentation", "Metaspace", "direct memory", "GC overhead", "memory leak"],
+    "answer": "Multiple causes: (1) Heap fragmentation - free space scattered in small chunks, no contiguous block for large allocation. (2) Metaspace exhaustion - class metadata limit reached. (3) Direct buffer memory - NIO buffers allocated outside heap. (4) GC overhead - if GC spends >98% of time freeing <2% of heap, OutOfMemoryError triggers immediately.\n\nDetecting root cause: Check MemoryMXBean for heap usage, check Metaspace separately, monitor direct memory with BufferPoolMXBean, analyze GC frequency with jstat.\n\nCommon production causes: Unbounded caches without eviction, ThreadLocal leaks in servlet containers, class loader leaks from plugins, listener collections never cleared."
+}
+
+# Question 70
+qa_batch_03["answers"]["70"] = {
+    "question": "How do you find memory leaks in a running JVM?",
+    "category": "Memory Debugging & Profiling",
+    "complexity": "Advanced",
+    "keywords": ["heap dump", "memory profiler", "jvisualvm", "leak detection", "monitoring"],
+    "answer": "Use heap dumps and profilers: jmap -dump:live,format=b,file=heapdump.bin captures snapshot. jvisualvm or jhat analyzes object graph.\n\nMethod: (1) Capture heap dump: jmap -dump:live,format=b,file=dump.bin <pid>. (2) Load into jvisualvm (Classes tab). (3) Sort by size, identify suspicious classes. (4) Check object references to find leaking references. (5) Use continuous monitoring: async-profiler or YourKit.\n\nLeak detection patterns: Static collections never cleared, listeners not unregistered, ThreadLocal not removed in servlet pools, caches without eviction.\n\nProduction monitoring: Track heap size over time, trigger dump on threshold, automate analysis. Linear growth pattern indicates leak."
+}
+
+# Question 71
+qa_batch_03["answers"]["71"] = {
+    "question": "Difference between strong, weak, soft, and phantom references.",
+    "category": "Memory Management & Object Lifecycle",
+    "complexity": "Advanced",
+    "keywords": ["SoftReference", "WeakReference", "PhantomReference", "garbage collection", "caching"],
+    "answer": "Four reference types with different GC behavior:\n\n1. Strong (default): Prevents GC, object kept as long as reference exists.\n2. Soft: Collected only before OutOfMemoryError. Ideal for memory-sensitive caches.\n3. Weak: Collected in next GC if no strong references. Use for WeakHashMap, weak listener registries.\n4. Phantom: Collected immediately after (get() always null). Use for resource cleanup via ReferenceQueue.\n\nUse cases:\n- Soft: Image caches, parsed document caches\n- Weak: Listener collections, temporary associations\n- Phantom: Resource cleanup after finalization\n\nProduction example: Two-level cache with strong cache (recent items) promoting to soft cache (less frequent items)."
+}
+
+# Question 72
+qa_batch_03["answers"]["72"] = {
+    "question": "Why is finalize() dangerous and deprecated?",
+    "category": "Object Lifecycle & Memory Management",
+    "complexity": "Advanced",
+    "keywords": ["finalize", "deprecated", "resource cleanup", "try-with-resources", "AutoCloseable"],
+    "answer": "finalize() is deprecated (Java 9+, removed in 18+) due to critical issues:\n\n1. Unpredictable execution - GC decides when to call, resources leak for minutes\n2. GC performance impact - objects with finalize() queued separately, slowing GC\n3. Silent exceptions - exceptions in finalize() are silently swallowed, lost to monitoring\n4. Finalizer thread bottleneck - single thread processes all finalizers, can't keep up with object volume\n5. Object resurrection - finalize() can bring objects back, causing undefined behavior\n\nModern alternatives:\n- try-with-resources with AutoCloseable (Java 7+)\n- Explicit close() methods\n- Cleaner API (Java 9+) for advanced cleanup\n\nProduction rule: Never use finalize(). Always use explicit close() or try-with-resources."
+}
+
+# Question 73
+qa_batch_03["answers"]["73"] = {
+    "question": "How does class loading work in large Java applications?",
+    "category": "Class Loading & ClassLoader",
+    "complexity": "Advanced",
+    "keywords": ["ClassLoader", "delegation model", "class loading stages", "Metaspace", "class leak"],
+    "answer": "Three stages: Loading (locate class bytecode), Linking (verify, prepare static fields), Initialization (run static blocks).\n\nClassLoader hierarchy: Bootstrap (JDK) -> Extension -> Application -> Custom. Delegation model: child asks parent first (prevents duplicates).\n\nIn large applications: Multiple ClassLoaders may load same class independently (different type instances), each occupying Metaspace. Plugin systems use separate loaders for isolation.\n\nMemory leak: ClassLoader holds references to all loaded classes. Failing to close URLClassLoader prevents GC. Fix: Close loaders explicitly, remove from cache.\n\nMonitoring: Watch Metaspace growth, use proper delegation, implement shutdown for plugin loaders."
+}
+
+# Question 74
+qa_batch_03["answers"]["74"] = {
+    "question": "Why does ClassCastException occur even with correct code?",
+    "category": "Type System & Class Loading",
+    "complexity": "Advanced",
+    "keywords": ["ClassCastException", "ClassLoader", "type erasure", "generics", "serialization"],
+    "answer": "Same class loaded by different ClassLoaders are different types despite identical names.\n\nScenario: Plugin system where plugin class and core class both named Widget but loaded by different loaders. Casting one to other throws ClassCastException.\n\nRoot causes:\n1. Multiple ClassLoaders - Plugin loader vs Application loader load same class independently\n2. Type erasure - Generics lose type info, List<String> cast fails at runtime\n3. Serialization - Deserialized object version mismatch\n\nDebugging: Check ClassLoader: obj.getClass().getClassLoader(). If same class name but different loaders, use delegation model to share interfaces.\n\nPrevention: Use instanceof before casting, ensure shared classes use common loader, avoid raw types."
+}
+
+# Question 75
+qa_batch_03["answers"]["75"] = {
+    "question": "How does Java handle instruction reordering?",
+    "category": "JVM Internals & Java Memory Model",
+    "complexity": "Advanced",
+    "keywords": ["instruction reordering", "happens-before", "Java Memory Model", "volatile", "double-checked locking"],
+    "answer": "JVM reorders bytecode to native instructions for performance while preserving single-threaded semantics. This breaks multi-threaded code without synchronization.\n\nJava Memory Model (JMM) defines happens-before rules preventing dangerous reordering:\n- Program order: Within thread, ordered instructions execute as written\n- Monitor locks: Acquire/release provide visibility\n- Volatile fields: Read/write prevent reordering\n- Thread start/join: Provide visibility boundaries\n- Final fields: Special guarantees on initialization\n\nProblem example: Without volatile, x=1 then ready=true might reorder. Another thread sees ready=true but x still 0.\n\nDouble-checked locking broken without volatile: object construction steps reorder, partially initialized object assigned, other thread reads uninitialized fields.\n\nSolution: Use volatile for shared flags, synchronized for critical sections."
+}
+
+# Question 76
+qa_batch_03["answers"]["76"] = {
+    "question": "When does autoboxing hurt performance badly?",
+    "category": "Performance & Memory",
+    "complexity": "Intermediate",
+    "keywords": ["autoboxing", "performance", "primitive types", "wrapper objects", "collections"],
+    "answer": "Autoboxing (int->Integer) creates heap objects, causing 5-100x slowdown in tight loops.\n\nLoop example: 1M iterations with autoboxing = 1M Integer objects (40MB), 10x slower than primitives.\n\nCollection impact: ArrayList<Integer> stores object references, scattered in memory (cache misses), subject to GC. int[] is contiguous, cache-friendly, zero GC.\n\nStream API: IntStream better than boxed().map(). Primitive streams avoid boxing entirely.\n\nMemory overhead: Integer object ~24 bytes (vs 4 for int). Storing 1M integers: int[] needs 4MB, Integer[] needs 32MB (8x overhead).\n\nProduction: Use primitive arrays, primitive streams, specialized collections. Only box when necessary (unavoidable in legacy code)."
+}
+
+# Question 77
+qa_batch_03["answers"]["77"] = {
+    "question": "Why is String immutable and how does it help concurrency?",
+    "category": "String Design & Thread Safety",
+    "complexity": "Advanced",
+    "keywords": ["String immutability", "thread safety", "concurrency", "hash code caching", "String pool"],
+    "answer": "String immutability enables concurrent reads without synchronization. Hash code is cached - with mutability, cache would be invalid if String changes.\n\nConcurrency benefits:\n1. Multiple threads read simultaneously, no locks needed\n2. Hash code never changes, HashMap/HashSet reliable\n3. String pool reuses objects safely (can't mutate shared instance)\n4. Final field visibility guarantees published to all threads\n5. Escape analysis can optimize immutable references\n\nWithout immutability: HashMap lookups would fail if key hash changes mid-lookup. Thread pools with String keys would require locking. Performance: 100x slower.\n\nProduction impact: Microservice with millions of concurrent String key lookups - immutability enables lock-free performance.\n\nNote: Strings used as HashMap keys in concurrent maps must be immutable."
+}
+
+# Question 78
+qa_batch_03["answers"]["78"] = {
+    "question": "How does JVM optimize hot code paths?",
+    "category": "JIT Compilation & Performance",
+    "complexity": "Advanced",
+    "keywords": ["JIT compilation", "inlining", "escape analysis", "loop unrolling", "branch prediction"],
+    "answer": "JIT identifies code called >10,000 times (configurable), compiles to native machine code with optimizations:\n\n1. Inlining - Eliminate method call overhead. Direct operation 5-10x faster.\n2. Loop unrolling - Reduce iterations, fewer branch mispredictions. Example: 1000 iterations become 250 (unroll 4x).\n3. Escape analysis - Stack allocation, scalar replacement for non-escaping objects.\n4. Dead code elimination - Constant conditions eliminated entirely.\n5. Branch prediction optimization - Arrange fast path code for CPU cache.\n\nWarmup period: First seconds interpreted (slow, ~100ms for loop). After JIT (~10-30 seconds), compiled code (fast, ~10ms same loop). 10-100x improvement typical.\n\nProduction: Don't judge performance from first seconds. Wait for steady-state after containers warm up. Monitor with -XX:+PrintCompilation."
+}
+
+# Question 79
+qa_batch_03["answers"]["79"] = {
+    "question": "What is escape analysis and why does it matter?",
+    "category": "Memory Optimization & JVM",
+    "complexity": "Advanced",
+    "keywords": ["escape analysis", "stack allocation", "scalar replacement", "lock elimination", "JVM optimization"],
+    "answer": "Escape analysis determines if object lifetime is contained within a method scope. Non-escaping objects are optimized: stack allocation, scalar replacement, lock elimination.\n\nOptimizations:\n1. Stack allocation - Faster than heap, automatic cleanup, cache-friendly\n2. Scalar replacement - Object fields become local variables, object eliminated\n3. Lock elimination - Synchronized calls on local objects completely removed\n\nPerformance: 5-100x improvement for allocation-heavy code.\n\nExample: 1M loop iterations creating Point objects - with escape analysis, zero heap allocation, all on stack.\n\nEnabling: -XX:+DoEscapeAnalysis (default in -server mode). Monitoring: -XX:+PrintEscapeAnalysis shows optimizations.\n\nLimitations: Conservative - if analysis uncertain, assumes escape. Method inlining effects matter.\n\nProduction benefit: StringBuilder in loops, temporary objects, coordinate transformations all benefit significantly."
+}
+
+# Question 80
+qa_batch_03["answers"]["80"] = {
+    "question": "Why does a Java process not exit after main() ends?",
+    "category": "Thread Lifecycle & JVM",
+    "complexity": "Intermediate",
+    "keywords": ["daemon threads", "non-daemon threads", "JVM exit", "ExecutorService shutdown", "process lifecycle"],
+    "answer": "JVM exits when all non-daemon threads terminate. If any non-daemon thread runs, JVM continues despite main() completing.\n\nCommon scenarios:\n- ExecutorService: Thread pool threads are non-daemon (need explicit shutdown)\n- Spring Boot: Web server keeps running (intentional behavior)\n- Timer/ScheduledExecutor: Background threads block exit\n- Framework threads: Listener processors, async handlers\n\nSolution: Explicitly shutdown ExecutorService, close web servers, cancel timers. Use shutdown hooks for graceful cleanup.\n\nDaemon threads: Set with setDaemon(true) before start(). Killed when JVM exits, don't block shutdown.\n\nDebugging: jcmd <pid> Thread.print shows active threads and daemon status.\n\nProduction impact: Improper shutdown blocks Kubernetes pod termination (timeout), cascades failures. Implement graceful shutdown: shutdown thread pools, close resources, wait for pending requests."
+}
+
+# Questions 82-96
+qa_batch_03["answers"]["82"] = {
+    "question": "What is difference between synchronous and asynchronous communication?",
+    "category": "Microservices Architecture",
+    "complexity": "Intermediate",
+    "keywords": ["sync", "async", "REST", "Kafka", "message queue"],
+    "answer": "Synchronous: Caller blocks until response received. Asynchronous: Caller returns immediately, response handled later.\n\nSynchronous (REST, RPC): Simple, immediate feedback, but blocks resources, sensitive to latency, harder to scale. Suitable for dependent operations.\n\nAsynchronous (Kafka, queue): Non-blocking, decouples services, handles peak traffic, but complex error handling, eventual consistency. Suitable for independent operations.\n\nTrade-offs: Sync is simpler but resource-intensive. Async is efficient but complex. Hybrid approach: sync for critical paths, async for background tasks."
+}
+
+qa_batch_03["answers"]["83"] = {
+    "question": "What is REST vs gRPC?",
+    "category": "API Design & Protocols",
+    "complexity": "Intermediate",
+    "keywords": ["REST", "gRPC", "HTTP", "protobuf", "microservices"],
+    "answer": "REST: HTTP-based, text format (JSON/XML), loose coupling, easier debugging, universal browser support. Suitable for public APIs, web services.\n\ngRPC: Binary protocol (protobuf), multiplexing, streaming, better performance (10-100x), server push, bidirectional. Suitable for microservices, internal APIs, real-time.\n\nChoose REST for: Web APIs, public interfaces, mixed client types. Choose gRPC for: High-performance microservices, real-time features, internal services."
+}
+
+qa_batch_03["answers"]["84"] = {
+    "question": "What is HTTP/2 and HTTP/3?",
+    "category": "Network Protocols",
+    "complexity": "Intermediate",
+    "keywords": ["HTTP/2", "HTTP/3", "QUIC", "multiplexing", "performance"],
+    "answer": "HTTP/2: Multiplexing (multiple requests per connection), server push, binary framing, header compression over TCP. Better throughput, lower latency than HTTP/1.1.\n\nHTTP/3: QUIC protocol (UDP-based), 0-RTT connection resumption, improved mobile performance, faster connection establishment. Modern standard for high-performance.\n\nHTTP/2 for: Most applications, good performance gains. HTTP/3 for: Real-time apps, mobile, global CDNs."
+}
+
+qa_batch_03["answers"]["85"] = {
+    "question": "What is connection pooling and why is it needed?",
+    "category": "Database Performance",
+    "complexity": "Intermediate",
+    "keywords": ["connection pool", "database", "reuse", "performance", "resource management"],
+    "answer": "Reuses established database connections instead of creating new ones. Each new connection requires handshake, authentication, memory allocation - expensive overhead.\n\nWhy needed: High-traffic systems make thousands of queries/sec. Creating new connection per query causes latency, resource exhaustion. Pooling reduces overhead 10-100x.\n\nHikariCP: Industry standard, minimal overhead, excellent performance. Configuration: pool size = cores + 1 typically."
+}
+
+qa_batch_03["answers"]["86"] = {
+    "question": "How does HikariCP work internally?",
+    "category": "Connection Pooling",
+    "complexity": "Intermediate",
+    "keywords": ["HikariCP", "connection pool", "thread local", "low latency"],
+    "answer": "HikariCP uses thread-local caching, minimal lock contention, queue-based waiting for available connections.\n\nOptimizations: Cached PreparedStatements, idle connection timeout, connection validation, optimized for low-latency access in high-concurrency scenarios.\n\nBest-in-class performance: <1ms median latency for connection acquisition in most scenarios."
+}
+
+qa_batch_03["answers"]["87"] = {
+    "question": "What is thread pool and how to tune it?",
+    "category": "Concurrency & Performance",
+    "complexity": "Intermediate",
+    "keywords": ["thread pool", "tuning", "core threads", "max threads"],
+    "answer": "Thread pool manages reusable threads for task execution. Core threads always active, additional threads created up to max based on demand.\n\nTuning: CPU-bound: threads = cores + 1. I/O-bound: threads = cores * (1 + wait_ratio). Wait ratio = average wait time / average work time.\n\nMonitor: Queue depth, rejection rate, task completion time. Adjust based on monitoring."
+}
+
+qa_batch_03["answers"]["88"] = {
+    "question": "What is ForkJoinPool?",
+    "category": "Parallel Processing",
+    "complexity": "Intermediate",
+    "keywords": ["ForkJoinPool", "work stealing", "parallel streams", "divide and conquer"],
+    "answer": "Work-stealing thread pool for divide-and-conquer tasks. Each thread has queue; when idle, steals work from other queues. Better than fixed pool for recursive tasks.\n\nParallel streams use ForkJoinPool by default. Pool size = available cores (tunable with -Djava.util.concurrent.ForkJoinPool.common.parallelism).\n\nBest for: Recursive algorithms, parallel streams with reasonable task granularity."
+}
+
+qa_batch_03["answers"]["89"] = {
+    "question": "How does garbage collection work in JVM?",
+    "category": "Memory Management",
+    "complexity": "Intermediate",
+    "keywords": ["garbage collection", "mark sweep", "generational"],
+    "answer": "Mark phase: Identify live objects from GC roots. Sweep: Remove unreachable objects. Compact: Arrange remaining objects contiguously.\n\nGenerational: Young objects collected frequently (fast, minor GC). Old objects collected rarely (expensive, major/full GC). Assumption: most objects die young.\n\nCollection triggers: Young generation fills, explicit System.gc() calls, heap pressure threshold."
+}
+
+qa_batch_03["answers"]["90"] = {
+    "question": "What is G1 GC vs ZGC?",
+    "category": "Garbage Collection Algorithms",
+    "complexity": "Intermediate",
+    "keywords": ["G1GC", "ZGC", "latency", "throughput"],
+    "answer": "G1GC: Balanced, region-based, tunable pause times (10-50ms target). Good for most workloads, default in Java 9+.\n\nZGC: Ultra-low latency (<10ms), concurrent, scales to large heaps, higher memory overhead. Choose ZGC when SLA requires <10ms pause times."
+}
+
+qa_batch_03["answers"]["91"] = {
+    "question": "What is memory leak in Java?",
+    "category": "Memory Management",
+    "complexity": "Intermediate",
+    "keywords": ["memory leak", "unreferenced objects", "heap growth"],
+    "answer": "Objects no longer needed but still referenced, preventing garbage collection. Causes monotonic heap growth, eventual OutOfMemoryError.\n\nCommon causes: Static collections never cleared, listener lists not unregistered, ThreadLocal not removed in servlet containers, caches without eviction.\n\nDetection: Heap dump analysis, continuous monitoring for linear growth patterns."
+}
+
+qa_batch_03["answers"]["92"] = {
+    "question": "What is OutOfMemoryError vs StackOverflowError?",
+    "category": "Error Handling",
+    "complexity": "Intermediate",
+    "keywords": ["OutOfMemoryError", "StackOverflowError", "heap", "stack"],
+    "answer": "OutOfMemoryError: Heap exhausted (various causes: leak, fragmentation, Metaspace, direct memory, GC overhead). Fix: increase heap, reduce allocation, fix leak, tune GC.\n\nStackOverflowError: Stack overflow from deep recursion. Fix: increase stack size, optimize recursion (tail call, iterative)."
+}
+
+qa_batch_03["answers"]["93"] = {
+    "question": "What is classloader hierarchy?",
+    "category": "Class Loading",
+    "complexity": "Intermediate",
+    "keywords": ["classloader", "hierarchy", "delegation", "Bootstrap"],
+    "answer": "Bootstrap ClassLoader (loads rt.jar, JDK classes) -> Extension ClassLoader (jre/lib/ext) -> Application ClassLoader (classpath) -> Custom.\n\nDelegation model: Child asks parent first before loading (parent-first). Prevents duplicate class loading, ensures consistency.\n\nImportant for: Plugin systems to avoid version conflicts, large applications with multiple loaders."
+}
+
+qa_batch_03["answers"]["94"] = {
+    "question": "What is Metaspace?",
+    "category": "Memory Management",
+    "complexity": "Intermediate",
+    "keywords": ["Metaspace", "class metadata", "native memory", "Java 8"],
+    "answer": "Replaces PermGen in Java 8+. Stores class metadata (bytecode, method metadata, symbol tables) on native memory (not heap).\n\nBenefit: Can use OS memory, not limited by heap size. Problem: Still limited by available native memory.\n\nConfiguration: -XX:MetaspaceSize and -XX:MaxMetaspaceSize. Monitor for OutOfMemoryError: Metaspace in high class loading scenarios."
+}
+
+qa_batch_03["answers"]["95"] = {
+    "question": "What is JIT compiler?",
+    "category": "JVM Performance",
+    "complexity": "Intermediate",
+    "keywords": ["JIT", "compilation", "bytecode", "native code"],
+    "answer": "Just-In-Time compiler converts hot bytecode to native machine code at runtime. Methods called >10,000 times (configurable) compiled, resulting in 10-100x performance improvement.\n\nWarmup period: Initial seconds interpreted (slow), then JIT kicks in (fast). Tiered compilation balances warmup vs peak performance.\n\nMonitoring: -XX:+PrintCompilation shows which methods compiled."
+}
+
+qa_batch_03["answers"]["96"] = {
+    "question": "What is escape analysis?",
+    "category": "JVM Optimization",
+    "complexity": "Advanced",
+    "keywords": ["escape analysis", "stack allocation", "scalar replacement", "optimization"],
+    "answer": "JVM optimization: if object doesn't escape method scope, allocate on stack (not heap) or replace fields with local variables.\n\nBenefits: Stack allocation is faster (cache-friendly), automatic cleanup (no GC), zero allocation pressure.\n\nPerformance: 5-100x improvement for allocation-heavy code. Example: 1M loop iterations with small objects become zero-allocation with escape analysis.\n\nEnabled: -XX:+DoEscapeAnalysis (default with -server)."
+}
+
+# Save to JSON
+output_path = "/Users/racit/PersonalProject/guru-sishya/public/content/java-qa-batch03.json"
+with open(output_path, 'w') as f:
+    json.dump(qa_batch_03, f, indent=2)
+
+print(f"Successfully generated {len(qa_batch_03['answers'])} Q&A pairs (Q65-Q96)")
+print(f"Saved to: {output_path}")
