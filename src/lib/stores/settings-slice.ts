@@ -10,6 +10,7 @@ export interface SettingsState {
   dailyGoal: number; // minutes
   timezone: string;
   showOnLeaderboard: boolean;
+  quizTimerEnabled: boolean;
 }
 
 export interface SettingsActions {
@@ -19,6 +20,7 @@ export interface SettingsActions {
   setSoundEnabled: (enabled: boolean) => void;
   setDailyGoal: (minutes: number) => void;
   setShowOnLeaderboard: (show: boolean) => void;
+  setQuizTimerEnabled: (enabled: boolean) => void;
 }
 
 export type SettingsSlice = SettingsState & SettingsActions;
@@ -37,6 +39,7 @@ export const createSettingsSlice: StateCreator<
   dailyGoal: 15,
   timezone: "UTC",
   showOnLeaderboard: true,
+  quizTimerEnabled: false,
 
   // Actions
   setApiKey: (key) =>
@@ -62,5 +65,9 @@ export const createSettingsSlice: StateCreator<
   setShowOnLeaderboard: (show) =>
     set((state) => {
       state.showOnLeaderboard = show;
+    }),
+  setQuizTimerEnabled: (enabled) =>
+    set((state) => {
+      state.quizTimerEnabled = enabled;
     }),
 });

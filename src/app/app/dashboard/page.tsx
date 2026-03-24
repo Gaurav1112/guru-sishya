@@ -16,6 +16,8 @@ import { useStreak } from "@/hooks/use-streak";
 import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
 import Link from "next/link";
 import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
+import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
+import { StarSection } from "@/components/features/star/star-section";
 
 // ── Featured topics to show on dashboard ────────────────────────────────────
 
@@ -414,6 +416,9 @@ export default function DashboardPage() {
       {/* Question of the Day Banner */}
       <QuestionBanner />
 
+      {/* STAR Interview Prep */}
+      <StarSection />
+
       {/* Your Progress */}
       <section>
         <h2 className="font-heading text-lg font-semibold mb-3">Your Progress</h2>
@@ -422,6 +427,9 @@ export default function DashboardPage() {
 
       {/* Daily Goal */}
       <DailyGoalBar />
+
+      {/* Activity Heatmap */}
+      <ActivityHeatmap />
 
       {/* Quick Start */}
       <section>

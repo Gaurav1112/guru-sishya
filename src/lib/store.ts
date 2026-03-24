@@ -29,6 +29,7 @@ type PersistedState = Pick<
   | "dailyGoal"
   | "timezone"
   | "showOnLeaderboard"
+  | "quizTimerEnabled"
   | "totalXP"
   | "level"
   | "coins"
@@ -87,6 +88,7 @@ export const useStore = create<StoreState>()(
         activeXPBoost: state.activeXPBoost,
         hintTokens: state.hintTokens,
         streakRepairAvailable: state.streakRepairAvailable,
+        quizTimerEnabled: state.quizTimerEnabled,
       }),
     }
   )

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { GeneratedQuestion } from "@/lib/quiz/types";
@@ -53,15 +54,25 @@ const OPEN_PLACEHOLDERS: Record<string, string> = {
   fill_blank: "Type the word or phrase that fills the blank...",
 };
 
+// Letter badge colors — each option gets a distinct accent
+const LETTER_BADGE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  A: { bg: "bg-indigo-500/20", text: "text-indigo-400", border: "border-indigo-500/50" },
+  B: { bg: "bg-violet-500/20", text: "text-violet-400", border: "border-violet-500/50" },
+  C: { bg: "bg-cyan-500/20",   text: "text-cyan-400",   border: "border-cyan-500/50"   },
+  D: { bg: "bg-amber-500/20",  text: "text-amber-400",  border: "border-amber-500/50"  },
+  E: { bg: "bg-rose-500/20",   text: "text-rose-400",   border: "border-rose-500/50"   },
+};
+
 export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInputProps) {
   const hintTokens = useStore((s) => s.hintTokens);
   const useHintToken = useStore((s) => s.useHintToken);
   const [selected, setSelected] = useState<string>("");
   const [eliminatedOption, setEliminatedOption] = useState<string | null>(null);
 
-  // Reset eliminated option whenever the question changes
+  // Reset state whenever the question changes
   useEffect(() => {
     setEliminatedOption(null);
+    setSelected("");
   }, [question.question]);
 
   function handleUseHint() {
@@ -173,50 +184,84 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
       hintTokens > 0 && !!question.correctAnswer && !eliminatedOption && !disabled;
     return (
       <div className="flex flex-col gap-3">
-        <div className="grid gap-2">
-          {question.options.map((option) => {
+        <div className="grid gap-2.5">
+          {question.options.map((option, idx) => {
             const letter = option.charAt(0); // "A", "B", etc.
             const isSelected = selected === letter;
             const isEliminated = eliminatedOption === letter;
+            const badge = LETTER_BADGE_COLORS[letter] ?? LETTER_BADGE_COLORS["A"];
+
             return (
-              <button
+              <motion.button
                 key={option}
                 type="button"
                 disabled={disabled || isEliminated}
                 onClick={() => !isEliminated && setSelected(letter)}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: isEliminated ? 0.3 : 1, x: 0 }}
+                transition={{ duration: 0.18, delay: idx * 0.04 }}
+                whileHover={
+                  !disabled && !isEliminated
+                    ? { scale: 1.012, transition: { duration: 0.12 } }
+                    : {}
+                }
+                whileTap={!disabled && !isEliminated ? { scale: 0.985 } : {}}
                 className={cn(
-                  "flex items-start gap-3 rounded-lg border p-3 text-left text-sm transition-all duration-150 min-h-[48px]",
-                  "hover:bg-surface-hover hover:border-saffron/50",
-                  "disabled:pointer-events-none",
-                  isEliminated
-                    ? "opacity-30 line-through cursor-not-allowed"
-                    : isSelected
-                      ? "border-saffron bg-saffron/10 text-foreground"
-                      : "border-border bg-card text-foreground disabled:opacity-50"
+                  // base
+                  "group relative flex items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition-all duration-150",
+                  // equal height
+                  "min-h-[56px]",
+                  // eliminated
+                  isEliminated && "line-through cursor-not-allowed",
+                  // selected state — saffron border + bg glow
+                  isSelected
+                    ? "border-saffron bg-saffron/10 shadow-[0_0_0_1px_hsl(var(--saffron)/0.4)] text-foreground"
+                    : "border-border bg-card text-foreground",
+                  // hover glow (only when not selected/eliminated/disabled)
+                  !isSelected && !isEliminated && !disabled &&
+                    "hover:border-saffron/40 hover:bg-saffron/5 hover:shadow-[0_0_0_1px_hsl(var(--saffron)/0.2)]",
+                  "disabled:pointer-events-none"
                 )}
               >
+                {/* Letter badge */}
                 <span
                   className={cn(
-                    "flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
+                    "flex size-7 shrink-0 items-center justify-center rounded-lg border text-xs font-bold transition-colors duration-150",
                     isSelected
-                      ? "border-saffron bg-saffron text-white"
-                      : "border-border text-muted-foreground"
+                      ? "border-saffron bg-saffron text-background"
+                      : cn(badge.bg, badge.text, badge.border, "border")
                   )}
                 >
                   {letter}
                 </span>
-                <span className="pt-0.5 flex-1">{option.substring(3)}</span>
+
+                {/* Option text */}
+                <span className="flex-1 leading-snug">{option.substring(3)}</span>
+
                 {/* Keyboard hint */}
                 {keyHints[letter] && !isEliminated && (
-                  <span className="shrink-0 self-center rounded border border-border/60 bg-muted/40 px-1 py-0.5 text-[10px] text-muted-foreground tabular-nums">
+                  <span className="shrink-0 self-center rounded border border-border/60 bg-muted/40 px-1 py-0.5 text-[10px] text-muted-foreground tabular-nums opacity-60 group-hover:opacity-100 transition-opacity">
                     {keyHints[letter]}
                   </span>
                 )}
-              </button>
+
+                {/* Selected check indicator */}
+                {isSelected && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    className="shrink-0 flex size-5 items-center justify-center rounded-full bg-saffron text-background text-[11px] font-bold"
+                  >
+                    ✓
+                  </motion.span>
+                )}
+              </motion.button>
             );
           })}
         </div>
-        {/* Hint token button — only for MCQ with a known correct answer */}
+
+        {/* Hint token button */}
         {(canUseHint || eliminatedOption) && (
           <button
             type="button"
@@ -235,6 +280,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
               : `Use hint token (${hintTokens} left) — eliminate a wrong answer`}
           </button>
         )}
+
         <Button
           onClick={handleSubmit}
           disabled={!selected || disabled}
@@ -256,25 +302,26 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
       <div className="flex flex-col gap-3">
         <div className="grid grid-cols-2 gap-3">
           {["True", "False"].map((value) => (
-            <button
+            <motion.button
               key={value}
               type="button"
               disabled={disabled}
               onClick={() => setSelected(value)}
+              whileHover={!disabled ? { scale: 1.02 } : {}}
+              whileTap={!disabled ? { scale: 0.97 } : {}}
               className={cn(
-                "relative rounded-xl border p-4 text-center text-base font-semibold transition-all duration-150 min-h-[48px]",
-                "hover:bg-surface-hover hover:border-saffron/50",
+                "relative rounded-xl border p-4 text-center text-base font-semibold transition-all duration-150 min-h-[56px]",
                 "disabled:pointer-events-none disabled:opacity-50",
                 selected === value
-                  ? "border-saffron bg-saffron/10 text-saffron"
-                  : "border-border bg-card text-foreground"
+                  ? "border-saffron bg-saffron/10 text-saffron shadow-[0_0_0_1px_hsl(var(--saffron)/0.4)]"
+                  : "border-border bg-card text-foreground hover:border-saffron/40 hover:bg-saffron/5"
               )}
             >
               {value}
               <span className="absolute right-2 top-2 rounded border border-border/60 bg-muted/40 px-1 py-0.5 text-[10px] text-muted-foreground">
                 {tfHints[value]}
               </span>
-            </button>
+            </motion.button>
           ))}
         </div>
         <Button

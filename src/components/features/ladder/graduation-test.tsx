@@ -14,6 +14,9 @@ import { GradeResult } from "@/components/features/quiz/grade-result";
 import { quizQuestionPrompt, quizGradingPrompt } from "@/lib/prompts/quiz-generator";
 import type { BloomLevel, GeneratedQuestion, AnsweredQuestion } from "@/lib/quiz/types";
 import { cn } from "@/lib/utils";
+import { findTopicContent } from "@/lib/content/loader";
+import type { QuizBankQuestion } from "@/lib/content/loader";
+import { gradeStaticQuestion } from "@/lib/quiz/static-quiz";
 
 // ── Bloom level mapping per Dreyfus level ────────────────────────────────────
 
@@ -39,6 +42,50 @@ const PASS_XP = 30;
 const PASS_COINS = 15;
 const BOSS_PASS_XP = 100;
 const BOSS_PASS_COINS = 50;
+
+// Dreyfus level → numeric difficulty range in the quiz bank (1–5 scale)
+const DREYFUS_DIFFICULTY_RANGE: Record<number, [number, number]> = {
+  1: [1, 2],
+  2: [2, 3],
+  3: [3, 4],
+  4: [4, 5],
+  5: [4, 5],
+};
+
+// Convert a QuizBankQuestion to the GeneratedQuestion shape used by the UI
+function quizBankToGeneratedQuestion(q: QuizBankQuestion): GeneratedQuestion {
+  // Map numeric difficulty (1-5) to BloomLevel (1-7) — simple 1:1 for 1-5
+  const bloom = Math.min(7, Math.max(1, q.difficulty)) as BloomLevel;
+  return {
+    question: q.question,
+    format: q.format as GeneratedQuestion["format"],
+    difficulty: bloom,
+    bloomLabel: q.bloomLabel,
+    options: q.options,
+    correctAnswer: q.correctAnswer,
+  };
+}
+
+// Pick N questions from a quiz bank within a difficulty range, without repeats
+function pickStaticQuestions(
+  quizBank: QuizBankQuestion[],
+  diffMin: number,
+  diffMax: number,
+  count: number
+): QuizBankQuestion[] {
+  const inRange = quizBank.filter(
+    (q) => q.difficulty >= diffMin && q.difficulty <= diffMax
+  );
+  // Shuffle
+  const shuffled = [...inRange].sort(() => Math.random() - 0.5);
+  if (shuffled.length >= count) return shuffled.slice(0, count);
+
+  // Not enough in range — pad with questions just outside the range
+  const outside = quizBank
+    .filter((q) => q.difficulty < diffMin || q.difficulty > diffMax)
+    .sort(() => Math.random() - 0.5);
+  return [...shuffled, ...outside].slice(0, count);
+}
 
 // ── Cooldown helpers ─────────────────────────────────────────────────────────
 
@@ -161,10 +208,15 @@ export function GraduationTest({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentAnswer, setCurrentAnswer] = useState<AnsweredQuestion | null>(null);
   const answersRef = useRef<AnsweredQuestion[]>([]);
+  // Tracks the original QuizBankQuestion for each question (null = AI-generated)
+  const staticBankRef = useRef<(QuizBankQuestion | null)[]>([]);
 
   // Boss battle timer
   const [secondsLeft, setSecondsLeft] = useState(BOSS_DURATION_SECONDS);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Actual number of questions loaded (may be < totalQuestions if partial static fill)
+  const [loadedCount, setLoadedCount] = useState(totalQuestions);
 
   // Result
   const [passed, setPassed] = useState(false);
@@ -218,44 +270,84 @@ export function GraduationTest({
   // ── Generate all questions upfront ──────────────────────────────────────────
 
   const startTest = useCallback(async () => {
-    if (!ai) return;
     setPhase("loading");
     setError(null);
     answersRef.current = [];
+    staticBankRef.current = [];
 
     try {
       const generated: GeneratedQuestion[] = [];
-      const prevTexts: string[] = [];
+      const staticSources: (QuizBankQuestion | null)[] = [];
 
-      for (let i = 0; i < totalQuestions; i++) {
-        // Vary bloom level slightly upward as questions progress
-        const bloomOffset = Math.floor(i / Math.ceil(totalQuestions / 2));
-        const bloom = Math.min(7, bloomBase + bloomOffset) as BloomLevel;
+      // ── 1. Try to load from the static quiz bank first ─────────────────────
+      const [diffMin, diffMax] = DREYFUS_DIFFICULTY_RANGE[dreyfusLevel] ?? [1, 5];
+      let staticQuestions: QuizBankQuestion[] = [];
 
-        // Pick format that works well with the bloom level
-        const formats: Array<GeneratedQuestion["format"]> = bloom <= 2
-          ? ["mcq", "true_false", "fill_blank"]
-          : bloom <= 4
-            ? ["mcq", "open_ended", "scenario"]
-            : ["open_ended", "scenario", "mcq"];
-        const format = formats[i % formats.length];
-
-        const { system, user } = quizQuestionPrompt(topicName, bloom, format, prevTexts);
-        const q = await ai.generateStructured<GeneratedQuestion>(
-          user,
-          system,
-          (text) => {
-            const parsed = JSON.parse(extractJSON(text)) as GeneratedQuestion;
-            if (!parsed.question) throw new Error("Invalid question");
-            return parsed;
-          },
-          { temperature: 0.7 }
+      const topicContent = await findTopicContent(topicName);
+      if (topicContent?.quizBank?.length) {
+        staticQuestions = pickStaticQuestions(
+          topicContent.quizBank,
+          diffMin,
+          diffMax,
+          totalQuestions
         );
-        generated.push(q);
-        prevTexts.push(q.question.substring(0, 80));
       }
 
+      // ── 2. Use however many static questions we got ────────────────────────
+      for (const sq of staticQuestions) {
+        generated.push(quizBankToGeneratedQuestion(sq));
+        staticSources.push(sq);
+      }
+
+      // ── 3. Fill the remainder with AI-generated questions (if possible) ────
+      const remaining = totalQuestions - generated.length;
+      if (remaining > 0) {
+        if (!ai) {
+          if (generated.length === 0) {
+            setError(
+              "No questions available. Connect an AI provider or ensure the quiz bank has content for this topic."
+            );
+            setPhase("intro");
+            return;
+          }
+          // Partial fill — work with what we have
+        } else {
+          const prevTexts = generated.map((q) => q.question.substring(0, 80));
+          for (let i = 0; i < remaining; i++) {
+            const bloomOffset = Math.floor(
+              (generated.length + i) / Math.ceil(totalQuestions / 2)
+            );
+            const bloom = Math.min(7, bloomBase + bloomOffset) as BloomLevel;
+
+            const formats: Array<GeneratedQuestion["format"]> =
+              bloom <= 2
+                ? ["mcq", "true_false", "fill_blank"]
+                : bloom <= 4
+                  ? ["mcq", "open_ended", "scenario"]
+                  : ["open_ended", "scenario", "mcq"];
+            const format = formats[i % formats.length];
+
+            const { system, user } = quizQuestionPrompt(topicName, bloom, format, prevTexts);
+            const q = await ai.generateStructured<GeneratedQuestion>(
+              user,
+              system,
+              (text) => {
+                const parsed = JSON.parse(extractJSON(text)) as GeneratedQuestion;
+                if (!parsed.question) throw new Error("Invalid question");
+                return parsed;
+              },
+              { temperature: 0.7 }
+            );
+            generated.push(q);
+            staticSources.push(null); // AI-generated, no static source
+            prevTexts.push(q.question.substring(0, 80));
+          }
+        }
+      }
+
+      staticBankRef.current = staticSources;
       setQuestions(generated);
+      setLoadedCount(generated.length);
       setCurrentIndex(0);
       setSecondsLeft(BOSS_DURATION_SECONDS);
       setPhase("answering");
@@ -263,45 +355,61 @@ export function GraduationTest({
       setError(err instanceof Error ? err.message : "Failed to generate questions");
       setPhase("intro");
     }
-  }, [ai, bloomBase, topicName, totalQuestions]);
+  }, [ai, bloomBase, dreyfusLevel, topicName, totalQuestions]);
 
   // ── Grade current answer ─────────────────────────────────────────────────────
 
   const handleAnswer = useCallback(
     async (userAnswer: string) => {
       const q = questions[currentIndex];
-      if (!q || !ai) return;
+      if (!q) return;
       setPhase("grading");
       setError(null);
 
       try {
         let graded: { score: number; feedback: string; missed: string[]; perfectAnswer: string };
 
-        const needsAI =
-          !q.correctAnswer ||
-          (q.format !== "mcq" && q.format !== "true_false" && q.format !== "fill_blank");
+        const staticSource = staticBankRef.current[currentIndex] ?? null;
 
-        if (needsAI) {
-          const { system, user } = quizGradingPrompt(q.question, userAnswer, q.difficulty);
-          const result = await ai.generateStructured(
-            user,
-            system,
-            (text) => {
-              const parsed = JSON.parse(extractJSON(text)) as Record<string, unknown>;
-              return {
-                score: Math.min(10, Math.max(0, Number(parsed.score))),
-                feedback: String(parsed.feedback ?? ""),
-                missed: Array.isArray(parsed.missed)
-                  ? (parsed.missed as unknown[]).map(String)
-                  : [],
-                perfectAnswer: String(parsed.perfectAnswer ?? ""),
-              };
-            },
-            { temperature: 0.2 }
-          );
-          graded = result;
+        if (staticSource) {
+          // ── Static question: grade locally, no AI needed ─────────────────
+          graded = gradeStaticQuestion(staticSource, userAnswer);
         } else {
-          graded = gradeLocalAnswer(q, userAnswer);
+          // ── AI-generated question: use local grader for MCQ/TF/fill_blank,
+          //    fall back to AI for open-ended formats ──────────────────────
+          const canGradeLocally =
+            q.correctAnswer &&
+            (q.format === "mcq" || q.format === "true_false" || q.format === "fill_blank");
+
+          if (canGradeLocally) {
+            graded = gradeLocalAnswer(q, userAnswer);
+          } else if (ai) {
+            const { system, user } = quizGradingPrompt(q.question, userAnswer, q.difficulty);
+            graded = await ai.generateStructured(
+              user,
+              system,
+              (text) => {
+                const parsed = JSON.parse(extractJSON(text)) as Record<string, unknown>;
+                return {
+                  score: Math.min(10, Math.max(0, Number(parsed.score))),
+                  feedback: String(parsed.feedback ?? ""),
+                  missed: Array.isArray(parsed.missed)
+                    ? (parsed.missed as unknown[]).map(String)
+                    : [],
+                  perfectAnswer: String(parsed.perfectAnswer ?? ""),
+                };
+              },
+              { temperature: 0.2 }
+            );
+          } else {
+            // No AI and not locally gradeable — give a neutral recorded score
+            graded = {
+              score: 5,
+              feedback: "Answer recorded. (AI grading unavailable — connect a provider for detailed feedback.)",
+              missed: [],
+              perfectAnswer: q.correctAnswer ?? "",
+            };
+          }
         }
 
         const answered: AnsweredQuestion = { ...q, userAnswer, ...graded };
@@ -319,7 +427,7 @@ export function GraduationTest({
   // ── Advance or finalize ──────────────────────────────────────────────────────
 
   const handleNext = useCallback(() => {
-    if (currentIndex + 1 >= totalQuestions) {
+    if (currentIndex + 1 >= loadedCount) {
       clearInterval(timerRef.current!);
       finalizeTest(answersRef.current);
     } else {
@@ -327,14 +435,16 @@ export function GraduationTest({
       setCurrentIndex((i) => i + 1);
       setPhase("answering");
     }
-  }, [currentIndex, totalQuestions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentIndex, loadedCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const finalizeTest = useCallback(
     async (answers: AnsweredQuestion[]) => {
       // Score: count answers where score >= 7 (pass threshold for a question)
       const correct = answers.filter((a) => a.score >= 7).length;
-      const didPass = correct / totalQuestions >= PASS_THRESHOLD;
+      const actualCount = answers.length || loadedCount;
+      const didPass = actualCount > 0 && correct / actualCount >= PASS_THRESHOLD;
       setCorrectCount(correct);
+      setLoadedCount(actualCount);
       setPassed(didPass);
 
       // Persist result
@@ -343,7 +453,7 @@ export function GraduationTest({
         level: dreyfusLevel,
         passed: didPass,
         score: correct,
-        totalQuestions,
+        totalQuestions: actualCount,
         attemptedAt: new Date(),
       });
 
@@ -390,7 +500,7 @@ export function GraduationTest({
 
       setPhase("result");
     },
-    [addCoins, addXP, dreyfusLevel, isBoss, queueCelebration, topicId, topicName, totalQuestions]
+    [addCoins, addXP, dreyfusLevel, isBoss, loadedCount, queueCelebration, topicId, topicName, totalQuestions]
   );
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -528,7 +638,7 @@ export function GraduationTest({
         <div className="flex items-center justify-between px-1">
           <span className="text-xs text-muted-foreground">
             {isBoss ? "Guru Pareeksha" : `Level ${dreyfusLevel} Graduation Test`} — Question{" "}
-            {currentIndex + 1} of {totalQuestions}
+            {currentIndex + 1} of {loadedCount}
           </span>
           {isBoss && (
             <span
@@ -547,7 +657,7 @@ export function GraduationTest({
         <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
           <div
             className="h-full bg-saffron transition-all duration-300"
-            style={{ width: `${((currentIndex) / totalQuestions) * 100}%` }}
+            style={{ width: `${((currentIndex) / loadedCount) * 100}%` }}
           />
         </div>
 
@@ -563,7 +673,7 @@ export function GraduationTest({
             key={q.question.substring(0, 20)}
             question={q}
             questionNumber={currentIndex + 1}
-            totalQuestions={totalQuestions}
+            totalQuestions={loadedCount}
           />
         </AnimatePresence>
         <AnswerInput question={q} onSubmit={handleAnswer} />
@@ -573,7 +683,7 @@ export function GraduationTest({
 
   // Showing grade result
   if (phase === "showing_grade" && currentAnswer) {
-    const isLast = currentIndex + 1 >= totalQuestions;
+    const isLast = currentIndex + 1 >= loadedCount;
     const xpForThis =
       currentAnswer.score >= 10 ? 5 : currentAnswer.score >= 8 ? 3 : currentAnswer.score >= 5 ? 1 : 0;
     return (
@@ -590,7 +700,7 @@ export function GraduationTest({
 
   // Result screen
   if (phase === "result") {
-    const pct = Math.round((correctCount / totalQuestions) * 100);
+    const pct = loadedCount > 0 ? Math.round((correctCount / loadedCount) * 100) : 0;
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -619,7 +729,7 @@ export function GraduationTest({
                 {isBoss ? "Guru Pareeksha Passed!" : "Level Cleared!"}
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                {correctCount} / {totalQuestions} correct ({pct}%)
+                {correctCount} / {loadedCount} correct ({pct}%)
               </p>
               {isBoss && (
                 <p className="mt-2 text-sm font-medium text-gold">
@@ -633,8 +743,8 @@ export function GraduationTest({
                 Not Quite Yet
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                {correctCount} / {totalQuestions} correct ({pct}%) — need{" "}
-                {Math.ceil(totalQuestions * PASS_THRESHOLD)} to pass
+                {correctCount} / {loadedCount} correct ({pct}%) — need{" "}
+                {Math.ceil(loadedCount * PASS_THRESHOLD)} to pass
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
                 Review the material and try again in 24 hours.

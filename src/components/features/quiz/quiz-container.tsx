@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, Zap } from "lucide-react";
+import { Loader2, AlertCircle, Zap, Timer } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAI } from "@/hooks/use-ai";
 import { useStore } from "@/lib/store";
@@ -31,9 +31,14 @@ import type { OneMoreRoundTrigger } from "@/lib/gamification/one-more-round";
 import { BLOOM_LABELS, type BloomLevel, type GeneratedQuestion, type AnsweredQuestion, type QuizResult } from "@/lib/quiz/types";
 import { findTopicContent, type QuizBankQuestion } from "@/lib/content/loader";
 import { pickQuestion, gradeStaticQuestion } from "@/lib/quiz/static-quiz";
+import { cn } from "@/lib/utils";
 
 const SESSION_CAP = 15;
 const CALIBRATION_COUNT = 5;
+
+// Timer durations (seconds)
+const TIMER_MCQ = 60;
+const TIMER_OPEN = 120;
 
 interface QuizContainerProps {
   topicId: number;
@@ -58,7 +63,7 @@ function extractJSON(text: string): string {
   return text.trim();
 }
 
-// ── FIX 4: Weighted format selection based on Bloom's level ──────────────────
+// ── Weighted format selection based on Bloom's level ─────────────────────────
 
 type QuizFormat = GeneratedQuestion["format"];
 
@@ -67,14 +72,12 @@ function pickFormatForLevel(level: BloomLevel): QuizFormat {
   let pool: WeightedFormat[];
 
   if (level <= 2) {
-    // Levels 1-2: recall and comprehension — simple formats
     pool = [
       ["mcq", 40],
       ["true_false", 30],
       ["fill_blank", 30],
     ];
   } else if (level <= 4) {
-    // Levels 3-4: application and analysis
     pool = [
       ["scenario", 35],
       ["open_ended", 25],
@@ -82,7 +85,6 @@ function pickFormatForLevel(level: BloomLevel): QuizFormat {
       ["mcq", 20],
     ];
   } else {
-    // Levels 5-7: evaluation and synthesis
     pool = [
       ["open_ended", 40],
       ["scenario", 30],
@@ -158,6 +160,147 @@ function gradeLocalAnswer(
   };
 }
 
+// ── Circular countdown timer ──────────────────────────────────────────────────
+
+interface CountdownTimerProps {
+  total: number;       // seconds
+  remaining: number;   // seconds
+}
+
+function CountdownTimer({ total, remaining }: CountdownTimerProps) {
+  const fraction = remaining / total;
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDash = circumference * fraction;
+
+  // Color transitions: green → yellow → red
+  // CSS variables already contain full hsl() values, use directly
+  const color =
+    fraction > 0.5
+      ? "var(--teal)"
+      : fraction > 0.25
+      ? "var(--gold)"
+      : "var(--destructive)";
+
+  const isUrgent = remaining <= 10;
+
+  return (
+    <motion.div
+      animate={isUrgent ? { scale: [1, 1.06, 1] } : { scale: 1 }}
+      transition={isUrgent ? { repeat: Infinity, duration: 0.6 } : {}}
+      className="relative flex items-center justify-center"
+      title={`${remaining}s remaining`}
+    >
+      <svg width={56} height={56} className="-rotate-90">
+        {/* Track */}
+        <circle
+          cx={28}
+          cy={28}
+          r={radius}
+          fill="none"
+          stroke="hsl(var(--border))"
+          strokeWidth={4}
+        />
+        {/* Progress arc */}
+        <motion.circle
+          cx={28}
+          cy={28}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={4}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference - strokeDash}
+          transition={{ duration: 0.4 }}
+        />
+      </svg>
+      {/* Seconds label */}
+      <span
+        className="absolute text-xs font-bold tabular-nums"
+        style={{ color }}
+      >
+        {remaining}
+      </span>
+    </motion.div>
+  );
+}
+
+// ── Progress bar ─────────────────────────────────────────────────────────────
+
+interface QuizProgressBarProps {
+  current: number;   // 1-based
+  total: number;
+  score: number;     // cumulative score points earned (sum)
+  maxScore: number;  // maximum possible so far
+}
+
+function QuizProgressBar({ current, total, score, maxScore }: QuizProgressBarProps) {
+  const fraction = Math.min(current / total, 1);
+  const pct = Math.round(fraction * 100);
+
+  return (
+    <div className="flex flex-col gap-1.5 w-full">
+      {/* Labels row */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
+        <span className="font-medium text-foreground">
+          Question <span className="text-saffron font-bold">{current}</span>
+          <span className="text-muted-foreground font-normal"> of {total}</span>
+        </span>
+        {maxScore > 0 && (
+          <span className="font-medium">
+            Score:{" "}
+            <span className="text-saffron font-bold">{score}</span>
+            <span className="text-muted-foreground">/{maxScore}</span>
+          </span>
+        )}
+      </div>
+      {/* Bar */}
+      <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
+        <motion.div
+          className="h-full rounded-full bg-saffron"
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ── Timer toggle switch ───────────────────────────────────────────────────────
+
+interface TimerToggleProps {
+  enabled: boolean;
+  onChange: (v: boolean) => void;
+}
+
+function TimerToggle({ enabled, onChange }: TimerToggleProps) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={enabled}
+      onClick={() => onChange(!enabled)}
+      className={cn(
+        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 transition-colors duration-200",
+        enabled
+          ? "border-saffron bg-saffron"
+          : "border-border bg-muted/40"
+      )}
+    >
+      <motion.span
+        layout
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        className={cn(
+          "inline-block size-3.5 rounded-full bg-background shadow-sm",
+          enabled ? "translate-x-4" : "translate-x-0.5"
+        )}
+      />
+    </button>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 type Phase =
@@ -177,6 +320,8 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const addXP = useStore((s) => s.addXP);
   const addCoins = useStore((s) => s.addCoins);
   const aiProvider = useStore((s) => s.aiProvider);
+  const quizTimerEnabled = useStore((s) => s.quizTimerEnabled);
+  const setQuizTimerEnabled = useStore((s) => s.setQuizTimerEnabled);
 
   // Static provider: load quiz bank directly for instant question delivery
   const [quizBank, setQuizBank] = useState<QuizBankQuestion[] | null>(null);
@@ -193,9 +338,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   }, [isStatic, topicName]);
 
   // Dexie live query to detect existing calibration
-  // Note: Dexie's first() returns undefined when no records match,
-  // but useLiveQuery also returns undefined while loading.
-  // We normalize to null to distinguish "no results" from "still loading".
   const existingCalibration = useLiveQuery(
     async () => (await db.quizAttempts.where({ topicId }).first()) ?? null,
     [topicId]
@@ -220,14 +362,20 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const [breakingPointLevel, setBreakingPointLevel] = useState<BloomLevel | null>(null);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
-  // FIX 1: One More Round state
+  // One More Round state
   const [oneMoreRoundTrigger, setOneMoreRoundTrigger] = useState<OneMoreRoundTrigger | null>(null);
   const [consecutivePrompts, setConsecutivePrompts] = useState(0);
 
-  // FIX 2: Treasure Chest state
+  // Treasure Chest state
   const [activeChestId, setActiveChestId] = useState<number | null>(null);
   const [roundsCompleted, setRoundsCompleted] = useState(0);
   const [lastChestRound, setLastChestRound] = useState(0);
+
+  // ── Timer state ────────────────────────────────────────────────────────────
+  const [timerRemaining, setTimerRemaining] = useState<number>(0);
+  const [timerTotal, setTimerTotal] = useState<number>(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const autoSubmitRef = useRef<(() => void) | null>(null);
 
   const allAnswers = useRef<AnsweredQuestion[]>([]);
 
@@ -235,12 +383,10 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
 
   useEffect(() => {
     if (phase !== "checking") return;
-    if (existingCalibration === undefined) return; // still loading
+    if (existingCalibration === undefined) return;
     if (existingCalibration === null) {
       setPhase("calibration_intro");
     } else {
-      // FIX 3: Use getStartingLevelFromCalibration with saved calibration scores
-      // instead of hardcoding level 1.
       const savedScores = existingCalibration.questions?.map((q) => q.score) ?? [];
       const startLevel = savedScores.length > 0
         ? getStartingLevelFromCalibration(savedScores)
@@ -250,6 +396,39 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     }
   }, [existingCalibration, phase]);
 
+  // ── Timer helpers ─────────────────────────────────────────────────────────
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const startTimer = useCallback(
+    (seconds: number, onExpire: () => void) => {
+      clearTimer();
+      setTimerTotal(seconds);
+      setTimerRemaining(seconds);
+      autoSubmitRef.current = onExpire;
+
+      timerRef.current = setInterval(() => {
+        setTimerRemaining((prev) => {
+          if (prev <= 1) {
+            clearTimer();
+            onExpire();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    },
+    [clearTimer]
+  );
+
+  // Clear timer on unmount
+  useEffect(() => () => clearTimer(), [clearTimer]);
+
   // ── Calibration: generate questions ─────────────────────────────────────────
 
   const startCalibration = useCallback(async () => {
@@ -257,13 +436,12 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     setPhase("calibration_loading");
     setError(null);
     try {
-      // Static provider with quiz bank: pick calibration questions directly
       if (isStatic && quizBank && quizBank.length >= CALIBRATION_COUNT) {
-        const calibQuestions: GeneratedQuestion[] = [];
+        const calibQs: GeneratedQuestion[] = [];
         for (let level = 1; level <= 5; level++) {
-          const q = pickQuestion(quizBank, level, calibQuestions.map((cq) => cq.question));
+          const q = pickQuestion(quizBank, level, calibQs.map((cq) => cq.question));
           if (q) {
-            calibQuestions.push({
+            calibQs.push({
               question: q.question,
               format: q.format as GeneratedQuestion["format"],
               difficulty: q.difficulty as BloomLevel,
@@ -273,8 +451,8 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
             });
           }
         }
-        if (calibQuestions.length > 0) {
-          setCalibQuestions(calibQuestions.slice(0, CALIBRATION_COUNT));
+        if (calibQs.length > 0) {
+          setCalibQuestions(calibQs.slice(0, CALIBRATION_COUNT));
           setCalibIndex(0);
           setPhase("calibration_answering");
           return;
@@ -307,12 +485,12 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const gradeCalibrationAnswer = useCallback(
     async (question: GeneratedQuestion, userAnswer: string) => {
       if (!ai) return;
+      clearTimer();
       setPhase("calibration_grading");
       setError(null);
       try {
         let graded: Pick<AnsweredQuestion, "score" | "feedback" | "missed" | "perfectAnswer">;
 
-        // Static provider: find quiz bank question and grade locally
         if (isStatic && quizBank) {
           const bankQ = quizBank.find((q) => q.question === question.question);
           if (bankQ) {
@@ -355,7 +533,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setCalibScores(newScores);
 
         if (calibIndex + 1 >= calibQuestions.length) {
-          // Calibration done — save attempt and move to adaptive
           await db.quizAttempts.add({
             topicId,
             score: Math.round(newScores.reduce((s, n) => s + n, 0) / newScores.length * 10),
@@ -379,7 +556,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setPhase("calibration_answering");
       }
     },
-    [ai, calibIndex, calibQuestions, calibScores, topicId, isStatic, quizBank]
+    [ai, calibIndex, calibQuestions, calibScores, topicId, isStatic, quizBank, clearTimer]
   );
 
   const advanceCalibration = useCallback(() => {
@@ -401,7 +578,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     try {
       const prevQs = adaptiveQuestions.map((q) => q.question.substring(0, 80));
 
-      // Static provider with quiz bank: pick questions directly
       if (isStatic && quizBank && quizBank.length > 0) {
         const picked = pickQuestion(quizBank, currentLevel, prevQs);
         if (picked) {
@@ -420,7 +596,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         }
       }
 
-      // FIX 4: Weighted format selection based on Bloom's level
       const format = pickFormatForLevel(currentLevel);
       const { system, user } = quizQuestionPrompt(topicName, currentLevel, format, prevQs);
 
@@ -432,7 +607,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
           if (!parsed.question) throw new Error("Invalid question response");
           return parsed;
         },
-        // FIX 6: Lower temperature from 0.8 to 0.5 for more reliable questions
         { temperature: 0.5 }
       );
       setCurrentQuestion(question);
@@ -448,12 +622,12 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const gradeAdaptiveAnswer = useCallback(
     async (question: GeneratedQuestion, userAnswer: string) => {
       if (!ai) return;
+      clearTimer();
       setPhase("adaptive_grading");
       setError(null);
       try {
         let graded: Pick<AnsweredQuestion, "score" | "feedback" | "missed" | "perfectAnswer">;
 
-        // Static provider: find quiz bank question and grade locally
         if (isStatic && quizBank) {
           const bankQ = quizBank.find((q) => q.question === question.question);
           if (bankQ) {
@@ -496,7 +670,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setAdaptiveAnswers(newAnswers);
         allAnswers.current = newAnswers;
 
-        // Adaptive difficulty logic
         const isLow = graded.score < 7;
         const newConsecutiveLow = isLow ? consecutiveLow + 1 : 0;
         setConsecutiveLow(newConsecutiveLow);
@@ -504,12 +677,12 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         const { nextLevel, breakingPoint } = getNextLevel(
           currentLevel,
           graded.score,
-          isLow ? consecutiveLow : 0 // pass previous consecutive low count
+          isLow ? consecutiveLow : 0
         );
 
         if (breakingPoint || newAnswers.length >= SESSION_CAP) {
           if (breakingPoint) setBreakingPointLevel(currentLevel);
-          setPhase("adaptive_grading"); // stay to show grade result first
+          setPhase("adaptive_grading");
         } else {
           setCurrentLevel(nextLevel);
         }
@@ -518,14 +691,14 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setPhase("adaptive_answering");
       }
     },
-    [ai, adaptiveAnswers, consecutiveLow, currentLevel, isStatic, quizBank]
+    [ai, adaptiveAnswers, consecutiveLow, currentLevel, isStatic, quizBank, clearTimer]
   );
 
-  // ── FIX 5: Skip question ─────────────────────────────────────────────────────
+  // ── Skip question ─────────────────────────────────────────────────────────────
 
   const handleSkip = useCallback(() => {
     if (!currentQuestion) return;
-    // Record as score 0, do NOT count toward consecutive-low counter
+    clearTimer();
     const skippedAnswer: AnsweredQuestion = {
       ...currentQuestion,
       userAnswer: "[skipped]",
@@ -540,7 +713,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     allAnswers.current = newAnswers;
     setCurrentAnswer(skippedAnswer);
 
-    // Treat skip as neutral (score 5) for level progression — don't penalise
     const { nextLevel, breakingPoint } = getNextLevel(currentLevel, 5, 0);
     if (breakingPoint || newAnswers.length >= SESSION_CAP) {
       if (breakingPoint) setBreakingPointLevel(currentLevel);
@@ -548,7 +720,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       setCurrentLevel(nextLevel);
     }
     setPhase("adaptive_grading");
-  }, [adaptiveAnswers, currentLevel, currentQuestion]);
+  }, [adaptiveAnswers, currentLevel, currentQuestion, clearTimer]);
 
   // ── After seeing grade result, decide what to do next ───────────────────────
 
@@ -558,7 +730,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     const isBreaking = breakingPointLevel !== null;
 
     if (isAtCap || isBreaking) {
-      // Complete quiz
       await finalizeQuiz(answers, isBreaking ? currentLevel : null);
     } else {
       setCurrentAnswer(null);
@@ -573,7 +744,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       const result = calculateQuizResult(answers, bpLevel);
       setQuizResult(result);
 
-      // Persist quiz attempt
       await db.quizAttempts.add({
         topicId,
         score: Math.round(result.averageScore * 10),
@@ -589,10 +759,8 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         completedAt: new Date(),
       });
 
-      // Update flashcards for spaced repetition
       await updateFlashcardsFromQuiz(topicId, answers);
 
-      // Auto-generate review flashcards for weak answers (score < 7)
       await generateFlashcardsFromQuiz(
         topicId,
         answers.map((a) => ({
@@ -603,11 +771,9 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         }))
       );
 
-      // Award XP and coins
       if (result.xpEarned > 0) addXP(result.xpEarned);
       if (result.coinsEarned > 0) addCoins(result.coinsEarned, "quiz_perfect");
 
-      // Check badge unlocks
       const storeState = useStore.getState();
       const stats = await getUserStats({
         currentStreak: storeState.currentStreak,
@@ -617,7 +783,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       });
       await checkAndUnlockBadges(stats);
 
-      // FIX 2: Treasure chest drop check
       const newRoundsCompleted = roundsCompleted + 1;
       setRoundsCompleted(newRoundsCompleted);
       if (shouldDropChest(newRoundsCompleted, lastChestRound)) {
@@ -626,16 +791,14 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
           const chestId = await recordChest();
           setActiveChestId(chestId);
         } catch {
-          // Non-critical — skip chest if Dexie fails
+          // Non-critical
         }
       }
 
-      // FIX 1: One More Round trigger check
       const lastQuizScore = Math.round(result.averageScore * 10);
       const xpProgress = xpProgressInLevel(storeState.totalXP + result.xpEarned);
       const xpToNextLevel = xpProgress.needed - xpProgress.current;
 
-      // Compute in-session streak (consecutive scoring answers from the end)
       let inSessionStreak = 0;
       for (let i = answers.length - 1; i >= 0; i--) {
         if (answers[i].score >= 7) inSessionStreak++;
@@ -668,13 +831,40 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     if (phase === "adaptive_loading") {
       generateAdaptiveQuestion();
     }
-    // Only fire when phase changes to adaptive_loading
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase === "adaptive_loading"]);
+
+  // ── Start timer when a new answering phase begins ────────────────────────────
+
+  useEffect(() => {
+    if (!quizTimerEnabled) return;
+    if (phase !== "adaptive_answering" && phase !== "calibration_answering") return;
+
+    const q = phase === "adaptive_answering" ? currentQuestion : calibQuestions[calibIndex];
+    if (!q) return;
+
+    const isMCQorTF = q.format === "mcq" || q.format === "true_false" || q.format === "fill_blank";
+    const duration = isMCQorTF ? TIMER_MCQ : TIMER_OPEN;
+
+    const submitOnExpire = () => {
+      // Auto-submit with "[time_expired]" so it scores 0 gracefully
+      if (phase === "adaptive_answering" && currentQuestion) {
+        gradeAdaptiveAnswer(currentQuestion, "[time_expired]");
+      } else if (phase === "calibration_answering" && calibQuestions[calibIndex]) {
+        gradeCalibrationAnswer(calibQuestions[calibIndex], "[time_expired]");
+      }
+    };
+
+    startTimer(duration, submitOnExpire);
+    return () => clearTimer();
+    // Only re-run when question or phase changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, currentQuestion?.question, calibIndex, quizTimerEnabled]);
 
   // ── Retry ────────────────────────────────────────────────────────────────────
 
   const handleRetry = useCallback(() => {
+    clearTimer();
     setAdaptiveQuestions([]);
     setAdaptiveAnswers([]);
     allAnswers.current = [];
@@ -685,14 +875,13 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     setQuizResult(null);
     setOneMoreRoundTrigger(null);
     setActiveChestId(null);
-    // FIX 3: Restore the correct starting level from existing calibration data
     const savedScores = existingCalibration?.questions?.map((q) => q.score) ?? [];
     const startLevel = savedScores.length > 0
       ? getStartingLevelFromCalibration(savedScores)
       : 1;
     setCurrentLevel(startLevel);
     setPhase("adaptive_loading");
-  }, [existingCalibration]);
+  }, [existingCalibration, clearTimer]);
 
   // ── One More Round handlers ──────────────────────────────────────────────────
 
@@ -740,9 +929,13 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     [currentQuestion, gradeAdaptiveAnswer]
   );
 
+  // ── Computed values for progress/score display ───────────────────────────────
+
+  const cumulativeScore = adaptiveAnswers.reduce((s, a) => s + a.score, 0);
+  const maxPossibleScore = adaptiveAnswers.length * 10;
+
   // ── Render ──────────────────────────────────────────────────────────────────
 
-  // Still loading Dexie check
   if (phase === "checking") {
     return (
       <div className="flex items-center justify-center py-20">
@@ -751,7 +944,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     );
   }
 
-  // Error banner
   const errorBanner = error && (
     <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
       <AlertCircle className="size-4 mt-0.5 shrink-0" />
@@ -771,6 +963,19 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     return (
       <div className="flex flex-col gap-4 max-w-xl mx-auto">
         {errorBanner}
+        {/* Timer toggle on intro screen */}
+        <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Timer className="size-4 text-saffron" />
+            <div>
+              <p className="text-sm font-medium">Question Timer</p>
+              <p className="text-xs text-muted-foreground">
+                60s for MCQ, 120s for open-ended
+              </p>
+            </div>
+          </div>
+          <TimerToggle enabled={quizTimerEnabled} onChange={setQuizTimerEnabled} />
+        </div>
         <CalibrationIntro topicName={topicName} onStart={startCalibration} />
       </div>
     );
@@ -792,10 +997,27 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     return (
       <div className="flex flex-col gap-4 max-w-xl mx-auto">
         {errorBanner}
+
+        {/* Progress + timer row */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <QuizProgressBar
+              current={calibIndex + 1}
+              total={calibQuestions.length}
+              score={0}
+              maxScore={0}
+            />
+          </div>
+          {quizTimerEnabled && timerTotal > 0 && (
+            <CountdownTimer total={timerTotal} remaining={timerRemaining} />
+          )}
+        </div>
+
         <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
-          <span>Calibration — Question {calibIndex + 1} of {calibQuestions.length}</span>
+          <span>Calibration</span>
           <span>Finding your level…</span>
         </div>
+
         <QuestionCard
           question={q}
           questionNumber={calibIndex + 1}
@@ -849,12 +1071,30 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     return (
       <div className="flex flex-col gap-4 max-w-xl mx-auto">
         {errorBanner}
+
+        {/* Progress bar + timer */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <QuizProgressBar
+              current={qNum}
+              total={SESSION_CAP}
+              score={cumulativeScore}
+              maxScore={maxPossibleScore}
+            />
+          </div>
+          {quizTimerEnabled && timerTotal > 0 && (
+            <CountdownTimer total={timerTotal} remaining={timerRemaining} />
+          )}
+        </div>
+
+        {/* Difficulty indicator */}
         <div className="flex items-center justify-between px-1">
           <DifficultyIndicator currentLevel={currentLevel} />
           <span className="text-xs text-muted-foreground">
             {adaptiveAnswers.length} / {SESSION_CAP}
           </span>
         </div>
+
         <AnimatePresence mode="wait">
           <QuestionCard
             key={currentQuestion.question.substring(0, 20)}
@@ -884,10 +1124,23 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     }
     const isLastQ =
       breakingPointLevel !== null || adaptiveAnswers.length >= SESSION_CAP;
-    const xpForThis = currentAnswer.score >= 10 ? 25 : currentAnswer.score >= 8 ? 15 : currentAnswer.score >= 5 ? 10 : 0;
+    const xpForThis =
+      currentAnswer.score >= 10 ? 25
+      : currentAnswer.score >= 8 ? 15
+      : currentAnswer.score >= 5 ? 10
+      : 0;
     return (
       <div className="flex flex-col gap-4 max-w-xl mx-auto">
         {errorBanner}
+
+        {/* Score progress shown during grading */}
+        <QuizProgressBar
+          current={adaptiveAnswers.length}
+          total={SESSION_CAP}
+          score={cumulativeScore}
+          maxScore={adaptiveAnswers.length * 10}
+        />
+
         <GradeResult
           answer={currentAnswer}
           xpEarned={xpForThis}
@@ -936,7 +1189,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   if (phase === "result" && quizResult) {
     return (
       <div className="max-w-xl mx-auto">
-        {/* FIX 2: Treasure Chest overlay (shown before result if a chest dropped) */}
         {activeChestId !== null && (
           <TreasureChest
             chestId={activeChestId}
@@ -953,7 +1205,6 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
           onRetry={handleRetry}
         />
 
-        {/* FIX 1: One More Round prompt — slides up from bottom */}
         <OneMoreRound
           trigger={oneMoreRoundTrigger}
           onAccept={handleOneMoreRoundAccept}
