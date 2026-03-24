@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { HowItWorks } from "@/components/landing/how-it-works";
@@ -20,57 +24,105 @@ const COMPANIES = [
   "Goldman Sachs",
 ];
 
+const NAV_LINKS = [
+  { label: "Features", href: "#features" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Pricing", href: "#pricing" },
+  { label: "FAQ", href: "#faq" },
+];
+
 function LandingNavbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <nav className="sticky top-0 z-50 flex h-14 items-center justify-between bg-background/60 px-6 backdrop-blur-md border-b border-border/30">
-      <div className="flex items-center gap-6">
-        <span className="font-heading text-lg font-bold text-saffron tracking-wider">
-          GURU SISHYA
-        </span>
-        <div className="hidden sm:flex items-center gap-4">
-          <Link
-            href="#features"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Features
+    <nav className="sticky top-0 z-50 bg-background/60 backdrop-blur-md border-b border-border/30">
+      <div className="flex h-14 items-center justify-between px-6">
+        <div className="flex items-center gap-6">
+          <span className="font-heading text-lg font-bold text-saffron tracking-wider">
+            GURU SISHYA
+          </span>
+          <div className="hidden sm:flex items-center gap-4">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/app/roadmap" className="hidden sm:block">
+            <Button variant="ghost" size="sm" className="text-sm">
+              Roadmap
+            </Button>
           </Link>
-          <Link
-            href="#how-it-works"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            How It Works
+          <Link href="/login" className="hidden sm:block">
+            <Button variant="ghost" size="sm" className="text-sm">
+              Sign In
+            </Button>
           </Link>
-          <Link
-            href="#pricing"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Pricing
+          <Link href="/app/topics">
+            <Button size="sm" className="bg-saffron hover:bg-saffron/90">
+              Start Free
+            </Button>
           </Link>
-          <Link
-            href="#faq"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          {/* Hamburger — mobile only */}
+          <button
+            className="sm:hidden ml-1 flex flex-col justify-center items-center w-8 h-8 gap-1.5 rounded focus:outline-none"
+            aria-label="Toggle menu"
+            onClick={() => setMenuOpen((v) => !v)}
           >
-            FAQ
-          </Link>
+            <span
+              className={`block h-0.5 w-5 bg-foreground transition-all duration-200 ${menuOpen ? "rotate-45 translate-y-2" : ""}`}
+            />
+            <span
+              className={`block h-0.5 w-5 bg-foreground transition-all duration-200 ${menuOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`block h-0.5 w-5 bg-foreground transition-all duration-200 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`}
+            />
+          </button>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Link href="/app/roadmap">
-          <Button variant="ghost" size="sm" className="text-sm">
-            Roadmap
-          </Button>
-        </Link>
-        <Link href="/login">
-          <Button variant="ghost" size="sm" className="text-sm">
-            Sign In
-          </Button>
-        </Link>
-        <Link href="/app/topics">
-          <Button size="sm" className="bg-saffron hover:bg-saffron/90">
-            Start Free
-          </Button>
-        </Link>
-      </div>
+
+      {/* Mobile dropdown */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
+            className="sm:hidden border-t border-border/30 bg-background/95 backdrop-blur-md px-6 pb-4 pt-3 flex flex-col gap-3"
+          >
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="flex gap-2 pt-2 border-t border-border/30">
+              <Link href="/app/roadmap" className="flex-1">
+                <Button variant="outline" size="sm" className="w-full text-sm">
+                  Roadmap
+                </Button>
+              </Link>
+              <Link href="/login" className="flex-1">
+                <Button variant="ghost" size="sm" className="w-full text-sm">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
@@ -163,7 +215,7 @@ export default function LandingPage() {
               <Link href="#faq" className="hover:text-foreground transition-colors">
                 FAQ
               </Link>
-              <Link href="/about" className="hover:text-foreground transition-colors">
+              <Link href="/#features" className="hover:text-foreground transition-colors">
                 About
               </Link>
               <Link href="/privacy" className="hover:text-foreground transition-colors">
@@ -173,16 +225,19 @@ export default function LandingPage() {
                 Terms
               </Link>
               <a
-                href="https://github.com"
+                href="https://github.com/Gaurav1112/guru-sishya"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-foreground transition-colors"
               >
                 GitHub
               </a>
-              <Link href="/contact" className="hover:text-foreground transition-colors">
+              <a
+                href="mailto:kgauravis016@gmail.com"
+                className="hover:text-foreground transition-colors"
+              >
                 Contact
-              </Link>
+              </a>
             </div>
           </div>
           <div className="border-t border-border/40 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground/60">
