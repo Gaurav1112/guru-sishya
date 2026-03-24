@@ -9,12 +9,13 @@ import { createGameSlice, type GameSlice } from "./stores/game-slice";
 import { createUISlice, type UISlice } from "./stores/ui-slice";
 import { createQuizSlice, type QuizSlice } from "./stores/quiz-slice";
 import { createChatSlice, type ChatSlice } from "./stores/chat-slice";
+import { createPremiumSlice, type PremiumSlice } from "./stores/premium-slice";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Combined store state type
 // ────────────────────────────────────────────────────────────────────────────
 
-export type StoreState = SettingsSlice & GameSlice & UISlice & QuizSlice & ChatSlice;
+export type StoreState = SettingsSlice & GameSlice & UISlice & QuizSlice & ChatSlice & PremiumSlice;
 
 // ────────────────────────────────────────────────────────────────────────────
 // Keys that are persisted to localStorage
@@ -41,6 +42,10 @@ type PersistedState = Pick<
   | "activeXPBoost"
   | "hintTokens"
   | "streakRepairAvailable"
+  // Premium
+  | "isPremium"
+  | "premiumUntil"
+  | "paymentId"
 >;
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -62,6 +67,7 @@ const rootSlice: ImmerStateCreator = (...args) => ({
   ...(createUISlice as unknown as ImmerStateCreator)(...args),
   ...(createQuizSlice as unknown as ImmerStateCreator)(...args),
   ...(createChatSlice as unknown as ImmerStateCreator)(...args),
+  ...(createPremiumSlice as unknown as ImmerStateCreator)(...args),
 });
 
 export const useStore = create<StoreState>()(
@@ -89,6 +95,9 @@ export const useStore = create<StoreState>()(
         hintTokens: state.hintTokens,
         streakRepairAvailable: state.streakRepairAvailable,
         quizTimerEnabled: state.quizTimerEnabled,
+        isPremium: state.isPremium,
+        premiumUntil: state.premiumUntil,
+        paymentId: state.paymentId,
       }),
     }
   )

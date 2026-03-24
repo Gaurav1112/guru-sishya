@@ -2,8 +2,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
+import { Crown } from "lucide-react";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
+import { useStore } from "@/lib/store";
 
 const navItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
@@ -20,6 +22,7 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { isPremium, premiumUntil } = useStore();
   const topics = useLiveQuery(() => db.topics.orderBy("createdAt").reverse().limit(10).toArray());
 
   // Live count of flashcards due today
@@ -28,6 +31,9 @@ export function Sidebar() {
     today.setHours(23, 59, 59, 999);
     return db.flashcards.where("nextReviewAt").belowOrEqual(today).count();
   }, []);
+
+  const isActivePro =
+    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
   return (
     <aside className="hidden md:flex w-56 flex-col border-r border-border/50 bg-background">
@@ -43,6 +49,39 @@ export function Sidebar() {
             )}
           </Link>
         ))}
+
+        {/* Pro upgrade / status link */}
+        {isActivePro ? (
+          <Link
+            href="/app/pricing"
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+              pathname === "/app/pricing"
+                ? "bg-surface text-foreground"
+                : "text-gold hover:bg-surface-hover hover:text-foreground"
+            )}
+          >
+            <Crown className="size-4 shrink-0" />
+            <span className="flex-1">Pro</span>
+            <span className="text-[10px] font-semibold text-gold bg-gold/10 border border-gold/30 rounded-full px-1.5 py-0.5">
+              Active
+            </span>
+          </Link>
+        ) : (
+          <Link
+            href="/app/pricing"
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
+              pathname === "/app/pricing"
+                ? "bg-saffron/20 text-saffron"
+                : "text-saffron hover:bg-saffron/10"
+            )}
+          >
+            <Crown className="size-4 shrink-0" />
+            <span className="flex-1">Upgrade to Pro</span>
+          </Link>
+        )}
+
         {topics && topics.length > 0 && (
           <>
             <div className="mt-6 mb-2 px-3 text-xs font-medium tracking-wider text-muted-foreground">RECENT TOPICS</div>
