@@ -18,8 +18,10 @@ interface StarQuestion {
   principle: string;
   difficulty: "Easy" | "Medium" | "Hard";
   question: string;
-  tags: string[];
+  tags?: string[];
   star: StarAnswer;
+  tips?: string[];
+  followUps?: string[];
 }
 
 // ── Company config ────────────────────────────────────────────────────────────
@@ -275,7 +277,7 @@ function StarCard({
             <div className="px-4 pb-4 border-t border-border/30">
               {/* Tags */}
               <div className="flex flex-wrap gap-1.5 pt-3 mb-4">
-                {q.tags.map((tag) => (
+                {(q.tags ?? []).map((tag) => (
                   <span
                     key={tag}
                     className="rounded-full border border-border/50 bg-muted/30 px-2 py-0.5 text-[10px] text-muted-foreground"
@@ -496,12 +498,36 @@ export function StarSection() {
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const tabsRef = useRef<HTMLDivElement>(null);
 
-  // Load questions
+  // Load questions — handles both flat array and company-grouped format
   useEffect(() => {
     fetch("/content/star-questions.json")
       .then((r) => r.json())
-      .then((data: StarQuestion[]) => {
-        setQuestions(data);
+      .then((data: unknown) => {
+        let flat: StarQuestion[] = [];
+        if (Array.isArray(data) && data.length > 0) {
+          if ("questions" in (data[0] as Record<string, unknown>)) {
+            // Company-grouped format: [{company, questions: [...]}, ...]
+            for (const group of data as { company: string; questions: Record<string, unknown>[] }[]) {
+              for (const q of group.questions) {
+                flat.push({
+                  id: String(q.id ?? flat.length + 1),
+                  company: (q.company as string) ?? group.company,
+                  principle: (q.principle as string) ?? "",
+                  difficulty: (q.difficulty as "Easy" | "Medium" | "Hard") ?? "Medium",
+                  question: (q.question as string) ?? "",
+                  tags: (q.tags as string[]) ?? [],
+                  star: (q.starAnswer ?? q.star) as StarAnswer,
+                  tips: (q.tips as string[]) ?? [],
+                  followUps: (q.followUps as string[]) ?? [],
+                });
+              }
+            }
+          } else {
+            // Flat format: [{id, company, question, star, ...}, ...]
+            flat = data as StarQuestion[];
+          }
+        }
+        setQuestions(flat);
         setLoading(false);
       })
       .catch(() => setLoading(false));
