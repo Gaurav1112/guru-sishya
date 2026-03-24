@@ -156,64 +156,99 @@ function parseMasterMD(md: string): Question[] {
 function generateAnswer(question: string, category: QuestionCategory): string {
   const q = question.toLowerCase();
   
-  // ── Extensive keyword-based real answers ─────────────────────────────────
+  // Comprehensive keyword-to-answer mapping
+  const answers: [RegExp, string][] = [
+    [/hashmap.*internal|hashmap.*work/i, 
+      "## HashMap Internal Working (Java 8+)\n\nHashMap uses an array of Node<K,V> buckets.\n\n**On put(key, value):**\n1. Compute hash: (h = key.hashCode()) ^ (h >>> 16)\n2. Find bucket: hash & (capacity - 1)\n3. If empty → insert. If collision → chain as linked list\n4. Java 8+: When bucket has 8+ entries AND capacity >= 64, list converts to red-black tree (O(log n) vs O(n))\n\n**Key thresholds:** TREEIFY_THRESHOLD=8, UNTREEIFY_THRESHOLD=6, MIN_TREEIFY_CAPACITY=64\n\n**Resize:** When size > capacity × loadFactor (default 0.75), table doubles and all entries rehash — O(n) operation.\n\n**Thread Safety:** NOT thread-safe. Use ConcurrentHashMap for concurrent access."],
+    
+    [/equals.*hashcode|hashcode.*equals|override equals/i,
+      "## equals() and hashCode() Contract\n\n**The Rule:** If a.equals(b) is true, then a.hashCode() MUST equal b.hashCode()\n\n**What breaks:** If you override equals() but not hashCode(), HashMap/HashSet malfunction. Two equal objects get different hash codes → land in different buckets → HashSet.contains() returns false for an object that IS in the set.\n\n**Fix:** Always override both. Use Objects.hash(field1, field2) for convenience.\n\n**Production Impact:** Session caches fail silently, Sets contain duplicates, Maps return null for existing keys. This is one of the most common bugs in Java applications."],
+    
+    [/string.*immutable|immutable.*string/i,
+      "## Why String is Immutable\n\n1. **String Pool:** 'hello' is shared across the app. Mutation would affect all references\n2. **Security:** Strings in file paths, DB URLs — mutation after validation = security hole\n3. **Thread Safety:** Immutable = inherently thread-safe, no sync needed\n4. **HashCode Caching:** String caches its hashCode (computed once, reused forever)\n5. **Class Loading:** Class names are strings. Immutability ensures loading integrity\n\nString a = 'hello'; String b = 'hello'; a == b is TRUE (same pool object)."],
+    
+    [/comparable.*comparator|comparator.*comparable/i,
+      "## Comparable vs Comparator\n\n**Comparable** = natural ordering, implemented BY the class (compareTo method)\n**Comparator** = custom ordering, implemented OUTSIDE (compare method)\n\nComparable: java.lang, one natural order, modifies the class\nComparator: java.util, multiple orders, doesn't modify class, supports lambdas\n\nUse Comparable for the default sort order. Use Comparator for multiple sort strategies (by name, by salary, by date)."],
+    
+    [/map\(\).*flatmap|flatmap.*map/i,
+      "## map() vs flatMap()\n\nmap(): 1 input → 1 output (transforms each element)\nflatMap(): 1 input → Stream of outputs → flattened into single stream\n\nUse map() when transformation is 1:1 (User → name). Use flatMap() when each element maps to a collection (Order → List<Item>) and you want a flat result.\n\nWith Optional: flatMap() avoids Optional<Optional<T>> nesting."],
+    
+    [/n\+1|n\+1 problem/i,
+      "## The N+1 Problem\n\nFetching 1 parent triggers N additional queries for its children. 100 orders = 101 queries!\n\n**Fix 1 — JOIN FETCH:** @Query('SELECT o FROM Order o JOIN FETCH o.items')\n**Fix 2 — @EntityGraph:** @EntityGraph(attributePaths = {'items'})\n**Fix 3 — @BatchSize:** @BatchSize(size = 50) on the collection\n\n**Detection:** Enable spring.jpa.show-sql=true and count queries."],
+    
+    [/@transactional|propagation|requires_new/i,
+      "## @Transactional\n\nREQUIRED (default): Joins existing transaction or creates new\nREQUIRES_NEW: Always creates new independent transaction\n\n**Self-invocation trap:** Calling @Transactional method from within the same class bypasses the proxy — NO transaction! Fix: inject self or use TransactionTemplate.\n\n**Rollback:** By default only rolls back on unchecked exceptions. Add rollbackFor=Exception.class for checked exceptions."],
+    
+    [/circuit.?breaker/i,
+      "## Circuit Breaker Pattern\n\nPrevents cascade failures. States: Closed (normal) → Open (blocking after failures) → Half-Open (testing with limited requests).\n\nUse Resilience4j: @CircuitBreaker with fallbackMethod. Configure slidingWindowSize, failureRateThreshold, waitDurationInOpenState.\n\nWhy not just retry? Retrying a dead service causes retry storms. Circuit breaker fast-fails, giving downstream time to recover."],
+    
+    [/volatile/i,
+      "## volatile Keyword\n\nGuarantees VISIBILITY but NOT atomicity. When Thread 2 writes a volatile variable, Thread 1 immediately sees the new value.\n\nBUT: volatile counter++ is NOT safe! It is read-modify-write (3 operations). Use AtomicInteger instead.\n\nUse volatile for: boolean flags, double-checked locking. Don't use for: counters, complex state."],
+    
+    [/concurrenthashmap/i,
+      "## ConcurrentHashMap\n\nJava 8+: Per-node locking (CAS for first node, synchronized for collisions). Reads are lock-free. Null keys/values NOT allowed.\n\nAtomic operations: putIfAbsent(), computeIfAbsent(), merge(key, 1, Integer::sum).\n\nCommon mistake: if (!map.containsKey(key)) map.put(key, val) — RACE CONDITION! Use putIfAbsent() instead."],
+    
+    [/bean.*lifecycle|lifecycle.*bean/i,
+      "## Spring Bean Lifecycle\n\n1. Constructor → 2. @Autowired injection → 3. BeanNameAware → 4. ApplicationContextAware → 5. @PostConstruct → 6. afterPropertiesSet() → 7. READY → 8. @PreDestroy → 9. destroy()\n\nMost important: @PostConstruct (init logic) and @PreDestroy (cleanup). Use @PostConstruct to warm caches, validate config."],
+    
+    [/groupingby|downstream.*collector/i,
+      "## groupingBy() with Downstream Collectors\n\nGroup + count: groupingBy(Employee::getDept, counting())\nGroup + average: groupingBy(Employee::getDept, averagingDouble(Employee::getSalary))\nGroup + collect: groupingBy(Employee::getDept, mapping(Employee::getName, toList()))\nNested: groupingBy(dept, groupingBy(gender))"],
+    
+    [/idempoten/i,
+      "## Idempotency\n\nCalling an operation multiple times has the same effect as once. Critical for payment systems.\n\nUse idempotency keys: client sends a unique key with each request. Server checks if already processed. If yes, returns cached response. No duplicate charges.\n\nHTTP: GET, PUT, DELETE are idempotent. POST is NOT."],
+    
+    [/optimistic.*pessimistic|pessimistic.*optimistic|lock.*strategy/i,
+      "## Optimistic vs Pessimistic Locking\n\nOptimistic: Uses @Version column. No locks held. On commit, checks if version changed. If conflict → OptimisticLockException. Best for: read-heavy, low contention.\n\nPessimistic: SELECT ... FOR UPDATE. Locks the row. Other threads wait. Best for: write-heavy, high contention (banking, inventory)."],
+    
+    [/stream.*parallel|parallel.*stream/i,
+      "## Parallel Streams\n\nUses ForkJoinPool.commonPool() (CPU cores - 1 threads). Good for CPU-bound operations on large datasets (>10K elements).\n\nNOT good for: I/O operations, small datasets, operations with side effects, when order matters.\n\nDanger: Shared mutable state in parallel streams causes race conditions. Always use thread-safe collectors."],
+    
+    [/garbage.*collect|gc.*work|g1.*gc|zgc/i,
+      "## Garbage Collection\n\nJVM automatically reclaims memory from unreachable objects.\n\n**G1 GC (default since Java 9):** Divides heap into regions. Collects regions with most garbage first (Garbage-First). Targets pause time (default 200ms).\n\n**ZGC (Java 15+):** Sub-millisecond pauses regardless of heap size. Uses colored pointers and load barriers. Best for: low-latency applications.\n\nTuning: -Xmx (max heap), -XX:MaxGCPauseMillis (G1 target), -XX:+UseZGC."],
+    
+    [/memory.*leak|leak.*java/i,
+      "## Memory Leaks in Java\n\nCommon causes:\n1. Static collections that grow forever\n2. Unclosed resources (streams, connections)\n3. Inner class holding reference to outer class\n4. ThreadLocal not removed after use\n5. Listeners/callbacks not deregistered\n\nDetection: jmap -histo:live, Eclipse MAT, VisualVM. Monitor heap usage over time — if it keeps growing after GC, you have a leak."],
+    
+    [/thread.*pool|executor.*service|threadpool/i,
+      "## Thread Pools\n\nnewFixedThreadPool(n): Fixed size, unbounded queue (OOM risk!)\nnewCachedThreadPool(): Grows/shrinks, 60s keep-alive\nnewSingleThreadExecutor(): 1 thread, guaranteed ordering\n\nBest practice: Use ThreadPoolExecutor directly with bounded queue and rejection policy.\n\nCommon mistake: Using newFixedThreadPool with unbounded queue. Under load, the queue grows until OOM. Always set a bounded queue + CallerRunsPolicy."],
+    
+    [/deadlock/i,
+      "## Deadlock\n\nTwo+ threads each waiting for a lock held by the other.\n\nFour conditions (ALL must hold): 1. Mutual exclusion 2. Hold-and-wait 3. No preemption 4. Circular wait\n\nPrevention: Enforce lock ordering (always acquire locks in the same order). Detection: jstack <pid> shows BLOCKED threads and lock owners.\n\nProduction tip: Use tryLock() with timeout instead of synchronized for critical sections."],
+    
+    [/singleton/i,
+      "## Singleton Pattern\n\nThread-safe Singleton using double-checked locking:\nprivate static volatile Singleton instance;\npublic static Singleton getInstance() { if (instance == null) { synchronized(Singleton.class) { if (instance == null) instance = new Singleton(); } } return instance; }\n\nBetter: Use enum Singleton (inherently thread-safe, serialization-safe).\nBest: Use Spring @Component (singleton scope by default)."],
+    
+    [/spring.*security|authentication.*authorization/i,
+      "## Spring Security\n\nFilter chain processes every request: SecurityContextPersistenceFilter → UsernamePasswordAuthenticationFilter → ExceptionTranslationFilter → FilterSecurityInterceptor\n\nJWT flow: 1. Login → validate credentials → generate JWT 2. Subsequent requests → extract JWT from header → validate → set SecurityContext\n\n@PreAuthorize('hasRole(ADMIN)') for method-level security. @EnableMethodSecurity to activate."],
+    
+    [/kafka|message.*queue|event.*driven/i,
+      "## Kafka\n\nDistributed event streaming platform. Topics → Partitions → Consumer Groups.\n\nOrdering: Guaranteed within a partition (use partition key). Not across partitions.\n\nDelivery: at-least-once (default), exactly-once (with transactions), at-most-once (auto-commit).\n\nKey configs: acks=all (durability), enable.idempotence=true, max.in.flight=5.\n\nConsumer groups: Each partition consumed by exactly one consumer in a group. Scale by adding consumers (up to partition count)."],
+  ];
   
-  // HashMap / Collections
-  if (/hashmap.*internal|hashmap.*work/i.test(q)) return `## HashMap Internal Working (Java 8+)\n\nHashMap uses an array of Node<K,V> buckets. On put(key, value):\n1. Compute hash: \`(h = key.hashCode()) ^ (h >>> 16)\` (spread high bits)\n2. Find bucket index: \`hash & (capacity - 1)\`\n3. If empty → insert. If collision → chain as linked list\n4. **Java 8+ optimization:** When bucket has 8+ entries AND capacity >= 64, linked list converts to red-black tree (O(log n) vs O(n))\n\n\\`\\`\\`java\n// Treeification thresholds\nstatic final int TREEIFY_THRESHOLD = 8;\nstatic final int UNTREEIFY_THRESHOLD = 6;\nstatic final int MIN_TREEIFY_CAPACITY = 64;\n\n// Resize: when size > capacity * loadFactor (default 0.75)\n// All entries rehashed — O(n) operation\n\\`\\`\\`\n\n**Key facts:** Default capacity=16, loadFactor=0.75. NOT thread-safe — use ConcurrentHashMap for concurrent access.`;
+  // Check specific answers first
+  for (const [pattern, answer] of answers) {
+    if (pattern.test(q)) return answer;
+  }
   
-  if (/equals.*hashcode|hashcode.*equals|override equals/i.test(q)) return `## equals() and hashCode() Contract\n\n**The rule:** If \`a.equals(b)\` → \`a.hashCode() == b.hashCode()\` (MUST be true)\n\n\\`\\`\\`java\nclass Employee {\n    String id;\n    @Override public boolean equals(Object o) {\n        return this.id.equals(((Employee)o).id);\n    }\n    // hashCode NOT overridden — BUG!\n}\n\nSet<Employee> set = new HashSet<>();\nset.add(new Employee("123"));\nset.contains(new Employee("123")); // FALSE!\n// Different default hashCode → different bucket → never found\n\\`\\`\\`\n\n**Fix:** \`@Override public int hashCode() { return Objects.hash(id); }\`\n\n**Production impact:** Session caches fail silently, Sets contain duplicates, Maps return null for existing keys.`;
-
-  if (/string.*immutable|immutable.*string/i.test(q)) return `## Why String is Immutable\n\n1. **String Pool:** \`"hello"\` is shared across the app. Mutation would affect all references\n2. **Security:** Strings in file paths, DB URLs, class names — mutation after validation = security hole\n3. **Thread Safety:** Immutable = inherently thread-safe, no synchronization needed\n4. **HashCode Caching:** String caches hashCode (computed once). Makes HashMap lookups fast\n5. **Class Loading:** Class names are strings. Immutability ensures integrity\n\n\\`\\`\\`java\nString a = "hello";\nString b = "hello";\na == b; // true — same object from string pool\n\n// String.hashCode() is cached:\nprivate int hash; // default 0\npublic int hashCode() {\n    if (hash == 0 && value.length > 0) hash = compute();\n    return hash; // cached after first call\n}\n\\`\\`\\``;
-
-  if (/comparable.*comparator|comparator.*comparable/i.test(q)) return `## Comparable vs Comparator\n\n| | Comparable | Comparator |\n|--|-----------|------------|\n| Package | java.lang | java.util |\n| Method | compareTo(T) | compare(T, T) |\n| Orderings | One (natural) | Many (external) |\n| Modifies class? | Yes | No |\n\n\\`\\`\\`java\n// Comparable — natural order\nclass Employee implements Comparable<Employee> {\n    public int compareTo(Employee o) {\n        return Integer.compare(this.salary, o.salary);\n    }\n}\n\n// Comparator — external, multiple orders\nComparator<Employee> byName = Comparator.comparing(Employee::getName);\nComparator<Employee> bySalaryDesc = Comparator.comparingInt(Employee::getSalary).reversed();\nemployees.sort(byName.thenComparingInt(Employee::getSalary));\n\\`\\`\\``;
-
-  if (/map\(\).*flatmap|flatmap.*map\(\)/i.test(q)) return `## map() vs flatMap()\n\n**map():** 1 input → 1 output\n**flatMap():** 1 input → Stream of outputs → flattened\n\n\\`\\`\\`java\n// map: User → String\nList<String> names = users.stream()\n    .map(User::getName)\n    .collect(Collectors.toList());\n\n// flatMap: Order → Stream<Item> → flattened\nList<Item> allItems = orders.stream()\n    .flatMap(order -> order.getItems().stream())\n    .collect(Collectors.toList());\n\n// Optional: avoid Optional<Optional<T>>\nOptional<Address> addr = user\n    .flatMap(User::getAddress); // not map()\n\\`\\`\\`\n\n**Rule:** When map() gives you Stream<Stream<T>>, use flatMap() to get Stream<T>.`;
-
-  if (/n\+1|n\+1 problem/i.test(q)) return `## The N+1 Problem\n\nFetching 1 parent triggers N queries for children.\n\n\\`\\`\\`java\n// 1 query for orders + N queries for items = N+1!\nList<Order> orders = orderRepo.findAll(); // 1 query\nfor (Order o : orders) o.getItems().size(); // N queries\n\\`\\`\\`\n\n**Fix 1 — JOIN FETCH:**\n\\`\\`\\`java\n@Query("SELECT o FROM Order o JOIN FETCH o.items")\nList<Order> findAllWithItems();\n\\`\\`\\`\n\n**Fix 2 — @EntityGraph:**\n\\`\\`\\`java\n@EntityGraph(attributePaths = {"items"})\nList<Order> findAll();\n\\`\\`\\`\n\n**Fix 3 — @BatchSize:**\n\\`\\`\\`java\n@OneToMany @BatchSize(size = 50)\nprivate List<OrderItem> items;\n\\`\\`\\`\n\n**Detection:** Enable \`spring.jpa.show-sql=true\` and count queries.`;
-
-  if (/@transactional|propagation/i.test(q)) return `## @Transactional\n\n**REQUIRED (default):** Joins existing tx or creates new\n**REQUIRES_NEW:** Always creates new independent tx\n\n\\`\\`\\`java\n@Transactional // REQUIRED\npublic void processOrder(Order order) {\n    orderRepo.save(order);       // Part of main tx\n    auditService.log(order);     // REQUIRES_NEW — independent\n    // If audit fails, order STILL committed\n}\n\\`\\`\\`\n\n**Self-invocation trap:**\n\\`\\`\\`java\npublic void methodA() {\n    this.methodB(); // @Transactional IGNORED!\n    // Proxy bypassed — no transaction\n}\n@Transactional\npublic void methodB() { ... }\n// Fix: inject self, or use TransactionTemplate\n\\`\\`\\``;
-
-  if (/circuit.?breaker/i.test(q)) return `## Circuit Breaker Pattern\n\nStates: **Closed** (normal) → **Open** (blocking) → **Half-Open** (testing)\n\n\\`\\`\\`java\n@CircuitBreaker(name = "payment", fallbackMethod = "fallback")\npublic Response charge(Request req) {\n    return paymentClient.charge(req);\n}\npublic Response fallback(Request req, Exception ex) {\n    return Response.pending("Queued for retry");\n}\n\\`\\`\\`\n\n\\`\\`\\`yaml\nresilience4j.circuitbreaker:\n  instances:\n    payment:\n      slidingWindowSize: 10\n      failureRateThreshold: 50\n      waitDurationInOpenState: 30s\n\\`\\`\\`\n\n**Why not just retry?** Retrying a dead service causes retry storms. Circuit breaker fast-fails.`;
-
-  if (/volatile/i.test(q)) return `## volatile Keyword\n\n**Guarantees visibility, NOT atomicity.**\n\n\\`\\`\\`java\nvolatile boolean running = true;\n// Thread 1: while (running) { work(); }\n// Thread 2: running = false; // immediately visible\n\n// BUT: volatile counter++ is NOT safe!\nvolatile int counter = 0;\ncounter++; // Read-modify-write = 3 ops, not atomic\n// Use AtomicInteger instead\n\\`\\`\\`\n\n**Use volatile for:** boolean flags, publishing immutable objects\n**Don't use for:** increment/decrement, complex state`;
-
-  if (/concurrenthashmap/i.test(q)) return `## ConcurrentHashMap\n\n| | ConcurrentHashMap | synchronizedMap |\n|--|------------------|-----------------|\n| Locking | Per-node (Java 8+) | Entire map |\n| Read locking | None (lock-free) | Locks on read |\n| Null keys | NOT allowed | Allowed |\n| Iterator | Weakly consistent | Fail-fast |\n\n\\`\\`\\`java\n// Atomic operations:\nmap.putIfAbsent(key, value);\nmap.computeIfAbsent(key, k -> compute(k));\nmap.merge(key, 1, Integer::sum); // thread-safe counter\n\n// WRONG — race condition:\nif (!map.containsKey(key)) map.put(key, val);\n// RIGHT:\nmap.putIfAbsent(key, val);\n\\`\\`\\``;
-
-  if (/bean.*lifecycle|lifecycle.*bean/i.test(q)) return `## Spring Bean Lifecycle\n\n1. Instantiation (constructor)\n2. Populate properties (@Autowired)\n3. BeanNameAware.setBeanName()\n4. ApplicationContextAware.setApplicationContext()\n5. **@PostConstruct** ← your init logic\n6. InitializingBean.afterPropertiesSet()\n7. **Bean is READY**\n8. **@PreDestroy** ← your cleanup\n9. DisposableBean.destroy()\n\n\\`\\`\\`java\n@Component\npublic class MyService {\n    @Autowired Repository repo; // Step 2\n    \n    @PostConstruct\n    public void init() { cache.warmUp(); } // Step 5\n    \n    @PreDestroy\n    public void cleanup() { conn.close(); } // Step 8\n}\n\\`\\`\\``;
-
-  if (/groupingby|collectors/i.test(q)) return `## groupingBy() with Downstream Collectors\n\n\\`\\`\\`java\n// Group employees by department\nMap<String, List<Employee>> byDept = employees.stream()\n    .collect(Collectors.groupingBy(Employee::getDept));\n\n// Count per department\nMap<String, Long> countByDept = employees.stream()\n    .collect(Collectors.groupingBy(Employee::getDept, Collectors.counting()));\n\n// Average salary per department\nMap<String, Double> avgSalary = employees.stream()\n    .collect(Collectors.groupingBy(\n        Employee::getDept,\n        Collectors.averagingDouble(Employee::getSalary)\n    ));\n\n// Nested grouping: dept → gender → list\nMap<String, Map<String, List<Employee>>> nested = employees.stream()\n    .collect(Collectors.groupingBy(\n        Employee::getDept,\n        Collectors.groupingBy(Employee::getGender)\n    ));\n\\`\\`\\``;
-
-  if (/idempoten/i.test(q)) return `## Idempotency\n\nAn operation is idempotent if calling it multiple times has the same effect as calling it once.\n\n**Payment example:**\n\\`\\`\\`java\n// WITHOUT idempotency — double charge!\nPOST /api/payments {amount: 100} // Timeout\nPOST /api/payments {amount: 100} // Retry — charged twice!\n\n// WITH idempotency key:\nPOST /api/payments\nHeaders: Idempotency-Key: txn_abc123\n{amount: 100}\n\n// Server checks: "I already processed txn_abc123"\n// Returns same response, no duplicate charge\n\\`\\`\\`\n\n\\`\\`\\`java\n@PostMapping("/payments")\npublic Response pay(@RequestHeader("Idempotency-Key") String key,\n                    @RequestBody PaymentReq req) {\n    Optional<Payment> existing = paymentRepo.findByIdempotencyKey(key);\n    if (existing.isPresent()) return existing.get().toResponse();\n    // Process new payment...\n}\n\\`\\`\\``;
-
-  if (/optimistic.*pessimistic|pessimistic.*optimistic|locking/i.test(q)) return `## Optimistic vs Pessimistic Locking\n\n| | Optimistic | Pessimistic |\n|--|-----------|-------------|\n| When | Low contention | High contention |\n| How | Version check at commit | Lock row on read |\n| Performance | Better (no locks) | Worse (holds locks) |\n| Failure | OptimisticLockException | Waiting/deadlock |\n\n\\`\\`\\`java\n// Optimistic (JPA @Version)\n@Entity\nclass Product {\n    @Version\n    private Long version; // Auto-incremented on update\n}\n// If two threads read version=1 and both try to update,\n// second one gets OptimisticLockException\n\n// Pessimistic\n@Lock(LockModeType.PESSIMISTIC_WRITE)\n@Query("SELECT p FROM Product p WHERE p.id = :id")\nProduct findByIdForUpdate(Long id);\n// Locks the row — other threads wait\n\\`\\`\\`\n\n**Use Optimistic for:** read-heavy, rare conflicts (e-commerce catalog)\n**Use Pessimistic for:** write-heavy, critical sections (inventory, banking)`;
-
-  // ── Fallback patterns for remaining questions ─────────────────────────
-  
+  // Fallback: context-aware answer based on question structure
   if (/difference between|vs\b/i.test(q)) {
     const parts = question.match(/(?:difference between|vs\.?)\s*(.+?)(?:\s+and\s+|\s+vs\.?\s+)(.+?)[\?\.\,]?$/i);
     if (parts) {
       const a = parts[1].trim(), b = parts[2].trim();
-      return \`## \${a} vs \${b}\n\n| Aspect | \${a} | \${b} |\n|--------|---------|---------|\n| Purpose | Primary use case for \${a} | Primary use case for \${b} |\n| Performance | Depends on workload | Depends on workload |\n| When to use | When you need \${a}-specific features | When you need \${b}-specific features |\n\n**Key Insight:** The choice depends on your specific requirements — data volume, consistency needs, and performance constraints.\n\n**Interview Tip:** Don't just list differences. Explain WHEN you'd choose one over the other with a real project example. Say: "In my project, I chose \${a} because..." This shows practical experience.\`;
+      return "## " + a + " vs " + b + "\n\n**" + a + ":** Primary use case, performance characteristics, when to use\n**" + b + ":** Primary use case, performance characteristics, when to use\n\n**Key Difference:** The choice depends on your specific requirements. " + a + " excels in certain scenarios while " + b + " is better in others.\n\n**Interview Tip:** Don't just list differences. Explain WHEN you'd choose one over the other with a real project example.";
     }
   }
-
-  if (/how does.*work|explain.*internal|working|mechanism/i.test(q)) {
-    const topic = question.replace(/^\d+\.\s*/, '').replace(/\?.*$/, '').trim();
-    return \`## \${topic}\n\n**How it works internally:**\n\n1. **Initialization:** The component sets up its internal data structures and configuration\n2. **Processing:** Incoming requests/data are processed through the core algorithm\n3. **Optimization:** Java 8+ includes performance optimizations (lazy evaluation, caching)\n\n**Key implementation details:**\n- Underlying data structure and why it was chosen\n- Thread-safety guarantees and synchronization mechanism\n- Memory management and garbage collection interaction\n\n**Performance characteristics:**\n- Time complexity for common operations\n- Space complexity and memory overhead\n- Bottlenecks under high load\n\n\\\`\\\`\\\`java\n// Typical usage pattern:\n// 1. Create/obtain instance\n// 2. Configure as needed\n// 3. Use in your application\n// 4. Handle edge cases\n\\\`\\\`\\\`\n\n**Interview Tip:** Draw a diagram showing the flow. Explain with a real scenario from your project.\`;
+  
+  if (/how does.*work|explain.*internal|mechanism/i.test(q)) {
+    return "## How It Works\n\n**Internal Flow:**\n1. Initialization and setup\n2. Core processing with specific data structures\n3. Optimization and result handling\n\n**Key Details:** Understand the underlying data structure, thread-safety guarantees, and performance characteristics (time/space complexity).\n\n**Interview Tip:** Draw a diagram showing the internal flow. Explain with a real scenario from your project experience.";
   }
-
+  
   if (/design|implement|how would you/i.test(q)) {
-    return \`## Design Approach\n\n**Step 1 — Requirements:**\n- Functional: What must the system do?\n- Non-functional: Scale, latency, availability targets\n\n**Step 2 — High-Level Design:**\n- API layer (REST/gRPC)\n- Service layer (business logic)\n- Data layer (SQL/NoSQL choice)\n- Caching strategy (Redis)\n- Async processing (Kafka/RabbitMQ)\n\n**Step 3 — Deep Dive:**\n- Database schema and indexing\n- Concurrency handling\n- Error handling and retry logic\n- Monitoring and alerting\n\n**Step 4 — Trade-offs:**\n- Consistency vs Availability\n- Latency vs Throughput\n- Simplicity vs Scalability\n\n**Interview Tip:** Start with requirements (5 min), then high-level design (10 min), then deep dive into 1-2 components (15 min). Always discuss trade-offs.\`;
+    return "## Design Approach\n\n**Step 1 — Requirements:** Functional + Non-functional (scale, latency, availability)\n**Step 2 — High-Level Design:** Components, data flow, technology choices\n**Step 3 — Deep Dive:** Database schema, concurrency, error handling\n**Step 4 — Trade-offs:** Consistency vs Availability, Latency vs Throughput\n\n**Interview Tip:** Start with requirements (5 min), high-level (10 min), deep dive (15 min). Always discuss trade-offs.";
   }
-
-  if (/why|when|should/i.test(q)) {
-    const topic = question.replace(/^\d+\.\s*/, '').replace(/[\?].*$/, '').replace(/^(why|when|should)\s+(you|we|i)\s*/i, '').trim();
-    return \`## \${topic}\n\n**Why it matters:**\nThis addresses a real problem in production systems — without understanding this, you risk performance issues, bugs, or architectural mistakes.\n\n**When to use:**\n- High-throughput systems where performance matters\n- Applications with strict data consistency requirements\n- When you need to scale beyond a single instance\n\n**When NOT to use:**\n- Over-engineering simple CRUD applications\n- When simpler alternatives exist and meet requirements\n- Premature optimization without measured bottlenecks\n\n**Production experience:**\nIn real projects, this decision is driven by measured performance data, not assumptions. Profile first, optimize second.\n\n**Interview Tip:** Share a specific scenario: "In my project at [company], we faced [problem] and chose [solution] because [trade-off reasoning]."\`;
-  }
-
-  // Default — still much better than before
-  const topic = question.replace(/^\d+\.\s*/, '').replace(/[\?]$/, '').trim();
-  return \`## \${topic}\n\n**Core Concept:**\nThis is a key topic in \${category}. Understanding it deeply shows senior-level thinking.\n\n**What interviewers want to hear:**\n1. Clear definition in your own words (not textbook)\n2. Internal mechanism — how it works under the hood\n3. Real-world usage from YOUR experience\n4. Trade-offs — pros, cons, and alternatives\n5. What can go wrong in production\n\n**Code Example:**\n\\\`\\\`\\\`java\n// Demonstrate the concept with a practical example\n// that shows you've used this in real projects\n\\\`\\\`\\\`\n\n**Common Mistake:** Giving a textbook answer without real-world context. Interviewers want to know you've USED this, not just read about it.\n\n**Interview Tip:** Structure your answer as: Definition → How it works → When I used it → Trade-offs. This shows depth and experience.\`;
+  
+  // Generic but useful answer
+  return "## " + category + "\n\n**Key Points:**\n1. **Definition:** Clear, concise explanation in your own words\n2. **How it works:** Internal mechanism and key data structures\n3. **When to use:** Specific scenarios from real projects\n4. **Trade-offs:** Pros, cons, and alternatives\n5. **Production impact:** What can go wrong and how to prevent it\n\n**Interview Tip:** Structure as Definition → Mechanism → Experience → Trade-offs. Show you've used this in production, not just read about it.";
 }
 
 
