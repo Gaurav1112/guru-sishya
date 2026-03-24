@@ -898,12 +898,19 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
             const isModelAnswer =
               isInterviewer && msg.content.startsWith("**Model Answer:**");
 
+            // Direction: interviewer slides from left, user from right, feedback from bottom
+            const chatInitial = isFeedback
+              ? { opacity: 0, y: 16, x: 0 }
+              : isUser
+              ? { opacity: 0, x: 40, y: 0 }
+              : { opacity: 0, x: -40, y: 0 };
+
             return (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+                initial={chatInitial}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
                 className={`flex gap-2 ${isUser ? "flex-row-reverse" : "flex-row"}`}
               >
                 {/* Avatar */}

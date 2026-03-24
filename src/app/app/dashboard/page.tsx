@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { loadAllContent, type TopicContent } from "@/lib/content/loader";
@@ -20,6 +21,20 @@ import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
 import { CompanyQuestionsSection } from "@/components/features/company-questions/company-questions-section";
 import { PageTransition } from "@/components/page-transition";
 import { DailyQuests } from "@/components/gamification/daily-quests";
+
+// ── Stagger item wrapper ──────────────────────────────────────────────────────
+
+function FadeIn({ children, index = 0 }: { children: React.ReactNode; index?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08, duration: 0.4, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 // ── Featured topics to show on dashboard ────────────────────────────────────
 
@@ -338,6 +353,7 @@ export default function DashboardPage() {
     <PageTransition>
       <div className="space-y-8">
       {/* Welcome Banner */}
+      <FadeIn index={0}>
       <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-teal/5 p-6">
         <p className="text-xs font-medium tracking-widest text-saffron uppercase mb-1">
           Guru Sishya
@@ -385,13 +401,15 @@ export default function DashboardPage() {
           </span>
         </div>
       </div>
+      </FadeIn>
 
-      <ComebackBanner />
+      <FadeIn index={1}><ComebackBanner /></FadeIn>
 
       {/* Review Widget */}
-      <ReviewWidget />
+      <FadeIn index={2}><ReviewWidget /></FadeIn>
 
       {/* Important Questions Widget */}
+      <FadeIn index={3}>
       <Link
         href="/app/questions"
         className="group flex items-center gap-4 rounded-xl border border-indigo/20 bg-gradient-to-r from-indigo/5 via-saffron/5 to-gold/5 p-4 transition-all hover:scale-[1.01] hover:border-indigo/30"
@@ -412,8 +430,10 @@ export default function DashboardPage() {
           <ChevronRight className="size-3.5" />
         </div>
       </Link>
+      </FadeIn>
 
       {/* Mock Interview CTA */}
+      <FadeIn index={4}>
       <Link
         href="/app/interview"
         className="group flex items-center gap-4 rounded-xl border border-saffron/20 bg-gradient-to-r from-saffron/5 via-gold/5 to-indigo/5 p-4 transition-all hover:scale-[1.01] hover:border-saffron/30"
@@ -434,35 +454,41 @@ export default function DashboardPage() {
           <ChevronRight className="size-3.5" />
         </div>
       </Link>
+      </FadeIn>
 
       {/* Daily Challenge */}
-      <DailyChallengeWidget />
+      <FadeIn index={5}><DailyChallengeWidget /></FadeIn>
 
       {/* Question of the Day Banner */}
-      <QuestionBanner />
+      <FadeIn index={6}><QuestionBanner /></FadeIn>
 
       {/* Daily Quests */}
+      <FadeIn index={7}>
       <section>
         <h2 className="font-heading text-lg font-semibold mb-3">Daily Quests</h2>
         <DailyQuests />
       </section>
+      </FadeIn>
 
       {/* Company-Specific Technical Questions */}
-      <CompanyQuestionsSection />
+      <FadeIn index={8}><CompanyQuestionsSection /></FadeIn>
 
       {/* Your Progress */}
+      <FadeIn index={9}>
       <section>
         <h2 className="font-heading text-lg font-semibold mb-3">Your Progress</h2>
         <YourProgress />
       </section>
+      </FadeIn>
 
       {/* Daily Goal */}
-      <DailyGoalBar />
+      <FadeIn index={10}><DailyGoalBar /></FadeIn>
 
       {/* Activity Heatmap */}
-      <ActivityHeatmap />
+      <FadeIn index={11}><ActivityHeatmap /></FadeIn>
 
       {/* Quick Start */}
+      <FadeIn index={12}>
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-heading text-lg font-semibold">Quick Start</h2>
@@ -497,12 +523,15 @@ export default function DashboardPage() {
           </div>
         )}
       </section>
+      </FadeIn>
 
       {/* Category Links */}
+      <FadeIn index={13}>
       <section>
         <h2 className="font-heading text-lg font-semibold mb-3">Browse by Category</h2>
         <CategoryLinks />
       </section>
+      </FadeIn>
     </div>
     </PageTransition>
   );

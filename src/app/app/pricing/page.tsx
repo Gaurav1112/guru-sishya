@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { Check, Sparkles, Crown, Zap } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { PageTransition } from "@/components/page-transition";
@@ -277,9 +278,12 @@ export default function PricingPage() {
 
       {/* Plan cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        {PLANS.map((plan) => (
-          <div
+        {PLANS.map((plan, i) => (
+          <motion.div
             key={plan.id}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1, duration: 0.45, ease: "easeOut" }}
             className={`relative flex flex-col rounded-2xl border p-6 transition-all ${
               plan.highlight
                 ? "border-saffron/50 bg-gradient-to-b from-saffron/10 via-gold/5 to-background shadow-lg shadow-saffron/10"
@@ -288,15 +292,21 @@ export default function PricingPage() {
           >
             {/* Badge */}
             {plan.badge && (
-              <div
-                className={`absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${
-                  plan.highlight
-                    ? "bg-saffron text-background"
-                    : "bg-gold/20 text-gold border border-gold/30"
-                }`}
-              >
-                {plan.badge}
-              </div>
+              plan.highlight ? (
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold bg-saffron text-background"
+                >
+                  {plan.badge}
+                </motion.div>
+              ) : (
+                <div
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold bg-gold/20 text-gold border border-gold/30"
+                >
+                  {plan.badge}
+                </div>
+              )
             )}
 
             {/* Icon + label */}
@@ -343,7 +353,7 @@ export default function PricingPage() {
                 ? `Renew ${plan.label}`
                 : `Get ${plan.label}`}
             </button>
-          </div>
+          </motion.div>
         ))}
       </div>
 

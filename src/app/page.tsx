@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
@@ -10,6 +10,40 @@ import { Pricing } from "@/components/landing/pricing";
 import { Testimonials } from "@/components/landing/testimonials";
 import { FAQ } from "@/components/landing/faq";
 import { Button } from "@/components/ui/button";
+
+// ── ScrollReveal — fade-in + slide-up when section enters viewport ─────────────
+
+function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(24px)",
+        transition: `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 const COMPANIES = [
   "Google",
@@ -184,13 +218,27 @@ export default function LandingPage() {
     <main className="min-h-screen">
       <LandingNavbar />
       <Hero />
-      <CompanyLogoStrip />
-      <HowItWorks />
-      <Features />
-      <Testimonials />
-      <Pricing />
-      <FAQ />
-      <FinalCTA />
+      <ScrollReveal delay={0}>
+        <CompanyLogoStrip />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
+        <HowItWorks />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
+        <Features />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
+        <Testimonials />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
+        <Pricing />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
+        <FAQ />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
+        <FinalCTA />
+      </ScrollReveal>
       <footer className="border-t border-border/50 py-10 px-6">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">

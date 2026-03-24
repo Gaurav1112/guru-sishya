@@ -237,4 +237,50 @@ html {
     background: hsl(240 10% 25%);
     border-radius: 1px;
   }
+
+  /* Saffron glow for premium elements */
+  .glow-saffron {
+    box-shadow: 0 0 20px rgba(224, 123, 57, 0.3), 0 0 60px rgba(224, 123, 57, 0.1);
+  }
+
+  /* Floating animation for hero elements */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Gradient text animation */
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .animate-gradient-text {
+    background: linear-gradient(90deg, var(--saffron), var(--gold), var(--saffron));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 3s ease-in-out infinite;
+  }
+
+  /* Button press micro-interaction */
+  .btn-press {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .btn-press:active {
+    transform: scale(0.97);
+  }
+
+  /* Outline button glow on hover */
+  .btn-outline-glow {
+    transition: all 0.2s ease;
+  }
+  .btn-outline-glow:hover {
+    box-shadow: 0 0 12px rgba(224, 123, 57, 0.2);
+    border-color: hsl(16 79% 53% / 0.5);
+  }
 }

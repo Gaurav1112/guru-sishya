@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Crown, ShieldCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { motion } from "framer-motion";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
@@ -45,17 +46,27 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex w-56 flex-col border-r border-border/50 bg-background">
       <nav className="flex-1 space-y-1 p-3">
-        {navItems.map((item) => (
-          <Link key={item.href} href={item.href} className={cn("flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors", pathname === item.href ? "bg-surface text-foreground" : "text-muted-foreground hover:bg-surface-hover hover:text-foreground")}>
-            <span>{item.icon}</span>
-            <span className="flex-1">{item.label}</span>
-            {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
-              <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
-                {dueCount > 99 ? "99+" : dueCount}
-              </span>
-            )}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link key={item.href} href={item.href} className={cn("relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors", isActive ? "bg-surface text-foreground" : "text-muted-foreground hover:bg-surface-hover hover:text-foreground")}>
+              {isActive && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className="absolute left-0 top-0 bottom-0 w-0.5 bg-saffron rounded-r"
+                  transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                />
+              )}
+              <span>{item.icon}</span>
+              <span className="flex-1">{item.label}</span>
+              {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
+                <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+                  {dueCount > 99 ? "99+" : dueCount}
+                </span>
+              )}
+            </Link>
+          );
+        })}
 
         {/* Admin console link — only visible for admin */}
         {isAdmin && (

@@ -224,7 +224,7 @@ function QuestionCard({
       {/* Card container with perspective */}
       <div
         className="perspective-1000 relative cursor-pointer"
-        style={{ minHeight: "380px" }}
+        style={{ minHeight: "380px", perspective: "1200px" }}
         onClick={onFlip}
         role="button"
         tabIndex={0}
