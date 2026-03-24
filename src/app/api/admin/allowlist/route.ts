@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
+import { createClient } from "redis";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -8,33 +8,39 @@ const REDIS_KEY = "premium_allowlist";
 
 // ── Redis client ───────────────────────────────────────────────────────────────
 
-function getRedis() {
-  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
-
-  if (!url || !token) {
-    throw new Error("Redis not configured. Set KV_REST_API_URL and KV_REST_API_TOKEN.");
+async function getRedis() {
+  const url = process.env.REDIS_URL;
+  if (!url) {
+    throw new Error("REDIS_URL not configured");
   }
-
-  return new Redis({ url, token });
+  const client = createClient({ url });
+  await client.connect();
+  return client;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 async function readAllowlist(): Promise<string[]> {
+  let client;
   try {
-    const redis = getRedis();
-    const data = await redis.get<string[]>(REDIS_KEY);
-    return Array.isArray(data) ? data : [];
+    client = await getRedis();
+    const data = await client.get(REDIS_KEY);
+    return data ? JSON.parse(data) : [];
   } catch (err) {
     console.error("[admin/allowlist] Redis read error:", err);
     return [];
+  } finally {
+    await client?.disconnect();
   }
 }
 
 async function writeAllowlist(emails: string[]): Promise<void> {
-  const redis = getRedis();
-  await redis.set(REDIS_KEY, emails);
+  const client = await getRedis();
+  try {
+    await client.set(REDIS_KEY, JSON.stringify(emails));
+  } finally {
+    await client.disconnect();
+  }
 }
 
 // ── GET /api/admin/allowlist ───────────────────────────────────────────────────
