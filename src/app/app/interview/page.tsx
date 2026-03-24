@@ -36,7 +36,25 @@ interface InterviewConfig {
   company: string;
   type: "technical" | "behavioral" | "mixed";
   difficulty: "Easy" | "Medium" | "Hard" | "Mixed";
+  topic: string; // "All" or specific topic like "System Design", "Java", "Kafka"
 }
+
+const TOPICS = [
+  "All Topics",
+  "System Design",
+  "Data Structures",
+  "Algorithms",
+  "Java",
+  "Spring Boot",
+  "Microservices",
+  "Database / SQL",
+  "Kafka",
+  "AWS",
+  "Kubernetes / Docker",
+  "Design Patterns",
+  "Concurrency",
+  "Production & Debugging",
+];
 
 type InterviewPhase = "setup" | "active" | "complete";
 
@@ -64,19 +82,39 @@ const STOP_WORDS = new Set([
 // ── Keyword scoring ────────────────────────────────────────────────────────────
 
 function scoreAnswer(userAnswer: string, modelAnswer: string): ScoreResult {
-  const keywords = [
+  // Extract important technical keywords and multi-word phrases
+  const modelLower = modelAnswer.toLowerCase();
+
+  // Get single keywords (4+ chars, not stop words)
+  const singleKeywords = [
     ...new Set(
-      modelAnswer
-        .toLowerCase()
+      modelLower
         .match(/\b[a-z]{4,}\b/g)
         ?.filter((w) => !STOP_WORDS.has(w)) ?? []
     ),
   ];
 
+  // Also extract technical terms (capitalized words, acronyms, hyphenated terms from original)
+  const techTerms = [
+    ...new Set(
+      modelAnswer
+        .match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*\b/g)
+        ?.map((t) => t.toLowerCase()) ?? []
+    ),
+  ];
+
+  // Combine and deduplicate — prioritize technical terms
+  const allKeywords = [...new Set([...techTerms, ...singleKeywords])];
+  // Take top 20 most important (longer words = more important)
+  const keywords = allKeywords
+    .sort((a, b) => b.length - a.length)
+    .slice(0, 20);
+
   const userLower = userAnswer.toLowerCase();
   const matched = keywords.filter((k) => userLower.includes(k));
   const missed = keywords.filter((k) => !userLower.includes(k)).slice(0, 6);
 
+  // Score: matched/total, with a bonus for mentioning many keywords
   const score = Math.min(
     10,
     Math.round((matched.length / Math.max(keywords.length, 1)) * 10)
@@ -98,6 +136,7 @@ async function loadInterviewQuestions(
   const questions: InterviewQuestion[] = [];
 
   if (config.type === "technical" || config.type === "mixed") {
+    // Load company-specific tech questions
     try {
       const res = await fetch("/content/company-tech-qa.json");
       if (res.ok) {
@@ -109,21 +148,26 @@ async function loadInterviewQuestions(
           topic?: string;
         }[];
 
-        // Filter by company if not General
-        const filtered =
-          config.company === "General"
-            ? data
-            : data.filter((q) => q.category === config.company);
+        let filtered = config.company === "General"
+          ? data
+          : data.filter((q) => q.category === config.company);
 
-        // Filter by difficulty if not Mixed
-        const diffFiltered =
-          config.difficulty === "Mixed"
-            ? filtered
-            : filtered.filter((q) => q.difficulty === config.difficulty);
+        // Filter by topic if not "All Topics"
+        if (config.topic !== "All Topics") {
+          const topicLower = config.topic.toLowerCase();
+          const topicFiltered = filtered.filter((q) =>
+            (q.topic ?? "").toLowerCase().includes(topicLower) ||
+            q.question.toLowerCase().includes(topicLower) ||
+            q.answer.toLowerCase().includes(topicLower)
+          );
+          if (topicFiltered.length >= 2) filtered = topicFiltered;
+        }
 
-        // Use all if filter is too narrow
+        const diffFiltered = config.difficulty === "Mixed"
+          ? filtered
+          : filtered.filter((q) => q.difficulty === config.difficulty);
+
         const pool = diffFiltered.length >= 3 ? diffFiltered : filtered;
-
         for (const q of pool) {
           questions.push({
             question: q.question,
@@ -135,8 +179,39 @@ async function loadInterviewQuestions(
           });
         }
       }
-    } catch {
-      // ignore
+    } catch { /* ignore */ }
+
+    // Also load topic-specific questions from the main Q&A files
+    if (config.topic !== "All Topics") {
+      const qaFiles = [
+        "/content/kafka-qa.json",
+        "/content/aws-qa.json",
+        "/content/k8s-docker-qa.json",
+        "/content/design-patterns-qa.json",
+      ];
+      const topicLower = config.topic.toLowerCase();
+      const fileResults = await Promise.allSettled(
+        qaFiles.map((f) => fetch(f).then((r) => r.ok ? r.json() : []))
+      );
+      for (const result of fileResults) {
+        if (result.status !== "fulfilled" || !Array.isArray(result.value)) continue;
+        for (const q of result.value as { question: string; answer: string; category?: string; difficulty?: string }[]) {
+          if (
+            q.question.toLowerCase().includes(topicLower) ||
+            (q.answer ?? "").toLowerCase().includes(topicLower) ||
+            (q.category ?? "").toLowerCase().includes(topicLower)
+          ) {
+            questions.push({
+              question: q.question,
+              answer: q.answer ?? "",
+              category: q.category ?? config.topic,
+              difficulty: q.difficulty ?? "Medium",
+              company: config.company,
+              type: "technical",
+            });
+          }
+        }
+      }
     }
   }
 
@@ -265,6 +340,7 @@ function SetupScreen({ onStart }: SetupScreenProps) {
   const [company, setCompany] = useState<string>("Google");
   const [type, setType] = useState<"technical" | "behavioral" | "mixed">("technical");
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard" | "Mixed">("Mixed");
+  const [topic, setTopic] = useState<string>("All Topics");
 
   return (
     <PageTransition>
@@ -375,10 +451,33 @@ function SetupScreen({ onStart }: SetupScreenProps) {
           </div>
         </section>
 
+        {/* Topic filter */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Focus Topic
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {TOPICS.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTopic(t)}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+                  topic === t
+                    ? "border-teal/50 bg-teal/10 text-teal"
+                    : "border-border/50 bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-hover"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </section>
+
         {/* Start button */}
         <button
           type="button"
-          onClick={() => onStart({ company, type, difficulty })}
+          onClick={() => onStart({ company, type, difficulty, topic })}
           className="w-full flex items-center justify-center gap-2 rounded-xl bg-saffron px-6 py-4 text-base font-semibold text-background transition-all hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-saffron/20"
         >
           <Mic className="size-4" />
@@ -1073,22 +1172,16 @@ export default function InterviewPage() {
         </button>
       )}
 
-      {/* Free tier notice */}
+      {/* Pro only gate */}
       {phase === "setup" && !isActivePremium && (
-        <div className="rounded-xl border border-saffron/20 bg-saffron/5 px-4 py-3 text-sm flex items-center justify-between gap-4">
-          <span className="text-muted-foreground">
-            Free plan: <strong className="text-foreground">{FREE_QUESTIONS} questions</strong> per session,{" "}
-            <strong className="text-foreground">{FREE_LIMIT} interview</strong> per day
-          </span>
-          {!canStartFree && (
-            <Link
-              href="/app/pricing"
-              className="shrink-0 rounded-lg bg-saffron px-3 py-1.5 text-xs font-semibold text-background hover:opacity-90 transition-opacity"
-            >
-              Upgrade for Unlimited
-            </Link>
-          )}
-        </div>
+        <PremiumGate feature="mock-interview" overlay={false}>
+          <div className="rounded-xl bg-surface p-8 text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              The AI Mock Interviewer is a Pro-only feature.
+              Practice unlimited interviews with instant feedback.
+            </p>
+          </div>
+        </PremiumGate>
       )}
 
       {/* Error */}
@@ -1106,17 +1199,8 @@ export default function InterviewPage() {
         </div>
       )}
 
-      {/* Daily limit gate for free users */}
-      {phase === "setup" && !isActivePremium && !canStartFree && !loading && (
-        <PremiumGate feature="mock-interview" overlay={false}>
-          <div className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground">
-            You have used your free interview for today.
-          </div>
-        </PremiumGate>
-      )}
-
-      {/* Setup */}
-      {phase === "setup" && !loading && (isActivePremium || canStartFree) && (
+      {/* Setup — Pro only */}
+      {phase === "setup" && !loading && isActivePremium && (
         <SetupScreen onStart={handleStart} />
       )}
 
