@@ -239,57 +239,95 @@ export default function LandingPage() {
       <ScrollReveal delay={0}>
         <FinalCTA />
       </ScrollReveal>
-      <footer className="border-t border-border/50 py-10 px-6">
+      <footer className="border-t border-border/50 py-12 px-6">
         <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
-            <div className="text-center md:text-left">
-              <p className="font-heading text-base font-semibold text-saffron mb-1">
+          {/* Footer grid with organized link sections */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+              <p className="font-heading text-base font-semibold text-saffron mb-2">
                 GURU SISHYA
               </p>
-              <p className="text-sm text-muted-foreground">
-                Ace Your Software Engineering Interview &mdash; Free, Always.
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Free software engineering interview preparation platform. 56 topics, 710+ questions, works offline.
               </p>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-              <Link href="/app/topics" className="hover:text-foreground transition-colors">
-                Topics
-              </Link>
-              <Link href="/app/roadmap" className="hover:text-foreground transition-colors">
-                Roadmap
-              </Link>
-              <Link href="#pricing" className="hover:text-foreground transition-colors">
-                Pricing
-              </Link>
-              <Link href="#faq" className="hover:text-foreground transition-colors">
-                FAQ
-              </Link>
-              <Link href="/#features" className="hover:text-foreground transition-colors">
-                About
-              </Link>
-              <Link href="/privacy" className="hover:text-foreground transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">
-                Terms
-              </Link>
-              <a
-                href="https://github.com/Gaurav1112/guru-sishya"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
-              >
-                GitHub
-              </a>
-              <a
-                href="mailto:kgauravis016@gmail.com"
-                className="hover:text-foreground transition-colors"
-              >
-                Contact
-              </a>
+
+            {/* Prepare */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Prepare</h3>
+              <nav aria-label="Preparation links" className="flex flex-col gap-2 text-sm text-muted-foreground">
+                <Link href="/app/topics" className="hover:text-foreground transition-colors">
+                  Browse Topics
+                </Link>
+                <Link href="/app/questions" className="hover:text-foreground transition-colors">
+                  Interview Questions
+                </Link>
+                <Link href="/app/interview" className="hover:text-foreground transition-colors">
+                  Mock Interview
+                </Link>
+                <Link href="/app/playground" className="hover:text-foreground transition-colors">
+                  Code Playground
+                </Link>
+                <Link href="/app/review" className="hover:text-foreground transition-colors">
+                  Flashcard Review
+                </Link>
+              </nav>
+            </div>
+
+            {/* Learn */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Learn</h3>
+              <nav aria-label="Learning links" className="flex flex-col gap-2 text-sm text-muted-foreground">
+                <Link href="/app/roadmap" className="hover:text-foreground transition-colors">
+                  Learning Roadmap
+                </Link>
+                <Link href="/app/dashboard" className="hover:text-foreground transition-colors">
+                  Dashboard
+                </Link>
+                <Link href="/app/leaderboard" className="hover:text-foreground transition-colors">
+                  Leaderboard
+                </Link>
+                <Link href="/app/pricing" className="hover:text-foreground transition-colors">
+                  Pricing
+                </Link>
+              </nav>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Company</h3>
+              <nav aria-label="Company links" className="flex flex-col gap-2 text-sm text-muted-foreground">
+                <Link href="/#features" className="hover:text-foreground transition-colors">
+                  About
+                </Link>
+                <Link href="/privacy" className="hover:text-foreground transition-colors">
+                  Privacy Policy
+                </Link>
+                <Link href="/terms" className="hover:text-foreground transition-colors">
+                  Terms of Service
+                </Link>
+                <a
+                  href="https://github.com/Gaurav1112/guru-sishya"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors"
+                >
+                  GitHub
+                </a>
+                <a
+                  href="mailto:kgauravis016@gmail.com"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Contact
+                </a>
+              </nav>
             </div>
           </div>
+
+          {/* Bottom bar */}
           <div className="border-t border-border/40 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground/60">
-            <p>Made with ❤️ in India</p>
+            <p>&copy; {new Date().getFullYear()} Guru Sishya. Made in India.</p>
             <p>Payments secured by Razorpay</p>
           </div>
         </div>

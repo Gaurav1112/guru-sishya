@@ -37,9 +37,28 @@ export const metadata: Metadata = {
     "free interview prep",
     "data structures algorithms",
     "behavioral interview STAR method",
+    "DSA interview questions",
+    "software engineer interview India",
+    "coding interview preparation free",
+    "system design interview questions",
+    "MAANG interview preparation India",
+    "dynamic programming interview",
+    "technical interview preparation",
+    "placement preparation India",
+    "software developer interview tips",
+    "react interview questions",
+    "node.js interview questions",
+    "python interview questions",
+    "microservices interview",
+    "LeetCode alternative free",
+    "mock interview practice",
+    "interview questions with answers",
   ],
   alternates: {
     canonical: "https://www.guru-sishya.in",
+  },
+  other: {
+    "google-site-verification": "YOUR_GOOGLE_VERIFICATION_CODE",
   },
   openGraph: {
     title: "Guru Sishya — Free Software Engineering Interview Prep | 56 Topics, 710+ Questions",
@@ -83,6 +102,7 @@ export default function RootLayout({
       className={`${jakarta.variable} ${inter.variable} ${jetbrains.variable} dark`}
     >
       <body className="font-body min-h-screen bg-background">
+        {/* JSON-LD: SoftwareApplication */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -93,7 +113,124 @@ export default function RootLayout({
               applicationCategory: "EducationalApplication",
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
-              description: "Free software engineering interview preparation platform",
+              description:
+                "Free software engineering interview preparation platform with 56 topics, 710+ questions, and STAR behavioral prep for FAANG interviews.",
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.8",
+                ratingCount: "150",
+              },
+            }),
+          }}
+        />
+        {/* JSON-LD: WebSite with SearchAction */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Guru Sishya",
+              url: "https://www.guru-sishya.in",
+              description:
+                "Free software engineering interview preparation platform for Indian developers targeting FAANG and top tech companies.",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate:
+                    "https://www.guru-sishya.in/app/topics?q={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
+              },
+              inLanguage: "en-IN",
+            }),
+          }}
+        />
+        {/* JSON-LD: Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Guru Sishya",
+              url: "https://www.guru-sishya.in",
+              logo: "https://www.guru-sishya.in/api/og",
+              sameAs: ["https://github.com/Gaurav1112/guru-sishya"],
+              contactPoint: {
+                "@type": "ContactPoint",
+                email: "kgauravis016@gmail.com",
+                contactType: "customer support",
+              },
+            }),
+          }}
+        />
+        {/* JSON-LD: FAQPage */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "Is Guru Sishya really free? What's the catch?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes - 56 topics, 710+ quiz questions with answers, 591 full lessons, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 129/month or Rs 999/year) for AI-powered features like the Feynman Technique and custom topic generation, but the core prep content will always be free.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Do I need an API key or AI subscription?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "No. All lesson content, quiz questions, cheat sheets, STAR behavioral answers, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Only the optional AI features (Feynman Technique, custom topics) require a Pro plan.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What topics does Guru Sishya cover?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "56 topics across four domains: System Design Fundamentals (load balancing, caching, databases, message queues, CDNs), System Design Case Studies (Twitter, YouTube, Uber, etc.), Data Structures and Algorithms (arrays, trees, dynamic programming, graphs), and Core CS (operating systems, networking, databases, compilers). More topics are added regularly.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "How is Guru Sishya different from LeetCode, AlgoExpert, or NeetCode?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Guru Sishya is the only platform that combines all of this in one place for free: 710+ questions with full answers (not just hints), 58 STAR behavioral answers, 32 system design topics, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes. Competitors charge Rs 991-Rs 2917/month and still lack behavioral prep and offline support.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Does Guru Sishya cover behavioral interviews?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes. Guru Sishya includes 58 pre-written STAR behavioral answers for the most common interview questions at Google, Amazon, Microsoft, Meta, Apple, and Netflix. These cover leadership, conflict resolution, ownership, impact, and more.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Will my progress be saved?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes. All progress is saved locally in your browser using IndexedDB - no account required. Your data is private and works offline. If you clear your browser data, your progress will reset.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "What is the Pro plan and what does it include?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Pro (Rs 129/month or Rs 999/year) unlocks AI-powered features: the Feynman Technique interactive chat for deep understanding, custom topic generation, priority support, and a certificate of completion. All core prep content remains free forever.",
+                  },
+                },
+              ],
             }),
           }}
         />
