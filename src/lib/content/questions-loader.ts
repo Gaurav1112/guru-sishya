@@ -154,105 +154,69 @@ function parseMasterMD(md: string): Question[] {
 // ── Answer generation (concise, helpful placeholder answers) ─────────────
 
 function generateAnswer(question: string, category: QuestionCategory): string {
-  // Provide structured answer templates based on question patterns
   const q = question.toLowerCase();
+  
+  // ── Extensive keyword-based real answers ─────────────────────────────────
+  
+  // HashMap / Collections
+  if (/hashmap.*internal|hashmap.*work/i.test(q)) return `## HashMap Internal Working (Java 8+)\n\nHashMap uses an array of Node<K,V> buckets. On put(key, value):\n1. Compute hash: \`(h = key.hashCode()) ^ (h >>> 16)\` (spread high bits)\n2. Find bucket index: \`hash & (capacity - 1)\`\n3. If empty → insert. If collision → chain as linked list\n4. **Java 8+ optimization:** When bucket has 8+ entries AND capacity >= 64, linked list converts to red-black tree (O(log n) vs O(n))\n\n\\`\\`\\`java\n// Treeification thresholds\nstatic final int TREEIFY_THRESHOLD = 8;\nstatic final int UNTREEIFY_THRESHOLD = 6;\nstatic final int MIN_TREEIFY_CAPACITY = 64;\n\n// Resize: when size > capacity * loadFactor (default 0.75)\n// All entries rehashed — O(n) operation\n\\`\\`\\`\n\n**Key facts:** Default capacity=16, loadFactor=0.75. NOT thread-safe — use ConcurrentHashMap for concurrent access.`;
+  
+  if (/equals.*hashcode|hashcode.*equals|override equals/i.test(q)) return `## equals() and hashCode() Contract\n\n**The rule:** If \`a.equals(b)\` → \`a.hashCode() == b.hashCode()\` (MUST be true)\n\n\\`\\`\\`java\nclass Employee {\n    String id;\n    @Override public boolean equals(Object o) {\n        return this.id.equals(((Employee)o).id);\n    }\n    // hashCode NOT overridden — BUG!\n}\n\nSet<Employee> set = new HashSet<>();\nset.add(new Employee("123"));\nset.contains(new Employee("123")); // FALSE!\n// Different default hashCode → different bucket → never found\n\\`\\`\\`\n\n**Fix:** \`@Override public int hashCode() { return Objects.hash(id); }\`\n\n**Production impact:** Session caches fail silently, Sets contain duplicates, Maps return null for existing keys.`;
 
+  if (/string.*immutable|immutable.*string/i.test(q)) return `## Why String is Immutable\n\n1. **String Pool:** \`"hello"\` is shared across the app. Mutation would affect all references\n2. **Security:** Strings in file paths, DB URLs, class names — mutation after validation = security hole\n3. **Thread Safety:** Immutable = inherently thread-safe, no synchronization needed\n4. **HashCode Caching:** String caches hashCode (computed once). Makes HashMap lookups fast\n5. **Class Loading:** Class names are strings. Immutability ensures integrity\n\n\\`\\`\\`java\nString a = "hello";\nString b = "hello";\na == b; // true — same object from string pool\n\n// String.hashCode() is cached:\nprivate int hash; // default 0\npublic int hashCode() {\n    if (hash == 0 && value.length > 0) hash = compute();\n    return hash; // cached after first call\n}\n\\`\\`\\``;
+
+  if (/comparable.*comparator|comparator.*comparable/i.test(q)) return `## Comparable vs Comparator\n\n| | Comparable | Comparator |\n|--|-----------|------------|\n| Package | java.lang | java.util |\n| Method | compareTo(T) | compare(T, T) |\n| Orderings | One (natural) | Many (external) |\n| Modifies class? | Yes | No |\n\n\\`\\`\\`java\n// Comparable — natural order\nclass Employee implements Comparable<Employee> {\n    public int compareTo(Employee o) {\n        return Integer.compare(this.salary, o.salary);\n    }\n}\n\n// Comparator — external, multiple orders\nComparator<Employee> byName = Comparator.comparing(Employee::getName);\nComparator<Employee> bySalaryDesc = Comparator.comparingInt(Employee::getSalary).reversed();\nemployees.sort(byName.thenComparingInt(Employee::getSalary));\n\\`\\`\\``;
+
+  if (/map\(\).*flatmap|flatmap.*map\(\)/i.test(q)) return `## map() vs flatMap()\n\n**map():** 1 input → 1 output\n**flatMap():** 1 input → Stream of outputs → flattened\n\n\\`\\`\\`java\n// map: User → String\nList<String> names = users.stream()\n    .map(User::getName)\n    .collect(Collectors.toList());\n\n// flatMap: Order → Stream<Item> → flattened\nList<Item> allItems = orders.stream()\n    .flatMap(order -> order.getItems().stream())\n    .collect(Collectors.toList());\n\n// Optional: avoid Optional<Optional<T>>\nOptional<Address> addr = user\n    .flatMap(User::getAddress); // not map()\n\\`\\`\\`\n\n**Rule:** When map() gives you Stream<Stream<T>>, use flatMap() to get Stream<T>.`;
+
+  if (/n\+1|n\+1 problem/i.test(q)) return `## The N+1 Problem\n\nFetching 1 parent triggers N queries for children.\n\n\\`\\`\\`java\n// 1 query for orders + N queries for items = N+1!\nList<Order> orders = orderRepo.findAll(); // 1 query\nfor (Order o : orders) o.getItems().size(); // N queries\n\\`\\`\\`\n\n**Fix 1 — JOIN FETCH:**\n\\`\\`\\`java\n@Query("SELECT o FROM Order o JOIN FETCH o.items")\nList<Order> findAllWithItems();\n\\`\\`\\`\n\n**Fix 2 — @EntityGraph:**\n\\`\\`\\`java\n@EntityGraph(attributePaths = {"items"})\nList<Order> findAll();\n\\`\\`\\`\n\n**Fix 3 — @BatchSize:**\n\\`\\`\\`java\n@OneToMany @BatchSize(size = 50)\nprivate List<OrderItem> items;\n\\`\\`\\`\n\n**Detection:** Enable \`spring.jpa.show-sql=true\` and count queries.`;
+
+  if (/@transactional|propagation/i.test(q)) return `## @Transactional\n\n**REQUIRED (default):** Joins existing tx or creates new\n**REQUIRES_NEW:** Always creates new independent tx\n\n\\`\\`\\`java\n@Transactional // REQUIRED\npublic void processOrder(Order order) {\n    orderRepo.save(order);       // Part of main tx\n    auditService.log(order);     // REQUIRES_NEW — independent\n    // If audit fails, order STILL committed\n}\n\\`\\`\\`\n\n**Self-invocation trap:**\n\\`\\`\\`java\npublic void methodA() {\n    this.methodB(); // @Transactional IGNORED!\n    // Proxy bypassed — no transaction\n}\n@Transactional\npublic void methodB() { ... }\n// Fix: inject self, or use TransactionTemplate\n\\`\\`\\``;
+
+  if (/circuit.?breaker/i.test(q)) return `## Circuit Breaker Pattern\n\nStates: **Closed** (normal) → **Open** (blocking) → **Half-Open** (testing)\n\n\\`\\`\\`java\n@CircuitBreaker(name = "payment", fallbackMethod = "fallback")\npublic Response charge(Request req) {\n    return paymentClient.charge(req);\n}\npublic Response fallback(Request req, Exception ex) {\n    return Response.pending("Queued for retry");\n}\n\\`\\`\\`\n\n\\`\\`\\`yaml\nresilience4j.circuitbreaker:\n  instances:\n    payment:\n      slidingWindowSize: 10\n      failureRateThreshold: 50\n      waitDurationInOpenState: 30s\n\\`\\`\\`\n\n**Why not just retry?** Retrying a dead service causes retry storms. Circuit breaker fast-fails.`;
+
+  if (/volatile/i.test(q)) return `## volatile Keyword\n\n**Guarantees visibility, NOT atomicity.**\n\n\\`\\`\\`java\nvolatile boolean running = true;\n// Thread 1: while (running) { work(); }\n// Thread 2: running = false; // immediately visible\n\n// BUT: volatile counter++ is NOT safe!\nvolatile int counter = 0;\ncounter++; // Read-modify-write = 3 ops, not atomic\n// Use AtomicInteger instead\n\\`\\`\\`\n\n**Use volatile for:** boolean flags, publishing immutable objects\n**Don't use for:** increment/decrement, complex state`;
+
+  if (/concurrenthashmap/i.test(q)) return `## ConcurrentHashMap\n\n| | ConcurrentHashMap | synchronizedMap |\n|--|------------------|-----------------|\n| Locking | Per-node (Java 8+) | Entire map |\n| Read locking | None (lock-free) | Locks on read |\n| Null keys | NOT allowed | Allowed |\n| Iterator | Weakly consistent | Fail-fast |\n\n\\`\\`\\`java\n// Atomic operations:\nmap.putIfAbsent(key, value);\nmap.computeIfAbsent(key, k -> compute(k));\nmap.merge(key, 1, Integer::sum); // thread-safe counter\n\n// WRONG — race condition:\nif (!map.containsKey(key)) map.put(key, val);\n// RIGHT:\nmap.putIfAbsent(key, val);\n\\`\\`\\``;
+
+  if (/bean.*lifecycle|lifecycle.*bean/i.test(q)) return `## Spring Bean Lifecycle\n\n1. Instantiation (constructor)\n2. Populate properties (@Autowired)\n3. BeanNameAware.setBeanName()\n4. ApplicationContextAware.setApplicationContext()\n5. **@PostConstruct** ← your init logic\n6. InitializingBean.afterPropertiesSet()\n7. **Bean is READY**\n8. **@PreDestroy** ← your cleanup\n9. DisposableBean.destroy()\n\n\\`\\`\\`java\n@Component\npublic class MyService {\n    @Autowired Repository repo; // Step 2\n    \n    @PostConstruct\n    public void init() { cache.warmUp(); } // Step 5\n    \n    @PreDestroy\n    public void cleanup() { conn.close(); } // Step 8\n}\n\\`\\`\\``;
+
+  if (/groupingby|collectors/i.test(q)) return `## groupingBy() with Downstream Collectors\n\n\\`\\`\\`java\n// Group employees by department\nMap<String, List<Employee>> byDept = employees.stream()\n    .collect(Collectors.groupingBy(Employee::getDept));\n\n// Count per department\nMap<String, Long> countByDept = employees.stream()\n    .collect(Collectors.groupingBy(Employee::getDept, Collectors.counting()));\n\n// Average salary per department\nMap<String, Double> avgSalary = employees.stream()\n    .collect(Collectors.groupingBy(\n        Employee::getDept,\n        Collectors.averagingDouble(Employee::getSalary)\n    ));\n\n// Nested grouping: dept → gender → list\nMap<String, Map<String, List<Employee>>> nested = employees.stream()\n    .collect(Collectors.groupingBy(\n        Employee::getDept,\n        Collectors.groupingBy(Employee::getGender)\n    ));\n\\`\\`\\``;
+
+  if (/idempoten/i.test(q)) return `## Idempotency\n\nAn operation is idempotent if calling it multiple times has the same effect as calling it once.\n\n**Payment example:**\n\\`\\`\\`java\n// WITHOUT idempotency — double charge!\nPOST /api/payments {amount: 100} // Timeout\nPOST /api/payments {amount: 100} // Retry — charged twice!\n\n// WITH idempotency key:\nPOST /api/payments\nHeaders: Idempotency-Key: txn_abc123\n{amount: 100}\n\n// Server checks: "I already processed txn_abc123"\n// Returns same response, no duplicate charge\n\\`\\`\\`\n\n\\`\\`\\`java\n@PostMapping("/payments")\npublic Response pay(@RequestHeader("Idempotency-Key") String key,\n                    @RequestBody PaymentReq req) {\n    Optional<Payment> existing = paymentRepo.findByIdempotencyKey(key);\n    if (existing.isPresent()) return existing.get().toResponse();\n    // Process new payment...\n}\n\\`\\`\\``;
+
+  if (/optimistic.*pessimistic|pessimistic.*optimistic|locking/i.test(q)) return `## Optimistic vs Pessimistic Locking\n\n| | Optimistic | Pessimistic |\n|--|-----------|-------------|\n| When | Low contention | High contention |\n| How | Version check at commit | Lock row on read |\n| Performance | Better (no locks) | Worse (holds locks) |\n| Failure | OptimisticLockException | Waiting/deadlock |\n\n\\`\\`\\`java\n// Optimistic (JPA @Version)\n@Entity\nclass Product {\n    @Version\n    private Long version; // Auto-incremented on update\n}\n// If two threads read version=1 and both try to update,\n// second one gets OptimisticLockException\n\n// Pessimistic\n@Lock(LockModeType.PESSIMISTIC_WRITE)\n@Query("SELECT p FROM Product p WHERE p.id = :id")\nProduct findByIdForUpdate(Long id);\n// Locks the row — other threads wait\n\\`\\`\\`\n\n**Use Optimistic for:** read-heavy, rare conflicts (e-commerce catalog)\n**Use Pessimistic for:** write-heavy, critical sections (inventory, banking)`;
+
+  // ── Fallback patterns for remaining questions ─────────────────────────
+  
   if (/difference between|vs\b/i.test(q)) {
-    const parts = question.match(/(?:difference between|vs\.?)\s*(.+?)(?:\s+and\s+|\s+vs\.?\s+)(.+?)[\?\.]?$/i);
+    const parts = question.match(/(?:difference between|vs\.?)\s*(.+?)(?:\s+and\s+|\s+vs\.?\s+)(.+?)[\?\.\,]?$/i);
     if (parts) {
-      return `## ${parts[1].trim()} vs ${parts[2].trim()}
-
-| Aspect | ${parts[1].trim()} | ${parts[2].trim()} |
-|--------|---------|---------|
-| Purpose | Specific use case | Specific use case |
-| Performance | Varies | Varies |
-| Thread Safety | Check docs | Check docs |
-
-**Key Insight:** Understanding when to use each is more important than memorizing differences. Consider the specific requirements of your use case.
-
-**Interview Tip:** Always provide a real-world example from your project experience.`;
+      const a = parts[1].trim(), b = parts[2].trim();
+      return \`## \${a} vs \${b}\n\n| Aspect | \${a} | \${b} |\n|--------|---------|---------|\n| Purpose | Primary use case for \${a} | Primary use case for \${b} |\n| Performance | Depends on workload | Depends on workload |\n| When to use | When you need \${a}-specific features | When you need \${b}-specific features |\n\n**Key Insight:** The choice depends on your specific requirements — data volume, consistency needs, and performance constraints.\n\n**Interview Tip:** Don't just list differences. Explain WHEN you'd choose one over the other with a real project example. Say: "In my project, I chose \${a} because..." This shows practical experience.\`;
     }
   }
 
-  if (/how does.*work|explain.*internal|working/i.test(q)) {
-    return `## How It Works
-
-**High-Level Flow:**
-1. Initial setup and initialization
-2. Core processing logic
-3. Result handling and cleanup
-
-**Internal Details:**
-- Data structures used internally
-- Algorithm complexity and trade-offs
-- Edge cases to be aware of
-
-**Production Considerations:**
-- Performance implications
-- Memory usage patterns
-- Common pitfalls to avoid
-
-**Interview Tip:** Draw a diagram to explain the flow. Interviewers value visual explanations.`;
+  if (/how does.*work|explain.*internal|working|mechanism/i.test(q)) {
+    const topic = question.replace(/^\d+\.\s*/, '').replace(/\?.*$/, '').trim();
+    return \`## \${topic}\n\n**How it works internally:**\n\n1. **Initialization:** The component sets up its internal data structures and configuration\n2. **Processing:** Incoming requests/data are processed through the core algorithm\n3. **Optimization:** Java 8+ includes performance optimizations (lazy evaluation, caching)\n\n**Key implementation details:**\n- Underlying data structure and why it was chosen\n- Thread-safety guarantees and synchronization mechanism\n- Memory management and garbage collection interaction\n\n**Performance characteristics:**\n- Time complexity for common operations\n- Space complexity and memory overhead\n- Bottlenecks under high load\n\n\\\`\\\`\\\`java\n// Typical usage pattern:\n// 1. Create/obtain instance\n// 2. Configure as needed\n// 3. Use in your application\n// 4. Handle edge cases\n\\\`\\\`\\\`\n\n**Interview Tip:** Draw a diagram showing the flow. Explain with a real scenario from your project.\`;
   }
 
   if (/design|implement|how would you/i.test(q)) {
-    return `## Design Approach
-
-**Requirements:**
-- Functional requirements
-- Non-functional requirements (scalability, reliability)
-
-**Architecture:**
-- Component breakdown
-- Data flow between components
-- Technology choices and justification
-
-**Key Decisions:**
-- Trade-offs considered
-- Scalability strategy
-- Fault tolerance mechanisms
-
-**Interview Tip:** Start with requirements, then high-level design, then dive into details. Show you think systematically.`;
+    return \`## Design Approach\n\n**Step 1 — Requirements:**\n- Functional: What must the system do?\n- Non-functional: Scale, latency, availability targets\n\n**Step 2 — High-Level Design:**\n- API layer (REST/gRPC)\n- Service layer (business logic)\n- Data layer (SQL/NoSQL choice)\n- Caching strategy (Redis)\n- Async processing (Kafka/RabbitMQ)\n\n**Step 3 — Deep Dive:**\n- Database schema and indexing\n- Concurrency handling\n- Error handling and retry logic\n- Monitoring and alerting\n\n**Step 4 — Trade-offs:**\n- Consistency vs Availability\n- Latency vs Throughput\n- Simplicity vs Scalability\n\n**Interview Tip:** Start with requirements (5 min), then high-level design (10 min), then deep dive into 1-2 components (15 min). Always discuss trade-offs.\`;
   }
 
   if (/why|when|should/i.test(q)) {
-    return `## Understanding the "Why"
-
-**Core Reason:**
-This exists to solve a specific problem in software development. Understanding the motivation helps you make better architectural decisions.
-
-**When to Use:**
-- Scenario 1: High-throughput systems
-- Scenario 2: Data consistency requirements
-- Scenario 3: Specific use case from your projects
-
-**When NOT to Use:**
-- Over-engineering simple solutions
-- When simpler alternatives exist
-
-**Interview Tip:** Share a real scenario where you made this decision (or would make it). Show practical judgment.`;
+    const topic = question.replace(/^\d+\.\s*/, '').replace(/[\?].*$/, '').replace(/^(why|when|should)\s+(you|we|i)\s*/i, '').trim();
+    return \`## \${topic}\n\n**Why it matters:**\nThis addresses a real problem in production systems — without understanding this, you risk performance issues, bugs, or architectural mistakes.\n\n**When to use:**\n- High-throughput systems where performance matters\n- Applications with strict data consistency requirements\n- When you need to scale beyond a single instance\n\n**When NOT to use:**\n- Over-engineering simple CRUD applications\n- When simpler alternatives exist and meet requirements\n- Premature optimization without measured bottlenecks\n\n**Production experience:**\nIn real projects, this decision is driven by measured performance data, not assumptions. Profile first, optimize second.\n\n**Interview Tip:** Share a specific scenario: "In my project at [company], we faced [problem] and chose [solution] because [trade-off reasoning]."\`;
   }
 
-  // Default structured answer
-  return `## ${category}
-
-**Answer:**
-This is an important concept in ${category.toLowerCase()}. The key points to cover are:
-
-1. **Definition** - Clear, concise explanation
-2. **How it works** - Internal mechanism or flow
-3. **Real-world usage** - When and where you'd use this
-4. **Trade-offs** - Pros, cons, and alternatives
-5. **Production impact** - What can go wrong
-
-**Code Example:**
-\`\`\`java
-// Demonstrate with a practical code snippet
-// that shows the concept in action
-\`\`\`
-
-**Interview Tip:** Connect your answer to real project experience. Mention specific scenarios where this knowledge helped you debug or design better systems.`;
+  // Default — still much better than before
+  const topic = question.replace(/^\d+\.\s*/, '').replace(/[\?]$/, '').trim();
+  return \`## \${topic}\n\n**Core Concept:**\nThis is a key topic in \${category}. Understanding it deeply shows senior-level thinking.\n\n**What interviewers want to hear:**\n1. Clear definition in your own words (not textbook)\n2. Internal mechanism — how it works under the hood\n3. Real-world usage from YOUR experience\n4. Trade-offs — pros, cons, and alternatives\n5. What can go wrong in production\n\n**Code Example:**\n\\\`\\\`\\\`java\n// Demonstrate the concept with a practical example\n// that shows you've used this in real projects\n\\\`\\\`\\\`\n\n**Common Mistake:** Giving a textbook answer without real-world context. Interviewers want to know you've USED this, not just read about it.\n\n**Interview Tip:** Structure your answer as: Definition → How it works → When I used it → Trade-offs. This shows depth and experience.\`;
 }
+
+
 
 // ── JSON loader (for future java-qa-part*.json files) ──────────────────
 
