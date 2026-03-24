@@ -17,7 +17,7 @@ import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
 import Link from "next/link";
 import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
 import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
-import { StarSection } from "@/components/features/star/star-section";
+import { CompanyQuestionsSection } from "@/components/features/company-questions/company-questions-section";
 import { PageTransition } from "@/components/page-transition";
 
 // ── Featured topics to show on dashboard ────────────────────────────────────
@@ -418,8 +418,8 @@ export default function DashboardPage() {
       {/* Question of the Day Banner */}
       <QuestionBanner />
 
-      {/* STAR Interview Prep */}
-      <StarSection />
+      {/* Company-Specific Technical Questions */}
+      <CompanyQuestionsSection />
 
       {/* Your Progress */}
       <section>
