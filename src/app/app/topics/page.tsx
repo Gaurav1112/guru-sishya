@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { db } from "@/lib/db";
 import { loadAllContent, type TopicContent } from "@/lib/content/loader";
 import { TopicInput } from "@/components/topic-input";
@@ -151,9 +152,20 @@ const GROUPS = [
   },
 ];
 
+// ── Animation variants ────────────────────────────────────────────────────────
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 16 } as const,
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, duration: 0.35, ease: "easeOut" as const },
+  }),
+} satisfies Record<string, unknown>;
+
 // ── Topic Card ───────────────────────────────────────────────────────────────
 
-function TopicCard({ content }: { content: TopicContent }) {
+function TopicCard({ content, index }: { content: TopicContent; index: number }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const meta = CATEGORY_META[content.category] ?? CATEGORY_META["System Design"];
@@ -190,11 +202,17 @@ function TopicCard({ content }: { content: TopicContent }) {
   }
 
   return (
-    <button
+    <motion.button
       type="button"
       onClick={handleClick}
       disabled={loading}
-      className="group text-left rounded-xl border border-border/50 bg-surface hover:bg-surface-hover hover:border-border transition-all duration-150 p-4 flex flex-col gap-2 disabled:opacity-60 cursor-pointer"
+      custom={index}
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover={{ scale: 1.02, y: -2, transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.98 }}
+      className="group text-left rounded-xl border border-border/50 bg-surface hover:bg-surface-hover hover:border-border hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-shadow duration-200 p-4 flex flex-col gap-2 disabled:opacity-60 cursor-pointer"
     >
       {/* Topic name */}
       <p className="font-semibold text-sm leading-snug group-hover:text-foreground transition-colors">
@@ -238,7 +256,7 @@ function TopicCard({ content }: { content: TopicContent }) {
           <span title="Resources" className="text-xs opacity-70">🔍</span>
         )}
       </div>
-    </button>
+    </motion.button>
   );
 }
 
@@ -247,9 +265,11 @@ function TopicCard({ content }: { content: TopicContent }) {
 function CategorySection({
   group,
   topics,
+  indexOffset,
 }: {
   group: (typeof GROUPS)[number];
   topics: TopicContent[];
+  indexOffset: number;
 }) {
   if (topics.length === 0) return null;
   return (
@@ -264,8 +284,8 @@ function CategorySection({
         </span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {topics.map((t) => (
-          <TopicCard key={t.topic} content={t} />
+        {topics.map((t, i) => (
+          <TopicCard key={t.topic} content={t} index={indexOffset + i} />
         ))}
       </div>
     </section>
@@ -365,11 +385,27 @@ export default function TopicsPage() {
     },
   ];
 
+  // Compute per-group index offsets so stagger indices are globally unique
+  const groupOffsets = useMemo(() => {
+    const offsets: Record<string, number> = {};
+    let running = 0;
+    for (const g of GROUPS) {
+      offsets[g.tab] = running;
+      running += grouped[g.tab]?.length ?? 0;
+    }
+    return offsets;
+  }, [grouped]);
+
   return (
     <PageTransition>
       <div className="space-y-8">
       {/* Stats Banner */}
-      <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-teal/5 p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-teal/5 p-6"
+      >
         <p className="text-xs font-medium tracking-widest text-saffron uppercase mb-1">
           Interview Prep Hub
         </p>
@@ -380,7 +416,7 @@ export default function TopicsPage() {
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold font-heading text-saffron tabular-nums">
               {contentLoading ? (
-                <span className="inline-block h-7 w-8 animate-pulse rounded bg-saffron/20" />
+                <span className="inline-block h-7 w-8 animate-shimmer rounded bg-saffron/20" />
               ) : totalTopics}
             </span>
             <span className="text-sm text-muted-foreground">Topics</span>
@@ -388,7 +424,7 @@ export default function TopicsPage() {
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold font-heading text-gold tabular-nums">
               {contentLoading ? (
-                <span className="inline-block h-7 w-14 animate-pulse rounded bg-gold/20" />
+                <span className="inline-block h-7 w-14 animate-shimmer rounded bg-gold/20" />
               ) : totalQuestions.toLocaleString()}
             </span>
             <span className="text-sm text-muted-foreground">Quiz Questions</span>
@@ -400,10 +436,15 @@ export default function TopicsPage() {
             <span className="text-sm text-muted-foreground">FAANG Companies</span>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Search + Filter Tabs */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4"
+      >
         <div className="relative flex-1 max-w-sm">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">
             🔍
@@ -436,17 +477,17 @@ export default function TopicsPage() {
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Category Sections */}
       {contentLoading ? (
         <div className="space-y-10">
           {[12, 8, 10, 6].map((count, gi) => (
             <section key={gi}>
-              <div className="h-6 w-48 rounded bg-muted/40 animate-pulse mb-4" />
+              <div className="h-6 w-48 rounded bg-muted/40 animate-shimmer mb-4" />
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {Array.from({ length: count }).map((_, i) => (
-                  <div key={i} className="h-28 rounded-xl border border-border/30 bg-surface animate-pulse" />
+                  <div key={i} className="h-28 rounded-xl border border-border/30 bg-surface animate-shimmer" />
                 ))}
               </div>
             </section>
@@ -463,13 +504,19 @@ export default function TopicsPage() {
               key={group.tab}
               group={group}
               topics={grouped[group.tab] ?? []}
+              indexOffset={groupOffsets[group.tab] ?? 0}
             />
           ))}
         </div>
       )}
 
       {/* Custom Topic Input */}
-      <div className="rounded-xl border border-border/40 bg-surface/50 p-6">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="rounded-xl border border-border/40 bg-surface/50 p-6"
+      >
         <h2 className="font-heading text-base font-semibold mb-1">
           Have a custom topic?
         </h2>
@@ -477,7 +524,7 @@ export default function TopicsPage() {
           Enter any topic to create a personalized learning hub with your AI provider.
         </p>
         <TopicInput />
-      </div>
+      </motion.div>
     </div>
     </PageTransition>
   );

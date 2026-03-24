@@ -143,9 +143,15 @@ function MobileNav() {
 }
 
 export function Topbar() {
-  const { totalXP, level, coins, currentStreak, activeXPBoost } = useStore();
+  const { totalXP, level, coins, currentStreak, activeXPBoost, displayName } = useStore();
+  const { data: session } = useSession();
   const xpBoostActive =
     !!activeXPBoost && new Date(activeXPBoost) > new Date();
+
+  // Resolve display name: Google session name takes priority, then store displayName
+  const firstName =
+    session?.user?.name?.split(" ")[0] ??
+    (displayName ? displayName.split(" ")[0] : null);
 
   return (
     <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-sm">

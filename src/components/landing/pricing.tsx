@@ -27,6 +27,14 @@ const PRO_MONTHLY_FEATURES: PlanFeature[] = [
   { text: "Certificate of completion", highlight: true },
 ];
 
+const PRO_SEMESTER_FEATURES: PlanFeature[] = [
+  { text: "Everything in Pro Monthly" },
+  { text: "Save 23% vs monthly", highlight: true },
+  { text: "6 months of full access", highlight: true },
+  { text: "Priority support", highlight: true },
+  { text: "Certificate of completion", highlight: true },
+];
+
 const PRO_ANNUAL_FEATURES: PlanFeature[] = [
   { text: "Everything in Pro Monthly" },
   { text: "Save ₹549 vs monthly", highlight: true },
@@ -67,7 +75,7 @@ export function Pricing() {
         </p>
       </motion.div>
 
-      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-4">
         {/* Free plan */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -151,11 +159,63 @@ export function Pricing() {
           </p>
         </motion.div>
 
-        {/* Pro Annual */}
+        {/* Pro Semester */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
+          viewport={{ once: true }}
+          className="rounded-2xl border-2 border-teal/40 bg-gradient-to-br from-teal/8 via-surface to-surface p-7 flex flex-col relative overflow-hidden"
+        >
+          <div className="absolute top-4 right-4">
+            <span className="rounded-full bg-teal/20 border border-teal/40 px-3 py-1 text-xs font-bold text-teal">
+              Save 23%
+            </span>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-xs font-semibold tracking-widest text-teal uppercase mb-2">
+              Pro Semester
+            </p>
+            <div className="flex items-end gap-1">
+              <span className="font-heading text-4xl font-bold text-teal">₹599</span>
+              <span className="text-muted-foreground mb-1">/6 mo</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              ₹100/month &mdash; save 23% vs monthly
+            </p>
+          </div>
+
+          <ul className="space-y-3 flex-1 mb-8">
+            {PRO_SEMESTER_FEATURES.map((f) => (
+              <li key={f.text} className="flex items-start gap-2.5 text-sm">
+                <CheckIcon highlight={f.highlight} />
+                <span className={f.highlight ? "text-foreground font-medium" : "text-muted-foreground"}>
+                  {f.text}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <Link href="/app/pricing">
+            <Button
+              variant="outline"
+              className="w-full border-teal/50 text-teal hover:bg-teal/10 hover:text-teal"
+              size="lg"
+            >
+              Get Started
+            </Button>
+          </Link>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Billed once for 6 months
+          </p>
+        </motion.div>
+
+        {/* Pro Annual */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
           viewport={{ once: true }}
           className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-gold/8 via-surface to-surface p-7 flex flex-col relative overflow-hidden"
         >
@@ -204,15 +264,24 @@ export function Pricing() {
         </motion.div>
       </div>
 
-      <motion.p
+      <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.5 }}
         viewport={{ once: true }}
-        className="mt-6 text-center text-xs text-muted-foreground/60"
+        className="mt-6 text-center space-y-1"
       >
-        Payments secured by Razorpay &bull; 7-day money-back guarantee on Pro plans
-      </motion.p>
+        <p className="text-sm text-muted-foreground">
+          Not ready to commit?{" "}
+          <Link href="/app/pricing" className="text-teal hover:underline font-medium">
+            Start a 5-day free trial
+          </Link>{" "}
+          &mdash; no credit card required.
+        </p>
+        <p className="text-xs text-muted-foreground/60">
+          Payments secured by Razorpay &bull; 7-day money-back guarantee on Pro plans
+        </p>
+      </motion.div>
     </section>
   );
 }

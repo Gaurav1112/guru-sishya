@@ -11,6 +11,7 @@ export interface SettingsState {
   timezone: string;
   showOnLeaderboard: boolean;
   quizTimerEnabled: boolean;
+  displayName: string | null;
 }
 
 export interface SettingsActions {
@@ -21,6 +22,7 @@ export interface SettingsActions {
   setDailyGoal: (minutes: number) => void;
   setShowOnLeaderboard: (show: boolean) => void;
   setQuizTimerEnabled: (enabled: boolean) => void;
+  setDisplayName: (name: string) => void;
 }
 
 export type SettingsSlice = SettingsState & SettingsActions;
@@ -40,6 +42,7 @@ export const createSettingsSlice: StateCreator<
   timezone: "UTC",
   showOnLeaderboard: true,
   quizTimerEnabled: false,
+  displayName: null,
 
   // Actions
   setApiKey: (key) =>
@@ -69,5 +72,9 @@ export const createSettingsSlice: StateCreator<
   setQuizTimerEnabled: (enabled) =>
     set((state) => {
       state.quizTimerEnabled = enabled;
+    }),
+  setDisplayName: (name) =>
+    set((state) => {
+      state.displayName = name.trim() || null;
     }),
 });

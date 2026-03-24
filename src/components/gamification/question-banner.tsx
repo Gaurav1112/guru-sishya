@@ -16,6 +16,7 @@ export function QuestionBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
+  const [paused, setPaused] = useState(false);
 
   // Load questions — deterministic daily rotation, no repeats until all 2000 seen
   useEffect(() => {
@@ -68,16 +69,16 @@ export function QuestionBanner() {
       .catch(() => {});
   }, []);
 
-  // Auto-rotate every 15 seconds
+  // Auto-rotate every 15 seconds — paused on hover or when answer is shown
   useEffect(() => {
-    if (questions.length === 0 || showAnswer) return;
+    if (questions.length === 0 || showAnswer || paused) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % questions.length);
       setSelected(null);
       setShowAnswer(false);
     }, 15000);
     return () => clearInterval(timer);
-  }, [questions.length, showAnswer]);
+  }, [questions.length, showAnswer, paused]);
 
   const handleNext = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % questions.length);
@@ -108,7 +109,11 @@ export function QuestionBanner() {
   );
 
   return (
-    <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-surface to-gold/5 overflow-hidden">
+    <div
+      className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-surface to-gold/5 overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 py-2 bg-saffron/10 border-b border-saffron/20">
         <div className="flex items-center gap-2">
@@ -216,9 +221,9 @@ export function QuestionBanner() {
 
         {/* Auto-rotate indicator */}
         <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
+          <div className={`w-1.5 h-1.5 rounded-full ${paused ? "bg-gold" : "bg-teal animate-pulse"}`} />
           <span className="text-[10px] text-muted-foreground">
-            Auto-rotates every 15s
+            {paused ? "Paused" : "Auto-rotates every 15s"}
           </span>
         </div>
 
