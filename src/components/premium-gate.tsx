@@ -15,7 +15,8 @@ export type PremiumFeature =
   | "ladder-advanced"
   | "feynman"
   | "full-flashcards"
-  | "full-cheatsheets";
+  | "full-cheatsheets"
+  | "mock-interview";
 
 const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: string }> = {
   "full-answers": {
@@ -49,6 +50,10 @@ const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: strin
   "full-cheatsheets": {
     title: "All Cheat Sheets",
     description: "Upgrade to Pro to access all 56 cheat sheets.",
+  },
+  "mock-interview": {
+    title: "Unlimited Mock Interviews",
+    description: "Upgrade to Pro for unlimited interviews with 8 questions per session. Free plan: 1 interview per day.",
   },
 };
 

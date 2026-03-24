@@ -95,6 +95,7 @@ function useRazorpayScript() {
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
     script.onload = () => setLoaded(true);
+    script.onerror = () => setLoaded(false);
     document.body.appendChild(script);
     return () => {
       document.body.removeChild(script);

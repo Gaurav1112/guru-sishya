@@ -111,7 +111,7 @@ export function CompanyQuestionsSection() {
   const [loading, setLoading] = useState(true);
   const [activeCompany, setActiveCompany] = useState("All");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [revealedCount, setRevealedCount] = useState(0);
+  const [revealedIndices, setRevealedIndices] = useState<Set<number>>(new Set());
 
   const { isPremium, premiumUntil } = useStore();
   const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
@@ -136,15 +136,16 @@ export function CompanyQuestionsSection() {
       setExpandedIndex(null);
     } else {
       setExpandedIndex(index);
-      if (!isActivePremium && revealedCount < FREE_ANSWER_LIMIT) {
-        setRevealedCount((c) => c + 1);
+      if (!isActivePremium) {
+        setRevealedIndices((prev) => new Set([...prev, index]));
       }
     }
   }
 
   function isAnswerLocked(index: number): boolean {
     if (isActivePremium) return false;
-    return revealedCount >= FREE_ANSWER_LIMIT && expandedIndex !== index;
+    if (revealedIndices.has(index)) return false;
+    return revealedIndices.size >= FREE_ANSWER_LIMIT;
   }
 
   if (loading) {
@@ -181,7 +182,7 @@ export function CompanyQuestionsSection() {
           {!isActivePremium && (
             <span className="inline-flex items-center gap-1 rounded-full border border-saffron/30 bg-saffron/10 px-2.5 py-1 text-[10px] font-semibold text-saffron">
               <Lock className="size-2.5" />
-              {Math.min(revealedCount, FREE_ANSWER_LIMIT)}/{FREE_ANSWER_LIMIT} free
+              {Math.min(revealedIndices.size, FREE_ANSWER_LIMIT)}/{FREE_ANSWER_LIMIT} free
             </span>
           )}
         </div>

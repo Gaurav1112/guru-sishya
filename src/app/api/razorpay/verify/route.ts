@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import Razorpay from "razorpay";
 
 // ── Plan durations ────────────────────────────────────────────────────────────
 
@@ -7,6 +8,14 @@ const PLAN_DURATION_DAYS: Record<string, number> = {
   monthly: 30,
   semester: 180,
   annual: 365,
+};
+
+// ── Plan amounts in paise (must match create-order) ───────────────────────────
+
+const PLAN_AMOUNTS: Record<string, number> = {
+  monthly: 12900,
+  semester: 59900,
+  annual: 99900,
 };
 
 // ── POST /api/razorpay/verify ────────────────────────────────────────────────
@@ -34,6 +43,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate planType is one of the known values
+    const expectedAmount = PLAN_AMOUNTS[planType];
+    if (!expectedAmount) {
+      return NextResponse.json({ error: "Invalid plan type." }, { status: 400 });
+    }
+
     const key_secret = process.env.RAZORPAY_KEY_SECRET;
     if (!key_secret) {
       return NextResponse.json(
@@ -51,6 +66,19 @@ export async function POST(req: NextRequest) {
     if (expectedSignature !== razorpay_signature) {
       return NextResponse.json(
         { success: false, error: "Payment signature verification failed." },
+        { status: 400 }
+      );
+    }
+
+    // Fetch order from Razorpay to verify the amount matches the claimed planType
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID!,
+      key_secret: key_secret,
+    });
+    const order = await razorpay.orders.fetch(razorpay_order_id);
+    if (Number(order.amount) !== expectedAmount) {
+      return NextResponse.json(
+        { error: "Plan type does not match payment amount." },
         { status: 400 }
       );
     }

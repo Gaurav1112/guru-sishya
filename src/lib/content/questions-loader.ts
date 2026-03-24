@@ -423,7 +423,7 @@ export async function loadImportantQuestions(): Promise<Question[]> {
   ];
 
   const startId = allQuestions.length > 0
-    ? Math.max(...allQuestions.map((q) => q.id)) + 1
+    ? allQuestions.reduce((max, q) => q.id > max ? q.id : max, 0) + 1
     : 1;
   let nextId = startId;
 

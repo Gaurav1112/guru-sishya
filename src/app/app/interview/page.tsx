@@ -1,0 +1,1147 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { ChevronRight, Mic, Send, Clock, RotateCcw, Trophy, ChevronDown, ArrowLeft } from "lucide-react";
+import { PageTransition } from "@/components/page-transition";
+import { PremiumGate } from "@/components/premium-gate";
+import { useStore } from "@/lib/store";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface InterviewQuestion {
+  question: string;
+  answer: string;
+  category: string;
+  difficulty: string;
+  company?: string;
+  type: "technical" | "behavioral";
+}
+
+interface ChatMessage {
+  id: string;
+  role: "interviewer" | "user" | "feedback";
+  content: string;
+  timestamp: Date;
+}
+
+interface ScoreResult {
+  score: number;
+  matchedKeywords: string[];
+  missedKeywords: string[];
+}
+
+interface InterviewConfig {
+  company: string;
+  type: "technical" | "behavioral" | "mixed";
+  difficulty: "Easy" | "Medium" | "Hard" | "Mixed";
+}
+
+type InterviewPhase = "setup" | "active" | "complete";
+
+// ── Company definitions ────────────────────────────────────────────────────────
+
+const COMPANIES = [
+  { id: "Google", label: "Google", emoji: "G", color: "from-blue-600 to-green-500", bgClass: "bg-gradient-to-br from-blue-600 to-green-500" },
+  { id: "Amazon", label: "Amazon", emoji: "A", color: "from-orange-500 to-yellow-400", bgClass: "bg-gradient-to-br from-orange-500 to-yellow-400" },
+  { id: "Microsoft", label: "Microsoft", emoji: "M", color: "from-blue-500 to-cyan-400", bgClass: "bg-gradient-to-br from-blue-500 to-cyan-400" },
+  { id: "Meta", label: "Meta", emoji: "M", color: "from-blue-600 to-indigo-600", bgClass: "bg-gradient-to-br from-blue-600 to-indigo-600" },
+  { id: "Apple", label: "Apple", emoji: "A", color: "from-gray-600 to-gray-400", bgClass: "bg-gradient-to-br from-gray-600 to-gray-400" },
+  { id: "General", label: "Any Company", emoji: "?", color: "from-saffron to-gold", bgClass: "bg-gradient-to-br from-amber-500 to-yellow-400" },
+];
+
+const STOP_WORDS = new Set([
+  "the", "and", "for", "that", "this", "with", "from", "have", "will",
+  "when", "each", "which", "their", "about", "using", "would", "should",
+  "could", "these", "those", "into", "also", "been", "more", "than",
+  "some", "very", "just", "like", "make", "over", "such", "your", "they",
+  "them", "then", "than", "here", "there", "what", "where", "were",
+  "does", "done", "after", "before", "while", "since", "until", "both",
+  "only", "either", "neither", "always", "never", "often", "well",
+]);
+
+// ── Keyword scoring ────────────────────────────────────────────────────────────
+
+function scoreAnswer(userAnswer: string, modelAnswer: string): ScoreResult {
+  const keywords = [
+    ...new Set(
+      modelAnswer
+        .toLowerCase()
+        .match(/\b[a-z]{4,}\b/g)
+        ?.filter((w) => !STOP_WORDS.has(w)) ?? []
+    ),
+  ];
+
+  const userLower = userAnswer.toLowerCase();
+  const matched = keywords.filter((k) => userLower.includes(k));
+  const missed = keywords.filter((k) => !userLower.includes(k)).slice(0, 6);
+
+  const score = Math.min(
+    10,
+    Math.round((matched.length / Math.max(keywords.length, 1)) * 10)
+  );
+
+  return {
+    score,
+    matchedKeywords: matched.slice(0, 6),
+    missedKeywords: missed,
+  };
+}
+
+// ── Question loader ────────────────────────────────────────────────────────────
+
+async function loadInterviewQuestions(
+  config: InterviewConfig,
+  count: number
+): Promise<InterviewQuestion[]> {
+  const questions: InterviewQuestion[] = [];
+
+  if (config.type === "technical" || config.type === "mixed") {
+    try {
+      const res = await fetch("/content/company-tech-qa.json");
+      if (res.ok) {
+        const data = (await res.json()) as {
+          question: string;
+          answer: string;
+          category: string;
+          difficulty: string;
+          topic?: string;
+        }[];
+
+        // Filter by company if not General
+        const filtered =
+          config.company === "General"
+            ? data
+            : data.filter((q) => q.category === config.company);
+
+        // Filter by difficulty if not Mixed
+        const diffFiltered =
+          config.difficulty === "Mixed"
+            ? filtered
+            : filtered.filter((q) => q.difficulty === config.difficulty);
+
+        // Use all if filter is too narrow
+        const pool = diffFiltered.length >= 3 ? diffFiltered : filtered;
+
+        for (const q of pool) {
+          questions.push({
+            question: q.question,
+            answer: q.answer,
+            category: q.category,
+            difficulty: q.difficulty,
+            company: q.category,
+            type: "technical",
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  if (config.type === "behavioral" || config.type === "mixed") {
+    try {
+      const res = await fetch("/content/star-questions.json");
+      if (res.ok) {
+        const data = (await res.json()) as {
+          company: string;
+          questions: {
+            question: string;
+            difficulty?: string;
+            starAnswer: {
+              situation: string;
+              task: string;
+              action: string;
+              result: string;
+            };
+          }[];
+        }[];
+
+        const companyBlocks =
+          config.company === "General"
+            ? data
+            : data.filter((b) => b.company === config.company);
+
+        const fallback = companyBlocks.length === 0 ? data : companyBlocks;
+
+        for (const block of fallback) {
+          for (const q of block.questions ?? []) {
+            const { situation, task, action, result } = q.starAnswer ?? {};
+            const modelAnswer = [
+              situation ?? "",
+              task ?? "",
+              action ?? "",
+              result ?? "",
+            ].join(" ");
+            questions.push({
+              question: q.question,
+              answer: modelAnswer,
+              category: "Behavioral",
+              difficulty: q.difficulty ?? "Medium",
+              company: block.company,
+              type: "behavioral",
+            });
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // Shuffle
+  const shuffled = [...questions].sort(() => Math.random() - 0.5);
+
+  // For mixed: interleave technical and behavioral
+  if (config.type === "mixed") {
+    const tech = shuffled.filter((q) => q.type === "technical");
+    const beh = shuffled.filter((q) => q.type === "behavioral");
+    const result: InterviewQuestion[] = [];
+    const totalNeeded = count;
+    const behavCount = Math.floor(totalNeeded / 3);
+    const techCount = totalNeeded - behavCount;
+    result.push(...tech.slice(0, techCount));
+    result.push(...beh.slice(0, behavCount));
+    return result.sort(() => Math.random() - 0.5).slice(0, count);
+  }
+
+  return shuffled.slice(0, count);
+}
+
+// ── Typing indicator ───────────────────────────────────────────────────────────
+
+function TypingIndicator() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4 }}
+      className="flex items-end gap-2"
+    >
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-indigo/20 border border-indigo/30 text-sm font-bold text-indigo">
+        AI
+      </div>
+      <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm border border-border bg-surface px-4 py-3">
+        {[0, 1, 2].map((i) => (
+          <motion.span
+            key={i}
+            className="block h-2 w-2 rounded-full bg-muted-foreground"
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Score badge ────────────────────────────────────────────────────────────────
+
+function ScoreBadge({ score }: { score: number }) {
+  const color =
+    score >= 8
+      ? "border-green-500/40 bg-green-500/10 text-green-400"
+      : score >= 5
+      ? "border-saffron/40 bg-saffron/10 text-saffron"
+      : "border-red-500/40 bg-red-500/10 text-red-400";
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${color}`}
+    >
+      {score}/10
+    </span>
+  );
+}
+
+// ── Setup screen ───────────────────────────────────────────────────────────────
+
+interface SetupScreenProps {
+  onStart: (config: InterviewConfig) => void;
+}
+
+function SetupScreen({ onStart }: SetupScreenProps) {
+  const [company, setCompany] = useState<string>("Google");
+  const [type, setType] = useState<"technical" | "behavioral" | "mixed">("technical");
+  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard" | "Mixed">("Mixed");
+
+  return (
+    <PageTransition>
+      <div className="mx-auto max-w-2xl space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-indigo/30 bg-indigo/10 px-4 py-1.5 text-xs font-semibold text-indigo uppercase tracking-wider">
+            <Mic className="size-3.5" />
+            Live AI Interviewer
+          </div>
+          <h1 className="font-heading text-3xl font-bold">
+            Mock Interview Simulator
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Powered by 710+ pre-generated interview questions — no AI API needed.
+            <br />
+            Get real-time feedback on your answers using keyword analysis.
+          </p>
+        </div>
+
+        {/* Company selection */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Select Company
+          </h2>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            {COMPANIES.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setCompany(c.id)}
+                className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition-all ${
+                  company === c.id
+                    ? "border-saffron/60 bg-saffron/10 scale-105 shadow-md shadow-saffron/10"
+                    : "border-border/50 bg-surface hover:bg-surface-hover hover:scale-[1.02]"
+                }`}
+              >
+                <div
+                  className={`flex size-10 items-center justify-center rounded-full text-white font-bold text-sm ${c.bgClass}`}
+                >
+                  {c.emoji}
+                </div>
+                <span className="text-xs font-medium leading-tight">{c.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Interview type */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Interview Type
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            {(["technical", "behavioral", "mixed"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setType(t)}
+                className={`rounded-xl border p-4 text-left transition-all ${
+                  type === t
+                    ? "border-indigo/50 bg-indigo/10"
+                    : "border-border/50 bg-surface hover:bg-surface-hover"
+                }`}
+              >
+                <div className="text-xl mb-1">
+                  {t === "technical" ? "💻" : t === "behavioral" ? "🧠" : "🔀"}
+                </div>
+                <p className="text-sm font-semibold capitalize">{t}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t === "technical"
+                    ? "Coding & system design"
+                    : t === "behavioral"
+                    ? "STAR method questions"
+                    : "Both types mixed"}
+                </p>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Difficulty */}
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Difficulty
+          </h2>
+          <div className="grid grid-cols-4 gap-3">
+            {(["Easy", "Medium", "Hard", "Mixed"] as const).map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setDifficulty(d)}
+                className={`rounded-xl border p-3 text-center text-sm font-medium transition-all ${
+                  difficulty === d
+                    ? d === "Easy"
+                      ? "border-green-500/50 bg-green-500/10 text-green-400"
+                      : d === "Medium"
+                      ? "border-saffron/50 bg-saffron/10 text-saffron"
+                      : d === "Hard"
+                      ? "border-red-500/50 bg-red-500/10 text-red-400"
+                      : "border-indigo/50 bg-indigo/10 text-indigo"
+                    : "border-border/50 bg-surface hover:bg-surface-hover text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {d === "Easy" ? "Easy" : d === "Medium" ? "Medium" : d === "Hard" ? "Hard" : "Random"}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Start button */}
+        <button
+          type="button"
+          onClick={() => onStart({ company, type, difficulty })}
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-saffron px-6 py-4 text-base font-semibold text-background transition-all hover:opacity-90 hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-saffron/20"
+        >
+          <Mic className="size-4" />
+          Start Interview
+          <ChevronRight className="size-4" />
+        </button>
+
+        <p className="text-center text-xs text-muted-foreground">
+          Free: 3 questions per session &bull; Pro: 8 questions per session
+        </p>
+      </div>
+    </PageTransition>
+  );
+}
+
+// ── Results screen ─────────────────────────────────────────────────────────────
+
+interface ResultsScreenProps {
+  messages: ChatMessage[];
+  scores: number[];
+  config: InterviewConfig;
+  questions: InterviewQuestion[];
+  onRestart: () => void;
+  elapsed: number;
+}
+
+function ResultsScreen({
+  messages,
+  scores,
+  config,
+  questions,
+  onRestart,
+  elapsed,
+}: ResultsScreenProps) {
+  const avg = scores.length > 0
+    ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10)
+    : 0;
+
+  const strong = scores
+    .map((s, i) => ({ s, q: questions[i] }))
+    .filter((x) => x.s >= 7)
+    .map((x) => x.q?.category ?? "");
+
+  const weak = scores
+    .map((s, i) => ({ s, q: questions[i] }))
+    .filter((x) => x.s < 5)
+    .map((x) => x.q?.category ?? "");
+
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+
+  const grade =
+    avg >= 80 ? "Excellent" : avg >= 60 ? "Good" : avg >= 40 ? "Needs Work" : "Keep Practicing";
+  const gradeColor =
+    avg >= 80
+      ? "text-green-400"
+      : avg >= 60
+      ? "text-saffron"
+      : avg >= 40
+      ? "text-amber-400"
+      : "text-red-400";
+
+  return (
+    <PageTransition>
+      <div className="mx-auto max-w-2xl space-y-6">
+        {/* Score card */}
+        <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-indigo/5 p-8 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Trophy className="size-6 text-gold" />
+            <h2 className="font-heading text-2xl font-bold">Interview Complete!</h2>
+          </div>
+          <div className={`font-heading text-6xl font-bold mb-2 ${gradeColor}`}>
+            {avg}%
+          </div>
+          <p className={`text-lg font-semibold mb-1 ${gradeColor}`}>{grade}</p>
+          <p className="text-sm text-muted-foreground">
+            {scores.length} questions &bull; {config.company} &bull; {config.type} &bull;{" "}
+            {minutes}m {seconds}s
+          </p>
+        </div>
+
+        {/* Per-question scores */}
+        <section className="space-y-3">
+          <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
+            Question Scores
+          </h3>
+          <div className="space-y-2">
+            {scores.map((s, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 rounded-xl border border-border/50 bg-surface px-4 py-3"
+              >
+                <span className="shrink-0 text-xs font-bold text-muted-foreground w-4">
+                  Q{i + 1}
+                </span>
+                <p className="flex-1 text-sm truncate">
+                  {questions[i]?.question ?? ""}
+                </p>
+                <ScoreBadge score={s} />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Strengths & weaknesses */}
+        {(strong.length > 0 || weak.length > 0) && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {strong.length > 0 && (
+              <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-green-400 mb-2">
+                  Strengths
+                </p>
+                <ul className="space-y-1">
+                  {[...new Set(strong)].slice(0, 3).map((s) => (
+                    <li key={s} className="text-sm text-foreground flex items-center gap-2">
+                      <span className="text-green-400">+</span> {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {weak.length > 0 && (
+              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-red-400 mb-2">
+                  Areas to Improve
+                </p>
+                <ul className="space-y-1">
+                  {[...new Set(weak)].slice(0, 3).map((s) => (
+                    <li key={s} className="text-sm text-foreground flex items-center gap-2">
+                      <span className="text-red-400">-</span> {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            type="button"
+            onClick={onRestart}
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border/50 bg-surface px-4 py-3 text-sm font-semibold transition-all hover:bg-surface-hover"
+          >
+            <RotateCcw className="size-4" />
+            New Interview
+          </button>
+          <Link
+            href="/app/questions"
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-saffron px-4 py-3 text-sm font-semibold text-background transition-all hover:opacity-90"
+          >
+            Study All Questions
+            <ChevronRight className="size-4" />
+          </Link>
+        </div>
+      </div>
+    </PageTransition>
+  );
+}
+
+// ── Main interview chat ────────────────────────────────────────────────────────
+
+interface InterviewChatProps {
+  config: InterviewConfig;
+  questions: InterviewQuestion[];
+  onComplete: (scores: number[], elapsed: number) => void;
+  isPremium: boolean;
+}
+
+function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [userInput, setUserInput] = useState("");
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
+  const [scores, setScores] = useState<number[]>([]);
+  const [phase, setPhase] = useState<"welcome" | "asking" | "awaiting" | "feedback" | "done">("welcome");
+  const [isThinking, setIsThinking] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [expandedModel, setExpandedModel] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const company = COMPANIES.find((c) => c.id === config.company) ?? COMPANIES[5];
+  const maxQuestions = questions.length;
+
+  // Auto-scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isThinking]);
+
+  // Timer
+  useEffect(() => {
+    timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const addMessage = useCallback(
+    (role: ChatMessage["role"], content: string) => {
+      const msg: ChatMessage = {
+        id: `${Date.now()}-${Math.random()}`,
+        role,
+        content,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, msg]);
+      return msg;
+    },
+    []
+  );
+
+  // Welcome message on mount
+  useEffect(() => {
+    const greetings = [
+      `Welcome! I'm your interviewer from ${config.company === "General" ? "a top tech company" : config.company}. I'll be asking you ${maxQuestions} ${config.type} question${maxQuestions !== 1 ? "s" : ""} today.`,
+      `After each answer, I'll give you feedback on what you covered well and what you might have missed. Ready to begin?`,
+    ];
+
+    let delay = 300;
+    greetings.forEach((g, i) => {
+      setTimeout(() => {
+        addMessage("interviewer", g);
+        if (i === greetings.length - 1) {
+          setTimeout(() => askNextQuestion(0), 1200);
+        }
+      }, delay);
+      delay += 900;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const askNextQuestion = useCallback(
+    (index: number) => {
+      if (index >= maxQuestions) {
+        setPhase("done");
+        addMessage(
+          "interviewer",
+          `That wraps up our interview! You answered ${maxQuestions} question${maxQuestions !== 1 ? "s" : ""}. Let me compile your results...`
+        );
+        return;
+      }
+
+      setIsThinking(true);
+      setTimeout(() => {
+        setIsThinking(false);
+        setCurrentQuestionIndex(index);
+        setPhase("awaiting");
+
+        const q = questions[index];
+        const prefix =
+          index === 0
+            ? "Let's start with our first question:"
+            : index === maxQuestions - 1
+            ? "Final question:"
+            : `Question ${index + 1} of ${maxQuestions}:`;
+
+        addMessage("interviewer", `${prefix}\n\n**${q.question}**`);
+        inputRef.current?.focus();
+      }, 1200 + Math.random() * 600);
+    },
+    [addMessage, maxQuestions, questions]
+  );
+
+  const handleSubmitAnswer = useCallback(() => {
+    const answer = userInput.trim();
+    if (!answer || phase !== "awaiting") return;
+
+    addMessage("user", answer);
+    setUserInput("");
+    setPhase("feedback");
+    setIsThinking(true);
+
+    const q = questions[currentQuestionIndex];
+    const result = scoreAnswer(answer, q.answer);
+
+    setTimeout(() => {
+      setIsThinking(false);
+      setScores((prev) => [...prev, result.score]);
+
+      // Feedback message
+      const feedbackLines: string[] = [];
+
+      if (result.score >= 8) {
+        feedbackLines.push("Excellent answer! You covered the key concepts thoroughly.");
+      } else if (result.score >= 6) {
+        feedbackLines.push("Good answer! You hit the main points.");
+      } else if (result.score >= 4) {
+        feedbackLines.push("Decent start. There's room to deepen your answer.");
+      } else {
+        feedbackLines.push("This one needs more work. Let's review the key points you missed.");
+      }
+
+      if (result.matchedKeywords.length > 0) {
+        feedbackLines.push(
+          `\n**Concepts you covered:** ${result.matchedKeywords.join(", ")}`
+        );
+      }
+
+      if (result.missedKeywords.length > 0) {
+        feedbackLines.push(
+          `**Missing from your answer:** ${result.missedKeywords.join(", ")}`
+        );
+      }
+
+      feedbackLines.push(`\n**Score: ${result.score}/10**`);
+
+      addMessage("feedback", feedbackLines.join("\n"));
+
+      // Show model answer after short delay
+      setTimeout(() => {
+        const modelMsgId = `model-${currentQuestionIndex}`;
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: modelMsgId,
+            role: "interviewer",
+            content: `**Model Answer:**\n\n${q.answer}`,
+            timestamp: new Date(),
+          },
+        ]);
+
+        const nextIndex = currentQuestionIndex + 1;
+        if (nextIndex >= maxQuestions) {
+          setTimeout(() => {
+            addMessage(
+              "interviewer",
+              `That concludes our interview! You answered all ${maxQuestions} questions. Great effort — let me compile your results...`
+            );
+            setPhase("done");
+          }, 1000);
+        } else {
+          setTimeout(() => {
+            addMessage(
+              "interviewer",
+              "Ready for the next question? Here we go..."
+            );
+            setTimeout(() => askNextQuestion(nextIndex), 800);
+          }, 1500);
+        }
+      }, 1000);
+    }, 1500 + Math.random() * 800);
+  }, [
+    addMessage,
+    askNextQuestion,
+    currentQuestionIndex,
+    maxQuestions,
+    phase,
+    questions,
+    userInput,
+  ]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmitAnswer();
+    }
+  };
+
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+  const progress =
+    currentQuestionIndex >= 0
+      ? Math.round(((currentQuestionIndex + (phase === "done" ? 1 : 0)) / maxQuestions) * 100)
+      : 0;
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-8rem)] max-h-[800px]">
+      {/* Interview header */}
+      <div className="shrink-0 flex items-center gap-4 rounded-t-xl border border-b-0 border-border/50 bg-surface px-4 py-3">
+        {/* Interviewer avatar */}
+        <div
+          className={`flex size-10 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold shadow-md ${company.bgClass}`}
+        >
+          {company.emoji}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold">
+            {config.company === "General" ? "Tech" : config.company} Interviewer
+          </p>
+          <p className="text-xs text-muted-foreground capitalize">
+            {config.type} &bull; {config.difficulty}
+          </p>
+        </div>
+
+        {/* Progress */}
+        <div className="hidden sm:flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">
+              {currentQuestionIndex >= 0
+                ? `Q${Math.min(currentQuestionIndex + 1, maxQuestions)} of ${maxQuestions}`
+                : `0 of ${maxQuestions}`}
+            </p>
+            <div className="mt-1 h-1.5 w-24 rounded-full bg-muted/40 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-saffron transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Timer */}
+        <div className="flex items-center gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs font-mono text-muted-foreground">
+          <Clock className="size-3" />
+          {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
+        </div>
+      </div>
+
+      {/* Chat area */}
+      <div className="flex-1 overflow-y-auto border border-t-0 border-b-0 border-border/50 bg-background/50 p-4 space-y-4">
+        <AnimatePresence mode="popLayout">
+          {messages.map((msg) => {
+            const isInterviewer = msg.role === "interviewer";
+            const isUser = msg.role === "user";
+            const isFeedback = msg.role === "feedback";
+            const isModelAnswer =
+              isInterviewer && msg.content.startsWith("**Model Answer:**");
+
+            return (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className={`flex gap-2 ${isUser ? "flex-row-reverse" : "flex-row"}`}
+              >
+                {/* Avatar */}
+                {!isUser && (
+                  <div
+                    className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                      isFeedback
+                        ? "bg-indigo/10 border border-indigo/30 text-indigo"
+                        : `${company.bgClass} text-white`
+                    }`}
+                  >
+                    {isFeedback ? "AI" : company.emoji}
+                  </div>
+                )}
+
+                {/* Bubble */}
+                <div
+                  className={`max-w-[82%] ${
+                    isUser
+                      ? "rounded-2xl rounded-br-sm border border-saffron/30 bg-saffron/15 px-4 py-3"
+                      : isFeedback
+                      ? "rounded-2xl rounded-bl-sm border border-indigo/20 bg-indigo/5 px-4 py-3"
+                      : isModelAnswer
+                      ? "w-full rounded-2xl rounded-bl-sm border border-gold/20 bg-gold/5 px-4 py-3"
+                      : "rounded-2xl rounded-bl-sm border border-border bg-surface px-4 py-3"
+                  }`}
+                >
+                  {isModelAnswer ? (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpandedModel(
+                            expandedModel === msg.id ? null : msg.id
+                          )
+                        }
+                        className="flex w-full items-center justify-between gap-2 text-left"
+                      >
+                        <span className="text-xs font-semibold text-gold uppercase tracking-wider">
+                          Model Answer
+                        </span>
+                        <ChevronDown
+                          className={`size-4 text-gold transition-transform ${
+                            expandedModel === msg.id ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                      <AnimatePresence>
+                        {expandedModel === msg.id && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-3 text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed border-t border-gold/20 pt-3">
+                              {msg.content.replace("**Model Answer:**\n\n", "")}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ) : (
+                    <div
+                      className={`text-sm leading-relaxed ${
+                        isUser
+                          ? "text-foreground whitespace-pre-wrap"
+                          : "text-foreground"
+                      }`}
+                    >
+                      {/* Render simple bold markdown inline */}
+                      {msg.content.split(/(\*\*[^*]+\*\*)/).map((part, i) =>
+                        part.startsWith("**") && part.endsWith("**") ? (
+                          <strong key={i} className="font-semibold text-foreground">
+                            {part.slice(2, -2)}
+                          </strong>
+                        ) : (
+                          <span key={i} className="whitespace-pre-wrap">
+                            {part}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+
+          {/* Typing indicator */}
+          {isThinking && (
+            <motion.div key="thinking" className="flex gap-2">
+              <div
+                className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${company.bgClass} text-white`}
+              >
+                {company.emoji}
+              </div>
+              <TypingIndicator />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Done state */}
+        {phase === "done" && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex justify-center pt-2"
+          >
+            <button
+              type="button"
+              onClick={() => onComplete(scores, elapsed)}
+              className="flex items-center gap-2 rounded-xl bg-saffron px-6 py-3 text-sm font-semibold text-background transition-all hover:opacity-90 shadow-lg shadow-saffron/20"
+            >
+              <Trophy className="size-4" />
+              View Results
+            </button>
+
+          </motion.div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input area */}
+      <div className="shrink-0 rounded-b-xl border border-t border-border/50 bg-surface p-4">
+        <div className="relative">
+          <textarea
+            ref={inputRef}
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={
+              phase === "awaiting"
+                ? "Type your answer... (Enter to submit, Shift+Enter for new line)"
+                : phase === "done"
+                ? "Interview complete!"
+                : "Wait for the next question..."
+            }
+            disabled={phase !== "awaiting"}
+            rows={3}
+            className="w-full resize-none rounded-xl border border-border/50 bg-background px-4 py-3 pr-14 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-saffron/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          />
+          <button
+            type="button"
+            onClick={handleSubmitAnswer}
+            disabled={phase !== "awaiting" || !userInput.trim()}
+            className="absolute right-3 bottom-3 flex items-center justify-center rounded-lg bg-saffron p-2 text-background transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Send className="size-4" />
+          </button>
+        </div>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          Enter to submit &bull; Shift+Enter for new line
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── Free tier gate wrapper ─────────────────────────────────────────────────────
+
+const FREE_DAILY_KEY = "interview_free_count_";
+
+function getFreeInterviewsToday(): number {
+  if (typeof window === "undefined") return 0;
+  const today = new Date().toISOString().slice(0, 10);
+  const raw = localStorage.getItem(FREE_DAILY_KEY + today);
+  return raw ? parseInt(raw, 10) : 0;
+}
+
+function incrementFreeInterviews(): void {
+  if (typeof window === "undefined") return;
+  const today = new Date().toISOString().slice(0, 10);
+  const key = FREE_DAILY_KEY + today;
+  const current = parseInt(localStorage.getItem(key) ?? "0", 10);
+  localStorage.setItem(key, String(current + 1));
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+export default function InterviewPage() {
+  const [phase, setPhase] = useState<InterviewPhase>("setup");
+  const [config, setConfig] = useState<InterviewConfig | null>(null);
+  const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
+  const [scores, setScores] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [chatKey, setChatKey] = useState(0);
+  const [elapsedFinal, setElapsedFinal] = useState(0);
+  const [freeInterviewsUsed, setFreeInterviewsUsed] = useState(0);
+
+  const { isPremium, premiumUntil } = useStore();
+  const isActivePremium =
+    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+
+  useEffect(() => {
+    setFreeInterviewsUsed(getFreeInterviewsToday());
+  }, []);
+
+  const FREE_LIMIT = 1; // 1 full interview per day for free users
+  const FREE_QUESTIONS = 3;
+  const PRO_QUESTIONS = 8;
+
+  const canStartFree = freeInterviewsUsed < FREE_LIMIT;
+
+  async function handleStart(cfg: InterviewConfig) {
+    setLoading(true);
+    setError(null);
+    setConfig(cfg);
+
+    try {
+      const questionCount = isActivePremium ? PRO_QUESTIONS : FREE_QUESTIONS;
+      const qs = await loadInterviewQuestions(cfg, questionCount);
+
+      if (qs.length === 0) {
+        setError(
+          "No questions found for this combination. Try 'General' company or 'Mixed' type."
+        );
+        setLoading(false);
+        return;
+      }
+
+      if (!isActivePremium) {
+        incrementFreeInterviews();
+        setFreeInterviewsUsed((n) => n + 1);
+      }
+
+      setQuestions(qs);
+      setChatKey((k) => k + 1);
+      setPhase("active");
+    } catch {
+      setError("Failed to load questions. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleComplete(finalScores: number[], finalElapsed: number) {
+    setScores(finalScores);
+    setElapsedFinal(finalElapsed);
+    setPhase("complete");
+  }
+
+  function handleRestart() {
+    setPhase("setup");
+    setConfig(null);
+    setQuestions([]);
+    setScores([]);
+    setElapsedFinal(0);
+    setError(null);
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Back link when active */}
+      {phase !== "setup" && (
+        <button
+          type="button"
+          onClick={handleRestart}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="size-4" />
+          Back to Setup
+        </button>
+      )}
+
+      {/* Free tier notice */}
+      {phase === "setup" && !isActivePremium && (
+        <div className="rounded-xl border border-saffron/20 bg-saffron/5 px-4 py-3 text-sm flex items-center justify-between gap-4">
+          <span className="text-muted-foreground">
+            Free plan: <strong className="text-foreground">{FREE_QUESTIONS} questions</strong> per session,{" "}
+            <strong className="text-foreground">{FREE_LIMIT} interview</strong> per day
+          </span>
+          {!canStartFree && (
+            <Link
+              href="/app/pricing"
+              className="shrink-0 rounded-lg bg-saffron px-3 py-1.5 text-xs font-semibold text-background hover:opacity-90 transition-opacity"
+            >
+              Upgrade for Unlimited
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
+          {error}
+        </div>
+      )}
+
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center gap-3 py-12 text-muted-foreground">
+          <div className="size-5 animate-spin rounded-full border-2 border-saffron border-t-transparent" />
+          <span className="text-sm">Loading questions...</span>
+        </div>
+      )}
+
+      {/* Daily limit gate for free users */}
+      {phase === "setup" && !isActivePremium && !canStartFree && !loading && (
+        <PremiumGate feature="mock-interview" overlay={false}>
+          <div className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground">
+            You have used your free interview for today.
+          </div>
+        </PremiumGate>
+      )}
+
+      {/* Setup */}
+      {phase === "setup" && !loading && (isActivePremium || canStartFree) && (
+        <SetupScreen onStart={handleStart} />
+      )}
+
+      {/* Active interview */}
+      {phase === "active" && !loading && config && questions.length > 0 && (
+        <InterviewChat
+          key={chatKey}
+          config={config}
+          questions={questions}
+          onComplete={handleComplete}
+          isPremium={isActivePremium}
+        />
+      )}
+
+      {/* Results */}
+      {phase === "complete" && config && (
+        <ResultsScreen
+          messages={[]}
+          scores={scores}
+          config={config}
+          questions={questions}
+          onRestart={handleRestart}
+          elapsed={elapsedFinal}
+        />
+      )}
+    </div>
+  );
+}

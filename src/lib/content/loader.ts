@@ -69,11 +69,11 @@ export async function loadAllContent(): Promise<TopicContent[]> {
       const raw = (await response.json()) as TopicContent | TopicContent[];
       const items: TopicContent[] = Array.isArray(raw) ? raw : [raw];
       for (const item of items) {
-        // Normalise: some files use "name" instead of "topic"
-        if (!item.topic && item.name) {
-          item.topic = item.name;
-        }
-        if (item.topic) results.push(item);
+        // Normalise: some files use "name" instead of "topic" — spread to avoid mutation
+        const normalized = (!item.topic && item.name)
+          ? { ...item, topic: item.name }
+          : item;
+        if (normalized.topic) results.push(normalized);
       }
     } catch {
       // Non-critical — file may not exist yet
