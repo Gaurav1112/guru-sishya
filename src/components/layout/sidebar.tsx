@@ -2,10 +2,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Crown } from "lucide-react";
+import { Crown, ShieldCheck } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
+import { ADMIN_EMAIL } from "@/lib/stores/premium-slice";
 
 const navItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
@@ -23,7 +25,11 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { isPremium, premiumUntil } = useStore();
+  const { data: session } = useSession();
   const topics = useLiveQuery(() => db.topics.orderBy("createdAt").reverse().limit(10).toArray());
+
+  const isAdmin =
+    session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   // Live count of flashcards due today
   const dueCount = useLiveQuery(async () => {
@@ -49,6 +55,22 @@ export function Sidebar() {
             )}
           </Link>
         ))}
+
+        {/* Admin console link — only visible for admin */}
+        {isAdmin && (
+          <Link
+            href="/app/admin"
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+              pathname === "/app/admin"
+                ? "bg-indigo-500/20 text-indigo-400"
+                : "text-indigo-400/80 hover:bg-indigo-500/10 hover:text-indigo-300"
+            )}
+          >
+            <ShieldCheck className="size-4 shrink-0" />
+            <span className="flex-1">Admin Console</span>
+          </Link>
+        )}
 
         {/* Pro upgrade / status link */}
         {isActivePro ? (
