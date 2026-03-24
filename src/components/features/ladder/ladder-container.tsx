@@ -4,11 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAI } from "@/hooks/use-ai";
+import { useStore } from "@/lib/store";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { LevelCard } from "./level-card";
 import { LadderProgress } from "./ladder-progress";
 import { GraduationTest } from "./graduation-test";
+import { PremiumGate } from "@/components/premium-gate";
 import { ladderPrompt } from "@/lib/prompts/ladder-generator";
 import type { GeneratedLadder, LadderStatus } from "@/lib/ladder/types";
 
@@ -34,6 +36,9 @@ interface LadderContainerProps {
 
 export function LadderContainer({ topicId, topicName }: LadderContainerProps) {
   const ai = useAI();
+  const isPremium = useStore((s) => s.isPremium);
+  const premiumUntil = useStore((s) => s.premiumUntil);
+  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
   const [status, setStatus] = useState<LadderStatus>("loading");
   const [error, setError] = useState<string | null>(null);
@@ -196,6 +201,22 @@ export function LadderContainer({ topicId, topicName }: LadderContainerProps) {
 
   // Show graduation test overlay
   if (testingLevel !== null) {
+    // Gate graduation tests for levels 2+ for free users
+    if (!isActivePremium && testingLevel > 1) {
+      return (
+        <div className="max-w-sm mx-auto py-8">
+          <PremiumGate feature="ladder-advanced" overlay={false} />
+          <button
+            type="button"
+            onClick={handleCloseTest}
+            className="mt-4 w-full text-xs text-muted-foreground hover:text-foreground text-center"
+          >
+            Go back
+          </button>
+        </div>
+      );
+    }
+
     return (
       <GraduationTest
         topicId={topicId}
@@ -272,12 +293,39 @@ export function LadderContainer({ topicId, topicName }: LadderContainerProps) {
             </span>
           </div>
 
+          {/* Free user upsell banner */}
+          {!isActivePremium && (
+            <div className="rounded-lg border border-saffron/30 bg-saffron/5 px-4 py-3 text-sm text-center text-muted-foreground">
+              <span className="font-semibold text-foreground">Level 1 unlocked</span> — Upgrade to{" "}
+              <a href="/app/pricing" className="text-saffron underline font-semibold">Pro</a>{" "}
+              to unlock all 5 levels.
+            </div>
+          )}
+
           {ladder.levels.map((level) => {
             const isUnlocked = level.level <= unlockedLevel;
             const isCompleted =
               level.level < unlockedLevel ||
               (level.level === 5 && masteryEarned);
             const isCurrent = level.level === unlockedLevel && !masteryEarned;
+
+            // Gate levels 2-5 for free users: show the card but wrap in PremiumGate overlay
+            if (!isActivePremium && level.level > 1) {
+              return (
+                <div key={level.level} id={`level-card-${level.level}`}>
+                  <PremiumGate feature="ladder-advanced" overlay>
+                    <LevelCard
+                      level={level}
+                      isUnlocked={false}
+                      isCompleted={false}
+                      isCurrent={false}
+                      masteryEarned={false}
+                      onTakeTest={() => {}}
+                    />
+                  </PremiumGate>
+                </div>
+              );
+            }
 
             return (
               <div key={level.level} id={`level-card-${level.level}`}>

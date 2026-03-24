@@ -2,15 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CalendarDays, Flame, BookOpen, ChevronRight, Clock, CalendarCheck, CalendarRange, Trophy } from "lucide-react";
+import { CalendarDays, Flame, BookOpen, ChevronRight, Clock, CalendarCheck, CalendarRange, Trophy, Lock } from "lucide-react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
+import { useStore } from "@/lib/store";
 import { getDueCards, getReviewHistory } from "@/lib/flashcard-generator";
 import { FlashcardDeck } from "@/components/features/review/flashcard-deck";
+import { PremiumGate } from "@/components/premium-gate";
 import { Button } from "@/components/ui/button";
 import type { Flashcard } from "@/lib/types";
 import type { TimedTestResult } from "@/lib/review/question-selector";
+
+const FREE_FLASHCARD_LIMIT = 50;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -299,11 +303,13 @@ function TimedTestCards() {
 
 interface HubViewProps {
   dueCards: Flashcard[];
+  totalDueCount: number;
+  isActivePremium: boolean;
   history: { date: string; cardsReviewed: number }[];
   onStartReview: () => void;
 }
 
-function HubView({ dueCards, history, onStartReview }: HubViewProps) {
+function HubView({ dueCards, totalDueCount, isActivePremium, history, onStartReview }: HubViewProps) {
   const dueCount = dueCards.length;
   const hour = new Date().getHours();
 
@@ -315,6 +321,8 @@ function HubView({ dueCards, history, onStartReview }: HubViewProps) {
   } else {
     greetingMessage = `You have ${dueCount} card${dueCount !== 1 ? "s" : ""} due — let's keep the streak going!`;
   }
+
+  const isLimited = !isActivePremium && totalDueCount > FREE_FLASHCARD_LIMIT;
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -343,6 +351,25 @@ function HubView({ dueCards, history, onStartReview }: HubViewProps) {
         )}
       </div>
 
+      {/* Free user flashcard limit banner */}
+      {!isActivePremium && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-saffron/30 bg-saffron/5 px-4 py-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Lock className="size-4 text-saffron shrink-0" />
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">{FREE_FLASHCARD_LIMIT} of 2000+ flashcards</span> available
+              {isLimited && ` (${totalDueCount - FREE_FLASHCARD_LIMIT} more locked)`}
+            </p>
+          </div>
+          <Link
+            href="/app/pricing"
+            className="shrink-0 text-xs font-semibold text-saffron underline whitespace-nowrap"
+          >
+            Upgrade for full deck
+          </Link>
+        </div>
+      )}
+
       {/* Streak Calendar */}
       <StreakCalendar history={history} />
 
@@ -351,6 +378,11 @@ function HubView({ dueCards, history, onStartReview }: HubViewProps) {
 
       {/* Upcoming */}
       <UpcomingReviews />
+
+      {/* Flashcard gate for free users with large decks */}
+      {isLimited && (
+        <PremiumGate feature="full-flashcards" overlay={false} />
+      )}
 
       {/* History */}
       <section>
@@ -365,26 +397,35 @@ function HubView({ dueCards, history, onStartReview }: HubViewProps) {
 
 export default function ReviewPage() {
   const [dueCards, setDueCards] = useState<Flashcard[]>([]);
+  const [totalDueCount, setTotalDueCount] = useState(0);
   const [history, setHistory] = useState<{ date: string; cardsReviewed: number }[]>([]);
   const [isReviewing, setIsReviewing] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const isPremium = useStore((s) => s.isPremium);
+  const premiumUntil = useStore((s) => s.premiumUntil);
+  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
         const [due, hist] = await Promise.all([getDueCards(), getReviewHistory()]);
-        setDueCards(due);
+        setTotalDueCount(due.length);
+        // Limit to FREE_FLASHCARD_LIMIT for free users
+        setDueCards(isActivePremium ? due : due.slice(0, FREE_FLASHCARD_LIMIT));
         setHistory(hist);
       } catch {
         setDueCards([]);
+        setTotalDueCount(0);
         setHistory([]);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [isReviewing]); // Reload after completing a review
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReviewing, isActivePremium]); // Reload after completing a review
 
   function handleStartReview() {
     setIsReviewing(true);
@@ -436,6 +477,8 @@ export default function ReviewPage() {
           >
             <HubView
               dueCards={dueCards}
+              totalDueCount={totalDueCount}
+              isActivePremium={isActivePremium}
               history={history}
               onStartReview={handleStartReview}
             />

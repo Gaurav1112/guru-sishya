@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, Zap, Timer } from "lucide-react";
+import { Loader2, AlertCircle, Zap, Timer, Lock } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAI } from "@/hooks/use-ai";
 import { useStore } from "@/lib/store";
+import { PremiumGate } from "@/components/premium-gate";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -322,6 +323,10 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const aiProvider = useStore((s) => s.aiProvider);
   const quizTimerEnabled = useStore((s) => s.quizTimerEnabled);
   const setQuizTimerEnabled = useStore((s) => s.setQuizTimerEnabled);
+  const isPremium = useStore((s) => s.isPremium);
+  const premiumUntil = useStore((s) => s.premiumUntil);
+  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const [showTimerGate, setShowTimerGate] = useState(false);
 
   // Static provider: load quiz bank directly for instant question delivery
   const [quizBank, setQuizBank] = useState<QuizBankQuestion[] | null>(null);
@@ -674,11 +679,13 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         const newConsecutiveLow = isLow ? consecutiveLow + 1 : 0;
         setConsecutiveLow(newConsecutiveLow);
 
-        const { nextLevel, breakingPoint } = getNextLevel(
+        const { nextLevel: rawNextLevel, breakingPoint } = getNextLevel(
           currentLevel,
           graded.score,
           isLow ? consecutiveLow : 0
         );
+        // Free users are capped at Medium (level 3)
+        const nextLevel = isActivePremium ? rawNextLevel : Math.min(rawNextLevel, 3) as BloomLevel;
 
         if (breakingPoint || newAnswers.length >= SESSION_CAP) {
           if (breakingPoint) setBreakingPointLevel(currentLevel);
@@ -713,7 +720,8 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     allAnswers.current = newAnswers;
     setCurrentAnswer(skippedAnswer);
 
-    const { nextLevel, breakingPoint } = getNextLevel(currentLevel, 5, 0);
+    const { nextLevel: rawSkipNextLevel, breakingPoint } = getNextLevel(currentLevel, 5, 0);
+    const nextLevel = isActivePremium ? rawSkipNextLevel : Math.min(rawSkipNextLevel, 3) as BloomLevel;
     if (breakingPoint || newAnswers.length >= SESSION_CAP) {
       if (breakingPoint) setBreakingPointLevel(currentLevel);
     } else {
@@ -963,6 +971,18 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     return (
       <div className="flex flex-col gap-4 max-w-xl mx-auto">
         {errorBanner}
+
+        {/* Free user banner */}
+        {!isActivePremium && (
+          <div className="flex items-center gap-2 rounded-lg border border-saffron/30 bg-saffron/5 px-4 py-2.5 text-xs text-muted-foreground">
+            <Lock className="size-3.5 text-saffron shrink-0" />
+            <span>
+              Unlock <span className="font-semibold text-foreground">Hard difficulty</span> &amp; <span className="font-semibold text-foreground">timed mode</span> with{" "}
+              <a href="/app/pricing" className="text-saffron underline font-semibold">Pro</a>
+            </span>
+          </div>
+        )}
+
         {/* Timer toggle on intro screen */}
         <div className="flex items-center justify-between rounded-xl border border-border/50 bg-card px-4 py-3">
           <div className="flex items-center gap-2">
@@ -974,8 +994,35 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
               </p>
             </div>
           </div>
-          <TimerToggle enabled={quizTimerEnabled} onChange={setQuizTimerEnabled} />
+          {isActivePremium ? (
+            <TimerToggle enabled={quizTimerEnabled} onChange={setQuizTimerEnabled} />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowTimerGate(true)}
+              className="flex items-center gap-1.5 rounded-full border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-semibold text-saffron hover:bg-saffron/20 transition-colors"
+              aria-label="Timer requires Pro"
+            >
+              <Lock className="size-3" />
+              Pro
+            </button>
+          )}
         </div>
+
+        {/* Timer gate modal */}
+        {showTimerGate && (
+          <div className="relative">
+            <PremiumGate feature="advanced-quiz" overlay={false} />
+            <button
+              type="button"
+              onClick={() => setShowTimerGate(false)}
+              className="mt-2 w-full text-xs text-muted-foreground hover:text-foreground text-center"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         <CalibrationIntro topicName={topicName} onStart={startCalibration} />
       </div>
     );

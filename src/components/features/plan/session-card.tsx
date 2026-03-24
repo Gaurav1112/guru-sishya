@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Clock, Target, BookOpen, HelpCircle, ExternalLink } from "lucide-react";
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Clock, Target, BookOpen, HelpCircle, ExternalLink, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useStore } from "@/lib/store";
+import { PremiumGate } from "@/components/premium-gate";
 import type { GeneratedSession } from "@/lib/plan/types";
 
 interface SessionWithContent extends GeneratedSession {
@@ -24,8 +26,15 @@ interface SessionCardProps {
   topicId: number;
 }
 
+const FREE_SESSION_LIMIT = 2;
+
 export function SessionCard({ session, completed, onComplete, isLoading, topicId }: SessionCardProps) {
   const [expanded, setExpanded] = useState(false);
+
+  const { isPremium, premiumUntil } = useStore();
+  const isActivePremium =
+    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isLocked = !isActivePremium && session.sessionNumber > FREE_SESSION_LIMIT;
 
   const totalMinutes = (session.activities ?? []).reduce(
     (sum, a) => sum + a.durationMinutes,
@@ -36,23 +45,33 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
     <Card
       className={cn(
         "transition-all duration-200",
-        completed
+        isLocked
+          ? "border-border/50 bg-surface opacity-80"
+          : completed
           ? "border-teal/50 bg-teal/5"
           : "border-border bg-surface hover:bg-surface-hover"
       )}
     >
-      {/* Header — click anywhere to expand/collapse */}
-      <CardHeader className="pb-0 cursor-pointer" onClick={() => setExpanded((v) => !v)}>
+      {/* Header — click anywhere to expand/collapse (locked sessions also expand to show the gate) */}
+      <CardHeader
+        className={cn("pb-0", !isLocked && "cursor-pointer")}
+        onClick={() => !isLocked && setExpanded((v) => !v)}
+      >
         <div className="flex items-start gap-3">
-          {/* Completion toggle */}
+          {/* Completion toggle — disabled when locked */}
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); onComplete(); }}
-            disabled={isLoading}
-            className="mt-0.5 shrink-0 text-teal disabled:opacity-50"
+            onClick={(e) => { e.stopPropagation(); if (!isLocked) onComplete(); }}
+            disabled={isLoading || isLocked}
+            className={cn(
+              "mt-0.5 shrink-0 disabled:opacity-50",
+              isLocked ? "text-muted-foreground/40" : "text-teal"
+            )}
             aria-label={completed ? "Mark incomplete" : "Mark complete"}
           >
-            {completed ? (
+            {isLocked ? (
+              <Lock className="size-5" />
+            ) : completed ? (
               <CheckCircle2 className="size-5" />
             ) : (
               <Circle className="size-5 text-muted-foreground" />
@@ -65,16 +84,22 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
               <span className="text-xs font-mono text-muted-foreground">
                 Session {session.sessionNumber}
               </span>
-              {completed && (
+              {completed && !isLocked && (
                 <Badge variant="outline" className="text-teal border-teal/40 text-xs">
                   Done
+                </Badge>
+              )}
+              {isLocked && (
+                <Badge variant="outline" className="text-saffron border-saffron/40 text-xs">
+                  Pro
                 </Badge>
               )}
             </div>
             <h3
               className={cn(
                 "font-heading font-semibold text-sm mt-0.5",
-                completed && "line-through text-muted-foreground"
+                completed && !isLocked && "line-through text-muted-foreground",
+                isLocked && "text-muted-foreground"
               )}
             >
               {session.title}
@@ -88,35 +113,55 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
             </div>
           </div>
 
-          {/* Open full lesson link */}
-          <Link
-            href={`/app/topic/${topicId}/plan/session/${session.sessionNumber}`}
-            onClick={(e) => e.stopPropagation()}
-            className="shrink-0 flex items-center gap-1 rounded-md border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-medium text-saffron hover:bg-saffron/20 transition-colors"
-            aria-label="Open full lesson"
-          >
-            <ExternalLink className="size-3" />
-            Open
-          </Link>
+          {/* Open full lesson link — hidden when locked */}
+          {!isLocked ? (
+            <Link
+              href={`/app/topic/${topicId}/plan/session/${session.sessionNumber}`}
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0 flex items-center gap-1 rounded-md border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-medium text-saffron hover:bg-saffron/20 transition-colors"
+              aria-label="Open full lesson"
+            >
+              <ExternalLink className="size-3" />
+              Open
+            </Link>
+          ) : (
+            <Link
+              href="/app/pricing"
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0 flex items-center gap-1 rounded-md border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-medium text-saffron hover:bg-saffron/20 transition-colors"
+            >
+              <Lock className="size-3" />
+              Unlock
+            </Link>
+          )}
 
-          {/* Expand toggle */}
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v); }}
-            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
-            aria-label={expanded ? "Collapse session" : "Expand session"}
-          >
-            {expanded ? (
-              <ChevronUp className="size-4" />
-            ) : (
-              <ChevronDown className="size-4" />
-            )}
-          </button>
+          {/* Expand toggle — only for unlocked sessions */}
+          {!isLocked && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setExpanded((v) => !v); }}
+              className="shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
+              aria-label={expanded ? "Collapse session" : "Expand session"}
+            >
+              {expanded ? (
+                <ChevronUp className="size-4" />
+              ) : (
+                <ChevronDown className="size-4" />
+              )}
+            </button>
+          )}
         </div>
       </CardHeader>
 
-      {/* Expanded body */}
-      {expanded && (
+      {/* Locked session gate — shown inline below header */}
+      {isLocked && (
+        <CardContent className="pt-3">
+          <PremiumGate feature="full-sessions" overlay={false} />
+        </CardContent>
+      )}
+
+      {/* Expanded body — only for unlocked sessions */}
+      {!isLocked && expanded && (
         <CardContent className="pt-4 space-y-4">
           {/* Lesson Content — the actual teaching material */}
           {session.content && (

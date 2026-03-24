@@ -3,11 +3,14 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ChevronDown, ChevronUp, RefreshCw, Trophy } from "lucide-react";
+import { ChevronDown, ChevronUp, RefreshCw, Trophy, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
 import { SessionCard } from "./session-card";
+import { useStore } from "@/lib/store";
 import type { GeneratedPlan } from "@/lib/plan/types";
+
+const FREE_SESSION_LIMIT = 2;
 
 interface SessionCompletion {
   sessionNumber: number;
@@ -32,6 +35,10 @@ export function PlanViewer({
   topicId,
 }: PlanViewerProps) {
   const [skippedExpanded, setSkippedExpanded] = useState(false);
+
+  const { isPremium, premiumUntil } = useStore();
+  const isActivePremium =
+    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
   const completedCount = completions.filter((c) => c.completed).length;
   const totalSessions = plan.sessions.length;
@@ -121,9 +128,28 @@ export function PlanViewer({
 
       {/* Sessions */}
       <div className="space-y-3">
-        <h2 className="font-heading font-semibold text-sm uppercase tracking-wide text-muted-foreground">
-          {plan.sessions.length} Sessions
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+            {plan.sessions.length} Sessions
+          </h2>
+          {!isActivePremium && (
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Lock className="size-3 text-saffron" />
+                <span>
+                  <span className="font-semibold text-saffron">{FREE_SESSION_LIMIT} of {totalSessions}</span>
+                  {" "}sessions unlocked
+                </span>
+              </span>
+              <a
+                href="/app/pricing"
+                className="rounded-md bg-saffron px-2.5 py-1 text-[10px] font-bold text-background hover:opacity-90 transition-opacity"
+              >
+                Upgrade
+              </a>
+            </div>
+          )}
+        </div>
 
         {plan.sessions.map((session) => (
           <div key={session.sessionNumber}>

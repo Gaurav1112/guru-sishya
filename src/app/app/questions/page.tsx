@@ -12,6 +12,8 @@ import {
 } from "@/lib/content/questions-loader";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { cn } from "@/lib/utils";
+import { useStore } from "@/lib/store";
+import { PremiumGate } from "@/components/premium-gate";
 import {
   Search,
   Bookmark,
@@ -27,6 +29,7 @@ import {
   BookOpen,
   Check,
   RotateCcw,
+  Lock,
 } from "lucide-react";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -126,6 +129,7 @@ function QuestionCard({
   status,
   onToggleBookmark,
   onSetStatus,
+  answerLocked,
 }: {
   question: Question;
   isFlipped: boolean;
@@ -134,6 +138,7 @@ function QuestionCard({
   status: "unseen" | "known" | "review";
   onToggleBookmark: () => void;
   onSetStatus: (s: "known" | "review") => void;
+  answerLocked: boolean;
 }) {
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -241,49 +246,58 @@ function QuestionCard({
                 <DifficultyBadge difficulty={question.difficulty} />
               </div>
 
-              {/* Answer content */}
-              <div className="flex-1 text-sm">
-                <MarkdownRenderer content={question.answer} />
-              </div>
+              {/* Answer content — gated for free users beyond 5 reveals */}
+              {answerLocked ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <PremiumGate feature="full-answers" overlay={false} />
+                </div>
+              ) : (
+                <>
+                  {/* Answer content */}
+                  <div className="flex-1 text-sm">
+                    <MarkdownRenderer content={question.answer} />
+                  </div>
 
-              {/* Status buttons */}
-              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/30">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSetStatus("known");
-                  }}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
-                    status === "known"
-                      ? "bg-teal/15 text-teal border-teal/30"
-                      : "bg-surface text-muted-foreground border-border/50 hover:bg-teal/10 hover:text-teal hover:border-teal/20"
-                  )}
-                >
-                  <Check className="size-3" />
-                  Known
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSetStatus("review");
-                  }}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
-                    status === "review"
-                      ? "bg-gold/15 text-gold border-gold/30"
-                      : "bg-surface text-muted-foreground border-border/50 hover:bg-gold/10 hover:text-gold hover:border-gold/20"
-                  )}
-                >
-                  <RotateCcw className="size-3" />
-                  Need Review
-                </button>
-                <p className="ml-auto text-[10px] text-muted-foreground">
-                  Tap to flip back
-                </p>
-              </div>
+                  {/* Status buttons */}
+                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/30">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSetStatus("known");
+                      }}
+                      className={cn(
+                        "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                        status === "known"
+                          ? "bg-teal/15 text-teal border-teal/30"
+                          : "bg-surface text-muted-foreground border-border/50 hover:bg-teal/10 hover:text-teal hover:border-teal/20"
+                      )}
+                    >
+                      <Check className="size-3" />
+                      Known
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSetStatus("review");
+                      }}
+                      className={cn(
+                        "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+                        status === "review"
+                          ? "bg-gold/15 text-gold border-gold/30"
+                          : "bg-surface text-muted-foreground border-border/50 hover:bg-gold/10 hover:text-gold hover:border-gold/20"
+                      )}
+                    >
+                      <RotateCcw className="size-3" />
+                      Need Review
+                    </button>
+                    <p className="ml-auto text-[10px] text-muted-foreground">
+                      Tap to flip back
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </motion.div>
@@ -434,6 +448,8 @@ function FilterPanel({
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 
+const FREE_ANSWER_LIMIT = 5;
+
 export default function QuestionsPage() {
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -447,6 +463,13 @@ export default function QuestionsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [quizMode, setQuizMode] = useState(false);
   const [direction, setDirection] = useState(0); // -1 = left, 1 = right
+
+  // Premium gate: track which question IDs have had answers revealed
+  const { isPremium, premiumUntil } = useStore();
+  const isActivePremium =
+    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  // Set of question IDs whose answers have been revealed this session
+  const [revealedAnswerIds, setRevealedAnswerIds] = useState<Set<number>>(new Set());
 
   // Load bookmarks from Dexie
   const bookmarks = useLiveQuery(
@@ -762,6 +785,37 @@ export default function QuestionsPage() {
     );
   }
 
+  // ── Premium gate helpers ───────────────────────────────────────────────────
+
+  // Returns true if this question's answer is locked for a free user
+  const isAnswerLocked = useCallback(
+    (questionId: number): boolean => {
+      if (isActivePremium) return false;
+      // If already revealed, not locked
+      if (revealedAnswerIds.has(questionId)) return false;
+      // Locked if we have already hit the reveal limit
+      return revealedAnswerIds.size >= FREE_ANSWER_LIMIT;
+    },
+    [isActivePremium, revealedAnswerIds]
+  );
+
+  // Called when user flips a card — track reveals for free users
+  const handleFlip = useCallback(
+    (questionId: number) => {
+      setIsFlipped((f) => {
+        const nextFlipped = !f;
+        // When flipping TO the answer side, record the reveal
+        if (nextFlipped && !isActivePremium && !revealedAnswerIds.has(questionId)) {
+          if (revealedAnswerIds.size < FREE_ANSWER_LIMIT) {
+            setRevealedAnswerIds((prev) => new Set([...prev, questionId]));
+          }
+        }
+        return nextFlipped;
+      });
+    },
+    [isActivePremium, revealedAnswerIds]
+  );
+
   // ── Stats ──────────────────────────────────────────────────────────────────
 
   const knownCount = [...bookmarkMap.values()].filter(
@@ -959,6 +1013,27 @@ export default function QuestionsPage() {
             </div>
           </div>
 
+          {/* Premium gate banner — shown to free users */}
+          {!isActivePremium && (
+            <div className="flex items-center justify-between mb-3 rounded-lg border border-saffron/20 bg-saffron/5 px-3 py-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Lock className="size-3 text-saffron shrink-0" />
+                <span>
+                  <span className="font-semibold text-saffron">
+                    {Math.min(revealedAnswerIds.size, FREE_ANSWER_LIMIT)} of {FREE_ANSWER_LIMIT}
+                  </span>{" "}
+                  answers unlocked — Upgrade for full access
+                </span>
+              </div>
+              <a
+                href="/app/pricing"
+                className="shrink-0 rounded-md bg-saffron px-2.5 py-1 text-[10px] font-bold text-background hover:opacity-90 transition-opacity"
+              >
+                Upgrade
+              </a>
+            </div>
+          )}
+
           {/* Animated card */}
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
@@ -976,8 +1051,8 @@ export default function QuestionsPage() {
             >
               <QuestionCard
                 question={currentQuestion}
-                isFlipped={quizMode ? isFlipped : isFlipped}
-                onFlip={() => setIsFlipped((f) => !f)}
+                isFlipped={isFlipped}
+                onFlip={() => handleFlip(currentQuestion.id)}
                 isBookmarked={
                   bookmarkMap.get(currentQuestion.id)?.bookmarked ?? false
                 }
@@ -988,6 +1063,7 @@ export default function QuestionsPage() {
                 onSetStatus={(s) =>
                   setQuestionStatus(currentQuestion.id, s)
                 }
+                answerLocked={isAnswerLocked(currentQuestion.id)}
               />
             </motion.div>
           </AnimatePresence>

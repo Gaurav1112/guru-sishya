@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useStore } from "@/lib/store";
+import { PremiumGate } from "@/components/premium-gate";
+import { Lock } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -157,12 +160,16 @@ function StarCard({
   onToggle,
   isBookmarked,
   onToggleBookmark,
+  onReveal,
+  revealLocked,
 }: {
   q: StarQuestion;
   isExpanded: boolean;
   onToggle: () => void;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
+  onReveal: () => void;
+  revealLocked: boolean;
 }) {
   const [showSample, setShowSample] = useState(false);
   const [practiceMode, setPracticeMode] = useState(false);
@@ -374,13 +381,17 @@ function StarCard({
                         <p className="text-xs text-muted-foreground/70 mb-4">
                           Try the question yourself first — or reveal to study the structure.
                         </p>
-                        <button
-                          type="button"
-                          onClick={() => setShowSample(true)}
-                          className="rounded-xl bg-gradient-to-r from-saffron to-gold px-5 py-2.5 text-sm font-bold text-background hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-saffron/20"
-                        >
-                          Reveal Sample Answer
-                        </button>
+                        {revealLocked ? (
+                          <PremiumGate feature="star-answers" overlay={false} />
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => { onReveal(); setShowSample(true); }}
+                            className="rounded-xl bg-gradient-to-r from-saffron to-gold px-5 py-2.5 text-sm font-bold text-background hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-saffron/20"
+                          >
+                            Reveal Sample Answer
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <motion.div
@@ -488,6 +499,8 @@ function StarLegend() {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
+const FREE_STAR_REVEAL_LIMIT = 3;
+
 export function StarSection() {
   const [questions, setQuestions] = useState<StarQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -497,6 +510,23 @@ export function StarSection() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const tabsRef = useRef<HTMLDivElement>(null);
+
+  // Premium gate
+  const { isPremium, premiumUntil } = useStore();
+  const isActivePremium =
+    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  // Track which question IDs have had their sample answer revealed
+  const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
+
+  function handleReveal(id: string) {
+    setRevealedIds((prev) => new Set([...prev, id]));
+  }
+
+  function isRevealLocked(id: string): boolean {
+    if (isActivePremium) return false;
+    if (revealedIds.has(id)) return false;
+    return revealedIds.size >= FREE_STAR_REVEAL_LIMIT;
+  }
 
   // Load questions — handles both flat array and company-grouped format
   useEffect(() => {
@@ -583,9 +613,16 @@ export function StarSection() {
             <span className="hidden sm:inline-flex items-center rounded-full border border-gold/30 bg-gold/10 px-2.5 py-1 text-[10px] font-semibold text-gold">
               {questions.length} Questions
             </span>
-            <span className="hidden sm:inline-flex items-center rounded-full border border-teal/30 bg-teal/10 px-2.5 py-1 text-[10px] font-semibold text-teal">
-              FAANG Ready
-            </span>
+            {!isActivePremium ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-saffron/30 bg-saffron/10 px-2.5 py-1 text-[10px] font-semibold text-saffron">
+                <Lock className="size-2.5" />
+                {Math.min(revealedIds.size, FREE_STAR_REVEAL_LIMIT)}/{FREE_STAR_REVEAL_LIMIT} answers
+              </span>
+            ) : (
+              <span className="hidden sm:inline-flex items-center rounded-full border border-teal/30 bg-teal/10 px-2.5 py-1 text-[10px] font-semibold text-teal">
+                FAANG Ready
+              </span>
+            )}
           </div>
         </div>
 
@@ -671,6 +708,27 @@ export function StarSection() {
         </div>
       </div>
 
+      {/* Premium banner for free users */}
+      {!isActivePremium && (
+        <div className="mb-3 flex items-center justify-between rounded-lg border border-saffron/20 bg-saffron/5 px-3 py-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Lock className="size-3 text-saffron shrink-0" />
+            <span>
+              <span className="font-semibold text-saffron">
+                {Math.min(revealedIds.size, FREE_STAR_REVEAL_LIMIT)} of {FREE_STAR_REVEAL_LIMIT}
+              </span>{" "}
+              STAR answers unlocked — Upgrade for full access
+            </span>
+          </div>
+          <a
+            href="/app/pricing"
+            className="shrink-0 rounded-md bg-saffron px-2.5 py-1 text-[10px] font-bold text-background hover:opacity-90 transition-opacity"
+          >
+            Upgrade
+          </a>
+        </div>
+      )}
+
       {/* STAR Legend */}
       <div className="mb-3">
         <StarLegend />
@@ -710,6 +768,8 @@ export function StarSection() {
                 onToggle={() => toggleExpand(q.id)}
                 isBookmarked={bookmarks.has(q.id)}
                 onToggleBookmark={() => toggleBookmark(q.id)}
+                onReveal={() => handleReveal(q.id)}
+                revealLocked={isRevealLocked(q.id)}
               />
             ))}
           </AnimatePresence>

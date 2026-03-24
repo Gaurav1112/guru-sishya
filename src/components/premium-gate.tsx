@@ -14,7 +14,8 @@ export type PremiumFeature =
   | "advanced-quiz"
   | "ladder-advanced"
   | "feynman"
-  | "full-flashcards";
+  | "full-flashcards"
+  | "full-cheatsheets";
 
 const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: string }> = {
   "full-answers": {
@@ -45,13 +46,17 @@ const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: strin
     title: "Unlimited Flashcards",
     description: "Unlock all flashcards beyond the first 50.",
   },
+  "full-cheatsheets": {
+    title: "All Cheat Sheets",
+    description: "Upgrade to Pro to access all 56 cheat sheets.",
+  },
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface PremiumGateProps {
   feature: PremiumFeature;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   /** When true, renders children with a blur overlay instead of replacing them */
   overlay?: boolean;
 }
