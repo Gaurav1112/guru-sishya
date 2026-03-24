@@ -1,52 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { Redis } from "@upstash/redis";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 const ADMIN_EMAIL = "kgauravis016@gmail.com";
+const REDIS_KEY = "premium_allowlist";
 
-/** Absolute path to the allowlist JSON file inside /public/content */
-const ALLOWLIST_FILE = path.join(process.cwd(), "public", "content", "premium-emails.json");
+// ── Redis client ───────────────────────────────────────────────────────────────
+
+function getRedis() {
+  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) {
+    throw new Error("Redis not configured. Set KV_REST_API_URL and KV_REST_API_TOKEN.");
+  }
+
+  return new Redis({ url, token });
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function readAllowlist(): string[] {
+async function readAllowlist(): Promise<string[]> {
   try {
-    const raw = fs.readFileSync(ALLOWLIST_FILE, "utf-8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
+    const redis = getRedis();
+    const data = await redis.get<string[]>(REDIS_KEY);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error("[admin/allowlist] Redis read error:", err);
     return [];
   }
 }
 
-function writeAllowlist(emails: string[]): void {
-  fs.writeFileSync(ALLOWLIST_FILE, JSON.stringify(emails, null, 2) + "\n", "utf-8");
-}
-
-function getAdminEmail(req: NextRequest): string | null {
-  // Accept the admin email via a custom header sent by the admin UI.
-  // This is a lightweight guard — no sensitive data is exposed, since the
-  // allowlist is a public JSON file. A proper DB-backed solution would use
-  // full server-side session verification.
-  return req.headers.get("x-admin-email");
+async function writeAllowlist(emails: string[]): Promise<void> {
+  const redis = getRedis();
+  await redis.set(REDIS_KEY, emails);
 }
 
 // ── GET /api/admin/allowlist ───────────────────────────────────────────────────
-// Public — returns the list so the client can auto-grant premium to listed users.
 
 export async function GET() {
-  const emails = readAllowlist();
+  const emails = await readAllowlist();
   return NextResponse.json({ allowedEmails: emails });
 }
 
 // ── POST /api/admin/allowlist ─────────────────────────────────────────────────
-// Protected — only the admin email may add/remove entries.
 
 export async function POST(req: NextRequest) {
-  // Auth check
-  const callerEmail = getAdminEmail(req);
+  const callerEmail = req.headers.get("x-admin-email");
   if (!callerEmail || callerEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -73,15 +74,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
   }
 
-  // Don't allow adding/removing the admin email itself — it's always premium
   if (normalised === ADMIN_EMAIL.toLowerCase()) {
     return NextResponse.json(
-      { error: "Admin email is always premium — no need to add it to the allowlist." },
+      { error: "Admin email is always premium — no need to add it." },
       { status: 400 }
     );
   }
 
-  let emails = readAllowlist();
+  let emails = await readAllowlist();
 
   if (action === "add") {
     if (!emails.map((e) => e.toLowerCase()).includes(normalised)) {
@@ -92,11 +92,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    writeAllowlist(emails);
+    await writeAllowlist(emails);
   } catch (err) {
-    console.error("[admin/allowlist] Failed to write allowlist:", err);
+    console.error("[admin/allowlist] Redis write error:", err);
     return NextResponse.json(
-      { error: "Failed to persist allowlist. On Vercel, writes to /public are not persistent — use a database for production." },
+      { error: "Failed to save. Check Redis configuration." },
       { status: 500 }
     );
   }
