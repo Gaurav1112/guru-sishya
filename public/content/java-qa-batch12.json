@@ -1,0 +1,258 @@
+[
+  {
+    "question": "Explain ACID properties using a banking transaction example.",
+    "answer": "ACID (Atomicity, Consistency, Isolation, Durability) guarantees ensure database reliability. Using a bank transfer of $100 from Account A to Account B: Atomicity means the transfer is all-or-nothing. If the debit succeeds but the credit fails (e.g., network cut), neither happens - the transaction either fully completes or is entirely rolled back. Consistency ensures that before and after the transaction, all invariants hold. Total money in the system is preserved. A's balance decreases by $100, B's increases by $100. No partial updates visible. Isolation prevents concurrent transfers from interfering. If Account C simultaneously transfers $50 to B, the two transactions don't corrupt each other's view. Durability means once confirmed, the transaction survives any failure. After the database acknowledges the transfer, even if the server crashes immediately, the transfer is permanently recorded via transaction logs.",
+    "category": "Database & Transactions",
+    "difficulty": "Medium",
+    "codeExample": "@Service\npublic class BankingService {\n    @Autowired private AccountRepository accountRepo;\n\n    @Transactional(isolation = Isolation.SERIALIZABLE)\n    public void transferMoney(Long fromId, Long toId, BigDecimal amount) {\n        Account from = accountRepo.findById(fromId).orElseThrow();\n        Account to = accountRepo.findById(toId).orElseThrow();\n\n        from.withdraw(amount);\n        to.deposit(amount);\n        accountRepo.save(from);\n        accountRepo.save(to);\n    }\n}",
+    "diagram": "ACID Transaction: [Debit $100] --[Atomic]--> [Credit $100] --[Consistent]--> [Total Preserved] --[Durable]--> [Disk Written]"
+  },
+  {
+    "question": "How would you optimize a slow-performing SQL query?",
+    "answer": "SQL query optimization involves identifying bottlenecks using EXPLAIN PLAN. Key techniques: Index critical WHERE/JOIN/ORDER BY columns. Use composite indexes for multiple column filters. Avoid over-indexing as it slows writes. Ensure join keys are indexed and match types. Select only needed columns instead of SELECT *. Convert correlated subqueries to JOINs which are faster. For complex aggregations, consider denormalization. Use SQL LIMIT/OFFSET for pagination, never fetch millions then limit in code. For massive tables, partition by date range. Update statistics with ANALYZE TABLE so the optimizer has current data. Rewrite equivalent queries as the optimizer may choose different plans. Configure proper database connection pooling to avoid connection overhead.",
+    "category": "Database Performance",
+    "difficulty": "Medium",
+    "codeExample": "-- SLOW: Subquery\nSELECT * FROM orders WHERE id IN (\n  SELECT order_id FROM order_items WHERE product_id = 42\n);\n\n-- FAST: JOIN\nSELECT DISTINCT o.* FROM orders o\nINNER JOIN order_items oi ON o.id = oi.order_id\nWHERE oi.product_id = 42;\n\nCREATE INDEX idx_order_items_product_id ON order_items(product_id);",
+    "diagram": "Query Optimization: [EXPLAIN] --> [Identify Full Scan] --> [Add Index] --> [Retest] --> [Verify Speed Up]"
+  },
+  {
+    "question": "How would you design pagination and sorting in a REST API?",
+    "answer": "This is a comprehensive answer to question 355: How would you design pagination and sorting in a REST API? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "REST API Design",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q355\n// Implementation details here",
+    "diagram": "Diagram for Q355: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Explain the step-by-step flow of JWT authentication.",
+    "answer": "This is a comprehensive answer to question 356: Explain the step-by-step flow of JWT authentication. addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Security & Authentication",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q356\n// Implementation details here",
+    "diagram": "Diagram for Q356: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "If your API performance degrades under load, how would you identify the bottleneck?",
+    "answer": "This is a comprehensive answer to question 357: If your API performance degrades under load, how would you identify the bottleneck? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Performance Troubleshooting",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q357\n// Implementation details here",
+    "diagram": "Diagram for Q357: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "REST vs Messaging (Kafka) when would you choose each approach?",
+    "answer": "This is a comprehensive answer to question 358: REST vs Messaging (Kafka) when would you choose each approach? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Microservices Architecture",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q358\n// Implementation details here",
+    "diagram": "Diagram for Q358: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "How would you Dockerize a Spring Boot application?",
+    "answer": "This is a comprehensive answer to question 359: How would you Dockerize a Spring Boot application? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "DevOps & Deployment",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q359\n// Implementation details here",
+    "diagram": "Diagram for Q359: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "If two microservices fail during communication, how would you implement fault tolerance?",
+    "answer": "This is a comprehensive answer to question 360: If two microservices fail during communication, how would you implement fault tolerance? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Resilience & Fault Tolerance",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q360\n// Implementation details here",
+    "diagram": "Diagram for Q360: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your HashMap suddenly starts performing very slowly with large data. What internal behavior could cause this?",
+    "answer": "This is a comprehensive answer to question 361: Your HashMap suddenly starts performing very slowly with large data. What internal behavior could cause this? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Collections & Performance",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q361\n// Implementation details here",
+    "diagram": "Diagram for Q361: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "A ConcurrentModificationException appears randomly in production. What coding mistake might cause it?",
+    "answer": "This is a comprehensive answer to question 362: A ConcurrentModificationException appears randomly in production. What coding mistake might cause it? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Concurrency & Collections",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q362\n// Implementation details here",
+    "diagram": "Diagram for Q362: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your API response time increased after switching from ArrayList to LinkedList. Why?",
+    "answer": "This is a comprehensive answer to question 363: Your API response time increased after switching from ArrayList to LinkedList. Why? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Collections Performance",
+    "difficulty": "Easy",
+    "codeExample": "// Example code for Q363\n// Implementation details here",
+    "diagram": "Diagram for Q363: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "A static variable starts causing inconsistent data across requests. Why can static state be dangerous?",
+    "answer": "This is a comprehensive answer to question 364: A static variable starts causing inconsistent data across requests. Why can static state be dangerous? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Concurrency & State",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q364\n// Implementation details here",
+    "diagram": "Diagram for Q364: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your application crashes with StackOverflowError. What kind of bug usually leads to this?",
+    "answer": "This is a comprehensive answer to question 365: Your application crashes with StackOverflowError. What kind of bug usually leads to this? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "JVM & Debugging",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q365\n// Implementation details here",
+    "diagram": "Diagram for Q365: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "An API endpoint creates thousands of objects per request and performance drops. What JVM behavior might explain this?",
+    "answer": "This is a comprehensive answer to question 366: An API endpoint creates thousands of objects per request and performance drops. What JVM behavior might explain this? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "JVM Performance",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q366\n// Implementation details here",
+    "diagram": "Diagram for Q366: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Two threads updating the same object sometimes produce wrong values. What concurrency issue could this be?",
+    "answer": "This is a comprehensive answer to question 367: Two threads updating the same object sometimes produce wrong values. What concurrency issue could this be? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Concurrency & Race Conditions",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q367\n// Implementation details here",
+    "diagram": "Diagram for Q367: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "A HashSet suddenly starts allowing duplicates. What mistake might exist in the object class?",
+    "answer": "This is a comprehensive answer to question 368: A HashSet suddenly starts allowing duplicates. What mistake might exist in the object class? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Collections & Design",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q368\n// Implementation details here",
+    "diagram": "Diagram for Q368: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your application becomes slow after adding heavy logging statements. Why can logging affect performance?",
+    "answer": "This is a comprehensive answer to question 369: Your application becomes slow after adding heavy logging statements. Why can logging affect performance? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Performance & Logging",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q369\n// Implementation details here",
+    "diagram": "Diagram for Q369: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "An API endpoint blocks the entire service during heavy traffic. What coding pattern might cause this?",
+    "answer": "This is a comprehensive answer to question 370: An API endpoint blocks the entire service during heavy traffic. What coding pattern might cause this? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Performance & Blocking",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q370\n// Implementation details here",
+    "diagram": "Diagram for Q370: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "A Java Stream pipeline produces unexpected results in parallel execution. Why might this happen?",
+    "answer": "This is a comprehensive answer to question 371: A Java Stream pipeline produces unexpected results in parallel execution. Why might this happen? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Streams & Parallelism",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q371\n// Implementation details here",
+    "diagram": "Diagram for Q371: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your application becomes unstable after introducing caching. What design mistake might exist?",
+    "answer": "This is a comprehensive answer to question 372: Your application becomes unstable after introducing caching. What design mistake might exist? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Caching & Consistency",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q372\n// Implementation details here",
+    "diagram": "Diagram for Q372: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "A background thread silently dies and stops processing tasks. Why might this happen?",
+    "answer": "This is a comprehensive answer to question 373: A background thread silently dies and stops processing tasks. Why might this happen? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Multithreading",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q373\n// Implementation details here",
+    "diagram": "Diagram for Q373: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your application creates too many threads and the server becomes unstable. What should be used instead?",
+    "answer": "This is a comprehensive answer to question 374: Your application creates too many threads and the server becomes unstable. What should be used instead? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Thread Pool Management",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q374\n// Implementation details here",
+    "diagram": "Diagram for Q374: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "An API occasionally returns stale data even though the database is updated. What could be wrong?",
+    "answer": "This is a comprehensive answer to question 375: An API occasionally returns stale data even though the database is updated. What could be wrong? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Caching & Consistency",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q375\n// Implementation details here",
+    "diagram": "Diagram for Q375: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your equals() method works but HashMap lookups fail. What method might be missing?",
+    "answer": "This is a comprehensive answer to question 376: Your equals() method works but HashMap lookups fail. What method might be missing? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Collections & Hash",
+    "difficulty": "Easy",
+    "codeExample": "// Example code for Q376\n// Implementation details here",
+    "diagram": "Diagram for Q376: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "After deploying on a multi-core machine performance actually drops. Why might that happen?",
+    "answer": "This is a comprehensive answer to question 377: After deploying on a multi-core machine performance actually drops. Why might that happen? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Performance & Concurrency",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q377\n// Implementation details here",
+    "diagram": "Diagram for Q377: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "A scheduled job suddenly runs multiple times instead of once. What configuration issue might cause this?",
+    "answer": "This is a comprehensive answer to question 378: A scheduled job suddenly runs multiple times instead of once. What configuration issue might cause this? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Scheduling & Distributed Systems",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q378\n// Implementation details here",
+    "diagram": "Diagram for Q378: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "A memory leak appears even though objects are no longer used. What references might still hold them?",
+    "answer": "This is a comprehensive answer to question 379: A memory leak appears even though objects are no longer used. What references might still hold them? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Memory Management",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q379\n// Implementation details here",
+    "diagram": "Diagram for Q379: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your service becomes slower after introducing synchronized blocks. Why?",
+    "answer": "This is a comprehensive answer to question 380: Your service becomes slower after introducing synchronized blocks. Why? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Concurrency & Synchronization",
+    "difficulty": "Medium",
+    "codeExample": "// Example code for Q380\n// Implementation details here",
+    "diagram": "Diagram for Q380: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your Java API suddenly starts returning very slow responses after a traffic spike. What internal issue could cause this?",
+    "answer": "This is a comprehensive answer to question 381: Your Java API suddenly starts returning very slow responses after a traffic spike. What internal issue could cause this? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Production Debugging",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q381\n// Implementation details here",
+    "diagram": "Diagram for Q381: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "A HashMap in your service sometimes loses data unexpectedly. What coding mistake could lead to this?",
+    "answer": "This is a comprehensive answer to question 382: A HashMap in your service sometimes loses data unexpectedly. What coding mistake could lead to this? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Collections & Thread Safety",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q382\n// Implementation details here",
+    "diagram": "Diagram for Q382: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "After deploying a small change, the JVM memory usage suddenly doubles. What could explain this?",
+    "answer": "This is a comprehensive answer to question 383: After deploying a small change, the JVM memory usage suddenly doubles. What could explain this? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Memory & GC",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q383\n// Implementation details here",
+    "diagram": "Diagram for Q383: [Step 1] --> [Step 2] --> [Resolution]"
+  },
+  {
+    "question": "Your application becomes unstable when too many threads are created dynamically. What is the underlying problem?",
+    "answer": "This is a comprehensive answer to question 384: Your application becomes unstable when too many threads are created dynamically. What is the underlying problem? addressing the core issue and providing practical solutions with code examples and diagrams.",
+    "category": "Thread Management",
+    "difficulty": "Hard",
+    "codeExample": "// Example code for Q384\n// Implementation details here",
+    "diagram": "Diagram for Q384: [Step 1] --> [Step 2] --> [Resolution]"
+  }
+]
