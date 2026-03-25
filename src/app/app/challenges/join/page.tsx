@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -43,7 +43,7 @@ interface Challenge {
 
 const STORAGE_KEY = "gs-challenges";
 
-const GOAL_META: Record<GoalType, { label: string; icon: JSX.Element; description: string; unit: string }> = {
+const GOAL_META: Record<GoalType, { label: string; icon: ReactNode; description: string; unit: string }> = {
   xp: {
     label:       "Most XP",
     icon:        <Zap className="size-5 text-saffron" />,

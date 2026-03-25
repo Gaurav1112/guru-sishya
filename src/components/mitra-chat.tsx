@@ -2,7 +2,18 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Send, Bot, Sparkles, Crown, Lock } from "lucide-react";
+import {
+  X,
+  Send,
+  Bot,
+  Sparkles,
+  Crown,
+  Lock,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  PenLine,
+} from "lucide-react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 
@@ -28,12 +39,20 @@ interface KnowledgeBase {
   loaded: boolean;
 }
 
+interface RelatedLink {
+  label: string;
+  href: string;
+  icon: "lesson" | "quiz" | "explore";
+}
+
 interface ChatMessage {
   id: string;
   role: "user" | "mitra";
   text: string;
-  linkTopic?: string | null;
-  linkHref?: string | null;
+  fullText?: string;         // untruncated answer for "Show more"
+  matchedQuestion?: string;  // the Q&A question that matched
+  relatedLinks?: RelatedLink[];
+  followUps?: string[];      // suggested follow-up questions
   timestamp: number;
 }
 
@@ -41,41 +60,158 @@ interface ChatMessage {
 
 const FREE_MESSAGE_LIMIT = 3;
 
-const TOPIC_MAP: Record<string, { label: string; href: string }> = {
-  kafka:           { label: "Apache Kafka",     href: "/app/topics" },
-  aws:             { label: "AWS",              href: "/app/topics" },
-  kubernetes:      { label: "Kubernetes",       href: "/app/topics" },
-  k8s:             { label: "Kubernetes",       href: "/app/topics" },
-  docker:          { label: "Docker",           href: "/app/topics" },
-  "design pattern":{ label: "Design Patterns",  href: "/app/topics" },
-  singleton:       { label: "Design Patterns",  href: "/app/topics" },
-  factory:         { label: "Design Patterns",  href: "/app/topics" },
-  observer:        { label: "Design Patterns",  href: "/app/topics" },
-  java:            { label: "Java",             href: "/app/topics" },
-  spring:          { label: "Java",             href: "/app/topics" },
-  jvm:             { label: "Java",             href: "/app/topics" },
-  hashmap:         { label: "Java",             href: "/app/topics" },
-  "system design": { label: "System Design",    href: "/app/topics" },
-  microservice:    { label: "System Design",    href: "/app/topics" },
-  database:        { label: "System Design",    href: "/app/topics" },
-  sql:             { label: "System Design",    href: "/app/topics" },
-  nosql:           { label: "System Design",    href: "/app/topics" },
-  react:           { label: "React",            href: "/app/topics" },
-  javascript:      { label: "JavaScript",       href: "/app/topics" },
-  typescript:      { label: "TypeScript",       href: "/app/topics" },
-  python:          { label: "Python",           href: "/app/topics" },
-  algorithm:       { label: "Data Structures & Algorithms", href: "/app/topics" },
-  "data structure":{ label: "Data Structures & Algorithms", href: "/app/topics" },
-  array:           { label: "Data Structures & Algorithms", href: "/app/topics" },
-  tree:            { label: "Data Structures & Algorithms", href: "/app/topics" },
-  graph:           { label: "Data Structures & Algorithms", href: "/app/topics" },
-  sorting:         { label: "Data Structures & Algorithms", href: "/app/topics" },
+// Expanded keyword → topic label mapping (multi-word phrases checked first)
+const TOPIC_MAP: Record<string, string> = {
+  // Kafka
+  "kafka stream":    "Apache Kafka",
+  "kafka connect":   "Apache Kafka",
+  "kafka topic":     "Apache Kafka",
+  "kafka consumer":  "Apache Kafka",
+  "kafka producer":  "Apache Kafka",
+  kafka:             "Apache Kafka",
+  // AWS
+  "amazon web":      "AWS",
+  cloudfront:        "AWS",
+  dynamodb:          "AWS",
+  lambda:            "AWS",
+  ec2:               "AWS",
+  eks:               "AWS",
+  ecs:               "AWS",
+  rds:               "AWS",
+  s3:                "AWS",
+  aws:               "AWS",
+  // Kubernetes / Docker
+  "docker compose":  "Kubernetes & Docker",
+  kubernetes:        "Kubernetes & Docker",
+  container:         "Kubernetes & Docker",
+  docker:            "Kubernetes & Docker",
+  helm:              "Kubernetes & Docker",
+  kube:              "Kubernetes & Docker",
+  k8s:               "Kubernetes & Docker",
+  pod:               "Kubernetes & Docker",
+  // Design Patterns
+  "design pattern":  "Design Patterns",
+  "solid principle": "Design Patterns",
+  decorator:         "Design Patterns",
+  factory:           "Design Patterns",
+  observer:          "Design Patterns",
+  singleton:         "Design Patterns",
+  solid:             "Design Patterns",
+  strategy:          "Design Patterns",
+  // Java
+  "spring boot":     "Java",
+  concurrency:       "Java",
+  garbage:           "Java",
+  hashmap:           "Java",
+  hibernate:         "Java",
+  java:              "Java",
+  jvm:               "Java",
+  spring:            "Java",
+  springboot:        "Java",
+  thread:            "Java",
+  // System Design
+  "api gateway":     "System Design",
+  "cap theorem":     "System Design",
+  "load balanc":     "System Design",
+  "message queue":   "System Design",
+  "rate limit":      "System Design",
+  "system design":   "System Design",
+  caching:           "System Design",
+  cdn:               "System Design",
+  database:          "System Design",
+  elasticsearch:     "System Design",
+  graphql:           "System Design",
+  grpc:              "System Design",
+  "micro-service":   "System Design",
+  microservice:      "System Design",
+  mongodb:           "System Design",
+  nosql:             "System Design",
+  partitioning:      "System Design",
+  postgres:          "System Design",
+  redis:             "System Design",
+  rest:              "System Design",
+  sharding:          "System Design",
+  sql:               "System Design",
+  db:                "System Design",
+  // Frontend / Languages
+  "node.js":         "Core CS & Languages",
+  javascript:        "Core CS & Languages",
+  nodejs:            "Core CS & Languages",
+  python:            "Core CS & Languages",
+  react:             "Core CS & Languages",
+  typescript:        "Core CS & Languages",
+  js:                "Core CS & Languages",
+  ts:                "Core CS & Languages",
+  // DSA
+  "binary search":   "Data Structures & Algorithms",
+  "data structure":  "Data Structures & Algorithms",
+  "dynamic programming": "Data Structures & Algorithms",
+  "linked list":     "Data Structures & Algorithms",
+  algorithm:         "Data Structures & Algorithms",
+  array:             "Data Structures & Algorithms",
+  dp:                "Data Structures & Algorithms",
+  graph:             "Data Structures & Algorithms",
+  hash:              "Data Structures & Algorithms",
+  heap:              "Data Structures & Algorithms",
+  queue:             "Data Structures & Algorithms",
+  recursion:         "Data Structures & Algorithms",
+  sorting:           "Data Structures & Algorithms",
+  stack:             "Data Structures & Algorithms",
+  tree:              "Data Structures & Algorithms",
 };
+
+// Synonym expansion — bidirectional: user alias expands to canonical terms
+const SYNONYMS: Record<string, string[]> = {
+  kubernetes:            ["k8s", "kube"],
+  database:              ["db", "rdbms"],
+  javascript:            ["js"],
+  typescript:            ["ts"],
+  microservices:         ["microservice", "micro-service"],
+  docker:                ["container", "containerization"],
+  "spring boot":         ["spring", "springboot"],
+  "dynamic programming": ["dp"],
+  elasticsearch:         ["es", "elastic"],
+  postgresql:            ["postgres", "pg"],
+  redis:                 ["cache", "in-memory"],
+  "load balancer":       ["lb", "load balanc"],
+  "api gateway":         ["gateway"],
+  thread:                ["threading", "multithreading", "concurrent"],
+  cache:                 ["caching", "cached"],
+  node:                  ["nodejs", "node.js"],
+};
+
+// Stem pairs: if query contains the left stem, also search for the right form
+const STEMS: [string, string][] = [
+  ["thread",    "threading"],
+  ["cache",     "caching"],
+  ["partition", "partitioning"],
+  ["shard",     "sharding"],
+  ["replica",   "replication"],
+  ["distribut", "distributed"],
+  ["optimiz",   "optimization"],
+  ["implement", "implementation"],
+  ["abstract",  "abstraction"],
+  ["inherit",   "inheritance"],
+  ["encapsul",  "encapsulation"],
+  ["synchron",  "synchronization"],
+  ["consumer",  "consuming"],
+  ["producer",  "producing"],
+];
+
+// Quick-action chips shown beneath the greeting
+const QUICK_ACTIONS = [
+  "Java Basics",
+  "System Design",
+  "Apache Kafka",
+  "AWS",
+  "Data Structures",
+  "Kubernetes",
+];
 
 const GREETING_MESSAGE: ChatMessage = {
   id: "greeting",
   role: "mitra",
-  text: "Hi! I'm Mitra, your study buddy. Ask me anything about interview topics — Java, System Design, Kafka, AWS, Kubernetes, Design Patterns, and more!",
+  text: "Hi! I'm Mitra, your study buddy. What would you like to explore today?",
   timestamp: 0,
 };
 
@@ -97,39 +233,41 @@ async function loadKnowledge(): Promise<QAItem[]> {
 
   const results: QAItem[] = [];
 
-  // Load structured Q&A files
   const fetches = CONTENT_FILES.map((url) =>
     fetch(url)
       .then((r) => (r.ok ? r.json() : []))
       .then((data: unknown) => {
         if (Array.isArray(data)) {
           for (const item of data) {
-            if (item && typeof item.question === "string" && typeof item.answer === "string") {
-              results.push({ question: item.question, answer: item.answer, category: item.category });
+            if (
+              item &&
+              typeof item.question === "string" &&
+              typeof item.answer === "string"
+            ) {
+              results.push({
+                question: item.question,
+                answer: item.answer,
+                category: item.category,
+                difficulty: item.difficulty,
+              });
             }
           }
         }
       })
-      .catch(() => {
-        // Silently skip files that fail to load
-      })
+      .catch(() => {})
   );
 
-  // Load daily-questions — they're huge so we load a sample
+  // Sample daily-questions — huge file, cap at 500 for responsiveness
   const dailyFetch = fetch("/content/daily-questions.json")
     .then((r) => (r.ok ? r.json() : []))
     .then((data: unknown) => {
       if (Array.isArray(data)) {
-        // Sample up to 500 questions to keep search responsive
         const sample = data.slice(0, 500) as DailyQuestion[];
         for (const item of sample) {
           if (!item) continue;
           const q = item.question;
-          // daily-questions may have explanation or correctAnswer
           const a = item.explanation ?? item.answer ?? item.correctAnswer ?? "";
-          if (q && a) {
-            results.push({ question: q, answer: a, category: item.topic });
-          }
+          if (q && a) results.push({ question: q, answer: a, category: item.topic });
         }
       }
     })
@@ -141,94 +279,210 @@ async function loadKnowledge(): Promise<QAItem[]> {
   return results;
 }
 
+// ── Keyword helpers ───────────────────────────────────────────────────────────
+
+function tokenize(text: string): string[] {
+  const stopWords = new Set([
+    "what", "how", "why", "when", "where", "which", "who",
+    "the", "is", "are", "does", "can", "do", "a", "an",
+    "in", "of", "and", "or", "to", "it", "be", "for",
+    "with", "on", "at", "by", "from", "this", "that",
+    "give", "me", "tell", "explain", "describe", "define",
+  ]);
+  return text
+    .toLowerCase()
+    .replace(/[?!.,;:]/g, "")
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !stopWords.has(w));
+}
+
+function expandQuery(words: string[]): string[] {
+  const expanded = new Set(words);
+
+  // Bidirectional synonym expansion
+  for (const [canonical, aliases] of Object.entries(SYNONYMS)) {
+    const canonWords = canonical.toLowerCase().split(/\s+/);
+    const hasCanon = canonWords.every((cw) =>
+      words.some((w) => w.includes(cw) || cw.includes(w))
+    );
+    if (hasCanon) {
+      for (const alias of aliases) {
+        alias.split(/\s+/).forEach((a) => expanded.add(a));
+      }
+    }
+    for (const alias of aliases) {
+      if (words.some((w) => w.includes(alias) || alias.includes(w))) {
+        canonWords.forEach((cw) => expanded.add(cw));
+      }
+    }
+  }
+
+  // Stem pair expansion
+  for (const [stem, full] of STEMS) {
+    if (words.some((w) => w.startsWith(stem) || w === full)) {
+      expanded.add(stem);
+      expanded.add(full);
+    }
+  }
+
+  return Array.from(expanded);
+}
+
 // ── Search algorithm ──────────────────────────────────────────────────────────
+
+function scoreItem(
+  queryWords: string[],
+  expandedWords: string[],
+  item: QAItem
+): number {
+  const qText = item.question.toLowerCase();
+  const aText = item.answer.toLowerCase();
+
+  let score = 0;
+
+  // Phrase bonus: consecutive query words appearing in the question
+  const queryPhrase = queryWords.join(" ");
+  if (queryPhrase.length > 3 && qText.includes(queryPhrase)) score += 0.5;
+
+  // Per-word scoring: question matches weight more than answer matches
+  for (const word of expandedWords) {
+    if (word.length < 2) continue;
+    if (qText.includes(word)) score += 0.4;
+    else if (aText.includes(word)) score += 0.15;
+  }
+
+  // Normalise so longer expanded sets don't dominate
+  return score / Math.max(expandedWords.length, 1);
+}
 
 function findBestAnswer(
   query: string,
   knowledge: QAItem[]
-): { answer: string; confidence: number; question: string } {
-  const stopWords = new Set(["what", "how", "why", "when", "the", "is", "are", "does", "can", "do", "a", "an", "in", "of", "and", "or", "to", "it", "be", "for"]);
-  const queryWords = query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((w) => w.length > 2 && !stopWords.has(w));
+): { answer: string; confidence: number; question: string; category: string } {
+  const queryWords = tokenize(query);
 
   if (queryWords.length === 0) {
-    return { answer: "", confidence: 0, question: "" };
+    return { answer: "", confidence: 0, question: "", category: "" };
   }
 
-  let bestMatch = { answer: "", confidence: 0, question: "" };
+  const expandedWords = expandQuery(queryWords);
+  let bestMatch = { answer: "", confidence: 0, question: "", category: "" };
 
   for (const item of knowledge) {
-    const itemText = (item.question + " " + item.answer).toLowerCase();
-    // Count how many query words appear in the item text
-    const matchCount = queryWords.filter((w) => itemText.includes(w)).length;
-    // Bonus: if the question itself strongly matches
-    const questionText = item.question.toLowerCase();
-    const questionMatchCount = queryWords.filter((w) => questionText.includes(w)).length;
-    const questionBonus = questionMatchCount / queryWords.length * 0.3;
-
-    const confidence = matchCount / queryWords.length + questionBonus;
-
+    const confidence = scoreItem(queryWords, expandedWords, item);
     if (confidence > bestMatch.confidence) {
-      bestMatch = { answer: item.answer, confidence, question: item.question };
+      bestMatch = {
+        answer: item.answer,
+        confidence,
+        question: item.question,
+        category: item.category ?? "",
+      };
     }
   }
 
   return bestMatch;
 }
 
-function detectTopic(query: string): { label: string; href: string } | null {
+function findRelatedQuestions(
+  category: string,
+  currentQuestion: string,
+  knowledge: QAItem[],
+  count = 3
+): string[] {
+  if (!category) return [];
+  return knowledge
+    .filter((item) => item.category === category && item.question !== currentQuestion)
+    .slice(0, count)
+    .map((item) => item.question);
+}
+
+function detectTopicLabel(query: string): string | null {
   const lower = query.toLowerCase();
-  for (const [keyword, topic] of Object.entries(TOPIC_MAP)) {
-    if (lower.includes(keyword)) {
-      return topic;
-    }
+  // Sort by length descending so longer phrases match first
+  const entries = Object.entries(TOPIC_MAP).sort((a, b) => b[0].length - a[0].length);
+  for (const [keyword, label] of entries) {
+    if (lower.includes(keyword)) return label;
   }
   return null;
+}
+
+function buildRelatedLinks(topicLabel: string | null): RelatedLink[] {
+  const links: RelatedLink[] = [
+    {
+      label: topicLabel ? `Explore: ${topicLabel}` : "Browse all topics",
+      href: "/app/topics",
+      icon: "lesson",
+    },
+    {
+      label: "Practice questions",
+      href: "/app/questions",
+      icon: "quiz",
+    },
+  ];
+  return links;
 }
 
 function buildMitraResponse(
   query: string,
   knowledge: QAItem[]
-): { text: string; linkTopic: string | null; linkHref: string | null } {
-  const { answer, confidence, question } = findBestAnswer(query, knowledge);
-  const detectedTopic = detectTopic(query);
+): Omit<ChatMessage, "id" | "role" | "timestamp"> {
+  const { answer, confidence, question, category } = findBestAnswer(query, knowledge);
+  const topicLabel = detectTopicLabel(query) ?? (category || null);
 
-  // No meaningful match
-  if (confidence < 0.2 || !answer) {
+  if (confidence < 0.15 || !answer) {
     return {
-      text: "I don't have specific information about that. Try asking about: Java, System Design, Kafka, AWS, Kubernetes, Design Patterns, or behavioral interview questions.",
-      linkTopic: null,
-      linkHref: null,
+      text: "I don't have specific information on that yet. Try asking about: Java, System Design, Kafka, AWS, Kubernetes, Design Patterns, or Data Structures.",
+      relatedLinks: buildRelatedLinks(topicLabel),
     };
   }
 
-  // Trim answer to a readable length (max ~600 chars)
-  const trimmedAnswer = answer.length > 600 ? answer.slice(0, 597).trimEnd() + "..." : answer;
+  const PREVIEW_LENGTH = 400;
+  const isLong = answer.length > PREVIEW_LENGTH;
+  const previewText = isLong ? answer.slice(0, PREVIEW_LENGTH).trimEnd() + "…" : answer;
 
-  if (confidence >= 0.5) {
-    // Good match
-    const prefix = question ? `**${question}**\n\n` : "";
+  const followUps = findRelatedQuestions(category, question, knowledge, 3);
+  const relatedLinks = buildRelatedLinks(topicLabel);
+
+  if (confidence >= 0.4) {
     return {
-      text: `${prefix}${trimmedAnswer}`,
-      linkTopic: detectedTopic?.label ?? null,
-      linkHref: detectedTopic?.href ?? "/app/topics",
+      text: previewText,
+      fullText: isLong ? answer : undefined,
+      matchedQuestion: question || undefined,
+      relatedLinks,
+      followUps: followUps.length > 0 ? followUps : undefined,
     };
   }
 
   // Partial match
   return {
-    text: `I found something related:\n\n${trimmedAnswer}`,
-    linkTopic: detectedTopic?.label ?? null,
-    linkHref: detectedTopic?.href ?? "/app/topics",
+    text: previewText,
+    fullText: isLong ? answer : undefined,
+    matchedQuestion: question ? `Related: ${question}` : undefined,
+    relatedLinks,
+    followUps: followUps.length > 0 ? followUps : undefined,
   };
 }
 
+// ── Link icon map ──────────────────────────────────────────────────────────────
+
+const LINK_ICON_MAP: Record<RelatedLink["icon"], React.ReactNode> = {
+  lesson:  <BookOpen className="size-3" />,
+  quiz:    <PenLine className="size-3" />,
+  explore: <Sparkles className="size-3" />,
+};
+
 // ── Message bubble ─────────────────────────────────────────────────────────────
 
-function MessageBubble({ msg }: { msg: ChatMessage }) {
+function MessageBubble({
+  msg,
+  onFollowUp,
+}: {
+  msg: ChatMessage;
+  onFollowUp: (q: string) => void;
+}) {
   const isUser = msg.role === "user";
+  const [expanded, setExpanded] = useState(false);
+  const hasMore = Boolean(msg.fullText);
 
   return (
     <motion.div
@@ -239,12 +493,24 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
     >
       {/* Avatar */}
       {!isUser && (
-        <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 border border-indigo-500/30 text-sm">
+        <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 border border-indigo-500/30">
           <Bot className="size-3.5 text-indigo-400" />
         </div>
       )}
 
-      <div className={`flex max-w-[82%] flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}>
+      <div
+        className={`flex max-w-[85%] flex-col gap-1.5 ${
+          isUser ? "items-end" : "items-start"
+        }`}
+      >
+        {/* Matched question heading */}
+        {!isUser && msg.matchedQuestion && (
+          <p className="text-[11px] font-semibold text-indigo-400/80 px-0.5 leading-snug">
+            {msg.matchedQuestion}
+          </p>
+        )}
+
+        {/* Main bubble */}
         <div
           className={`rounded-2xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
             isUser
@@ -252,21 +518,86 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
               : "rounded-tl-sm bg-indigo-500/15 border border-indigo-500/20 text-foreground"
           }`}
         >
-          {msg.text}
+          {!isUser && hasMore && !expanded
+            ? msg.text
+            : expanded && msg.fullText
+            ? msg.fullText
+            : msg.text}
         </div>
 
-        {/* Topic link for Mitra messages */}
-        {!isUser && msg.linkTopic && msg.linkHref && (
-          <Link
-            href={msg.linkHref}
-            className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-300 transition-colors hover:bg-indigo-500/20 hover:text-indigo-200"
+        {/* Show more / less */}
+        {!isUser && hasMore && (
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors px-0.5"
           >
-            <Sparkles className="size-3" />
-            Explore: {msg.linkTopic}
-          </Link>
+            {expanded ? (
+              <>
+                <ChevronUp className="size-3" />
+                Show less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="size-3" />
+                Show more
+              </>
+            )}
+          </button>
+        )}
+
+        {/* Related links */}
+        {!isUser && msg.relatedLinks && msg.relatedLinks.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-0.5">
+            {msg.relatedLinks.map((link) => (
+              <Link
+                key={link.href + link.label}
+                href={link.href}
+                className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2 py-1 text-[11px] font-medium text-indigo-300 transition-colors hover:bg-indigo-500/20 hover:text-indigo-200"
+              >
+                {LINK_ICON_MAP[link.icon]}
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Follow-up suggestions */}
+        {!isUser && msg.followUps && msg.followUps.length > 0 && (
+          <div className="mt-1 flex flex-col gap-1 w-full">
+            <p className="text-[10px] text-muted-foreground px-0.5 uppercase tracking-wide font-medium">
+              You might also ask:
+            </p>
+            {msg.followUps.map((q) => (
+              <button
+                key={q}
+                onClick={() => onFollowUp(q)}
+                className="text-left text-[11px] text-indigo-300/80 hover:text-indigo-200 border border-indigo-500/20 rounded-lg px-2.5 py-1.5 bg-indigo-500/5 hover:bg-indigo-500/15 transition-colors leading-snug"
+              >
+                {q.length > 80 ? q.slice(0, 77) + "…" : q}
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </motion.div>
+  );
+}
+
+// ── Greeting quick-action chips ────────────────────────────────────────────────
+
+function GreetingChips({ onSelect }: { onSelect: (topic: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1.5 px-1 pb-1">
+      {QUICK_ACTIONS.map((action) => (
+        <button
+          key={action}
+          onClick={() => onSelect(action)}
+          className="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-300 transition-colors hover:bg-indigo-500/25 hover:text-indigo-200"
+        >
+          {action}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -290,7 +621,12 @@ function TypingIndicator() {
             key={i}
             className="block size-1.5 rounded-full bg-indigo-400"
             animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
-            transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+            transition={{
+              duration: 0.9,
+              repeat: Infinity,
+              delay: i * 0.18,
+              ease: "easeInOut",
+            }}
           />
         ))}
       </div>
@@ -308,7 +644,9 @@ function UpgradeNudge() {
       className="mx-2 mb-2 flex flex-col items-center gap-2 rounded-xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/5 to-transparent p-3 text-center"
     >
       <Crown className="size-5 text-saffron" />
-      <p className="text-xs font-semibold text-foreground">Upgrade to Pro for unlimited Mitra conversations</p>
+      <p className="text-xs font-semibold text-foreground">
+        Upgrade to Pro for unlimited Mitra conversations
+      </p>
       <Link
         href="/app/pricing"
         className="inline-flex items-center gap-1.5 rounded-lg bg-saffron px-3 py-1.5 text-xs font-bold text-background transition-opacity hover:opacity-90"
@@ -328,19 +666,20 @@ export function MitraChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING_MESSAGE]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [freeCount, setFreeCount] = useState(0); // messages used this session
+  const [freeCount, setFreeCount] = useState(0);
   const [knowledgeLoaded, setKnowledgeLoaded] = useState(false);
   const [knowledgeItems, setKnowledgeItems] = useState<QAItem[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Active premium check
-  const isActivePro = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePro =
+    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
   // Whether free user has hit message limit
   const hitLimit = !isActivePro && freeCount >= FREE_MESSAGE_LIMIT;
 
-  // Scroll to bottom whenever messages change
+  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
@@ -355,47 +694,66 @@ export function MitraChat() {
   // Lazy-load knowledge base on first open
   useEffect(() => {
     if (!open || knowledgeLoaded) return;
-
     loadKnowledge().then((items) => {
       setKnowledgeItems(items);
       setKnowledgeLoaded(true);
     });
   }, [open, knowledgeLoaded]);
 
-  const sendMessage = useCallback(async () => {
-    const trimmed = input.trim();
-    if (!trimmed || isTyping || hitLimit) return;
+  // Core query dispatcher — shared by typed input, chips, and follow-ups
+  const dispatchQuery = useCallback(
+    async (query: string) => {
+      const trimmed = query.trim();
+      if (!trimmed || isTyping || hitLimit) return;
 
-    const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: "user",
-      text: trimmed,
-      timestamp: Date.now(),
-    };
+      const userMsg: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        text: trimmed,
+        timestamp: Date.now(),
+      };
 
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setIsTyping(true);
-    if (!isActivePro) setFreeCount((c) => c + 1);
+      setMessages((prev) => [...prev, userMsg]);
+      setInput("");
+      setIsTyping(true);
+      if (!isActivePro) setFreeCount((c) => c + 1);
 
-    // Simulate search delay (makes it feel like it's "thinking")
-    const delay = Math.max(600, Math.min(1400, trimmed.length * 12));
-    await new Promise((res) => setTimeout(res, delay));
+      // Simulate thinking delay proportional to query length
+      const delay = Math.max(500, Math.min(1200, trimmed.length * 10));
+      await new Promise((res) => setTimeout(res, delay));
 
-    const { text, linkTopic, linkHref } = buildMitraResponse(trimmed, knowledgeItems);
+      const partial = buildMitraResponse(trimmed, knowledgeItems);
 
-    const mitraMsg: ChatMessage = {
-      id: `mitra-${Date.now()}`,
-      role: "mitra",
-      text,
-      linkTopic,
-      linkHref,
-      timestamp: Date.now(),
-    };
+      const mitraMsg: ChatMessage = {
+        id: `mitra-${Date.now()}`,
+        role: "mitra",
+        ...partial,
+        timestamp: Date.now(),
+      };
 
-    setIsTyping(false);
-    setMessages((prev) => [...prev, mitraMsg]);
-  }, [input, isTyping, hitLimit, knowledgeItems, isActivePro]);
+      setIsTyping(false);
+      setMessages((prev) => [...prev, mitraMsg]);
+    },
+    [isTyping, hitLimit, knowledgeItems, isActivePro]
+  );
+
+  const sendMessage = useCallback(() => {
+    dispatchQuery(input);
+  }, [input, dispatchQuery]);
+
+  const handleFollowUp = useCallback(
+    (q: string) => {
+      dispatchQuery(q);
+    },
+    [dispatchQuery]
+  );
+
+  const handleQuickAction = useCallback(
+    (topic: string) => {
+      dispatchQuery(`Tell me about ${topic}`);
+    },
+    [dispatchQuery]
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -404,15 +762,20 @@ export function MitraChat() {
     }
   };
 
+  // Show greeting chips only while no user message has been sent yet
+  const showGreetingChips =
+    messages.length === 1 &&
+    messages[0].id === "greeting" &&
+    knowledgeLoaded;
+
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
     <>
-      {/* Floating button — always visible; lock icon for free users */}
+      {/* Floating action button */}
       <AnimatePresence>
-        {!open && (
-          isActivePro ? (
-            /* Pro user: open chat */
+        {!open &&
+          (isActivePro ? (
             <motion.button
               key="mitra-fab-pro"
               initial={{ scale: 0, opacity: 0 }}
@@ -426,11 +789,9 @@ export function MitraChat() {
               className="fixed bottom-5 right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
             >
               <Bot className="size-6 text-white" />
-              {/* Pulse ring */}
               <span className="absolute inset-0 animate-ping rounded-full border border-indigo-400/30 opacity-60" />
             </motion.button>
           ) : (
-            /* Free user: show lock overlay, clicking opens upgrade prompt inside chat */
             <motion.button
               key="mitra-fab-free"
               initial={{ scale: 0, opacity: 0 }}
@@ -444,13 +805,11 @@ export function MitraChat() {
               className="fixed bottom-5 right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
             >
               <Bot className="size-6 text-white opacity-70" />
-              {/* Lock badge overlay */}
               <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-saffron border border-background shadow">
                 <Lock className="size-2.5 text-background" />
               </span>
             </motion.button>
-          )
-        )}
+          ))}
       </AnimatePresence>
 
       {/* Chat window */}
@@ -463,10 +822,8 @@ export function MitraChat() {
             exit={{ opacity: 0, scale: 0.88, y: 20 }}
             transition={{ type: "spring", stiffness: 340, damping: 28 }}
             className={`fixed z-[90] flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-background shadow-[0_8px_48px_rgba(0,0,0,0.5)]
-              /* Mobile: full screen */
               inset-0 sm:inset-auto
-              /* Desktop: fixed size, bottom-right */
-              sm:bottom-5 sm:right-5 sm:w-[350px] sm:h-[520px]`}
+              sm:bottom-5 sm:right-5 sm:w-[370px] sm:h-[560px]`}
           >
             {/* Header */}
             <div className="flex items-center gap-2.5 border-b border-border/50 bg-gradient-to-r from-indigo-950/80 to-background px-4 py-3">
@@ -474,9 +831,14 @@ export function MitraChat() {
                 <Bot className="size-4 text-indigo-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-heading text-sm font-semibold text-foreground leading-tight">Mitra</p>
-                <p className="text-[11px] text-indigo-400/80 leading-tight">Your Study Buddy</p>
+                <p className="font-heading text-sm font-semibold text-foreground leading-tight">
+                  Mitra
+                </p>
+                <p className="text-[11px] text-indigo-400/80 leading-tight">
+                  Your Study Buddy
+                </p>
               </div>
+
               {!isActivePro && (
                 <span className="inline-flex items-center gap-1 rounded-full border border-saffron/30 bg-saffron/10 px-2 py-0.5 text-[10px] font-semibold text-saffron">
                   {FREE_MESSAGE_LIMIT - freeCount > 0
@@ -490,6 +852,7 @@ export function MitraChat() {
                   Pro
                 </span>
               )}
+
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close Mitra"
@@ -511,15 +874,30 @@ export function MitraChat() {
                   <motion.div
                     className="size-3 rounded-full border-2 border-indigo-400 border-t-transparent"
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                   />
                   Loading knowledge base...
                 </motion.div>
               )}
 
               {messages.map((msg) => (
-                <MessageBubble key={msg.id} msg={msg} />
+                <MessageBubble key={msg.id} msg={msg} onFollowUp={handleFollowUp} />
               ))}
+
+              {/* Quick-action chips below the greeting (disappear after first message) */}
+              {showGreetingChips && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                >
+                  <GreetingChips onSelect={handleQuickAction} />
+                </motion.div>
+              )}
 
               <AnimatePresence>
                 {isTyping && <TypingIndicator />}
@@ -528,18 +906,27 @@ export function MitraChat() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Upgrade nudge or input */}
+            {/* Footer: upgrade nudge or input bar */}
             {hitLimit ? (
               <UpgradeNudge />
             ) : (
               <div className="sticky bottom-0 border-t border-border/50 bg-background/80 px-3 py-2.5">
-                {/* Free message counter for non-Pro */}
-                {!isActivePro && freeCount > 0 && freeCount < FREE_MESSAGE_LIMIT && (
-                  <p className="mb-1.5 text-center text-[10px] text-muted-foreground">
-                    {FREE_MESSAGE_LIMIT - freeCount} free message{FREE_MESSAGE_LIMIT - freeCount !== 1 ? "s" : ""} remaining •{" "}
-                    <Link href="/app/pricing" className="text-saffron hover:underline">Upgrade for unlimited</Link>
-                  </p>
-                )}
+                {!isActivePro &&
+                  freeCount > 0 &&
+                  freeCount < FREE_MESSAGE_LIMIT && (
+                    <p className="mb-1.5 text-center text-[10px] text-muted-foreground">
+                      {FREE_MESSAGE_LIMIT - freeCount} free message
+                      {FREE_MESSAGE_LIMIT - freeCount !== 1 ? "s" : ""} remaining
+                      {" • "}
+                      <Link
+                        href="/app/pricing"
+                        className="text-saffron hover:underline"
+                      >
+                        Upgrade for unlimited
+                      </Link>
+                    </p>
+                  )}
+
                 <div className="flex items-center gap-2">
                   <input
                     ref={inputRef}

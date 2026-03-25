@@ -5,10 +5,42 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Crown, ShieldCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { ADMIN_EMAIL } from "@/lib/stores/premium-slice";
+
+// ── Active challenge count from localStorage ──────────────────────────────────
+
+function useActiveChallengeCount() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    function readCount() {
+      try {
+        const raw = localStorage.getItem("gs-challenges");
+        if (!raw) { setCount(0); return; }
+        const all = JSON.parse(raw) as Array<{ status: string; endDate: string }>;
+        const now = Date.now();
+        const active = all.filter(
+          (c) => c.status === "active" && new Date(c.endDate).getTime() > now
+        ).length;
+        setCount(active);
+      } catch {
+        setCount(0);
+      }
+    }
+
+    readCount();
+
+    // Re-read when storage changes (e.g. a new challenge is created in another tab)
+    window.addEventListener("storage", readCount);
+    return () => window.removeEventListener("storage", readCount);
+  }, []);
+
+  return count;
+}
 
 const navItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
@@ -19,6 +51,7 @@ const navItems = [
   { href: "/app/topics", label: "Topics", icon: "📚" },
   { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
   { href: "/app/playground", label: "Playground", icon: "⚡" },
+  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
   { href: "/app/shop", label: "Shop", icon: "🛒" },
   { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/app/profile", label: "Profile", icon: "👤" },
@@ -30,6 +63,7 @@ export function Sidebar() {
   const { isPremium, premiumUntil } = useStore();
   const { data: session } = useSession();
   const topics = useLiveQuery(() => db.topics.orderBy("createdAt").reverse().limit(10).toArray());
+  const activeChallenges = useActiveChallengeCount();
 
   const isAdmin =
     session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -63,6 +97,11 @@ export function Sidebar() {
               {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
                 <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
                   {dueCount > 99 ? "99+" : dueCount}
+                </span>
+              )}
+              {item.href === "/app/challenges" && activeChallenges > 0 && (
+                <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+                  {activeChallenges}
                 </span>
               )}
             </Link>
