@@ -28,7 +28,7 @@ interface ParsedChallenge {
 // ── Daily Challenge Widget ────────────────────────────────────────────────────
 
 export function DailyChallengeWidget() {
-  const { apiKey, aiProvider, timezone, level, totalXP, addXP } = useStore();
+  const { apiKey, aiProvider, timezone, level, totalXP, addXP, addCoins } = useStore();
 
   const [challenge, setChallenge] = useState<DailyChallenge | null>(null);
   const [parsed, setParsed] = useState<ParsedChallenge | null>(null);
@@ -148,7 +148,7 @@ export function DailyChallengeWidget() {
 
     // Award XP + coins (3 coins for completing the daily challenge)
     addXP(DAILY_CHALLENGE_ATTEMPT_XP + (isCorrect ? DAILY_CHALLENGE_CORRECT_XP : 0));
-    useStore.getState().addCoins(3, "daily_challenge");
+    addCoins(3, "daily_challenge");
 
     // Refresh from DB
     const updated = await db.dailyChallenges.get(challenge.id);

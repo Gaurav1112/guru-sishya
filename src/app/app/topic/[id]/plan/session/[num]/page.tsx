@@ -262,6 +262,15 @@ export default function SessionViewPage({
             session.reviewQuestions
           ).catch(() => {});
         }
+
+        // Check and unlock badges after session completion
+        const storeState = useStore.getState();
+        getUserStats({
+          currentStreak: storeState.currentStreak,
+          longestStreak: storeState.longestStreak,
+          totalXP: storeState.totalXP,
+          level: storeState.level,
+        }).then((stats) => checkAndUnlockBadges(stats)).catch(() => {});
       }
     } finally {
       setCompleting(false);
