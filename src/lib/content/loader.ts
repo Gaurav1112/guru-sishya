@@ -52,6 +52,7 @@ const CONTENT_FILES = [
   "/content/html-css.json",
   "/content/java-core.json",
   "/content/spring-boot.json",
+  "/content/nosql.json",
 ];
 
 let _contentCache: TopicContent[] | null = null;
