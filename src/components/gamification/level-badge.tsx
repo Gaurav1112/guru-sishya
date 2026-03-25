@@ -1,5 +1,7 @@
 "use client";
 import { getLevelInfo } from "@/lib/gamification/xp";
+import { useSession } from "next-auth/react";
+import { useStore } from "@/lib/store";
 
 interface LevelBadgeProps {
   level: number;
@@ -27,12 +29,21 @@ export function LevelBadge({ level, size = "md", className = "" }: LevelBadgePro
   const info = getLevelInfo(level);
   const colorClass = TIER_BORDER[info.tier] ?? TIER_BORDER.Shishya;
   const sizeClass = SIZE_MAP[size];
+  const { data: session } = useSession();
+  const displayName = useStore((s) => s.displayName);
+
+  // Show "Shishya Gaurav" instead of "Shishya I"
+  const firstName =
+    session?.user?.name?.split(" ")[0] ??
+    (displayName ? displayName.split(" ")[0] : null);
+
+  const label = firstName ? `${info.tier} ${firstName}` : `${info.tier} ${info.subLevel}`;
 
   return (
     <span
       className={`inline-flex items-center rounded-full font-heading font-semibold tracking-wide ${sizeClass} ${colorClass} ${className}`}
     >
-      {info.tier} {info.subLevel}
+      {label}
     </span>
   );
 }
