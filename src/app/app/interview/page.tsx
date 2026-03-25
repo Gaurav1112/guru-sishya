@@ -642,10 +642,18 @@ function ResultsScreen({
 
 // ── Main interview chat ────────────────────────────────────────────────────────
 
+interface QuestionResult {
+  question: string;
+  userAnswer: string;
+  modelAnswer: string;
+  score: number;
+  feedback: string;
+}
+
 interface InterviewChatProps {
   config: InterviewConfig;
   questions: InterviewQuestion[];
-  onComplete: (scores: number[], elapsed: number) => void;
+  onComplete: (scores: number[], elapsed: number, results: QuestionResult[]) => void;
   isPremium: boolean;
 }
 
@@ -654,6 +662,7 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
   const [userInput, setUserInput] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
   const [scores, setScores] = useState<number[]>([]);
+  const [questionResults, setQuestionResults] = useState<QuestionResult[]>([]);
   const [phase, setPhase] = useState<"welcome" | "asking" | "awaiting" | "feedback" | "done">("welcome");
   const [isThinking, setIsThinking] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -830,7 +839,20 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
 
       feedbackLines.push(`\n**Score: ${result.score}/10**`);
 
-      addMessage("feedback", feedbackLines.join("\n"));
+      const feedbackText = feedbackLines.join("\n");
+      addMessage("feedback", feedbackText);
+
+      // Record the result for history
+      setQuestionResults((prev) => [
+        ...prev,
+        {
+          question: q.question,
+          userAnswer: answer,
+          modelAnswer: q.answer,
+          score: result.score,
+          feedback: feedbackText,
+        },
+      ]);
 
       // Show model answer after short delay
       setTimeout(() => {
@@ -1070,7 +1092,7 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
           >
             <button
               type="button"
-              onClick={() => onComplete(scores, elapsed)}
+              onClick={() => onComplete(scores, elapsed, questionResults)}
               className="flex items-center gap-2 rounded-xl bg-saffron px-6 py-3 text-sm font-semibold text-background transition-all hover:opacity-90 shadow-lg shadow-saffron/20"
             >
               <Trophy className="size-4" />
@@ -1281,10 +1303,41 @@ export default function InterviewPage() {
     }
   }
 
-  function handleComplete(finalScores: number[], finalElapsed: number) {
+  function handleComplete(finalScores: number[], finalElapsed: number, results: QuestionResult[]) {
     setScores(finalScores);
     setElapsedFinal(finalElapsed);
     setPhase("complete");
+
+    // Save results to localStorage for the Revision page
+    if (config) {
+      try {
+        const overallScore =
+          finalScores.length > 0
+            ? Math.round(
+                (finalScores.reduce((a, b) => a + b, 0) / finalScores.length) * 10
+              )
+            : 0;
+
+        const history = JSON.parse(
+          localStorage.getItem("gs-interview-history") ?? "[]"
+        ) as object[];
+
+        history.push({
+          date: new Date().toISOString(),
+          company: config.company,
+          topic: config.topic,
+          questions: results,
+          overallScore,
+        });
+
+        localStorage.setItem(
+          "gs-interview-history",
+          JSON.stringify(history.slice(-20))
+        );
+      } catch {
+        // ignore localStorage errors
+      }
+    }
   }
 
   function handleRestart() {
@@ -1348,7 +1401,7 @@ export default function InterviewPage() {
           key={chatKey}
           config={config}
           questions={questions}
-          onComplete={handleComplete}
+          onComplete={(scores, elapsed, results) => handleComplete(scores, elapsed, results)}
           isPremium={isActivePremium}
         />
       )}

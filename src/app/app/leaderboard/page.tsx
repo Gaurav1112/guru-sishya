@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 import {
   generateSimulatedLeague,
@@ -75,7 +76,14 @@ function estimateWeeklyXP(totalXP: number): number {
 // ── Leaderboard page ─────────────────────────────────────────────────────────
 
 export default function LeaderboardPage() {
-  const { totalXP, level, showOnLeaderboard } = useStore();
+  const { totalXP, level, showOnLeaderboard, displayName } = useStore();
+  const { data: session } = useSession();
+
+  // Resolve the user's first name for the leaderboard entry
+  const myName =
+    session?.user?.name?.split(" ")[0] ??
+    (displayName ? displayName.split(" ")[0] : null) ??
+    "You";
 
   const userWeeklyXP = estimateWeeklyXP(totalXP);
   const userLeague = getLeague(totalXP);
@@ -100,7 +108,7 @@ export default function LeaderboardPage() {
     const others = simUsers.map((u) => ({ ...u, isMe: false }));
     if (!showOnLeaderboard) return others.sort((a, b) => b.weeklyXP - a.weeklyXP);
     const me = {
-      name: "You",
+      name: myName,
       weeklyXP: userWeeklyXP,
       league: userLeague,
       archetype: "grinder" as const,
@@ -108,7 +116,7 @@ export default function LeaderboardPage() {
       isMe: true,
     };
     return [...others, me].sort((a, b) => b.weeklyXP - a.weeklyXP);
-  }, [simUsers, userWeeklyXP, userLeague, showOnLeaderboard]);
+  }, [simUsers, userWeeklyXP, userLeague, showOnLeaderboard, myName]);
 
   const totalCount = allUsers.length;
 
@@ -211,7 +219,7 @@ export default function LeaderboardPage() {
                     isMe ? "text-saffron" : "text-foreground"
                   }`}
                 >
-                  {isMe ? "You" : user.name}
+                  {user.name}
                 </p>
                 <p className="text-xs text-muted-foreground capitalize">
                   {user.archetype.replace("_", " ")}

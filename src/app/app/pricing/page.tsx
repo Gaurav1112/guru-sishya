@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Check, Sparkles, Crown, Zap, Infinity as InfinityIcon } from "lucide-react";
+import { Check, Sparkles, Crown, Zap, Infinity as InfinityIcon, LogIn } from "lucide-react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 import { PageTransition } from "@/components/page-transition";
 
@@ -121,6 +123,7 @@ function useRazorpayScript() {
 
 export default function PricingPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const {
     isPremium,
     premiumUntil,
@@ -398,7 +401,20 @@ export default function PricingPage() {
       {!isActive && (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-teal/30 bg-teal/5 px-6 py-8 text-center">
           <p className="font-heading text-lg font-semibold">Not ready to commit?</p>
-          {trialUsed ? (
+          {!session ? (
+            <>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Sign in to start your free 7-day trial — no credit card required.
+              </p>
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 rounded-lg border border-teal/50 bg-teal/10 px-6 py-2.5 text-sm font-semibold text-teal transition-all hover:bg-teal/20"
+              >
+                <LogIn className="size-4" />
+                Sign in to start your free trial
+              </Link>
+            </>
+          ) : trialUsed ? (
             <>
               <p className="text-sm text-muted-foreground max-w-md">
                 You have already used your free trial. Subscribe to continue accessing Pro features.

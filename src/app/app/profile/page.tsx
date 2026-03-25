@@ -333,9 +333,15 @@ function GoogleAccountCard() {
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
-  const { totalXP, level, currentStreak, longestStreak } = useStore();
+  const { totalXP, level, currentStreak, longestStreak, displayName } = useStore();
   const levelInfo = getLevelInfo(level);
   const progress = xpProgressInLevel(totalXP);
+
+  // Resolve the user's actual name: Google session > store displayName
+  const userName =
+    session?.user?.name ??
+    displayName ??
+    null;
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-12">
@@ -349,10 +355,17 @@ export default function ProfilePage() {
       <div className="rounded-xl border border-border/50 bg-surface p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
+            <h1 className="font-heading text-3xl font-black">
+              {userName ?? "Your Profile"}
+            </h1>
+            {!userName && (
+              <p className="text-xs text-muted-foreground/60 mb-2">
+                Sign in with Google to show your name here
+              </p>
+            )}
+            <div className="flex items-center gap-3 mt-2 mb-1">
               <LevelBadge level={level} size="lg" />
             </div>
-            <h1 className="font-heading text-3xl font-black">{levelInfo.tier} {levelInfo.subLevel}</h1>
             <p className="text-muted-foreground">{levelInfo.tierDescription}</p>
           </div>
           <div className="text-right">
