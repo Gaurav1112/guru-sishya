@@ -102,13 +102,21 @@ interface PremiumGateProps {
 export function PremiumGate({ feature, children, overlay = true }: PremiumGateProps) {
   const { isPremium, premiumUntil, paymentId, planType, checkPremiumExpiry } = useStore();
 
-  // Re-check expiry whenever this gate renders
+  // Synchronous expiry check — runs BEFORE render decision, not in useEffect
+  // This prevents the flash of premium content on mobile
+  const checkResult = checkPremiumExpiry();
+
+  // Also verify in useEffect for cleanup side effects
   useEffect(() => {
     checkPremiumExpiry();
   }, [checkPremiumExpiry]);
 
+  // Triple-check: isPremium flag AND valid date AND expiry check passed
   const isActive =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+    isPremium &&
+    premiumUntil != null &&
+    new Date(premiumUntil) > new Date() &&
+    checkResult !== false;
 
   if (isActive) {
     return <>{children}</>;
