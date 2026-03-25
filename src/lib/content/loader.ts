@@ -50,6 +50,8 @@ const CONTENT_FILES = [
   "/content/javascript.json",
   "/content/react-nextjs.json",
   "/content/html-css.json",
+  "/content/java-core.json",
+  "/content/spring-boot.json",
 ];
 
 let _contentCache: TopicContent[] | null = null;

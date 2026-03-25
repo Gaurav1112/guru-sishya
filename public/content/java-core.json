@@ -1,0 +1,501 @@
+[
+  {
+    "topic": "Java Core",
+    "category": "Programming Languages",
+    "cheatSheet": "# Java Core Cheat Sheet\n\n## OOP: Classes, Inheritance, Polymorphism\n## Collections: List, Set, Map, Queue\n## Streams: filter, map, reduce, collect\n## Concurrency: Thread, ExecutorService, synchronized\n## JVM: Heap, Stack, GC, ClassLoader",
+    "resources": [
+      {
+        "title": "Effective Java",
+        "author": "Joshua Bloch",
+        "category": "books",
+        "justification": "The Java bible — 90 items covering API design, generics, concurrency, and best practices. Required reading for senior Java interviews.",
+        "bestFor": "Competent",
+        "estimatedTime": "20 hours",
+        "cost": "Paid",
+        "confidence": "HIGH"
+      },
+      {
+        "title": "Java Official Docs",
+        "author": "Oracle",
+        "category": "docs",
+        "justification": "Comprehensive authoritative reference for all Java APIs, specifications, and language features.",
+        "bestFor": "Beginner",
+        "estimatedTime": "10 hours",
+        "cost": "Free",
+        "confidence": "HIGH"
+      },
+      {
+        "title": "Baeldung",
+        "author": "baeldung.com",
+        "category": "interactive",
+        "justification": "Best practical Java tutorial site — concise, example-driven articles on every Java topic from basics to Spring.",
+        "bestFor": "Beginner",
+        "estimatedTime": "15 hours",
+        "cost": "Free",
+        "confidence": "HIGH"
+      },
+      {
+        "title": "Java Concurrency in Practice",
+        "author": "Brian Goetz",
+        "category": "books",
+        "justification": "The definitive guide to Java threading — covers thread safety, synchronization, executors, and concurrent data structures in depth.",
+        "bestFor": "Proficient",
+        "estimatedTime": "25 hours",
+        "cost": "Paid",
+        "confidence": "HIGH"
+      }
+    ],
+    "ladder": {
+      "levels": [
+        {
+          "level": 1,
+          "name": "Novice",
+          "description": "Understands Java syntax, basic OOP, and can write simple classes with methods and fields.",
+          "observableSkills": [
+            "Write a class with constructors, fields, and methods",
+            "Explain the difference between primitive types and reference types",
+            "Use basic control flow: if, for, while, switch"
+          ],
+          "milestoneProject": {
+            "title": "Student Grade Calculator",
+            "description": "Build a console app with a Student class (name, grades array). Calculate average, min, max. Use ArrayList and basic OOP."
+          },
+          "estimatedHours": 10
+        },
+        {
+          "level": 2,
+          "name": "Advanced Beginner",
+          "description": "Understands inheritance, interfaces, collections, and basic exception handling. Writes functional multi-class programs.",
+          "observableSkills": [
+            "Implement interfaces and abstract classes correctly",
+            "Use ArrayList, HashMap, HashSet with generics",
+            "Handle checked and unchecked exceptions properly"
+          ],
+          "milestoneProject": {
+            "title": "Library Management System",
+            "description": "Build a library system with Book, Member, and Loan classes. Use collections, interfaces, and custom exceptions for overdue books."
+          },
+          "estimatedHours": 25
+        },
+        {
+          "level": 3,
+          "name": "Competent",
+          "description": "Comfortable with Java 8+ Streams, generics, design patterns, and basic multithreading.",
+          "observableSkills": [
+            "Write Stream pipelines with filter, map, collect, groupingBy",
+            "Implement generic classes and bounded wildcards",
+            "Use ExecutorService and basic synchronization primitives"
+          ],
+          "milestoneProject": {
+            "title": "Data Processing Pipeline",
+            "description": "Build a pipeline that reads CSV data, processes it with Streams (filter, transform, aggregate), runs tasks concurrently, and writes results to a file."
+          },
+          "estimatedHours": 50
+        },
+        {
+          "level": 4,
+          "name": "Proficient",
+          "description": "Deep understanding of JVM internals, concurrency patterns, I/O, and performance tuning.",
+          "observableSkills": [
+            "Analyze heap dumps and GC logs to diagnose memory issues",
+            "Implement thread-safe data structures using locks and CAS",
+            "Use CompletableFuture for complex async orchestration"
+          ],
+          "milestoneProject": {
+            "title": "Concurrent Web Crawler",
+            "description": "Build a multi-threaded web crawler using ExecutorService and CompletableFuture. Use ConcurrentHashMap for visited URLs. Implement rate limiting and graceful shutdown."
+          },
+          "estimatedHours": 80
+        },
+        {
+          "level": 5,
+          "name": "Expert",
+          "description": "Masters JVM tuning, custom class loaders, bytecode manipulation, and advanced concurrency patterns like lock-free algorithms.",
+          "observableSkills": [
+            "Tune GC settings (G1, ZGC) for low-latency applications",
+            "Write a custom ClassLoader or Java agent",
+            "Implement lock-free algorithms using AtomicReference and VarHandle"
+          ],
+          "milestoneProject": {
+            "title": "High-Performance Cache",
+            "description": "Build a lock-free LRU cache using AtomicReference and CAS operations. Benchmark against synchronized version. Add JVM metrics via JMX and tune GC for minimal pause times."
+          },
+          "estimatedHours": 150
+        }
+      ]
+    },
+    "plan": {
+      "overview": "Master Java core concepts for software engineering interviews, covering OOP, collections, streams, concurrency, JVM internals, and common interview patterns.",
+      "skippedTopics": "GUI frameworks (Swing, JavaFX), Java EE / Jakarta EE APIs, build tools (Maven/Gradle internals), and framework-specific patterns (Spring, Hibernate) are covered separately.",
+      "sessions": [
+        {
+          "sessionNumber": 1,
+          "title": "OOP Fundamentals — Classes, Inheritance, Polymorphism, Interfaces",
+          "content": "Java OOP rests on four pillars: encapsulation, inheritance, polymorphism, abstraction.\n\n```java\nabstract class Shape {\n  abstract double area();\n  void print() { System.out.println(\"Area: \" + area()); }\n}\nclass Circle extends Shape {\n  double r;\n  Circle(double r) { this.r = r; }\n  double area() { return Math.PI * r * r; }\n}\ninterface Drawable { void draw(); }\nclass Square extends Shape implements Drawable {\n  double s;\n  Square(double s) { this.s = s; }\n  double area() { return s * s; }\n  public void draw() { System.out.println(\"Drawing square\"); }\n}\nShape sh = new Circle(5); // polymorphism\nsh.print(); // late binding calls Circle.area()\n```\nKey: abstract class provides partial implementation; interface defines a contract. A class can implement multiple interfaces but extend only one class.",
+          "objectives": [
+            "Explain the four pillars of OOP with Java examples",
+            "Distinguish abstract classes from interfaces and know when to use each",
+            "Demonstrate method overriding and dynamic dispatch",
+            "Implement a class hierarchy using both inheritance and interfaces"
+          ],
+          "activities": [
+            {
+              "description": "Design a Shape hierarchy: abstract Shape with area() and perimeter(). Extend with Circle, Rectangle, Triangle. Add a Printable interface. Create a List<Shape> and compute total area using a loop.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Refactor the Shape hierarchy to use an interface Measurable instead of an abstract class. Discuss trade-offs. Then add a default method getDescription() to the interface.",
+              "durationMinutes": 20
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between an abstract class and an interface in Java?:::An abstract class can have instance fields, constructors, and concrete methods — it represents a partial implementation meant to be extended. An interface (Java 8+) can have default and static methods but no instance fields or constructors — it defines a contract. A class can implement multiple interfaces but extend only one abstract class. Use abstract class when you want shared state or implementation; use interface for defining capabilities that unrelated classes can share.",
+            "What is polymorphism and how does Java achieve it?:::Polymorphism means one reference type can refer to objects of different concrete types and invoke the correct method at runtime. Java achieves this via dynamic dispatch: when you call a method on a reference, the JVM looks at the actual object type at runtime, not the reference type, to determine which method to execute. This requires the method to be overridden in the subclass and the reference to be of the parent type (Shape sh = new Circle()).",
+            "What is the difference between method overloading and method overriding?:::Overloading: same method name, different parameter list, resolved at compile time (static dispatch). Overriding: subclass provides a new implementation of a superclass method with the same signature, resolved at runtime (dynamic dispatch). Overriding requires @Override annotation (recommended), same or wider access modifier, and same or narrower checked exceptions. Overloading is a compile-time feature; overriding is a runtime feature."
+          ],
+          "successCriteria": "Can design a multi-level class hierarchy, correctly override methods, implement interfaces, and explain dynamic dispatch."
+        },
+        {
+          "sessionNumber": 2,
+          "title": "Collections Framework — List, Set, Map, Queue, Choosing the Right Collection",
+          "content": "Java Collections provide ready-made data structures for every need.\n\n```java\n// List: ordered, allows duplicates\nList<String> list = new ArrayList<>(); // O(1) get, O(n) insert mid\nList<String> linked = new LinkedList<>(); // O(1) insert ends, O(n) get\n\n// Set: unique elements\nSet<Integer> hashSet = new HashSet<>();   // O(1) ops, no order\nSet<Integer> treeSet = new TreeSet<>();   // O(log n), sorted\n\n// Map: key-value pairs\nMap<String,Integer> map = new HashMap<>();\nmap.put(\"a\", 1);\nmap.getOrDefault(\"b\", 0); // safe get\nmap.computeIfAbsent(\"c\", k -> k.length());\n\n// Queue / Deque\nDeque<String> deque = new ArrayDeque<>();\ndeque.offerFirst(\"front\"); deque.offerLast(\"back\");\n\n// Frequency count pattern\nMap<Character,Integer> freq = new HashMap<>();\nfor (char c : \"hello\".toCharArray())\n  freq.merge(c, 1, Integer::sum);\n```",
+          "objectives": [
+            "Choose the correct collection type for a given access pattern",
+            "Explain time complexity of ArrayList vs LinkedList vs HashMap",
+            "Use Map methods: getOrDefault, computeIfAbsent, merge, putIfAbsent",
+            "Implement common patterns: frequency count, grouping, deduplication"
+          ],
+          "activities": [
+            {
+              "description": "Implement three solutions: (1) find top-3 most frequent words using HashMap + PriorityQueue, (2) remove duplicates preserving order using LinkedHashSet, (3) group strings by length using Map<Integer, List<String>>.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Benchmark ArrayList vs LinkedList for 10k insertions at index 0 and 10k random accesses. Explain results in terms of internal array vs node structure.",
+              "durationMinutes": 20
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between ArrayList and LinkedList? When would you choose each?:::ArrayList uses a dynamic array — O(1) indexed access, O(n) insertion/deletion in the middle (elements shift). LinkedList uses doubly-linked nodes — O(1) insertion/deletion at ends, O(n) indexed access. Choose ArrayList for most cases (cache-friendly, less memory overhead). Choose LinkedList only when you frequently insert/delete at both ends and rarely access by index — or when you need it as a Deque.",
+            "How does HashMap work internally? What happens during a collision?:::HashMap stores entries in an array of buckets. The bucket index is computed as (hash(key) & (capacity-1)). When two keys map to the same bucket (collision), Java 8+ stores up to 8 entries as a linked list, then converts to a balanced tree (TreeMap) for O(log n) worst case. On get, the key's hashCode() determines the bucket, then equals() finds the exact entry. Load factor (default 0.75) triggers resize at 75% capacity, rehashing all entries into a doubled array.",
+            "What is the difference between HashSet, LinkedHashSet, and TreeSet?:::HashSet: backed by HashMap, O(1) add/remove/contains, no ordering guarantee. LinkedHashSet: backed by LinkedHashMap, maintains insertion order, slightly more memory, O(1) operations. TreeSet: backed by TreeMap (Red-Black tree), maintains natural or comparator-defined sort order, O(log n) operations. Use HashSet for fast membership tests, LinkedHashSet when order matters, TreeSet when you need sorted iteration or range queries (headSet, tailSet)."
+          ],
+          "successCriteria": "Can select the right collection, explain internal mechanisms, and implement frequency-count, grouping, and deduplication patterns correctly."
+        },
+        {
+          "sessionNumber": 3,
+          "title": "Generics & Type Safety — Wildcards, Bounded Types, Type Erasure",
+          "content": "Generics enable type-safe reusable code without casting.\n\n```java\n// Generic class\nclass Pair<A, B> {\n  final A first; final B second;\n  Pair(A a, B b) { first = a; second = b; }\n}\n\n// Bounded type parameter\n<T extends Comparable<T>> T max(T a, T b) {\n  return a.compareTo(b) >= 0 ? a : b;\n}\n\n// Wildcards (PECS: Producer Extends, Consumer Super)\nvoid readAll(List<? extends Number> list) {\n  for (Number n : list) System.out.println(n); // read only\n}\nvoid addNumbers(List<? super Integer> list) {\n  list.add(42); // write only\n}\n\n// Type erasure: generics exist only at compile time\n// List<String> and List<Integer> are both List at runtime\n// Cannot do: new T(), instanceof List<String>, T[]\n\nclass Box<T> {\n  T value;\n  Box(T v) { value = v; }\n  <R> Box<R> map(Function<T,R> f) { return new Box<>(f.apply(value)); }\n}\n```",
+          "objectives": [
+            "Write generic methods and classes with type bounds",
+            "Apply the PECS principle for wildcard selection",
+            "Explain type erasure and its practical implications",
+            "Use generics to eliminate unsafe casts in collection code"
+          ],
+          "activities": [
+            {
+              "description": "Implement a generic Stack<T> with push, pop, peek, isEmpty. Add a method <R> Stack<R> map(Function<T,R> fn). Test with Stack<String> mapped to Stack<Integer> via String::length.",
+              "durationMinutes": 25
+            },
+            {
+              "description": "Write a utility method copy(List<? super T> dest, List<? extends T> src) that copies elements. Explain why you cannot write to the src list or read T from the dest list.",
+              "durationMinutes": 20
+            }
+          ],
+          "reviewQuestions": [
+            "What is type erasure and what are its consequences?:::Type erasure means the compiler removes all generic type information at compile time, replacing type parameters with Object (or the bound type). At runtime, List<String> and List<Integer> are identical — both are just List. Consequences: (1) cannot use instanceof with parameterized types (instanceof List<String> is illegal), (2) cannot create generic arrays (new T[10] illegal), (3) cannot instantiate type parameters (new T() illegal), (4) heap pollution can occur if you mix raw and generic types.",
+            "What is PECS and when do you use wildcards?:::PECS stands for Producer Extends, Consumer Super. Use List<? extends T> when the list PRODUCES T values (you read from it) — you cannot add to it. Use List<? super T> when the list CONSUMES T values (you write to it) — you can add T but reads come back as Object. Use no wildcard (List<T>) when you do both. Example: Collections.copy(List<? super T> dest, List<? extends T> src) — dest consumes, src produces.",
+            "What is the difference between T extends Number and ? extends Number?:::T extends Number is a bounded type parameter — it gives the type a name (T) that you can reuse in the same method signature or class. Use it when you need to refer to the type elsewhere, e.g., T max(List<T> list). ? extends Number is an anonymous wildcard — use it when you only need to express flexibility and do not need to name or reuse the type, e.g., void print(List<? extends Number> list). Wildcards are more flexible in method parameters but cannot be used as return types in a way that preserves type information."
+          ],
+          "successCriteria": "Can write bounded generic methods, apply PECS correctly, explain type erasure, and eliminate unsafe casts in real code."
+        },
+        {
+          "sessionNumber": 4,
+          "title": "Exception Handling — Checked vs Unchecked, Custom Exceptions, Best Practices",
+          "content": "Java exceptions form a hierarchy rooted at Throwable.\n\n```java\n// Checked: must declare or catch (IOException, SQLException)\n// Unchecked: RuntimeException and subclasses (NPE, IAE, ISE)\n// Error: JVM-level, do not catch (OutOfMemoryError, StackOverflow)\n\n// Custom exception\nclass InsufficientFundsException extends Exception {\n  private final double amount;\n  InsufficientFundsException(double a) {\n    super(\"Insufficient funds: need \" + a);\n    this.amount = a;\n  }\n  double getAmount() { return amount; }\n}\n\n// try-with-resources (auto-closes Closeable)\ntry (var conn = getConnection();\n     var ps = conn.prepareStatement(sql)) {\n  ps.executeUpdate();\n} catch (SQLException e) {\n  throw new DataAccessException(\"DB error\", e); // preserve cause\n}\n\n// Multi-catch\ntry { riskyOp(); }\ncatch (IOException | ParseException e) { handle(e); }\nfinally { cleanup(); } // always runs\n```\nNever swallow exceptions silently. Always wrap with context when re-throwing.",
+          "objectives": [
+            "Distinguish checked exceptions, unchecked exceptions, and Errors",
+            "Create meaningful custom exception classes with cause chaining",
+            "Use try-with-resources for all AutoCloseable resources",
+            "Apply best practices: fail fast, preserve stack traces, avoid empty catches"
+          ],
+          "activities": [
+            {
+              "description": "Build a BankAccount class with deposit, withdraw (throws InsufficientFundsException), and transfer methods. Use try-with-resources for a simulated transaction log file. Chain exceptions properly when wrapping.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Review 5 code snippets with common exception anti-patterns (empty catch, swallowed cause, catching Exception broadly). Fix each and explain why the original was problematic.",
+              "durationMinutes": 20
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between checked and unchecked exceptions?:::Checked exceptions extend Exception (but not RuntimeException) — the compiler enforces that callers either catch them or declare them with throws. They represent recoverable conditions the caller should anticipate (IOException, SQLException). Unchecked exceptions extend RuntimeException — no compiler enforcement. They represent programming errors (NullPointerException, IllegalArgumentException, IndexOutOfBoundsException). Use checked exceptions for conditions callers can reasonably recover from; use unchecked for bugs and invalid state that indicate a programming error.",
+            "What is exception chaining and why is it important?:::Exception chaining preserves the original cause when wrapping exceptions. throw new ServiceException(\"Failed\", originalException) stores the original as the cause. Without chaining, you lose the root cause stack trace — debugging becomes impossible. Always pass the original exception as the cause parameter when wrapping: new RuntimeException(\"message\", cause). Retrieve with getCause(). This is especially critical when converting checked exceptions to unchecked at architectural boundaries.",
+            "What does try-with-resources do and why is it preferred over finally?:::try-with-resources automatically calls close() on any AutoCloseable declared in the try() header, even if an exception occurs. It handles the edge case of suppressed exceptions — if both the try body and close() throw, the close() exception is attached as a suppressed exception (getSuppressed()) rather than silently discarding the primary exception. The finally block has a subtle bug: if finally throws, it replaces the original exception, losing the root cause. try-with-resources eliminates this class of bugs entirely."
+          ],
+          "successCriteria": "Can design a proper exception hierarchy, use try-with-resources correctly, chain exceptions, and identify and fix common exception anti-patterns."
+        },
+        {
+          "sessionNumber": 5,
+          "title": "Java 8+ Streams & Lambdas — Functional Interfaces, Stream Pipeline, Collectors",
+          "content": "Streams enable declarative data processing pipelines.\n\n```java\nList<Employee> emps = getEmployees();\n\n// Pipeline: source -> intermediate ops -> terminal op\ndouble avgSalary = emps.stream()\n  .filter(e -> e.getDept().equals(\"Eng\"))\n  .mapToDouble(Employee::getSalary)\n  .average()\n  .orElse(0.0);\n\n// Collectors\nMap<String, List<Employee>> byDept =\n  emps.stream()\n    .collect(Collectors.groupingBy(Employee::getDept));\n\nMap<String, Double> avgByDept =\n  emps.stream()\n    .collect(Collectors.groupingBy(\n      Employee::getDept,\n      Collectors.averagingDouble(Employee::getSalary)));\n\n// FlatMap\nList<String> words = sentences.stream()\n  .flatMap(s -> Arrays.stream(s.split(\" \")))\n  .distinct().sorted().collect(Collectors.toList());\n\n// Functional interfaces\nFunction<String,Integer> len = String::length;\nPredicate<String> notEmpty = s -> !s.isEmpty();\nBiFunction<Integer,Integer,Integer> add = Integer::sum;\n```",
+          "objectives": [
+            "Build stream pipelines with filter, map, flatMap, sorted, distinct, limit",
+            "Use terminal operations: collect, reduce, count, findFirst, anyMatch",
+            "Apply Collectors.groupingBy, partitioningBy, joining, toMap",
+            "Write and compose functional interfaces: Function, Predicate, Consumer, Supplier"
+          ],
+          "activities": [
+            {
+              "description": "Given a list of 100 Employee objects (name, dept, salary, age), write Streams to: (1) top-5 earners, (2) average salary per department, (3) count per dept of employees earning above median, (4) CSV string of names sorted by salary desc.",
+              "durationMinutes": 35
+            },
+            {
+              "description": "Implement a generic pipeline builder using Function composition: Function<T,R> andThen, compose. Build a text processing pipeline: trim -> lowercase -> remove punctuation -> split words -> count frequency.",
+              "durationMinutes": 20
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between intermediate and terminal stream operations?:::Intermediate operations (filter, map, flatMap, sorted, distinct, peek, limit, skip) are lazy — they return a new Stream and do not execute until a terminal operation is called. They build up a pipeline description. Terminal operations (collect, forEach, reduce, count, findFirst, anyMatch, min, max) are eager — they trigger the pipeline execution and produce a result or side effect. A stream can only be consumed once; reuse the source collection to create a new stream.",
+            "What is the difference between map and flatMap?:::map applies a function to each element, producing one output element per input — the result is Stream<R>. If the function returns a List, you get Stream<List<R>> (nested). flatMap applies a function that returns a Stream for each element, then flattens all those streams into a single Stream<R>. Use flatMap when each element maps to zero-or-more results: sentences.stream().flatMap(s -> Arrays.stream(s.split(\" \"))) produces a flat stream of all words.",
+            "How does Collectors.groupingBy work? Give an example.:::groupingBy(classifier) partitions stream elements into a Map<K, List<V>> where K is the result of applying classifier to each element. Example: employees.stream().collect(groupingBy(Employee::getDept)) produces Map<String, List<Employee>>. The downstream collector (second arg) transforms the grouped lists: groupingBy(Employee::getDept, averagingDouble(Employee::getSalary)) produces Map<String, Double>. Other downstreams: counting(), joining(\", \"), mapping(), toSet()."
+          ],
+          "successCriteria": "Can build complex stream pipelines, use all major collectors, compose functional interfaces, and explain lazy evaluation and short-circuit operations."
+        },
+        {
+          "sessionNumber": 6,
+          "title": "Multithreading & Concurrency — Thread, ExecutorService, Synchronization, CompletableFuture",
+          "content": "Java concurrency enables parallel execution but requires careful coordination.\n\n```java\n// Prefer ExecutorService over raw Thread\nExecutorService pool = Executors.newFixedThreadPool(4);\nFuture<Integer> future = pool.submit(() -> compute());\nint result = future.get(5, TimeUnit.SECONDS);\npool.shutdown();\n\n// synchronized — mutual exclusion\nclass SafeCounter {\n  private int count = 0;\n  synchronized void increment() { count++; }\n  synchronized int get() { return count; }\n}\n\n// AtomicInteger — lock-free for simple ops\nAtomicInteger counter = new AtomicInteger(0);\ncounter.incrementAndGet();\ncounter.compareAndSet(expected, newVal); // CAS\n\n// CompletableFuture — async composition\nCompletableFuture.supplyAsync(() -> fetchUser(id))\n  .thenApply(user -> enrich(user))\n  .thenAccept(u -> save(u))\n  .exceptionally(ex -> { log(ex); return null; });\n\n// volatile — visibility guarantee (no atomicity)\nvolatile boolean running = true;\n```\nDeadlock: threads hold locks and wait for each other. Prevention: always acquire locks in the same order.",
+          "objectives": [
+            "Use ExecutorService with fixed, cached, and scheduled thread pools",
+            "Apply synchronized, volatile, and atomic variables correctly",
+            "Compose async tasks with CompletableFuture: thenApply, thenCompose, allOf",
+            "Identify and prevent race conditions, deadlocks, and visibility issues"
+          ],
+          "activities": [
+            {
+              "description": "Implement a parallel word count: split a large text into N chunks, process each chunk in a separate thread using ExecutorService, merge results in a ConcurrentHashMap. Compare performance vs single-threaded approach.",
+              "durationMinutes": 35
+            },
+            {
+              "description": "Reproduce a deadlock with two threads and two locks. Then fix it by lock ordering. Next, demonstrate a visibility bug with a non-volatile flag and fix it with volatile.",
+              "durationMinutes": 25
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between synchronized, volatile, and AtomicInteger?:::synchronized ensures mutual exclusion (only one thread executes the block at a time) and establishes a happens-before relationship — it guarantees both visibility and atomicity. volatile guarantees visibility only: reads always come from main memory, writes flush to main memory, but compound operations (check-then-act, read-modify-write) are NOT atomic. AtomicInteger uses hardware CAS (compare-and-swap) instructions for lock-free atomic operations like incrementAndGet() and compareAndSet() — better performance than synchronized for single-variable operations.",
+            "What is a race condition and how do you prevent it?:::A race condition occurs when correctness depends on the relative timing of thread execution. Classic example: two threads both read count=5, both increment to 6, both write 6 — net effect is +1 instead of +2. Prevention: (1) synchronization — synchronized methods/blocks guarantee mutual exclusion, (2) atomic variables — AtomicInteger for single-variable operations, (3) immutability — immutable objects need no synchronization, (4) thread confinement — each thread owns its data exclusively, (5) concurrent collections — ConcurrentHashMap replaces synchronized maps.",
+            "What is a deadlock and how do you prevent it?:::A deadlock occurs when two or more threads are each waiting for a lock held by the other, creating a circular wait. Thread A holds Lock1, waits for Lock2. Thread B holds Lock2, waits for Lock1 — neither can proceed. Prevention strategies: (1) lock ordering — always acquire multiple locks in the same fixed order across all threads, (2) lock timeout — use tryLock(timeout) and back off if acquisition fails, (3) avoid nested locks when possible, (4) use higher-level concurrency utilities (java.util.concurrent) that handle locking internally."
+          ],
+          "successCriteria": "Can implement thread-safe classes, use ExecutorService and CompletableFuture, identify concurrency bugs, and explain happens-before relationships."
+        },
+        {
+          "sessionNumber": 7,
+          "title": "JVM Internals & Memory — Heap, Stack, GC, ClassLoader, JIT",
+          "content": "Understanding the JVM enables writing performant Java and diagnosing production issues.\n\n```\nJVM Memory Layout:\n┌─────────────────────────────────────┐\n│  Heap: objects, class instances     │\n│  ├─ Young Gen (Eden + S0 + S1)      │\n│  └─ Old Gen (Tenured)               │\n├─────────────────────────────────────┤\n│  Stack (per thread): frames,        │\n│    local vars, operand stack        │\n├─────────────────────────────────────┤\n│  Metaspace: class metadata (JDK 8+) │\n│  Code Cache: JIT-compiled code      │\n└─────────────────────────────────────┘\n\n// GC Roots: local vars, static refs, JNI refs\n// Reachable from roots = alive; else eligible for GC\n\n// Tune GC flags:\n// -Xms512m -Xmx2g          heap bounds\n// -XX:+UseG1GC             G1 garbage collector\n// -XX:MaxGCPauseMillis=100 target pause\n// -XX:+PrintGCDetails      GC logging\n\n// ClassLoader hierarchy:\n// Bootstrap -> Platform -> Application -> Custom\n```\nJIT compiles hot paths to native code. Profile-guided: interpret first, then compile methods called >10k times.",
+          "objectives": [
+            "Describe JVM memory regions: heap generations, stack, metaspace",
+            "Explain GC reachability, generational hypothesis, and G1 GC phases",
+            "Read a heap dump or GC log to diagnose memory leaks or long pauses",
+            "Understand ClassLoader delegation model and why it matters"
+          ],
+          "activities": [
+            {
+              "description": "Write a program that creates a memory leak (static list holding objects). Run with -Xmx128m. Observe OOM. Fix it. Then enable GC logging and analyze the output for young/old gen collection frequency.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Implement a custom ClassLoader that loads a .class file from a non-standard directory. Demonstrate class isolation: load the same class name from two loaders and show they are different Class objects.",
+              "durationMinutes": 25
+            }
+          ],
+          "reviewQuestions": [
+            "How does the JVM garbage collector decide what to collect?:::The GC uses reachability analysis starting from GC roots (local variables on thread stacks, static fields, JNI references). Objects reachable from any root are alive; all others are eligible for collection. The generational hypothesis states most objects die young — so the heap is divided into Young Gen (Eden + two Survivor spaces) and Old Gen. Minor GC collects Young Gen frequently (cheap). Major/Full GC collects Old Gen (expensive, longer pause). Objects that survive enough minor GCs are promoted to Old Gen.",
+            "What is the difference between stack and heap memory in Java?:::Stack memory is per-thread — it stores method call frames, local variables (primitives and references), and return addresses. It is automatically managed (frame pushed on call, popped on return), fast, and limited in size (StackOverflowError if exceeded). Heap memory is shared across all threads — it stores all object instances and arrays. It is managed by the GC. Primitives in local variables live on the stack; all new Object() instances live on the heap. The stack holds references (pointers) to heap objects, not the objects themselves.",
+            "What is the ClassLoader delegation model?:::When a ClassLoader is asked to load a class, it first delegates to its parent rather than loading it directly. The hierarchy is: Bootstrap (loads JDK core classes from rt.jar) -> Platform/Extension -> Application (loads classpath classes) -> Custom. A class is loaded by the highest-level loader that can find it. This prevents malicious code from shadowing core JDK classes (e.g., a custom java.lang.String cannot replace the real one because Bootstrap loads it first). Custom loaders can break delegation for plugin isolation or hot-reload scenarios."
+          ],
+          "successCriteria": "Can explain JVM memory layout, GC lifecycle, ClassLoader delegation, and diagnose memory and GC issues from logs or heap dumps."
+        },
+        {
+          "sessionNumber": 8,
+          "title": "String Handling & Immutability — String Pool, StringBuilder, intern(), Common Pitfalls",
+          "content": "String is the most-used Java class — knowing its internals prevents bugs and performance issues.\n\n```java\n// String is immutable — every operation creates new object\nString s = \"hello\";\ns.toUpperCase(); // returns new String, s unchanged\nString upper = s.toUpperCase(); // must assign\n\n// String pool: literals are interned automatically\nString a = \"java\"; // pool\nString b = \"java\"; // same pool object\nString c = new String(\"java\"); // heap (not pool)\nSystem.out.println(a == b); // true (same ref)\nSystem.out.println(a == c); // false (diff ref)\nSystem.out.println(a.equals(c)); // true (content)\nSystem.out.println(a == c.intern()); // true\n\n// StringBuilder for concatenation in loops\nStringBuilder sb = new StringBuilder();\nfor (String word : words) sb.append(word).append(' ');\nString result = sb.toString(); // O(n) total, not O(n^2)\n\n// Common methods\n\"hello world\".split(\" \");     // [\"hello\",\"world\"]\n\"  trim me  \".strip();        // \"trim me\" (Unicode-aware)\nString.join(\", \", list);      // \"a, b, c\"\nString.format(\"%s=%d\", k, v); // formatted\n```",
+          "objectives": [
+            "Explain String immutability and the String pool",
+            "Use == vs equals() correctly for String comparison",
+            "Use StringBuilder for efficient string construction in loops",
+            "Apply common String methods: split, join, strip, format, contains, replace"
+          ],
+          "activities": [
+            {
+              "description": "Benchmark String concatenation in a loop (+=) vs StringBuilder vs String.join for 10k iterations. Measure time with System.nanoTime(). Explain results in terms of object creation.",
+              "durationMinutes": 25
+            },
+            {
+              "description": "Implement reverseWords(String s) that reverses word order without using split (use two-pointer technique on char array). Then implement isPalindrome(String s) ignoring spaces and case.",
+              "durationMinutes": 25
+            }
+          ],
+          "reviewQuestions": [
+            "Why is String immutable in Java and what are the benefits?:::String immutability is a deliberate design decision. Benefits: (1) String pool — immutable strings can be safely shared and cached in the pool, saving memory, (2) thread safety — immutable objects need no synchronization, (3) security — Strings used as class names, file paths, and network connections cannot be mutated after validation, (4) hashCode caching — String caches its hash so HashMap lookups are fast after the first computation. The trade-off is that modifications create new objects — use StringBuilder when concatenating in loops.",
+            "What is the String pool and how does intern() work?:::The String pool (string intern table) is a JVM-level cache of String literals stored in the heap (Metaspace-adjacent area since JDK 7). When you write \"hello\", the JVM checks the pool — if the String exists, it returns the same reference; otherwise it creates one and adds it to the pool. new String(\"hello\") always creates a new heap object bypassing the pool. intern() checks the pool for a string equal to the receiver and returns the pool reference — useful for reducing memory when you have many duplicate strings, but overuse wastes PermGen/Metaspace.",
+            "When should you use String, StringBuilder, and StringBuffer?:::String: when the value is fixed or modified infrequently — leverage immutability and pool. StringBuilder: when building strings in loops or constructing complex strings incrementally — mutable, not thread-safe, fast. StringBuffer: same API as StringBuilder but all methods are synchronized — thread-safe but slower. In practice, StringBuffer is rarely needed; prefer StringBuilder and synchronize at a higher level if needed. The + operator compiles to StringBuilder for two-operand expressions but creates a new StringBuilder per iteration in a loop — always use StringBuilder.append() in loops."
+          ],
+          "successCriteria": "Can explain String immutability and pool, use StringBuilder correctly in all scenarios, avoid == for content comparison, and implement String manipulation algorithms efficiently."
+        },
+        {
+          "sessionNumber": 9,
+          "title": "I/O & Serialization — Streams, NIO, Files API, Object Serialization",
+          "content": "Java I/O evolved from blocking streams to NIO channels and the modern Files API.\n\n```java\n// Modern Files API (Java 11+) — preferred\nPath path = Path.of(\"/data/input.txt\");\nString content = Files.readString(path);\nList<String> lines = Files.readAllLines(path);\nFiles.writeString(Path.of(\"out.txt\"), content);\n\n// Buffered streams for large files\ntry (var reader = new BufferedReader(\n       new FileReader(\"large.csv\"))) {\n  String line;\n  while ((line = reader.readLine()) != null)\n    process(line);\n}\n\n// NIO2: walk directory tree\nFiles.walk(Path.of(\"/src\"))\n  .filter(p -> p.toString().endsWith(\".java\"))\n  .forEach(System.out::println);\n\n// Serialization\nclass User implements Serializable {\n  private static final long serialVersionUID = 1L;\n  String name; transient String password; // transient = skip\n}\n// Write\ntry (var oos = new ObjectOutputStream(\n       new FileOutputStream(\"user.ser\"))) {\n  oos.writeObject(new User(\"Alice\"));\n}\n```\nPrefer JSON serialization (Jackson/Gson) over Java serialization for cross-system data exchange.",
+          "objectives": [
+            "Use Files API for reading, writing, and walking directory trees",
+            "Apply buffered streams correctly for large file processing",
+            "Implement and control Java object serialization with serialVersionUID and transient",
+            "Explain the difference between byte streams and character streams"
+          ],
+          "activities": [
+            {
+              "description": "Build a CSV processor: read a large CSV with BufferedReader, parse each line into a POJO, filter rows by a predicate, and write results to a new CSV with BufferedWriter. Use try-with-resources throughout.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Serialize a User object with sensitive fields to a file. Demonstrate that transient fields are not serialized. Deserialize and verify. Then change serialVersionUID and show what happens when you try to deserialize the old file.",
+              "durationMinutes": 20
+            }
+          ],
+          "reviewQuestions": [
+            "What is the difference between byte streams and character streams in Java I/O?:::Byte streams (InputStream, OutputStream and subclasses like FileInputStream, BufferedInputStream) handle raw bytes — use for binary data: images, audio, serialized objects. Character streams (Reader, Writer and subclasses like FileReader, BufferedReader) handle characters with encoding awareness — use for text data. FileReader wraps FileInputStream with the default charset; specify charset explicitly with InputStreamReader(stream, StandardCharsets.UTF_8) to avoid platform-dependent behavior. Always use character streams for text, byte streams for binary.",
+            "What is serialVersionUID and what happens if it changes?:::serialVersionUID is a version stamp for a Serializable class. When you serialize an object, the UID is written to the stream. When deserializing, Java checks that the UID in the stream matches the class's current UID. If they differ, an InvalidClassException is thrown. If you don't declare it, Java generates one from the class structure — any change (adding a field, method) changes the generated UID and breaks deserialization of old data. Always declare it explicitly: private static final long serialVersionUID = 1L; and increment it when you make incompatible changes.",
+            "What is NIO and how does it differ from classic I/O?:::Classic java.io uses blocking streams — threads block waiting for data. java.nio (New I/O, Java 1.4) introduces Channels (bidirectional, can be non-blocking), Buffers (fixed-size typed arrays), and Selectors (single thread monitors multiple channels). NIO2 (Java 7) added the Path/Files API and async file I/O (AsynchronousFileChannel). Use the Files API (NIO2) for most file operations — it is cleaner and more powerful than File. Use NIO channels/selectors for network servers handling thousands of concurrent connections without one thread per connection."
+          ],
+          "successCriteria": "Can process files with correct stream/reader choice, handle serialization including versioning, use Files API for directory operations, and explain when to use NIO vs classic I/O."
+        },
+        {
+          "sessionNumber": 10,
+          "title": "Common Interview Patterns — equals/hashCode, Comparable, Immutable Classes, Builder Pattern",
+          "content": "These patterns appear constantly in Java interviews — knowing them cold is mandatory.\n\n```java\n// equals + hashCode contract: equal objects must have equal hashes\nclass Point {\n  final int x, y;\n  Point(int x, int y) { this.x = x; this.y = y; }\n\n  @Override public boolean equals(Object o) {\n    if (this == o) return true;\n    if (!(o instanceof Point p)) return false;\n    return x == p.x && y == p.y;\n  }\n  @Override public int hashCode() {\n    return Objects.hash(x, y);\n  }\n}\n\n// Comparable for natural ordering\nclass Employee implements Comparable<Employee> {\n  String name; double salary;\n  public int compareTo(Employee other) {\n    return Double.compare(this.salary, other.salary);\n  }\n}\nlist.sort(Comparator.comparing(Employee::getName)\n  .thenComparingDouble(Employee::getSalary).reversed());\n\n// Immutable class recipe\nfinal class Money {\n  private final long cents;\n  private final String currency;\n  Money(long cents, String currency) {\n    this.cents = cents;\n    this.currency = Objects.requireNonNull(currency);\n  }\n  Money add(Money other) { return new Money(cents+other.cents, currency); }\n}\n\n// Builder pattern\nclass Config { /* use Lombok @Builder or implement manually */ }\n```",
+          "objectives": [
+            "Implement a correct equals/hashCode pair satisfying the contract",
+            "Implement Comparable and use Comparator chaining for multi-field sorting",
+            "Design an immutable class following all five rules",
+            "Implement the Builder pattern for classes with many optional parameters"
+          ],
+          "activities": [
+            {
+              "description": "Implement a Product class with id (String), name, price (BigDecimal), and category. Add correct equals/hashCode (id-based), implement Comparable (by price), and add a Comparator for multi-field sort. Verify with HashSet deduplication and Collections.sort.",
+              "durationMinutes": 30
+            },
+            {
+              "description": "Design an immutable HttpRequest class (url, method, headers Map, body byte[]). Apply all immutability rules: final class, final fields, defensive copies on construction and getters, no setters. Write a Builder for it.",
+              "durationMinutes": 25
+            }
+          ],
+          "reviewQuestions": [
+            "What is the contract between equals() and hashCode()?:::The contract has two rules: (1) if a.equals(b) is true, then a.hashCode() must equal b.hashCode(); (2) if a.equals(b) is false, hash codes may or may not be equal (collisions are allowed). Violating rule 1 breaks HashMap and HashSet — objects that are logically equal will be stored in different buckets and never found by get(). Always override both methods together. Use Objects.hash(field1, field2) for a consistent implementation. The reverse does NOT hold — equal hash codes do not imply equal objects.",
+            "What are the five rules for creating an immutable class in Java?:::(1) Declare the class final — prevents subclasses from adding mutable state. (2) Make all fields private and final — ensures fields are set once in the constructor. (3) Do not provide setter methods. (4) Make defensive copies of mutable objects passed to the constructor — so callers cannot mutate internal state via their reference. (5) Return defensive copies of mutable fields from getters — so callers cannot mutate internal state via returned references. Immutable classes are inherently thread-safe and can be freely shared.",
+            "When would you use Comparable vs Comparator?:::Comparable defines the natural ordering of a class — implement it when there is a single obvious ordering (e.g., String alphabetical, Integer numerical). compareTo is part of the class itself. Comparator defines an external ordering — implement it when you need multiple orderings (sort by name, then by salary, then by hire date), when you cannot modify the class (third-party), or when the ordering is context-specific. Use Comparator.comparing(key).thenComparing(key2).reversed() for readable multi-field sort chains without implementing the compareTo method."
+          ],
+          "successCriteria": "Can implement correct equals/hashCode, Comparable, immutable classes, and Builder pattern — and explain the contracts and design rationale for each."
+        }
+      ]
+    },
+    "quizBank": [
+      {
+        "id": "jc-q1",
+        "question": "What is the output of: String a = \"hello\"; String b = \"hello\"; System.out.println(a == b);",
+        "options": ["true", "false", "Compilation error", "Runtime exception"],
+        "correctIndex": 0,
+        "explanation": "String literals are stored in the String pool. Both 'a' and 'b' point to the same interned String object in the pool, so == (reference equality) returns true. If either were created with 'new String(\"hello\")', the result would be false since 'new' bypasses the pool and creates a new heap object."
+      },
+      {
+        "id": "jc-q2",
+        "question": "Which collection provides O(1) average-case time for get(), put(), and containsKey()?",
+        "options": ["TreeMap", "LinkedHashMap", "HashMap", "Hashtable"],
+        "correctIndex": 2,
+        "explanation": "HashMap uses hashing — computations are O(1) average for get, put, and containsKey (assuming low collision rate and good hash distribution). TreeMap is O(log n) as it uses a Red-Black tree. LinkedHashMap is also O(1) average but slightly slower due to maintaining insertion-order linked list. Hashtable is synchronized but also O(1) average — however it's legacy and slower than HashMap due to full synchronization on every operation."
+      },
+      {
+        "id": "jc-q3",
+        "question": "What happens when you call stream() operations without a terminal operation?",
+        "options": ["The pipeline executes immediately", "Nothing executes — streams are lazy", "A compilation error occurs", "An IllegalStateException is thrown"],
+        "correctIndex": 1,
+        "explanation": "Stream intermediate operations (filter, map, sorted, etc.) are lazy — they build a pipeline description but do not execute any computation. Execution only begins when a terminal operation (collect, forEach, count, findFirst, etc.) is called. This enables short-circuiting optimizations: for example, findFirst() on a filtered stream stops processing as soon as one match is found, rather than filtering the entire collection."
+      },
+      {
+        "id": "jc-q4",
+        "question": "Which keyword ensures a field is NOT serialized when using Java object serialization?",
+        "options": ["volatile", "transient", "static", "abstract"],
+        "correctIndex": 1,
+        "explanation": "The transient keyword marks a field to be excluded from Java serialization. When an object is written to an ObjectOutputStream, transient fields are skipped — they will have their default value (null for objects, 0 for numbers, false for booleans) when deserialized. Use it for sensitive data (passwords), derived/cached values, or non-serializable dependencies. Note: static fields are also not serialized (they belong to the class, not the instance), but transient is the explicit mechanism for instance fields."
+      },
+      {
+        "id": "jc-q5",
+        "question": "What is the primary difference between synchronized methods and volatile fields?",
+        "options": [
+          "synchronized provides visibility only; volatile provides atomicity",
+          "volatile provides visibility only; synchronized provides both visibility and atomicity",
+          "They are equivalent — both provide full thread safety",
+          "volatile is faster and provides the same guarantees as synchronized"
+        ],
+        "correctIndex": 1,
+        "explanation": "volatile guarantees visibility only: reads always get the latest written value from main memory, and writes are immediately flushed. But it does NOT provide atomicity — a volatile int++ is still a read-modify-write that can race. synchronized provides both: mutual exclusion (one thread at a time) and a happens-before guarantee ensuring all prior writes are visible to threads that subsequently acquire the same lock. Use volatile for simple flags (boolean running), use synchronized (or AtomicInteger) for compound operations."
+      },
+      {
+        "id": "jc-q6",
+        "question": "What does the 'final' keyword mean when applied to a class, a method, and a variable respectively?",
+        "options": [
+          "class=cannot instantiate, method=cannot call, variable=cannot read",
+          "class=cannot extend, method=cannot override, variable=cannot reassign",
+          "class=cannot serialize, method=cannot override, variable=cannot reassign",
+          "class=cannot extend, method=cannot call, variable=cannot reassign"
+        ],
+        "correctIndex": 1,
+        "explanation": "final has three distinct meanings: (1) final class — cannot be subclassed (e.g., String, Integer). (2) final method — cannot be overridden in subclasses, but the class itself can still be extended for non-final methods. (3) final variable — the binding cannot be reassigned after initialization (primitive: value locked; reference: pointer locked, but the object it points to can still be mutated). These are compile-time enforced constraints."
+      },
+      {
+        "id": "jc-q7",
+        "question": "Which of these correctly implements a checked exception?",
+        "options": [
+          "class MyEx extends RuntimeException { }",
+          "class MyEx extends Exception { }",
+          "class MyEx extends Error { }",
+          "class MyEx extends Throwable { }"
+        ],
+        "correctIndex": 1,
+        "explanation": "Checked exceptions must extend Exception but NOT RuntimeException. The compiler enforces that any method throwing a checked exception either catches it or declares it with 'throws'. RuntimeException and its subclasses are unchecked — no compiler enforcement. Error subclasses are for JVM-level failures (OOM, StackOverflow) and should not be caught or thrown by application code. Directly extending Throwable is possible but unconventional and treated as checked."
+      },
+      {
+        "id": "jc-q8",
+        "question": "What is the output of: List<Integer> list = Arrays.asList(1, 2, 3); list.add(4);",
+        "options": ["[1, 2, 3, 4]", "UnsupportedOperationException", "IndexOutOfBoundsException", "NullPointerException"],
+        "correctIndex": 1,
+        "explanation": "Arrays.asList() returns a fixed-size List backed by the original array. You can call set() to modify existing elements, but add() and remove() throw UnsupportedOperationException because the underlying array cannot change size. To get a mutable copy, use: new ArrayList<>(Arrays.asList(1, 2, 3)) or List.of() (Java 9+, also immutable). List.copyOf() (Java 10+) creates an unmodifiable copy."
+      },
+      {
+        "id": "jc-q9",
+        "question": "In Java generics, what does 'List<? extends Number>' allow you to do with the list?",
+        "options": [
+          "Add Numbers and Integer objects; read as Number",
+          "Read elements as Number; cannot add (except null)",
+          "Add any Number subtype; read as Object only",
+          "Neither read nor write — wildcard lists are completely locked"
+        ],
+        "correctIndex": 1,
+        "explanation": "List<? extends Number> is an upper-bounded wildcard — it says the list holds some specific subtype of Number, but you don't know which. You can safely READ elements as Number (since every element IS-A Number). You cannot ADD anything (except null) because the compiler doesn't know the exact type — you could have a List<Integer> and trying to add a Double would corrupt it. This is the PECS principle: Producer Extends — use when the list produces/provides values to you."
+      },
+      {
+        "id": "jc-q10",
+        "question": "What is the role of Young Generation in JVM garbage collection?",
+        "options": [
+          "Stores all objects created in the last 24 hours",
+          "Stores newly created objects; frequently collected with short pauses",
+          "Stores static fields and class metadata",
+          "Stores objects shared between threads"
+        ],
+        "correctIndex": 1,
+        "explanation": "The Young Generation (also called New Generation) stores newly allocated objects and is collected frequently via Minor GC. It consists of Eden (where new objects are born) and two Survivor spaces (S0 and S1). Most objects die young (generational hypothesis) — Minor GC is fast because it only processes a small region. Objects that survive a threshold number of Minor GCs are promoted to the Old Generation (Tenured), which is collected less frequently via Major GC and tends to cause longer pauses."
+      }
+    ]
+  }
+]
