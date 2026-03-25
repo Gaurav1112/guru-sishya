@@ -187,24 +187,21 @@ export function useSpeechRecognition(
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalText = "";
       let interimText = "";
 
-      for (let i = 0; i < event.results.length; i++) {
+      // Only process NEW results from resultIndex to avoid duplicating
+      // already-finalized text
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalText += result[0].transcript;
+          // Append newly finalized text to the running final transcript
+          finalTranscriptRef.current += result[0].transcript + " ";
         } else {
           interimText += result[0].transcript;
         }
       }
 
-      // Accumulate final transcript
-      if (finalText) {
-        finalTranscriptRef.current = finalText;
-      }
-
-      const combined = (finalTranscriptRef.current + " " + interimText).trim();
+      const combined = (finalTranscriptRef.current + interimText).trim();
       setTranscript(combined);
       setInterimTranscript(interimText);
     };
