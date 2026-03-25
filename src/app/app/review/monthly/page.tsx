@@ -17,7 +17,7 @@ import type { QuizBankQuestion } from "@/lib/content/loader";
 
 const MONTHLY_DURATION_SECONDS = 60 * 60; // 60 minutes
 const MONTHLY_XP = 100;
-const MONTHLY_COINS = 50;
+const MONTHLY_COINS = 25;
 const QUESTION_COUNT = 40;
 
 // ── Certificate card ──────────────────────────────────────────────────────────

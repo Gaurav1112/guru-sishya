@@ -93,12 +93,12 @@ export function calculateQuizResult(
     }
   }
 
-  // Coins: 15 if all answers were perfect in a 10+ question session, else 5 for any perfect
+  // Coins: 2 for attempting the quiz (base), +5 bonus if 100% score (all perfect)
   const allPerfect =
     perfectCount > 0 &&
-    answers.length >= 10 &&
+    answers.length >= 1 &&
     perfectCount === answers.length;
-  const coins = allPerfect ? 15 : perfectCount > 0 ? 5 : 0;
+  const coins = allPerfect ? 7 : 2; // 2 base + 5 bonus = 7 for perfect; 2 for any attempt
 
   return {
     totalScore,

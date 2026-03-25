@@ -22,7 +22,7 @@ const SHOP_ITEMS: ShopItem[] = [
     name: "Streak Freeze",
     description: "Protect your streak for one missed day",
     effectDetail: "Auto-applied when you miss a day. One freeze = one day of protection.",
-    cost: 50,
+    cost: 75,
     icon: "🧊",
   },
   {
@@ -30,7 +30,7 @@ const SHOP_ITEMS: ShopItem[] = [
     name: "Quiz Hint Token",
     description: "Remove one wrong answer in quizzes",
     effectDetail: "During any MCQ question, tap 'Use hint token' to eliminate one wrong option.",
-    cost: 30,
+    cost: 40,
     icon: "💡",
   },
   {
@@ -38,7 +38,7 @@ const SHOP_ITEMS: ShopItem[] = [
     name: "Double XP Boost",
     description: "1.5x XP for the next hour",
     effectDetail: "Applies 1.5× multiplier to all XP earned for 60 minutes after purchase.",
-    cost: 75,
+    cost: 100,
     icon: "⚡",
   },
   {
@@ -46,7 +46,7 @@ const SHOP_ITEMS: ShopItem[] = [
     name: "Streak Repair",
     description: "Restore a broken streak within 24 hours",
     effectDetail: "Resets a recently broken streak. Must be used within 24 hours of breaking it.",
-    cost: 200,
+    cost: 250,
     icon: "🔧",
   },
 ];
@@ -219,10 +219,12 @@ export default function ShopPage() {
           How to Earn Coins
         </h2>
         <ul className="space-y-1 text-sm text-muted-foreground">
-          <li>Maintain your daily streak (+1 coin/day)</li>
-          <li>Complete quizzes and Feynman sessions</li>
-          <li>Unlock badges and hit streak milestones</li>
-          <li>Reach level-up thresholds</li>
+          <li>Complete a quiz: +2 coins (base) · +5 bonus for 100% score</li>
+          <li>Complete a plan session: +1 coin</li>
+          <li>Daily challenge: +3 coins</li>
+          <li>Maintain your daily streak: +1 coin/day</li>
+          <li>Weekly test: +10 coins · Monthly test: +25 coins</li>
+          <li>Streak milestones: +15 coins (7 days), +50 coins (30 days)</li>
         </ul>
       </div>
     </div>

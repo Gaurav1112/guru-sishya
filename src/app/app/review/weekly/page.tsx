@@ -11,7 +11,7 @@ import type { QuizBankQuestion } from "@/lib/content/loader";
 
 const WEEKLY_DURATION_SECONDS = 30 * 60; // 30 minutes
 const WEEKLY_XP = 50;
-const WEEKLY_COINS = 20;
+const WEEKLY_COINS = 10;
 const QUESTION_COUNT = 20;
 
 export default function WeeklyTestPage() {

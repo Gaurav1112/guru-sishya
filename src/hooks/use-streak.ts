@@ -86,6 +86,15 @@ export function useStreak() {
       if (milestone.freeze && milestone.freeze > 0) {
         useStore.setState((s) => ({ streakFreezes: s.streakFreezes + (milestone.freeze ?? 0) }));
       }
+      // Coin rewards for streak milestones
+      const streakDay = result.newState.currentStreak;
+      if (streakDay === 7) {
+        addCoins(15, "streak_milestone_7");
+      } else if (streakDay === 30) {
+        addCoins(50, "streak_milestone_30");
+      } else if (streakDay === 100) {
+        addCoins(100, "streak_milestone_100");
+      }
       queueCelebration({
         type: "streak_milestone",
         data: {

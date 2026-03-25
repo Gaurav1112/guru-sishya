@@ -146,8 +146,9 @@ export function DailyChallengeWidget() {
 
     await submitDailyChallenge(challenge.id, selected, score);
 
-    // Award XP
+    // Award XP + coins (3 coins for completing the daily challenge)
     addXP(DAILY_CHALLENGE_ATTEMPT_XP + (isCorrect ? DAILY_CHALLENGE_CORRECT_XP : 0));
+    useStore.getState().addCoins(3, "daily_challenge");
 
     // Refresh from DB
     const updated = await db.dailyChallenges.get(challenge.id);
