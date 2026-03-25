@@ -1,4 +1,5 @@
 import { type NextRequest } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * API route proxy for AI providers that don't support CORS.
@@ -6,6 +7,14 @@ import { type NextRequest } from "next/server";
  * This eliminates ALL CORS issues since server-to-server calls have no CORS.
  */
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!checkRateLimit(`ai:${ip}`, 20, 60000)) {
+    return Response.json(
+      { error: "Rate limit exceeded. Try again in a minute." },
+      { status: 429 }
+    );
+  }
+
   const body = await request.json();
   const { provider, apiKey, endpoint, ...payload } = body as {
     provider: string;

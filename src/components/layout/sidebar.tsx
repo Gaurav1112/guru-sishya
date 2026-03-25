@@ -49,6 +49,7 @@ const navItems = [
   { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
   { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
   { href: "/app/revision", label: "Revision", icon: "📖" },
+  { href: "/app/notes", label: "My Notes", icon: "📝" },
   { href: "/app/topics", label: "Topics", icon: "📚" },
   { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
   { href: "/app/playground", label: "Playground", icon: "⚡" },

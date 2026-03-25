@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Check, Sparkles, Crown, Zap, Infinity as InfinityIcon, LogIn } from "lucide-react";
+import { Check, Sparkles, Crown, Zap, Infinity as InfinityIcon, LogIn, X } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
@@ -75,6 +75,81 @@ const PLANS: {
     badge: "Best Value",
   },
 ];
+
+// ── Competitor comparison data ────────────────────────────────────────────────
+
+const COMPARISON = [
+  {
+    feature: "Price",
+    gs: "₹149/mo",
+    lc: "₹2,917/mo",
+    ae: "₹1,660/mo",
+    nc: "₹991/mo",
+    gsHighlight: true,
+  },
+  {
+    feature: "Interview Questions",
+    gs: "710+ with answers",
+    lc: "2800+ (no answers)",
+    ae: "160",
+    nc: "150",
+    gsHighlight: true,
+  },
+  {
+    feature: "System Design",
+    gs: "32 topics",
+    lc: "Premium only",
+    ae: "Included",
+    nc: "Partial",
+    gsHighlight: false,
+  },
+  {
+    feature: "Behavioral (STAR)",
+    gs: "58 questions",
+    lc: "No",
+    ae: "No",
+    nc: "No",
+    gsHighlight: true,
+  },
+  {
+    feature: "Works Offline",
+    gs: "Yes",
+    lc: "No",
+    ae: "No",
+    nc: "No",
+    gsHighlight: true,
+  },
+  {
+    feature: "Spaced Repetition",
+    gs: "Built-in",
+    lc: "No",
+    ae: "No",
+    nc: "No",
+    gsHighlight: true,
+  },
+];
+
+function CompetitorCell({ value }: { value: string }) {
+  const isYes = value === "Yes" || value === "Built-in" || value === "Included";
+  const isNo = value === "No" || value === "Premium only" || value === "Partial";
+  return (
+    <td className="px-4 py-3 text-sm text-center">
+      {isYes ? (
+        <span className="inline-flex items-center gap-1 text-teal font-medium">
+          <Check className="h-4 w-4 flex-shrink-0" />
+          {value}
+        </span>
+      ) : isNo ? (
+        <span className="inline-flex items-center gap-1 text-muted-foreground/50">
+          <X className="h-3 w-3 flex-shrink-0" />
+          {value}
+        </span>
+      ) : (
+        <span className="text-muted-foreground">{value}</span>
+      )}
+    </td>
+  );
+}
 
 // ── Feature comparison data ───────────────────────────────────────────────────
 
@@ -275,11 +350,10 @@ export default function PricingPage() {
           Guru Sishya Pro
         </p>
         <h1 className="font-heading text-3xl sm:text-4xl font-bold">
-          Unlock Your Full Potential
+          Stop Guessing. Start Acing Interviews.
         </h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Everything you need to crack software engineering interviews — unlimited access to all
-          lessons, answers, and advanced features.
+          Join 1,000+ engineers who used Guru Sishya to land offers at Google, Amazon, and Meta — with 828 answers, 1,292 quiz questions, and 315 lessons across 53 topics.
         </p>
 
         {isActive && (
@@ -397,6 +471,13 @@ export default function PricingPage() {
         ))}
       </div>
 
+      {/* Money-back guarantee */}
+      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+        <span>🛡️</span>
+        <span className="font-medium text-foreground/80">7-day money-back guarantee</span>
+        <span>— no questions asked</span>
+      </div>
+
       {/* Free trial CTA */}
       {!isActive && (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-teal/30 bg-teal/5 px-6 py-8 text-center">
@@ -489,6 +570,58 @@ export default function PricingPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* Competitor comparison table */}
+      <section>
+        <h2 className="font-heading text-xl font-semibold mb-2 text-center">
+          Why Guru Sishya?
+        </h2>
+        <p className="text-center text-sm text-muted-foreground mb-6">
+          More content, better answers, unique features — at a fraction of the cost
+        </p>
+        <div className="overflow-x-auto rounded-2xl border border-border/60">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border/60 bg-surface">
+                <th className="px-4 py-4 text-left text-sm font-semibold text-muted-foreground">
+                  Feature
+                </th>
+                <th className="px-4 py-4 text-center text-sm font-bold text-saffron bg-saffron/5">
+                  Guru Sishya
+                </th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                  LeetCode Premium
+                </th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                  AlgoExpert
+                </th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                  NeetCode Pro
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON.map((row, i) => (
+                <tr
+                  key={row.feature}
+                  className={`border-b border-border/40 last:border-0 ${i % 2 === 0 ? "bg-background" : "bg-surface/30"}`}
+                >
+                  <td className="px-4 py-3 text-sm font-medium">{row.feature}</td>
+                  <td className={`px-4 py-3 text-sm text-center font-semibold bg-saffron/5 ${row.gsHighlight ? "text-saffron" : "text-foreground"}`}>
+                    {row.gs}
+                  </td>
+                  <CompetitorCell value={row.lc} />
+                  <CompetitorCell value={row.ae} />
+                  <CompetitorCell value={row.nc} />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-center text-xs text-muted-foreground/50">
+          Prices approximate as of March 2026. LeetCode, AlgoExpert, and NeetCode are independent products.
+        </p>
       </section>
 
       {/* Reassurance footer */}

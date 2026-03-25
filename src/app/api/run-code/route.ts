@@ -9,6 +9,7 @@
 // Compilation is slow (10–20 s); we allow up to 45 s.
 
 import { type NextRequest } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 interface WandboxRequest {
   compiler: string;
@@ -61,6 +62,14 @@ async function compileWithWandbox(
 
 export async function POST(request: NextRequest): Promise<Response> {
   const t0 = Date.now();
+
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  if (!checkRateLimit(`run-code:${ip}`, 20, 60000)) {
+    return Response.json(
+      { error: "Rate limit exceeded. Try again in a minute." },
+      { status: 429 }
+    );
+  }
 
   let body: { language?: string; code?: string };
   try {

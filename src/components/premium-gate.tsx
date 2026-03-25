@@ -20,40 +20,40 @@ export type PremiumFeature =
 
 const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: string }> = {
   "full-answers": {
-    title: "Full Interview Answers",
-    description: "Unlock all interview Q&A answers beyond the first 5.",
+    title: "823 More Answers Waiting",
+    description: "You've seen 5. Unlock all 828 detailed answers — including exact questions asked at Google, Amazon, and Meta.",
   },
   "full-sessions": {
-    title: "All Learning Sessions",
-    description: "Unlock all lesson sessions beyond the first 2 per topic.",
+    title: "Continue Your Learning Journey",
+    description: "You've completed the intro. Unlock all remaining sessions with code examples, diagrams, and interview tips.",
   },
   "star-answers": {
-    title: "All STAR Answers",
-    description: "Unlock all STAR method answers beyond the first 3.",
+    title: "STAR Answers for FAANG",
+    description: "See how top engineers structure their behavioral answers for Google, Amazon, Microsoft, Meta, Apple, and Netflix.",
   },
   "advanced-quiz": {
-    title: "Advanced Quiz Mode",
-    description: "Unlock hard difficulty questions and timed quiz challenges.",
+    title: "Ready for Hard Mode?",
+    description: "Unlock Hard difficulty questions and timed challenges that simulate real interview pressure.",
   },
   "ladder-advanced": {
-    title: "Full Learning Ladder",
-    description: "Unlock ladder levels 2–5 for deep mastery.",
+    title: "Climb to Expert Level",
+    description: "You've mastered the basics. Unlock levels 2-5 to prove deep mastery with graduation tests.",
   },
   "feynman": {
-    title: "Feynman Technique",
-    description: "Unlock the Feynman learning technique for deeper understanding.",
+    title: "Teach It to Learn It",
+    description: "The Feynman Technique helps you truly understand by explaining concepts back. Unlock interactive teaching sessions.",
   },
   "full-flashcards": {
-    title: "Unlimited Flashcards",
-    description: "Unlock all flashcards beyond the first 50.",
+    title: "2000+ Flashcards for Deep Retention",
+    description: "Unlock the full spaced repetition deck with SM-2 algorithm for long-term memory.",
   },
   "full-cheatsheets": {
-    title: "All Cheat Sheets",
-    description: "Upgrade to Pro to access all 56 cheat sheets.",
+    title: "Quick Reference for Every Topic",
+    description: "Access all 63+ cheat sheets — visual summaries with code snippets for last-minute revision.",
   },
   "mock-interview": {
-    title: "Unlimited Mock Interviews",
-    description: "Upgrade to Pro for unlimited interviews with 8 questions per session. Free plan: 1 interview per day.",
+    title: "Practice Like It's Real",
+    description: "AI-powered mock interviews with company-specific questions, voice input, and instant scoring.",
   },
 };
 
@@ -170,6 +170,14 @@ export function PremiumGate({ feature, children, overlay = true }: PremiumGatePr
             >
               {cta}
             </Link>
+            {!hadPremium && (
+              <Link
+                href="/app/pricing"
+                className="text-xs text-muted-foreground hover:text-saffron transition-colors"
+              >
+                or start 7-day free trial
+              </Link>
+            )}
           </div>
         </div>
       </div>

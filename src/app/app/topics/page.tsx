@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { loadAllContent, type TopicContent } from "@/lib/content/loader";
 import { TopicInput } from "@/components/topic-input";
@@ -172,6 +173,23 @@ function TopicCard({ content, index }: { content: TopicContent; index: number })
 
   const quizCount = content.quizBank?.length ?? 0;
   const planSessions = content.plan?.sessions?.length ?? 0;
+
+  // Real-time session progress from Dexie
+  const progress = useLiveQuery(async () => {
+    const topic = await db.topics.where("name").equalsIgnoreCase(content.topic).first();
+    if (!topic?.id) return null;
+    const plans = await db.learningPlans.where("topicId").equals(topic.id).toArray();
+    if (plans.length === 0) return null;
+    const planIds = plans.map((p) => p.id as number);
+    const sessions = await db.planSessions
+      .where("planId")
+      .anyOf(planIds)
+      .toArray();
+    const completed = sessions.filter((s) => s.completed).length;
+    if (completed === 0) return null;
+    return { completed, total: planSessions };
+  }, [content.topic, planSessions]);
+
   const hasCheatSheet = Boolean(content.cheatSheet);
   const hasResources = Array.isArray(content.resources)
     ? content.resources.length > 0
@@ -218,6 +236,21 @@ function TopicCard({ content, index }: { content: TopicContent; index: number })
       <p className="font-semibold text-sm leading-snug group-hover:text-foreground transition-colors">
         {loading ? "Opening..." : content.topic}
       </p>
+
+      {/* Session progress bar — only shown after the user has started */}
+      {progress && progress.total > 0 && (
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 h-1 rounded-full bg-saffron/15 overflow-hidden">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-saffron transition-all duration-500"
+              style={{ width: `${Math.min(100, (progress.completed / progress.total) * 100)}%` }}
+            />
+          </div>
+          <span className="text-[10px] font-medium tabular-nums text-saffron shrink-0">
+            {progress.completed}/{progress.total}
+          </span>
+        </div>
+      )}
 
       {/* Category badge */}
       <span
