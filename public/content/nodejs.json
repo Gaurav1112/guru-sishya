@@ -411,6 +411,148 @@
           "successCriteria": "Can write a production Dockerfile with multi-stage builds and a non-root user, configure PM2 in cluster mode, implement graceful shutdown with SIGTERM handling, and explain the difference between liveness and readiness probes."
         }
       ]
-    }
+    },
+    "quizBank": [
+      {
+        "question": "What is the correct order of Node.js event loop phases?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) timers → poll → check → pending callbacks",
+          "B) poll → timers → check → close callbacks",
+          "C) timers → pending callbacks → idle/prepare → poll → check → close callbacks",
+          "D) check → timers → poll → close callbacks"
+        ],
+        "correctAnswer": "C",
+        "explanation": "The Node.js event loop runs in a fixed order: timers (setTimeout/setInterval) → pending callbacks (deferred I/O errors) → idle/prepare (internal) → poll (I/O callbacks, blocking wait) → check (setImmediate) → close callbacks. process.nextTick() and Promise microtasks run between every phase transition."
+      },
+      {
+        "question": "What does non-blocking I/O mean in Node.js?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) I/O operations run on a separate CPU core",
+          "B) I/O operations are delegated to the OS/libuv thread pool, and the event loop continues processing other callbacks while waiting",
+          "C) I/O operations are batched and executed in bulk",
+          "D) I/O operations are performed synchronously but in a background process"
+        ],
+        "correctAnswer": "B",
+        "explanation": "Non-blocking I/O means Node.js delegates I/O (file reads, network calls) to libuv, which uses OS-level async syscalls or a thread pool. The event loop never stalls — it continues picking up other callbacks while waiting for I/O to complete. This enables high concurrency on a single thread."
+      },
+      {
+        "question": "In Express.js, what must middleware do to pass control to the next middleware in the stack?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) return true",
+          "B) call res.continue()",
+          "C) call next()",
+          "D) call req.next()"
+        ],
+        "correctAnswer": "C",
+        "explanation": "Express middleware functions receive (req, res, next). To pass control downstream, middleware must call next(). Calling next(err) skips to error-handling middleware. If neither next() nor a response method (res.send, res.json) is called, the request hangs. This is a common source of bugs — always call one or the other."
+      },
+      {
+        "question": "Which HTTP method and status code should a REST API use when a resource is successfully created?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) POST with 200 OK",
+          "B) PUT with 201 Created",
+          "C) POST with 201 Created",
+          "D) POST with 204 No Content"
+        ],
+        "correctAnswer": "C",
+        "explanation": "REST convention: POST to a collection endpoint creates a resource and returns 201 Created. The response body typically includes the created resource, and the Location header optionally points to the new resource URL. 200 OK is for successful GETs/updates. 204 No Content is for successful DELETE or updates with no response body."
+      },
+      {
+        "question": "In JWT authentication, where should the JWT secret key be stored in a Node.js application?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) Hardcoded in the source file for reliability",
+          "B) In a config.json file committed to the repository",
+          "C) In an environment variable loaded via .env (never committed)",
+          "D) In the JWT payload so it can be verified client-side"
+        ],
+        "correctAnswer": "C",
+        "explanation": "JWT secrets must be stored in environment variables (e.g., process.env.JWT_SECRET), loaded via .env files that are gitignored. Hardcoding secrets or committing them to version control is a critical security vulnerability. The secret must never appear in the JWT payload — the payload is base64-encoded and readable by anyone."
+      },
+      {
+        "question": "What is the key advantage of Node.js Readable Streams over reading an entire file with fs.readFile()?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Analyze",
+        "options": [
+          "A) Streams are faster because they use multiple threads",
+          "B) Streams process data in chunks, keeping memory usage constant regardless of file size",
+          "C) Streams automatically compress data during transfer",
+          "D) Streams skip the event loop for better performance"
+        ],
+        "correctAnswer": "B",
+        "explanation": "fs.readFile() loads the entire file into memory before processing — a 4 GB file uses 4 GB of RAM. Readable Streams process data in configurable chunks (default 64 KB), keeping memory usage nearly constant. This is why stream piping is essential for file uploads, video serving, and large data exports: the server stays responsive and memory-efficient."
+      },
+      {
+        "question": "What is the primary difference between WebSockets and Server-Sent Events (SSE)?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Analyze",
+        "options": [
+          "A) WebSockets are encrypted; SSE is not",
+          "B) SSE supports binary data; WebSockets do not",
+          "C) WebSockets are full-duplex (bidirectional); SSE is unidirectional (server to client only)",
+          "D) SSE requires a special server; WebSockets work over standard HTTP"
+        ],
+        "correctAnswer": "C",
+        "explanation": "WebSockets establish a persistent full-duplex TCP connection — both client and server can send messages at any time. SSE uses a long-lived HTTP connection for server-to-client push only; the client cannot send data over the same channel. Use WebSockets for chat/gaming/collaboration. Use SSE for dashboards, notifications, and log streaming where the client only listens."
+      },
+      {
+        "question": "Which security header prevents Cross-Site Scripting (XSS) attacks by controlling which resources a browser may load?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) X-Frame-Options",
+          "B) Strict-Transport-Security",
+          "C) Content-Security-Policy",
+          "D) X-Content-Type-Options"
+        ],
+        "correctAnswer": "C",
+        "explanation": "Content-Security-Policy (CSP) instructs the browser to only load scripts, styles, and other resources from explicitly whitelisted sources. This prevents XSS by blocking inline scripts and external untrusted scripts. In Node.js/Express, the helmet package sets CSP and other security headers. X-Frame-Options prevents clickjacking, HSTS enforces HTTPS, and X-Content-Type-Options prevents MIME sniffing."
+      },
+      {
+        "question": "What does PM2 cluster mode achieve compared to running a single Node.js process?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) It enables GPU acceleration for compute-heavy tasks",
+          "B) It spawns multiple worker processes matching CPU core count, sharing the same port via the master process",
+          "C) It distributes requests to multiple servers over the network",
+          "D) It compiles JavaScript to native code for better performance"
+        ],
+        "correctAnswer": "B",
+        "explanation": "Node.js is single-threaded. PM2 cluster mode uses Node's built-in cluster module to fork multiple child processes (typically one per CPU core). The PM2 master process load-balances incoming connections across workers using round-robin. This multiplies throughput for CPU-bound or high-concurrency workloads. pm2 start app.js -i max automatically uses all available cores."
+      },
+      {
+        "question": "What is the correct way to handle uncaught Promise rejections in a production Node.js application?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) Ignore them — Node.js will retry the operation automatically",
+          "B) Use process.on('unhandledRejection') to log and gracefully terminate, while fixing root causes with proper async/await try-catch",
+          "C) Wrap all code in a global try-catch block",
+          "D) Use domains (deprecated) to catch all async errors"
+        ],
+        "correctAnswer": "B",
+        "explanation": "Unhandled Promise rejections indicate programming errors. Best practice: (1) Use try-catch in every async function to handle expected errors. (2) Register process.on('unhandledRejection', (reason) => { logger.error(reason); process.exit(1); }) as a safety net — an unhandled rejection means the app is in an unknown state. Since Node.js 15+, unhandled rejections crash the process by default. Domains are deprecated and should not be used."
+      }
+    ]
   }
 ]

@@ -411,6 +411,148 @@
           "successCriteria": "Can solve Nth-highest, duplicate detection, running total, and year-over-year growth problems in a timed interview setting, identify SQL anti-patterns on sight, and explain indexing and normalization decisions under interview pressure."
         }
       ]
-    }
+    },
+    "quizBank": [
+      {
+        "question": "Which JOIN type returns all rows from the left table and matched rows from the right table, filling NULLs where there is no match?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) INNER JOIN",
+          "B) LEFT JOIN",
+          "C) FULL OUTER JOIN",
+          "D) CROSS JOIN"
+        ],
+        "correctAnswer": "B",
+        "explanation": "LEFT JOIN (also LEFT OUTER JOIN) returns every row from the left table plus matched rows from the right. Where no match exists, right-table columns are NULL. INNER JOIN only returns rows with matches in both tables. FULL OUTER JOIN returns all rows from both, with NULLs on the missing side. CROSS JOIN returns the cartesian product."
+      },
+      {
+        "question": "What is the difference between RANK() and DENSE_RANK() window functions when there are ties?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) RANK() skips numbers after a tie; DENSE_RANK() does not skip",
+          "B) DENSE_RANK() skips numbers after a tie; RANK() does not skip",
+          "C) They are identical — both skip ranks after a tie",
+          "D) RANK() assigns the same rank to ties; DENSE_RANK() assigns different ranks"
+        ],
+        "correctAnswer": "A",
+        "explanation": "With RANK(), tied rows share the same rank and the next rank is skipped (e.g., 1, 1, 3). With DENSE_RANK(), tied rows share the same rank but the next rank is NOT skipped (e.g., 1, 1, 2). Use DENSE_RANK() when you want sequential rank numbers despite ties — for example, finding the Nth highest salary."
+      },
+      {
+        "question": "What type of index should you use for a column that is only ever queried with exact equality checks (e.g., WHERE user_id = 42)?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) B-Tree index",
+          "B) GIN index",
+          "C) Hash index",
+          "D) Partial index"
+        ],
+        "correctAnswer": "C",
+        "explanation": "Hash indexes are optimized for equality comparisons — they compute a hash of the value and look it up directly in O(1). They cannot support range queries (<, >, BETWEEN) or sorting. B-Tree indexes (the default) support both equality and range queries but are slightly slower for pure equality lookups. In PostgreSQL, hash indexes were not crash-safe before v10; they are now fully WAL-logged."
+      },
+      {
+        "question": "Which ACID property guarantees that a committed transaction's data survives a system crash?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) Atomicity",
+          "B) Consistency",
+          "C) Isolation",
+          "D) Durability"
+        ],
+        "correctAnswer": "D",
+        "explanation": "Durability guarantees that once a transaction is committed, it persists even if the server crashes immediately after. Databases achieve this via write-ahead logging (WAL) — changes are written to a durable log before being applied to data files. Atomicity = all-or-nothing. Consistency = constraints remain valid. Isolation = concurrent transactions do not interfere."
+      },
+      {
+        "question": "At which isolation level can 'phantom reads' occur — where a transaction re-runs a query and finds new rows inserted by another committed transaction?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Analyze",
+        "options": [
+          "A) READ UNCOMMITTED and READ COMMITTED only",
+          "B) REPEATABLE READ",
+          "C) SERIALIZABLE",
+          "D) All isolation levels allow phantom reads"
+        ],
+        "correctAnswer": "B",
+        "explanation": "REPEATABLE READ prevents dirty reads and non-repeatable reads (re-reading a row gives the same value), but it does NOT prevent phantom reads — a second execution of a range query may return newly inserted rows. SERIALIZABLE is the only level that prevents phantoms by using predicate locking or MVCC snapshots. READ COMMITTED also allows phantoms (and non-repeatable reads)."
+      },
+      {
+        "question": "A table has columns: order_id (PK), customer_id, customer_name, product_id, product_name, quantity. Which normal form violation does this represent?",
+        "format": "mcq",
+        "difficulty": 3,
+        "bloomLabel": "Analyze",
+        "options": [
+          "A) 1NF violation — non-atomic values",
+          "B) 2NF violation — customer_name depends only on customer_id, not on the full primary key",
+          "C) 3NF violation — quantity depends on order_id transitively",
+          "D) BCNF violation — order_id is not a candidate key"
+        ],
+        "correctAnswer": "B",
+        "explanation": "Second Normal Form (2NF) requires that every non-key column depends on the ENTIRE primary key. Here, customer_name depends only on customer_id (a partial dependency), not on order_id. Similarly, product_name depends only on product_id. Fix: split into orders(order_id, customer_id, product_id, quantity), customers(customer_id, customer_name), products(product_id, product_name)."
+      },
+      {
+        "question": "In PostgreSQL, what is the advantage of JSONB over the JSON data type?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) JSONB preserves key order and duplicate keys; JSON does not",
+          "B) JSONB stores data in binary format, supports GIN indexing, and has faster query performance; JSON stores raw text",
+          "C) JSONB is human-readable; JSON requires decoding",
+          "D) JSONB supports nested arrays; JSON only supports flat objects"
+        ],
+        "correctAnswer": "B",
+        "explanation": "JSONB (Binary JSON) decomposes and stores JSON in a parsed binary format, removing duplicate keys and not preserving key order. This enables GIN index support for operators like @> (contains) and ? (key exists), making JSONB queries very fast. JSON stores the raw text verbatim — it must be parsed on every access. Use JSONB for queryable semi-structured data; use JSON only when preserving exact text representation matters."
+      },
+      {
+        "question": "A query runs slowly. EXPLAIN ANALYZE shows a Sequential Scan on a 10-million-row table for WHERE email = 'alice@example.com'. What is the best fix?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) Add ORDER BY to help the query planner optimize",
+          "B) Create a B-Tree index on the email column",
+          "C) Increase the server RAM to fit the table in memory",
+          "D) Rewrite the query using a subquery"
+        ],
+        "correctAnswer": "B",
+        "explanation": "A sequential scan on a large table for an equality filter means there is no index on that column. Adding CREATE INDEX idx_users_email ON users(email) allows the query planner to use an index scan — O(log n) vs O(n). For email uniqueness, CREATE UNIQUE INDEX is even better. After adding an index, run ANALYZE to update statistics so the planner uses it."
+      },
+      {
+        "question": "What does the LAG() window function return?",
+        "format": "mcq",
+        "difficulty": 2,
+        "bloomLabel": "Apply",
+        "options": [
+          "A) The maximum value in the partition",
+          "B) The value from a row a specified number of rows BEFORE the current row in the ordered partition",
+          "C) The value from a row a specified number of rows AFTER the current row",
+          "D) The running total up to the current row"
+        ],
+        "correctAnswer": "B",
+        "explanation": "LAG(column, offset, default) returns the value from a row 'offset' positions before the current row within the ORDER BY sequence. It returns NULL (or the default) if no such row exists. Use it for period-over-period calculations: LAG(revenue, 1) OVER (ORDER BY month) gives last month's revenue, enabling growth as (revenue - LAG(revenue,1)) / LAG(revenue,1) * 100. LEAD() is the forward equivalent."
+      },
+      {
+        "question": "Which SQL clause filters groups AFTER aggregation, and what is the equivalent clause that filters rows BEFORE aggregation?",
+        "format": "mcq",
+        "difficulty": 1,
+        "bloomLabel": "Understand",
+        "options": [
+          "A) WHERE filters after aggregation; HAVING filters before",
+          "B) HAVING filters after aggregation; WHERE filters before",
+          "C) Both WHERE and HAVING filter after aggregation",
+          "D) GROUP BY filters after aggregation; WHERE filters before"
+        ],
+        "correctAnswer": "B",
+        "explanation": "SQL execution order: FROM → WHERE (row filter) → GROUP BY → HAVING (group filter) → SELECT → ORDER BY. WHERE eliminates individual rows before grouping — you cannot use aggregate functions in WHERE. HAVING filters groups after aggregation, so you can write HAVING COUNT(*) > 5. Common mistake: using WHERE with an aggregate (e.g., WHERE COUNT(*) > 5) causes an error; use HAVING instead."
+      }
+    ]
   }
 ]
