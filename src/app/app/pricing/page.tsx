@@ -466,6 +466,11 @@ export default function PricingPage() {
           </div>
         ))}
       </div>
+
+      {/* Device-sync notice */}
+      <p className="text-center text-xs text-muted-foreground/60 pb-2">
+        Your subscription is tied to this device. Activate your plan on each device you use — sign in with the same account on multiple devices to sync.
+      </p>
     </div>
     </PageTransition>
   );

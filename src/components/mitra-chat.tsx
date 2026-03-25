@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Send, Bot, Sparkles, Crown } from "lucide-react";
+import { X, Send, Bot, Sparkles, Crown, Lock } from "lucide-react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 
@@ -408,25 +408,48 @@ export function MitraChat() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button — always visible; lock icon for free users */}
       <AnimatePresence>
         {!open && (
-          <motion.button
-            key="mitra-fab"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 380, damping: 26 }}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.94 }}
-            onClick={() => setOpen(true)}
-            aria-label="Open Mitra — your study buddy"
-            className="fixed bottom-5 right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
-          >
-            <Bot className="size-6 text-white" />
-            {/* Pulse ring */}
-            <span className="absolute inset-0 animate-ping rounded-full border border-indigo-400/30 opacity-60" />
-          </motion.button>
+          isActivePro ? (
+            /* Pro user: open chat */
+            <motion.button
+              key="mitra-fab-pro"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 380, damping: 26 }}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={() => setOpen(true)}
+              aria-label="Open Mitra — your study buddy"
+              className="fixed bottom-5 right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
+            >
+              <Bot className="size-6 text-white" />
+              {/* Pulse ring */}
+              <span className="absolute inset-0 animate-ping rounded-full border border-indigo-400/30 opacity-60" />
+            </motion.button>
+          ) : (
+            /* Free user: show lock overlay, clicking opens upgrade prompt inside chat */
+            <motion.button
+              key="mitra-fab-free"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 380, damping: 26 }}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={() => setOpen(true)}
+              aria-label="Mitra — upgrade to Pro to unlock unlimited chat"
+              className="fixed bottom-5 right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
+            >
+              <Bot className="size-6 text-white opacity-70" />
+              {/* Lock badge overlay */}
+              <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-saffron border border-background shadow">
+                <Lock className="size-2.5 text-background" />
+              </span>
+            </motion.button>
+          )
         )}
       </AnimatePresence>
 

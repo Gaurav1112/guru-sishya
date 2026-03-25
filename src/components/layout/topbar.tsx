@@ -16,9 +16,16 @@ import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/layout/user-menu";
 
+// Must match sidebar.tsx navItems exactly
 const navItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
+  { href: "/app/review", label: "Review", icon: "🔁" },
+  { href: "/app/questions", label: "Questions", icon: "📝" },
+  { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
+  { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
   { href: "/app/topics", label: "Topics", icon: "📚" },
+  { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
+  { href: "/app/playground", label: "Playground", icon: "⚡" },
   { href: "/app/shop", label: "Shop", icon: "🛒" },
   { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/app/profile", label: "Profile", icon: "👤" },
@@ -35,6 +42,13 @@ function MobileNav() {
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
   const isAdmin =
     session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  // Live count of flashcards due today — mirrors sidebar
+  const dueCount = useLiveQuery(async () => {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return db.flashcards.where("nextReviewAt").belowOrEqual(today).count();
+  }, []);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -61,7 +75,13 @@ function MobileNav() {
                   : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
               )}
             >
-              <span>{item.icon}</span>{item.label}
+              <span>{item.icon}</span>
+              <span className="flex-1">{item.label}</span>
+              {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
+                <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+                  {dueCount > 99 ? "99+" : dueCount}
+                </span>
+              )}
             </Link>
           ))}
           {/* Admin console link — only visible for admin */}
