@@ -15,6 +15,8 @@ import {
   Settings,
   BarChart3,
   FlaskConical,
+  Database,
+  Users,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 
@@ -38,6 +40,22 @@ interface AppConfig {
   freeInterviewsPerDay: number;
   freeMitraMessages: number;
 }
+
+interface Subscriber {
+  email: string;
+  plan_type: string;
+  premium_until: string | null;
+  payment_id: string | null;
+  created_at: string;
+}
+
+// Plan prices in INR for revenue estimate
+const PLAN_PRICES: Record<string, number> = {
+  monthly: 149,
+  semester: 699,
+  annual: 1199,
+  lifetime: 2999,
+};
 
 // ── Admin Console Page ─────────────────────────────────────────────────────────
 
@@ -65,6 +83,12 @@ export default function AdminPage() {
   const [configDraft, setConfigDraft] = useState<AppConfig>(DEFAULT_CONFIG);
   const [configStatus, setConfigStatus] = useState<Status>({ type: "idle" });
   const [configFetchStatus, setConfigFetchStatus] = useState<Status>({ type: "loading" });
+
+  // Subscriber state
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [subscriberFetchStatus, setSubscriberFetchStatus] = useState<Status>({ type: "loading" });
+  const [setupDbStatus, setSetupDbStatus] = useState<Status>({ type: "idle" });
+  const [setupSql, setSetupSql] = useState<string>("");
 
   // ── Auth guard ─────────────────────────────────────────────────────────────
 
@@ -126,6 +150,59 @@ export default function AdminPage() {
   useEffect(() => {
     if (isAdmin) fetchConfig();
   }, [isAdmin, fetchConfig]);
+
+  // ── Fetch subscribers ───────────────────────────────────────────────────────
+
+  const fetchSubscribers = useCallback(async () => {
+    setSubscriberFetchStatus({ type: "loading" });
+    try {
+      const res = await fetch("/api/admin/subscribers", {
+        headers: { "x-admin-email": session?.user?.email ?? "" },
+      });
+      if (!res.ok) throw new Error("Failed to fetch subscribers");
+      const data = await res.json();
+      setSubscribers(data.subscribers ?? []);
+      setSubscriberFetchStatus({ type: "idle" });
+    } catch (err) {
+      setSubscriberFetchStatus({
+        type: "error",
+        message: err instanceof Error ? err.message : "Failed to load subscribers",
+      });
+    }
+  }, [session?.user?.email]);
+
+  useEffect(() => {
+    if (isAdmin) fetchSubscribers();
+  }, [isAdmin, fetchSubscribers]);
+
+  // ── Setup database ──────────────────────────────────────────────────────────
+
+  const handleSetupDb = useCallback(async () => {
+    setSetupDbStatus({ type: "loading" });
+    try {
+      const res = await fetch("/api/admin/setup-db", {
+        method: "POST",
+        headers: { "x-admin-email": session?.user?.email ?? "" },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSetupDbStatus({ type: "success", message: "Database tables created successfully." });
+      } else {
+        // exec_sql RPC not available — show the SQL to copy-paste
+        setSetupSql(data.sql ?? "");
+        setSetupDbStatus({
+          type: "error",
+          message: data.message ?? "Could not auto-create tables. Copy the SQL below into the Supabase SQL Editor.",
+        });
+      }
+      setTimeout(() => setSetupDbStatus((s) => (s.type === "success" ? { type: "idle" } : s)), 4000);
+    } catch (err) {
+      setSetupDbStatus({
+        type: "error",
+        message: err instanceof Error ? err.message : "Setup failed.",
+      });
+    }
+  }, [session?.user?.email]);
 
   const handleSaveConfig = useCallback(async () => {
     setConfigStatus({ type: "loading" });
@@ -506,29 +583,176 @@ export default function AdminPage() {
         )}
       </section>
 
-      {/* Subscription Stats */}
-      <section className="rounded-2xl border border-border/50 bg-surface p-5 space-y-3">
+      {/* Subscribers */}
+      <section className="rounded-2xl border border-border/50 bg-surface p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="size-4 text-gold" />
+            <h2 className="font-heading font-semibold">
+              Subscribers
+              {subscribers.length > 0 && (
+                <span className="ml-2 rounded-full bg-gold/10 border border-gold/30 px-2 py-0.5 text-xs font-medium text-gold">
+                  {subscribers.length}
+                </span>
+              )}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={fetchSubscribers}
+            disabled={subscriberFetchStatus.type === "loading"}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-surface-hover disabled:opacity-50"
+          >
+            <RefreshCw className={`size-3.5 ${subscriberFetchStatus.type === "loading" ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
+        </div>
+
+        {/* Stats row */}
+        {subscribers.length > 0 && (() => {
+          const active = subscribers.filter(
+            (s) => s.premium_until == null || new Date(s.premium_until) > new Date() || s.plan_type === "lifetime"
+          );
+          const revenue = subscribers.reduce((sum, s) => sum + (PLAN_PRICES[s.plan_type] ?? 0), 0);
+          return (
+            <div className="grid sm:grid-cols-3 gap-3">
+              <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
+                <p className="font-heading text-2xl font-bold text-saffron">{subscribers.length}</p>
+                <p className="text-xs text-muted-foreground mt-1">Total Pro Subscribers</p>
+              </div>
+              <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
+                <p className="font-heading text-2xl font-bold text-teal">{active.length}</p>
+                <p className="text-xs text-muted-foreground mt-1">Active Subscriptions</p>
+              </div>
+              <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
+                <p className="font-heading text-2xl font-bold text-gold">₹{revenue.toLocaleString("en-IN")}</p>
+                <p className="text-xs text-muted-foreground mt-1">Revenue Estimate</p>
+              </div>
+            </div>
+          );
+        })()}
+
+        {subscriberFetchStatus.type === "loading" && subscribers.length === 0 ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : subscriberFetchStatus.type === "error" ? (
+          <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+            <AlertCircle className="size-4 shrink-0" />
+            {(subscriberFetchStatus as { type: "error"; message: string }).message}
+          </div>
+        ) : subscribers.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 py-8 text-center">
+            <BarChart3 className="size-8 text-muted-foreground/40" />
+            <p className="text-sm text-muted-foreground">No paid subscribers yet.</p>
+            <p className="text-xs text-muted-foreground/60">
+              Subscriber records appear here after successful Razorpay payments.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-border/30 rounded-xl border border-border/40 overflow-hidden">
+            {subscribers.map((sub) => {
+              const isExpired =
+                sub.plan_type !== "lifetime" &&
+                sub.premium_until != null &&
+                new Date(sub.premium_until) <= new Date();
+              const expiryLabel =
+                sub.plan_type === "lifetime"
+                  ? "Lifetime"
+                  : sub.premium_until
+                  ? new Date(sub.premium_until).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "—";
+              return (
+                <div
+                  key={sub.email}
+                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-background hover:bg-surface-hover transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex size-7 shrink-0 items-center justify-center rounded-full border border-saffron/30 bg-saffron/10 text-xs font-bold text-saffron">
+                      {sub.email[0].toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{sub.email}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        Joined {new Date(sub.created_at).toLocaleDateString("en-IN")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="inline-flex items-center rounded-full border border-indigo-400/30 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-400 capitalize">
+                      {sub.plan_type}
+                    </span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                        isExpired
+                          ? "border-red-500/30 bg-red-500/10 text-red-400"
+                          : "border-teal/30 bg-teal/10 text-teal"
+                      }`}
+                    >
+                      {isExpired ? "Expired" : expiryLabel}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* Database Setup */}
+      <section className="rounded-2xl border border-border/50 bg-surface p-5 space-y-4">
         <div className="flex items-center gap-2">
-          <BarChart3 className="size-4 text-gold" />
-          <h2 className="font-heading font-semibold">Subscription Stats</h2>
+          <Database className="size-4 text-indigo-400" />
+          <h2 className="font-heading font-semibold">Database Setup</h2>
         </div>
-        <div className="grid sm:grid-cols-3 gap-3">
-          <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
-            <p className="font-heading text-2xl font-bold text-saffron">—</p>
-            <p className="text-xs text-muted-foreground mt-1">Total Pro Subscribers</p>
-          </div>
-          <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
-            <p className="font-heading text-2xl font-bold text-teal">—</p>
-            <p className="text-xs text-muted-foreground mt-1">Active Trials</p>
-          </div>
-          <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
-            <p className="font-heading text-2xl font-bold text-gold">—</p>
-            <p className="text-xs text-muted-foreground mt-1">Revenue Estimate</p>
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground/70 rounded-lg border border-border/30 bg-background px-3 py-2">
-          Subscription data is stored per-device in localStorage. For server-side tracking, connect Supabase.
+        <p className="text-sm text-muted-foreground">
+          Creates the required Supabase tables (<code className="text-xs font-mono text-foreground/70">subscriptions</code>,{" "}
+          <code className="text-xs font-mono text-foreground/70">user_progress</code>,{" "}
+          <code className="text-xs font-mono text-foreground/70">premium_allowlist</code>).
+          Safe to run multiple times — uses <code className="text-xs font-mono text-foreground/70">CREATE TABLE IF NOT EXISTS</code>.
         </p>
+        <button
+          type="button"
+          onClick={handleSetupDb}
+          disabled={setupDbStatus.type === "loading"}
+          className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {setupDbStatus.type === "loading" ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Database className="size-4" />
+          )}
+          Setup Database
+        </button>
+
+        {setupDbStatus.type === "success" && (
+          <div className="flex items-center gap-2 rounded-lg border border-teal/30 bg-teal/10 px-3 py-2 text-sm text-teal">
+            <CheckCircle2 className="size-4 shrink-0" />
+            {setupDbStatus.message}
+          </div>
+        )}
+        {setupDbStatus.type === "error" && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              <AlertCircle className="size-4 shrink-0" />
+              {(setupDbStatus as { type: "error"; message: string }).message}
+            </div>
+            {setupSql && (
+              <details className="rounded-lg border border-border/40 bg-background">
+                <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
+                  View SQL to run manually in Supabase SQL Editor
+                </summary>
+                <pre className="overflow-x-auto px-3 pb-3 text-[11px] text-foreground/80 whitespace-pre-wrap">
+                  {setupSql}
+                </pre>
+              </details>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Quick Actions */}

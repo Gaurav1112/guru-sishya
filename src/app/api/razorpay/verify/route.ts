@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import Razorpay from "razorpay";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 // ── Plan durations ────────────────────────────────────────────────────────────
 
@@ -30,11 +31,13 @@ export async function POST(req: NextRequest) {
       razorpay_payment_id,
       razorpay_signature,
       planType,
+      email,
     } = body as {
       razorpay_order_id?: string;
       razorpay_payment_id?: string;
       razorpay_signature?: string;
       planType?: string;
+      email?: string;
     };
 
     // Validate required fields
@@ -89,6 +92,25 @@ export async function POST(req: NextRequest) {
     const durationDays = PLAN_DURATION_DAYS[planType] ?? 30;
     const premiumUntil = new Date();
     premiumUntil.setDate(premiumUntil.getDate() + durationDays);
+
+    // Persist subscription to Supabase (server-side, non-bypassable)
+    try {
+      const supabase = getSupabaseAdmin();
+      await supabase.from("subscriptions").upsert(
+        {
+          email: email?.trim().toLowerCase() ?? "anonymous",
+          plan_type: planType,
+          premium_until: premiumUntil.toISOString(),
+          payment_id: razorpay_payment_id,
+          razorpay_order_id: razorpay_order_id,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "email" }
+      );
+    } catch (supabaseErr) {
+      // Log but don't fail the response — localStorage flow still works
+      console.error("[razorpay/verify] Supabase upsert failed:", supabaseErr);
+    }
 
     return NextResponse.json({
       success: true,

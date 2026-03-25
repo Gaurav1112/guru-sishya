@@ -12,6 +12,7 @@ import { useStore } from "@/lib/store";
 function AllowlistSync() {
   const { data: session, status } = useSession();
   const checkAllowlistPremium = useStore((s) => s.checkAllowlistPremium);
+  const syncWithServer = useStore((s) => s.syncWithServer);
   const checkedEmail = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
@@ -20,8 +21,12 @@ function AllowlistSync() {
     // Only run once per email to avoid redundant fetches
     if (email === checkedEmail.current) return;
     checkedEmail.current = email;
-    checkAllowlistPremium(email);
-  }, [status, session?.user?.email, checkAllowlistPremium]);
+
+    // Run allowlist check first, then sync with Supabase subscription record
+    checkAllowlistPremium(email).then(() => {
+      syncWithServer(email);
+    });
+  }, [status, session?.user?.email, checkAllowlistPremium, syncWithServer]);
 
   return null;
 }

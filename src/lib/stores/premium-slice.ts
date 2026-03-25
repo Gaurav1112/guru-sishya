@@ -95,6 +95,14 @@ export interface PremiumActions {
    * EXPIRY_WARNING_THRESHOLD_DAYS days.
    */
   getIsExpiringSoon: () => boolean;
+  /**
+   * Syncs local premium state with the server-side Supabase subscription record.
+   * - If server says premium, promotes local state to match.
+   * - If server says NOT premium but local says premium (and user is not
+   *   admin/allowlist/lifetime), clears local state.
+   * Should be called on sign-in and on each page load.
+   */
+  syncWithServer: (email: string | null | undefined) => Promise<void>;
 }
 
 export type PremiumSlice = PremiumState & PremiumActions;
@@ -222,5 +230,63 @@ export const createPremiumSlice: StateCreator<
     const days = computeDaysRemaining(premiumUntil);
     if (days === null) return false;
     return days > 0 && days <= EXPIRY_WARNING_THRESHOLD_DAYS;
+  },
+
+  syncWithServer: async (email) => {
+    if (!email) return;
+
+    const normalised = email.trim().toLowerCase();
+
+    // Admin and allowlist/lifetime users are already handled by checkAllowlistPremium;
+    // avoid overriding their permanent grants.
+    const { paymentId, planType } = get();
+    if (isNeverExpire(paymentId, planType)) return;
+
+    try {
+      const res = await fetch(
+        `/api/subscription/check?email=${encodeURIComponent(normalised)}`
+      );
+      if (!res.ok) return;
+
+      const data = (await res.json()) as {
+        isPremium: boolean;
+        premiumUntil: string | null;
+        planType: string | null;
+      };
+
+      if (data.isPremium && data.premiumUntil) {
+        // Server confirms premium — update local state to match
+        set((state) => {
+          state.isPremium = true;
+          state.premiumUntil = data.premiumUntil;
+          state.planType = data.planType;
+          // Preserve existing paymentId if already set; server doesn't return it
+          if (!state.paymentId) {
+            state.paymentId = "server_verified";
+          }
+        });
+      } else if (!data.isPremium) {
+        // Server says not premium — clear local state if it was set by a
+        // payment flow (not admin/allowlist/lifetime — those are already
+        // guarded above).
+        const current = get();
+        if (
+          current.isPremium &&
+          current.paymentId !== "admin_free" &&
+          current.paymentId !== "allowlist_free" &&
+          current.paymentId !== "free_trial" &&
+          current.planType !== "lifetime"
+        ) {
+          set((state) => {
+            state.isPremium = false;
+            state.premiumUntil = null;
+            state.paymentId = null;
+            state.planType = null;
+          });
+        }
+      }
+    } catch {
+      // Silently ignore — local state is the fallback
+    }
   },
 });
