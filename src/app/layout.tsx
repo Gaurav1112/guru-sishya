@@ -25,9 +25,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Guru Sishya — Free Software Engineering Interview Prep | 56 Topics, 710+ Questions",
+  title: "Guru Sishya — Free Interview Prep for Software Engineers",
   description:
-    "Crack software engineering interviews with 56 topics, 710+ curated questions, STAR behavioral prep for FAANG, adaptive quizzes, and spaced repetition flashcards. 100% free, works offline.",
+    "Crack software engineering interviews with 74 topics, 830+ questions, AI mock interviews, and STAR behavioral prep. Free to start, works offline.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -61,9 +61,9 @@ export const metadata: Metadata = {
     "google-site-verification": "YOUR_GOOGLE_VERIFICATION_CODE",
   },
   openGraph: {
-    title: "Guru Sishya — Free Software Engineering Interview Prep | 56 Topics, 710+ Questions",
+    title: "Guru Sishya — Free Interview Prep for Software Engineers",
     description:
-      "Crack software engineering interviews with 56 topics, 710+ curated questions, STAR behavioral prep for FAANG, adaptive quizzes, and spaced repetition flashcards. 100% free, works offline.",
+      "Crack software engineering interviews with 74 topics, 830+ questions, AI mock interviews, and STAR behavioral prep. Free to start, works offline.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -79,9 +79,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Guru Sishya — Free Software Engineering Interview Prep | 56 Topics, 710+ Questions",
+    title: "Guru Sishya — Free Interview Prep for Software Engineers",
     description:
-      "Crack software engineering interviews with 56 topics, 710+ curated questions, STAR behavioral prep for FAANG, adaptive quizzes, and spaced repetition flashcards. 100% free, works offline.",
+      "Crack software engineering interviews with 74 topics, 830+ questions, AI mock interviews, and STAR behavioral prep. Free to start, works offline.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   appleWebApp: {
