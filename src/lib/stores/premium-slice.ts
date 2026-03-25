@@ -76,8 +76,8 @@ export interface PremiumActions {
    * If it has, clears premium status. Returns the current isPremium value.
    */
   checkPremiumExpiry: () => boolean;
-  /** Activate a 5-day free trial (no payment required) */
-  activateFreeTrial: () => void;
+  /** Activate a 7-day free trial (no payment required, one-time only) */
+  activateFreeTrial: () => { success: boolean; reason?: string };
   /**
    * Checks the remote allowlist (/content/premium-emails.json) and grants
    * permanent free premium if the given email is listed.
@@ -144,15 +144,31 @@ export const createPremiumSlice: StateCreator<
     return true;
   },
 
-  activateFreeTrial: () =>
+  activateFreeTrial: () => {
+    // One-time only guard
+    const TRIAL_USED_KEY = "gs-trial-used";
+    if (typeof window !== "undefined") {
+      if (localStorage.getItem(TRIAL_USED_KEY) === "true") {
+        return { success: false, reason: "Trial already used. Subscribe to continue." };
+      }
+    }
     set((state) => {
       const trialEnd = new Date();
-      trialEnd.setDate(trialEnd.getDate() + 5);
+      trialEnd.setDate(trialEnd.getDate() + 7);
       state.isPremium = true;
       state.premiumUntil = trialEnd.toISOString();
       state.paymentId = "free_trial";
       state.planType = "free_trial";
-    }),
+    });
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(TRIAL_USED_KEY, "true");
+      } catch {
+        // ignore
+      }
+    }
+    return { success: true };
+  },
 
   checkAllowlistPremium: async (email) => {
     if (!email) return;

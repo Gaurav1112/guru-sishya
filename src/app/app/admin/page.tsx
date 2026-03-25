@@ -12,7 +12,11 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
+  Settings,
+  BarChart3,
+  FlaskConical,
 } from "lucide-react";
+import { useStore } from "@/lib/store";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -26,17 +30,41 @@ type Status =
   | { type: "success"; message: string }
   | { type: "error"; message: string };
 
+interface AppConfig {
+  trialDays: number;
+  freeAnswerLimit: number;
+  freeStarLimit: number;
+  freeFlashcardLimit: number;
+  freeInterviewsPerDay: number;
+  freeMitraMessages: number;
+}
+
 // ── Admin Console Page ─────────────────────────────────────────────────────────
 
 export default function AdminPage() {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
+  const { setPremiumStatus } = useStore();
 
   const [allowedEmails, setAllowedEmails] = useState<string[]>([]);
   const [fetchStatus, setFetchStatus] = useState<Status>({ type: "loading" });
   const [actionStatus, setActionStatus] = useState<Status>({ type: "idle" });
   const [newEmail, setNewEmail] = useState("");
   const [removingEmail, setRemovingEmail] = useState<string | null>(null);
+
+  // Config state
+  const DEFAULT_CONFIG: AppConfig = {
+    trialDays: 7,
+    freeAnswerLimit: 5,
+    freeStarLimit: 3,
+    freeFlashcardLimit: 50,
+    freeInterviewsPerDay: 0,
+    freeMitraMessages: 3,
+  };
+  const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
+  const [configDraft, setConfigDraft] = useState<AppConfig>(DEFAULT_CONFIG);
+  const [configStatus, setConfigStatus] = useState<Status>({ type: "idle" });
+  const [configFetchStatus, setConfigFetchStatus] = useState<Status>({ type: "loading" });
 
   // ── Auth guard ─────────────────────────────────────────────────────────────
 
@@ -75,6 +103,54 @@ export default function AdminPage() {
   useEffect(() => {
     if (isAdmin) fetchAllowlist();
   }, [isAdmin, fetchAllowlist]);
+
+  // ── Fetch app config ────────────────────────────────────────────────────────
+
+  const fetchConfig = useCallback(async () => {
+    setConfigFetchStatus({ type: "loading" });
+    try {
+      const res = await fetch("/api/admin/config");
+      if (!res.ok) throw new Error("Failed to fetch config");
+      const data = await res.json();
+      setConfig(data.config);
+      setConfigDraft(data.config);
+      setConfigFetchStatus({ type: "idle" });
+    } catch (err) {
+      setConfigFetchStatus({
+        type: "error",
+        message: err instanceof Error ? err.message : "Failed to load config",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) fetchConfig();
+  }, [isAdmin, fetchConfig]);
+
+  const handleSaveConfig = useCallback(async () => {
+    setConfigStatus({ type: "loading" });
+    try {
+      const res = await fetch("/api/admin/config", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-email": session?.user?.email ?? "",
+        },
+        body: JSON.stringify(configDraft),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to save config");
+      setConfig(data.config);
+      setConfigDraft(data.config);
+      setConfigStatus({ type: "success", message: "Configuration saved successfully." });
+      setTimeout(() => setConfigStatus({ type: "idle" }), 3000);
+    } catch (err) {
+      setConfigStatus({
+        type: "error",
+        message: err instanceof Error ? err.message : "Something went wrong",
+      });
+    }
+  }, [configDraft, session?.user?.email]);
 
   // ── Mutation helper ────────────────────────────────────────────────────────
 
@@ -130,6 +206,21 @@ export default function AdminPage() {
     },
     [mutate]
   );
+
+  // ── Clear trial (for testing) ──────────────────────────────────────────────
+
+  const handleClearTrial = useCallback(() => {
+    // Reset premium state in store
+    setPremiumStatus(false, null, null, null);
+    // Clear trial-used flag so admin can test trial flow again
+    try {
+      localStorage.removeItem("gs-trial-used");
+    } catch {
+      // ignore
+    }
+    setActionStatus({ type: "success", message: "Trial state cleared. You can activate a trial again." });
+    setTimeout(() => setActionStatus({ type: "idle" }), 3000);
+  }, [setPremiumStatus]);
 
   // ── Loading / access-denied states ────────────────────────────────────────
 
@@ -329,6 +420,150 @@ export default function AdminPage() {
           <p className="font-heading text-3xl font-bold text-indigo-400">1</p>
           <p className="text-xs text-muted-foreground mt-1">Admin accounts</p>
         </div>
+      </section>
+
+      {/* App Configuration */}
+      <section className="rounded-2xl border border-border/50 bg-surface p-5 space-y-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Settings className="size-4 text-indigo-400" />
+            <h2 className="font-heading font-semibold">App Configuration</h2>
+          </div>
+          {configFetchStatus.type === "loading" && (
+            <Loader2 className="size-4 animate-spin text-muted-foreground" />
+          )}
+          {configFetchStatus.type === "error" && (
+            <span className="text-xs text-red-400">
+              {(configFetchStatus as { type: "error"; message: string }).message}
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Configure free-tier limits and trial duration. Stored in Redis.
+        </p>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          {(
+            [
+              { key: "trialDays", label: "Trial Period (days)", min: 1 },
+              { key: "freeAnswerLimit", label: "Free Answer Limit", min: 0 },
+              { key: "freeStarLimit", label: "Free STAR Reveal Limit", min: 0 },
+              { key: "freeFlashcardLimit", label: "Free Flashcard Limit", min: 0 },
+              { key: "freeInterviewsPerDay", label: "Free Interviews / Day", min: 0 },
+              { key: "freeMitraMessages", label: "Free Mitra Messages", min: 0 },
+            ] as { key: keyof AppConfig; label: string; min: number }[]
+          ).map(({ key, label, min }) => (
+            <div key={key} className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground">{label}</label>
+              <input
+                type="number"
+                min={min}
+                value={configDraft[key]}
+                onChange={(e) =>
+                  setConfigDraft((prev) => ({ ...prev, [key]: parseInt(e.target.value, 10) || 0 }))
+                }
+                className="rounded-lg border border-border/60 bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSaveConfig}
+            disabled={configStatus.type === "loading"}
+            className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {configStatus.type === "loading" ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Settings className="size-4" />
+            )}
+            Save Configuration
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfigDraft(config)}
+            disabled={configStatus.type === "loading"}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-surface-hover disabled:opacity-50"
+          >
+            Reset
+          </button>
+        </div>
+
+        {configStatus.type === "success" && (
+          <div className="flex items-center gap-2 rounded-lg border border-teal/30 bg-teal/10 px-3 py-2 text-sm text-teal">
+            <CheckCircle2 className="size-4 shrink-0" />
+            {configStatus.message}
+          </div>
+        )}
+        {configStatus.type === "error" && (
+          <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+            <AlertCircle className="size-4 shrink-0" />
+            {(configStatus as { type: "error"; message: string }).message}
+          </div>
+        )}
+      </section>
+
+      {/* Subscription Stats */}
+      <section className="rounded-2xl border border-border/50 bg-surface p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <BarChart3 className="size-4 text-gold" />
+          <h2 className="font-heading font-semibold">Subscription Stats</h2>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-3">
+          <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
+            <p className="font-heading text-2xl font-bold text-saffron">—</p>
+            <p className="text-xs text-muted-foreground mt-1">Total Pro Subscribers</p>
+          </div>
+          <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
+            <p className="font-heading text-2xl font-bold text-teal">—</p>
+            <p className="text-xs text-muted-foreground mt-1">Active Trials</p>
+          </div>
+          <div className="rounded-xl border border-border/40 bg-background p-4 text-center">
+            <p className="font-heading text-2xl font-bold text-gold">—</p>
+            <p className="text-xs text-muted-foreground mt-1">Revenue Estimate</p>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground/70 rounded-lg border border-border/30 bg-background px-3 py-2">
+          Subscription data is stored per-device in localStorage. For server-side tracking, connect Supabase.
+        </p>
+      </section>
+
+      {/* Quick Actions */}
+      <section className="rounded-2xl border border-border/50 bg-surface p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <FlaskConical className="size-4 text-teal" />
+          <h2 className="font-heading font-semibold">Quick Actions</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Testing utilities — actions affect this browser only.
+        </p>
+
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={handleClearTrial}
+            className="inline-flex items-center gap-2 rounded-lg border border-teal/40 bg-teal/10 px-4 py-2 text-sm font-semibold text-teal transition-colors hover:bg-teal/20"
+          >
+            <RefreshCw className="size-4" />
+            Clear My Trial
+          </button>
+        </div>
+
+        {actionStatus.type === "success" && (
+          <div className="flex items-center gap-2 rounded-lg border border-teal/30 bg-teal/10 px-3 py-2 text-sm text-teal">
+            <CheckCircle2 className="size-4 shrink-0" />
+            {actionStatus.message}
+          </div>
+        )}
+        {actionStatus.type === "error" && (
+          <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+            <AlertCircle className="size-4 shrink-0" />
+            {(actionStatus as { type: "error"; message: string }).message}
+          </div>
+        )}
       </section>
     </div>
   );

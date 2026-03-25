@@ -329,7 +329,7 @@ export function Pricing() {
         <p className="text-sm text-muted-foreground">
           Not ready to commit?{" "}
           <Link href="/app/pricing" className="text-teal hover:underline font-medium">
-            Start a 5-day free trial
+            Start a 7-day free trial
           </Link>{" "}
           &mdash; no credit card required.
         </p>

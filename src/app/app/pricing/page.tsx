@@ -134,10 +134,16 @@ export default function PricingPage() {
   const [loadingPlan, setLoadingPlan] = useState<PlanType | null>(null);
   const [trialLoading, setTrialLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [trialUsed, setTrialUsed] = useState(false);
 
-  // Re-check expiry on mount
+  // Re-check expiry on mount and check trial-used flag
   useEffect(() => {
     checkPremiumExpiry();
+    try {
+      setTrialUsed(localStorage.getItem("gs-trial-used") === "true");
+    } catch {
+      // ignore
+    }
   }, [checkPremiumExpiry]);
 
   const isActive =
@@ -245,7 +251,13 @@ export default function PricingPage() {
 
   const handleFreeTrial = useCallback(() => {
     setTrialLoading(true);
-    activateFreeTrial();
+    const result = activateFreeTrial();
+    if (!result.success) {
+      setError(result.reason ?? "Trial already used. Subscribe to continue.");
+      setTrialLoading(false);
+      setTrialUsed(true);
+      return;
+    }
     setTimeout(() => {
       router.push("/app/dashboard");
     }, 800);
@@ -386,17 +398,30 @@ export default function PricingPage() {
       {!isActive && (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-teal/30 bg-teal/5 px-6 py-8 text-center">
           <p className="font-heading text-lg font-semibold">Not ready to commit?</p>
-          <p className="text-sm text-muted-foreground max-w-md">
-            Try all Pro features free for 5 days — no credit card required.
-          </p>
-          <button
-            type="button"
-            disabled={trialLoading}
-            onClick={handleFreeTrial}
-            className="rounded-lg border border-teal/50 bg-teal/10 px-6 py-2.5 text-sm font-semibold text-teal transition-all hover:bg-teal/20 disabled:opacity-60"
-          >
-            {trialLoading ? "Activating trial..." : "Start 5-Day Free Trial"}
-          </button>
+          {trialUsed ? (
+            <>
+              <p className="text-sm text-muted-foreground max-w-md">
+                You have already used your free trial. Subscribe to continue accessing Pro features.
+              </p>
+              <span className="rounded-lg border border-border/50 bg-surface px-6 py-2.5 text-sm font-semibold text-muted-foreground cursor-not-allowed opacity-60">
+                Trial Already Used
+              </span>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Try all Pro features free for 7 days — no credit card required.
+              </p>
+              <button
+                type="button"
+                disabled={trialLoading}
+                onClick={handleFreeTrial}
+                className="rounded-lg border border-teal/50 bg-teal/10 px-6 py-2.5 text-sm font-semibold text-teal transition-all hover:bg-teal/20 disabled:opacity-60"
+              >
+                {trialLoading ? "Activating trial..." : "Start 7-Day Free Trial"}
+              </button>
+            </>
+          )}
         </div>
       )}
 
