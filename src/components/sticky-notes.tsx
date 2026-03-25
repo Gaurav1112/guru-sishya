@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, StickyNote, GripVertical } from "lucide-react";
+import { Plus, X, StickyNote, GripVertical, Lock } from "lucide-react";
+import Link from "next/link";
+import { useStore } from "@/lib/store";
 
 interface Note {
   id: string;
@@ -115,10 +117,17 @@ interface StickyNotesProps {
   pageId: string;
 }
 
+const FREE_NOTE_LIMIT = 1;
+
 export function StickyNotes({ pageId }: StickyNotesProps) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [collapsed, setCollapsed] = useState(false);
   const [colorIndex, setColorIndex] = useState(0);
+
+  // Premium check
+  const { isPremium, premiumUntil } = useStore();
+  const isActivePro = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const atFreeLimit = !isActivePro && notes.length >= FREE_NOTE_LIMIT;
 
   // Load notes on mount
   useEffect(() => {
@@ -166,6 +175,17 @@ export function StickyNotes({ pageId }: StickyNotesProps) {
     );
   }
 
+  // Free limit upgrade nudge
+  const UpgradeNudge = () => (
+    <Link
+      href="/app/pricing"
+      className="flex items-center gap-1.5 rounded-md border border-saffron/30 bg-saffron/10 px-2 py-1.5 text-[10px] font-medium text-saffron hover:bg-saffron/20 transition-colors"
+    >
+      <Lock className="size-3" />
+      Upgrade for unlimited notes
+    </Link>
+  );
+
   return (
     <div className="space-y-2">
       {/* Header */}
@@ -178,13 +198,17 @@ export function StickyNotes({ pageId }: StickyNotesProps) {
           Study Notes ({notes.length})
           <span className="text-[10px] opacity-50">{collapsed ? "▸" : "▾"}</span>
         </button>
-        <button
-          onClick={addNote}
-          className="flex items-center gap-1 rounded-md border border-yellow-400/20 bg-yellow-400/5 px-2 py-1 text-[10px] font-medium text-yellow-400/70 hover:bg-yellow-400/10 transition-colors"
-        >
-          <Plus className="size-3" />
-          Add
-        </button>
+        {atFreeLimit ? (
+          <UpgradeNudge />
+        ) : (
+          <button
+            onClick={addNote}
+            className="flex items-center gap-1 rounded-md border border-yellow-400/20 bg-yellow-400/5 px-2 py-1 text-[10px] font-medium text-yellow-400/70 hover:bg-yellow-400/10 transition-colors"
+          >
+            <Plus className="size-3" />
+            Add
+          </button>
+        )}
       </div>
 
       {/* Notes grid */}
