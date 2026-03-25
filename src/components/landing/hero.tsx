@@ -14,7 +14,7 @@ const STATS = [
   { value: 56, display: "56", label: "Topics", color: "text-saffron" },
   { value: 710, display: "710+", label: "Questions", color: "text-teal" },
   { value: 591, display: "591", label: "Lessons", color: "text-gold" },
-  { value: 100, display: "100%", label: "Free", color: "text-indigo", suffix: "%" },
+  { value: 6, display: "6", label: "FAANG Companies", color: "text-indigo", suffix: "" },
 ];
 
 const FAANG_COMPANIES = [
@@ -135,7 +135,7 @@ export function Hero() {
         </motion.div>
 
         {/* Headline — word-by-word stagger */}
-        <StaggeredHeadline text="Crack Your Software Engineering Interview" />
+        <StaggeredHeadline text="Crack Your Software Engineering Interview With Confidence" />
 
         {/* Subheadline */}
         <motion.p
@@ -146,7 +146,7 @@ export function Hero() {
         >
           <span className="text-foreground font-semibold">56 topics</span>,{" "}
           <span className="text-foreground font-semibold">710+ curated questions</span>,{" "}
-          <span className="text-foreground font-semibold">STAR behavioral prep</span> for Google, Amazon, Microsoft, Meta &mdash; all free
+          <span className="text-foreground font-semibold">STAR behavioral prep</span> for Google, Amazon, Microsoft, Meta &mdash; trusted by engineers
         </motion.p>
 
         {/* Stats grid — counter animation */}
@@ -173,7 +173,7 @@ export function Hero() {
         >
           <Link href="/app/topics">
             <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[140px] text-base font-semibold btn-press">
-              Start Free
+              Get Started
             </Button>
           </Link>
           <Link href="/app/roadmap">

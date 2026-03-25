@@ -25,21 +25,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Guru Sishya — Free Interview Prep for Software Engineers",
+  title: "Guru Sishya — Interview Prep Platform for Software Engineers",
   description:
-    "Crack software engineering interviews with 74 topics, 830+ questions, AI mock interviews, and STAR behavioral prep. Free to start, works offline.",
+    "Crack software engineering interviews with 63+ topics, 830+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
     "system design interview",
     "java interview questions",
     "FAANG interview preparation",
-    "free interview prep",
+    "interview preparation platform",
     "data structures algorithms",
     "behavioral interview STAR method",
     "DSA interview questions",
     "software engineer interview India",
-    "coding interview preparation free",
+    "coding interview preparation",
     "system design interview questions",
     "MAANG interview preparation India",
     "dynamic programming interview",
@@ -50,20 +50,20 @@ export const metadata: Metadata = {
     "node.js interview questions",
     "python interview questions",
     "microservices interview",
-    "LeetCode alternative free",
     "mock interview practice",
     "interview questions with answers",
+    "spring boot interview questions",
   ],
+  icons: {
+    apple: "/icon.png",
+  },
   alternates: {
     canonical: "https://www.guru-sishya.in",
   },
-  other: {
-    "google-site-verification": "YOUR_GOOGLE_VERIFICATION_CODE",
-  },
   openGraph: {
-    title: "Guru Sishya — Free Interview Prep for Software Engineers",
+    title: "Guru Sishya — Interview Prep Platform for Software Engineers",
     description:
-      "Crack software engineering interviews with 74 topics, 830+ questions, AI mock interviews, and STAR behavioral prep. Free to start, works offline.",
+      "Crack software engineering interviews with 63+ topics, 830+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -73,15 +73,15 @@ export const metadata: Metadata = {
         url: "https://www.guru-sishya.in/api/og",
         width: 1200,
         height: 630,
-        alt: "Guru Sishya — Free Software Engineering Interview Prep",
+        alt: "Guru Sishya — Interview Prep Platform for Software Engineers",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Guru Sishya — Free Interview Prep for Software Engineers",
+    title: "Guru Sishya — Interview Prep Platform for Software Engineers",
     description:
-      "Crack software engineering interviews with 74 topics, 830+ questions, AI mock interviews, and STAR behavioral prep. Free to start, works offline.",
+      "Crack software engineering interviews with 63+ topics, 830+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   appleWebApp: {

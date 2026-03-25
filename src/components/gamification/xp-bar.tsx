@@ -19,11 +19,11 @@ export function XPBar({ totalXP, level }: XPBarProps) {
 
   return (
     <div className="flex flex-col gap-1 min-w-[140px]">
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span className="font-medium text-foreground/80 truncate max-w-[100px]">
+      <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+        <span className="font-medium text-foreground/80 truncate max-w-[90px]">
           {label}
         </span>
-        <span className="tabular-nums">{progress.current}/{progress.needed} XP</span>
+        <span className="tabular-nums shrink-0">{progress.current}/{progress.needed} XP</span>
       </div>
       <div className="relative h-2 w-full rounded-full bg-muted/40 overflow-hidden">
         <motion.div

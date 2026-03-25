@@ -53,7 +53,7 @@ const features = [
 const COMPARISON = [
   {
     feature: "Price",
-    gs: "Free / ₹129/mo",
+    gs: "₹149/mo",
     lc: "₹2,917/mo",
     ae: "₹1,660/mo",
     nc: "₹991/mo",
