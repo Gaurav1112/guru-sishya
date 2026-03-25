@@ -5,6 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Loader2, ArrowLeft, ArrowRight, Clock, Target, BookOpen, HelpCircle, Star, CheckCircle2, ChevronDown, ChevronUp, Zap, Terminal } from "lucide-react";
+import { StickyNotes } from "@/components/sticky-notes";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { db } from "@/lib/db";
@@ -559,6 +560,9 @@ export default function SessionViewPage({
           </div>
         </div>
       )}
+
+      {/* ── Sticky notes ────────────────────────────────────────────────── */}
+      <StickyNotes pageId={`topic-${topicId}-session-${sessionNum}`} />
 
       {/* ── Review questions ──────────────────────────────────────────────── */}
       {session.reviewQuestions?.length > 0 && (
