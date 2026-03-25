@@ -13,9 +13,12 @@ import {
   ChevronUp,
   BookOpen,
   PenLine,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -406,19 +409,40 @@ function detectTopicLabel(query: string): string | null {
   return null;
 }
 
-function buildRelatedLinks(topicLabel: string | null): RelatedLink[] {
-  const links: RelatedLink[] = [
-    {
-      label: topicLabel ? `Explore: ${topicLabel}` : "Browse all topics",
-      href: "/app/topics",
+// Map topic labels to search-friendly URLs
+// The topics page has search — linking with a pre-filled search finds the exact topic
+function getTopicSearchUrl(topicLabel: string | null): string {
+  if (!topicLabel) return "/app/topics";
+  // Encode the topic name as a search parameter
+  const slug = encodeURIComponent(topicLabel.toLowerCase().replace(/\s+&\s+/g, " "));
+  return `/app/topics?search=${slug}`;
+}
+
+function buildRelatedLinks(topicLabel: string | null, category?: string): RelatedLink[] {
+  const links: RelatedLink[] = [];
+
+  if (topicLabel) {
+    links.push({
+      label: `Learn: ${topicLabel}`,
+      href: getTopicSearchUrl(topicLabel),
       icon: "lesson",
-    },
-    {
-      label: "Practice questions",
-      href: "/app/questions",
-      icon: "quiz",
-    },
-  ];
+    });
+  }
+
+  links.push({
+    label: topicLabel ? `${topicLabel} questions` : "Practice questions",
+    href: "/app/questions",
+    icon: "quiz",
+  });
+
+  if (!topicLabel) {
+    links.push({
+      label: "Browse all topics",
+      href: "/app/topics",
+      icon: "explore",
+    });
+  }
+
   return links;
 }
 
@@ -672,12 +696,47 @@ export function MitraChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Voice input
+  const {
+    isSupported: micSupported,
+    isListening,
+    transcript,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition({ lang: "en-IN", continuous: false });
+
   // Active premium check
   const isActivePro =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
   // Whether free user has hit message limit
   const hitLimit = !isActivePro && freeCount >= FREE_MESSAGE_LIMIT;
+
+  // Fill input from voice transcript and auto-send when speech stops
+  useEffect(() => {
+    if (transcript) {
+      setInput(transcript);
+    }
+    // When listening stops and we have a transcript, auto-send
+    if (!isListening && transcript.trim()) {
+      const trimmed = transcript.trim();
+      resetTranscript();
+      setInput("");
+      dispatchQuery(trimmed);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transcript, isListening]);
+
+  const handleMicToggle = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      resetTranscript();
+      setInput("");
+      startListening();
+    }
+  }, [isListening, startListening, stopListening, resetTranscript]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -927,17 +986,37 @@ export function MitraChat() {
                     </p>
                   )}
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <input
                     ref={inputRef}
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Ask about Java, Kafka, AWS..."
+                    placeholder={isListening ? "Listening..." : "Ask about Java, Kafka, AWS..."}
                     disabled={isTyping || !knowledgeLoaded}
-                    className="flex-1 rounded-xl border border-border/50 bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30 disabled:opacity-50 transition-colors"
+                    className={`flex-1 rounded-xl border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 disabled:opacity-50 transition-colors ${
+                      isListening
+                        ? "border-red-500/50 bg-red-500/5 focus:ring-red-500/30"
+                        : "border-border/50 bg-surface focus:border-indigo-500/50 focus:ring-indigo-500/30"
+                    }`}
                   />
+                  {/* Mic button */}
+                  {micSupported && (
+                    <button
+                      onClick={handleMicToggle}
+                      disabled={isTyping || !knowledgeLoaded}
+                      aria-label={isListening ? "Stop recording" : "Speak your question"}
+                      className={`flex size-9 shrink-0 items-center justify-center rounded-xl transition-all active:scale-95 disabled:opacity-40 ${
+                        isListening
+                          ? "bg-red-600 text-white animate-pulse"
+                          : "bg-surface border border-border/50 text-muted-foreground hover:text-foreground hover:bg-surface-hover"
+                      }`}
+                    >
+                      {isListening ? <MicOff className="size-4" /> : <Mic className="size-4" />}
+                    </button>
+                  )}
+                  {/* Send button */}
                   <button
                     onClick={sendMessage}
                     disabled={!input.trim() || isTyping || !knowledgeLoaded}

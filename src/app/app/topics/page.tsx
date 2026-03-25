@@ -300,6 +300,13 @@ export default function TopicsPage() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
+  // Pre-fill search from URL ?search= param (used by Mitra links)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("search");
+    if (q) setSearch(decodeURIComponent(q));
+  }, []);
+
   useEffect(() => {
     loadAllContent()
       .then(setAllContent)
