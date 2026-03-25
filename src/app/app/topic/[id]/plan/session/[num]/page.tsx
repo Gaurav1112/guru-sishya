@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Loader2, ArrowLeft, ArrowRight, Clock, Target, BookOpen, HelpCircle, Star, CheckCircle2, ChevronDown, ChevronUp, Zap, Terminal } from "lucide-react";
-import { StickyNotes } from "@/components/sticky-notes";
+import { FloatingStickyNotes } from "@/components/floating-sticky-notes";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { db } from "@/lib/db";
@@ -561,15 +561,8 @@ export default function SessionViewPage({
         </div>
       )}
 
-      {/* ── Sticky notes ────────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/5 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-lg">📌</span>
-          <h2 className="text-sm font-semibold text-yellow-300">Your Study Notes</h2>
-          <span className="text-[10px] text-yellow-400/50">Saved automatically • Only visible to you</span>
-        </div>
-        <StickyNotes pageId={`topic-${topicId}-session-${sessionNum}`} />
-      </div>
+      {/* ── Floating sticky notes panel (right side, sticky on scroll) ── */}
+      <FloatingStickyNotes topicId={topicId} sessionNum={sessionNum} />
 
       {/* ── Review questions ──────────────────────────────────────────────── */}
       {session.reviewQuestions?.length > 0 && (
