@@ -12,6 +12,12 @@ interface FloatingStickyNotesProps {
 
 export function FloatingStickyNotes({ topicId, sessionNum }: FloatingStickyNotesProps) {
   const [open, setOpen] = useState(false);
+
+  // Guard against NaN/null/undefined params
+  if (!topicId || !sessionNum || isNaN(topicId) || isNaN(sessionNum)) {
+    return null;
+  }
+
   const pageId = `topic-${topicId}-session-${sessionNum}`;
 
   return (
