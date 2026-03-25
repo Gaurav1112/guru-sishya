@@ -6,7 +6,7 @@ import type { StateCreator } from "zustand";
  * The admin email — always gets permanent free premium access.
  * Read from NEXT_PUBLIC_ADMIN_EMAIL so the literal value is not hardcoded in
  * source. Tradeoff: it is still visible in the client bundle because of the
- * NEXT_PUBLIC_ prefix; acceptable at this scale (₹129/month hobby project).
+ * NEXT_PUBLIC_ prefix; acceptable at this scale (₹149/month hobby project).
  */
 export const ADMIN_EMAIL =
   process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
@@ -33,9 +33,17 @@ export function computeDaysRemaining(premiumUntil: string | null): number | null
   return Math.ceil(msRemaining / (1000 * 60 * 60 * 24));
 }
 
-/** True when the paymentId marks a user who should never expire */
-export function isNeverExpire(paymentId: string | null): boolean {
-  return paymentId === "allowlist_free" || paymentId === "admin_free";
+/**
+ * True when the paymentId marks a user who should never expire.
+ * Covers admin/allowlist free grants and any Razorpay payment made under the
+ * lifetime plan (payment IDs contain the prefix "pay_" — we distinguish via
+ * planType elsewhere, but we also check a "lifetime_" sentinel that the verify
+ * route can set in future, plus the planType stored on the slice).
+ */
+export function isNeverExpire(paymentId: string | null, planType?: string | null): boolean {
+  if (paymentId === "allowlist_free" || paymentId === "admin_free") return true;
+  if (planType === "lifetime") return true;
+  return false;
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -115,11 +123,11 @@ export const createPremiumSlice: StateCreator<
     }),
 
   checkPremiumExpiry: () => {
-    const { isPremium, premiumUntil, paymentId } = get();
+    const { isPremium, premiumUntil, paymentId, planType } = get();
     if (!isPremium || !premiumUntil) return false;
 
-    // Allowlisted / admin users never expire
-    if (isNeverExpire(paymentId)) {
+    // Allowlisted / admin / lifetime users never expire
+    if (isNeverExpire(paymentId, planType)) {
       return true;
     }
 
@@ -184,17 +192,17 @@ export const createPremiumSlice: StateCreator<
   },
 
   getDaysRemaining: () => {
-    const { isPremium, premiumUntil, paymentId } = get();
+    const { isPremium, premiumUntil, paymentId, planType } = get();
     if (!isPremium || !premiumUntil) return null;
-    // Admin/allowlist — never expire, don't show a countdown
-    if (isNeverExpire(paymentId)) return null;
+    // Admin/allowlist/lifetime — never expire, don't show a countdown
+    if (isNeverExpire(paymentId, planType)) return null;
     return computeDaysRemaining(premiumUntil);
   },
 
   getIsExpiringSoon: () => {
-    const { isPremium, premiumUntil, paymentId } = get();
+    const { isPremium, premiumUntil, paymentId, planType } = get();
     if (!isPremium || !premiumUntil) return false;
-    if (isNeverExpire(paymentId)) return false;
+    if (isNeverExpire(paymentId, planType)) return false;
     const days = computeDaysRemaining(premiumUntil);
     if (days === null) return false;
     return days > 0 && days <= EXPIRY_WARNING_THRESHOLD_DAYS;

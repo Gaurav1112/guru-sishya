@@ -5,19 +5,24 @@ import Razorpay from "razorpay";
 
 const PLANS = {
   monthly: {
-    amount: 12900,   // ₹129 in paise
+    amount: 14900,   // ₹149 in paise
     currency: "INR",
     label: "Monthly Pro",
   },
   semester: {
-    amount: 59900,   // ₹599 in paise — 6 months
+    amount: 69900,   // ₹699 in paise — 6 months
     currency: "INR",
     label: "Semester Pro",
   },
   annual: {
-    amount: 99900,   // ₹999 in paise
+    amount: 119900,  // ₹1,199 in paise
     currency: "INR",
     label: "Annual Pro",
+  },
+  lifetime: {
+    amount: 299900,  // ₹2,999 in paise — one-time
+    currency: "INR",
+    label: "Lifetime Pro",
   },
 } as const;
 
@@ -45,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     if (!planType || !(planType in PLANS)) {
       return NextResponse.json(
-        { error: "Invalid planType. Must be monthly, semester, or annual." },
+        { error: "Invalid planType. Must be monthly, semester, annual, or lifetime." },
         { status: 400 }
       );
     }

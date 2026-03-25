@@ -8,14 +8,16 @@ const PLAN_DURATION_DAYS: Record<string, number> = {
   monthly: 30,
   semester: 180,
   annual: 365,
+  lifetime: 36500, // 100 years — effectively permanent
 };
 
 // ── Plan amounts in paise (must match create-order) ───────────────────────────
 
 const PLAN_AMOUNTS: Record<string, number> = {
-  monthly: 12900,
-  semester: 59900,
-  annual: 99900,
+  monthly: 14900,
+  semester: 69900,
+  annual: 119900,
+  lifetime: 299900,
 };
 
 // ── POST /api/razorpay/verify ────────────────────────────────────────────────

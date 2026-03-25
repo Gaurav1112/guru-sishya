@@ -2,10 +2,10 @@
 
 import { useState, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { runJava, runPython } from "@/lib/code-runner";
+import { runJava, runPython, type RunResult } from "@/lib/code-runner";
 
 // Monaco must be dynamically imported with ssr: false
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -133,7 +133,7 @@ const person: Person = { name: "Ada", age: 36 };
 console.log(\`\${person.name} is \${person.age} years old\`);
 `,
   python: `# Python Playground
-# Runs via Wandbox API (free, no key needed)
+# Runs in-browser via Pyodide (WebAssembly) — no internet needed after first load
 
 def greet(name):
     return f"Hello, {name}!"
@@ -142,7 +142,7 @@ print(greet("World"))
 print("2 + 2 =", 2 + 2)
 `,
   java: `// Java Playground
-// Run locally: javac Main.java && java Main
+// Compiled and run via Wandbox cloud (OpenJDK) — may take 10–20 s
 
 public class Main {
     public static void main(String[] args) {
@@ -197,58 +197,65 @@ export function CodePlayground({
   const [output, setOutput] = useState<string>("");
   const [outputError, setOutputError] = useState<boolean>(false);
   const [running, setRunning] = useState(false);
+  const [runnerLabel, setRunnerLabel] = useState<string>("");
+  const [runStatus, setRunStatus] = useState<string>("");
+  const [execMs, setExecMs] = useState<number | null>(null);
   const [outputVisible, setOutputVisible] = useState(false);
   const editorRef = useRef<unknown>(null);
 
   const handleRun = useCallback(async () => {
     setRunning(true);
     setOutputVisible(true);
+    setOutput("");
+    setExecMs(null);
+    setRunnerLabel("");
 
     try {
       if (language === "java") {
-        // Java: no free remote compiler available — show helpful fallback
-        const result = await runJava(code);
+        setRunStatus("Compiling via cloud (Wandbox / OpenJDK)...");
+        const result: RunResult = await runJava(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
+        setRunnerLabel("cloud compiler (Wandbox)");
+        setExecMs(result.durationMs ?? null);
       } else if (language === "python") {
-        // Remote execution via Wandbox API
-        const result = await runPython(code);
+        setRunStatus("Loading Pyodide (first run downloads ~5 MB)...");
+        const result: RunResult = await runPython(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
+        setRunnerLabel(result.runner === "pyodide" ? "Pyodide (in-browser)" : "Wandbox API");
+        setExecMs(result.durationMs ?? null);
       } else {
-        // Local JS/TS execution
-        // Small timeout to let the UI update (show spinner) before potentially blocking
+        setRunStatus("");
+        // Local JS/TS execution — small timeout to let the UI update before blocking
         await new Promise((r) => setTimeout(r, 50));
+        const t0 = Date.now();
 
         // TypeScript: strip type annotations via a naive regex before running
         let runnable = code;
         if (language === "typescript") {
-          // Strip TS-specific syntax (basic: type annotations, interfaces, as casts)
           runnable = code
-            // Remove interface blocks
             .replace(/interface\s+\w+\s*\{[^}]*\}/g, "")
-            // Remove type aliases
             .replace(/type\s+\w+\s*=\s*[^;]+;/g, "")
-            // Remove return type annotations  :Type
             .replace(/\)\s*:\s*[\w<>\[\]|&]+/g, ")")
-            // Remove parameter type annotations  param: Type
             .replace(/(\w+)\s*:\s*[\w<>\[\]|&]+(\s*[,)])/g, "$1$2")
-            // Remove `as Type` casts
             .replace(/\s+as\s+[\w<>\[\]|&]+/g, "")
-            // Remove const x: Type declarations
             .replace(/:\s*[\w<>\[\]|&]+(\s*=)/g, "$1");
         }
 
         const { output: out, error } = executeJavaScript(runnable);
         setOutput(out);
         setOutputError(error !== null);
+        setRunnerLabel("in-browser");
+        setExecMs(Date.now() - t0);
       }
     } catch (e) {
       setOutput(e instanceof Error ? e.message : String(e));
       setOutputError(true);
     } finally {
+      setRunStatus("");
       setRunning(false);
     }
   }, [code, language]);
@@ -258,6 +265,9 @@ export function CodePlayground({
     setOutput("");
     setOutputError(false);
     setOutputVisible(false);
+    setRunnerLabel("");
+    setRunStatus("");
+    setExecMs(null);
   }, [defaultCode, codeByLanguage, language]);
 
   const handleLanguageChange = useCallback((lang: PlaygroundLanguage) => {
@@ -270,6 +280,9 @@ export function CodePlayground({
     setOutput("");
     setOutputError(false);
     setOutputVisible(false);
+    setRunnerLabel("");
+    setRunStatus("");
+    setExecMs(null);
   }, [defaultCode, codeByLanguage]);
 
   const monacoLang = LANGUAGES.find((l) => l.value === language)?.monacoLang ?? "javascript";
@@ -371,7 +384,7 @@ export function CodePlayground({
             size="sm"
             onClick={handleRun}
             disabled={running}
-            className="gap-1.5 bg-saffron text-black hover:bg-saffron/90 border-0 font-semibold text-xs h-7"
+            className="gap-1.5 bg-saffron text-black hover:bg-saffron/90 border-0 font-semibold text-xs h-7 shrink-0"
           >
             {running ? (
               <Loader2 className="size-3 animate-spin" />
@@ -381,16 +394,22 @@ export function CodePlayground({
             {running ? "Running..." : "Run Code"}
           </Button>
 
-          {/* Remote execution note for Python */}
-          {language === "python" && !running && (
-            <span className="text-[10px] text-muted-foreground/60 italic">
-              runs via Wandbox API
+          {/* Status message while running */}
+          {running && runStatus && (
+            <span className="text-[10px] text-amber-400/80 italic truncate">
+              {runStatus}
             </span>
           )}
-          {/* Java: no free remote compiler available */}
-          {language === "java" && !running && (
+
+          {/* Idle hints */}
+          {!running && !runStatus && language === "python" && (
             <span className="text-[10px] text-muted-foreground/60 italic">
-              run locally with javac, or click Run for instructions
+              runs in-browser (Pyodide)
+            </span>
+          )}
+          {!running && !runStatus && language === "java" && (
+            <span className="text-[10px] text-muted-foreground/60 italic">
+              compiles via cloud (Wandbox / OpenJDK)
             </span>
           )}
 
@@ -398,7 +417,7 @@ export function CodePlayground({
             <button
               type="button"
               onClick={() => setOutputVisible((v) => !v)}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto shrink-0"
             >
               <Terminal className="size-3" />
               Output
@@ -420,6 +439,17 @@ export function CodePlayground({
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Output
             </span>
+            {runnerLabel && (
+              <span className="text-[10px] text-muted-foreground/50 italic ml-1">
+                via {runnerLabel}
+              </span>
+            )}
+            {execMs !== null && (
+              <span className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground/50">
+                <Clock className="size-2.5" />
+                {execMs < 1000 ? `${execMs}ms` : `${(execMs / 1000).toFixed(1)}s`}
+              </span>
+            )}
           </div>
           <pre
             className={cn(

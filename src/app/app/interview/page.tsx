@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronRight, Mic, Send, Clock, RotateCcw, Trophy, ChevronDown, ArrowLeft } from "lucide-react";
+import { ChevronRight, Mic, MicOff, Send, Clock, RotateCcw, Trophy, ChevronDown, ArrowLeft } from "lucide-react";
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { PageTransition } from "@/components/page-transition";
 import { PremiumGate } from "@/components/premium-gate";
 import { useStore } from "@/lib/store";
@@ -661,6 +662,43 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // ── Speech Recognition ──────────────────────────────────────────────────
+  const {
+    isSupported: speechSupported,
+    isListening,
+    transcript,
+    interimTranscript,
+    error: speechError,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition({ lang: "en-IN", continuous: true, interimResults: true });
+
+  // When speech transcript updates, fill it into the input field
+  useEffect(() => {
+    if (transcript && isListening) {
+      setUserInput(transcript);
+    }
+  }, [transcript, isListening]);
+
+  // When user stops recording, finalize the transcript into the input
+  const prevListeningRef = useRef(false);
+  useEffect(() => {
+    if (prevListeningRef.current && !isListening && transcript) {
+      setUserInput(transcript);
+    }
+    prevListeningRef.current = isListening;
+  }, [isListening, transcript]);
+
+  const handleMicToggle = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      resetTranscript();
+      startListening();
+    }
+  }, [isListening, startListening, stopListening, resetTranscript]);
+
   const company = COMPANIES.find((c) => c.id === config.company) ?? COMPANIES[5];
   const maxQuestions = questions.length;
 
@@ -747,6 +785,12 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
     const answer = userInput.trim();
     if (!answer || phase !== "awaiting") return;
 
+    // Stop listening if speech recognition is active
+    if (isListening) {
+      stopListening();
+    }
+    resetTranscript();
+
     addMessage("user", answer);
     setUserInput("");
     setPhase("feedback");
@@ -825,9 +869,12 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
     addMessage,
     askNextQuestion,
     currentQuestionIndex,
+    isListening,
     maxQuestions,
     phase,
     questions,
+    resetTranscript,
+    stopListening,
     userInput,
   ]);
 
@@ -1038,35 +1085,119 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
 
       {/* Input area */}
       <div className="shrink-0 rounded-b-xl border border-t border-border/50 bg-surface p-4">
-        <div className="relative">
-          <textarea
-            ref={inputRef}
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              phase === "awaiting"
-                ? "Type your answer... (Enter to submit, Shift+Enter for new line)"
-                : phase === "done"
-                ? "Interview complete!"
-                : "Wait for the next question..."
-            }
-            disabled={phase !== "awaiting"}
-            rows={3}
-            className="w-full resize-none rounded-xl border border-border/50 bg-background px-4 py-3 pr-14 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-saffron/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          />
-          <button
-            type="button"
-            onClick={handleSubmitAnswer}
-            disabled={phase !== "awaiting" || !userInput.trim()}
-            className="absolute right-3 bottom-3 flex items-center justify-center rounded-lg bg-saffron p-2 text-background transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <Send className="size-4" />
-          </button>
+        {/* Live transcription preview */}
+        <AnimatePresence>
+          {isListening && interimTranscript && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-2 overflow-hidden"
+            >
+              <div className="flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2">
+                <span className="relative flex size-2">
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex size-2 rounded-full bg-red-500" />
+                </span>
+                <p className="text-xs text-muted-foreground italic truncate">
+                  {interimTranscript}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Speech error message */}
+        {speechError && (
+          <div className="mb-2 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs text-red-400">
+            {speechError}
+          </div>
+        )}
+
+        <div className="relative flex items-end gap-2">
+          {/* Mic button */}
+          {speechSupported && (
+            <button
+              type="button"
+              onClick={handleMicToggle}
+              disabled={phase !== "awaiting"}
+              title={
+                isListening
+                  ? "Stop recording"
+                  : "Speak your answer"
+              }
+              className={`shrink-0 flex items-center justify-center rounded-xl p-3 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                isListening
+                  ? "bg-red-500/15 border border-red-500/40 text-red-400 hover:bg-red-500/25 shadow-md shadow-red-500/10"
+                  : "bg-background border border-border/50 text-muted-foreground hover:text-foreground hover:bg-surface-hover"
+              }`}
+            >
+              {isListening ? (
+                <span className="relative flex items-center justify-center">
+                  <span className="absolute inline-flex size-7 animate-ping rounded-full bg-red-400 opacity-20" />
+                  <MicOff className="relative size-4" />
+                </span>
+              ) : (
+                <Mic className="size-4" />
+              )}
+            </button>
+          )}
+
+          {/* Text input */}
+          <div className="relative flex-1">
+            <textarea
+              ref={inputRef}
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                phase === "awaiting"
+                  ? isListening
+                    ? "Listening... speak your answer"
+                    : "Type or speak your answer... (Enter to submit)"
+                  : phase === "done"
+                  ? "Interview complete!"
+                  : "Wait for the next question..."
+              }
+              disabled={phase !== "awaiting"}
+              rows={3}
+              className={`w-full resize-none rounded-xl border bg-background px-4 py-3 pr-14 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-saffron/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
+                isListening
+                  ? "border-red-500/40 ring-1 ring-red-500/20"
+                  : "border-border/50"
+              }`}
+            />
+            <button
+              type="button"
+              onClick={handleSubmitAnswer}
+              disabled={phase !== "awaiting" || !userInput.trim()}
+              className="absolute right-3 bottom-3 flex items-center justify-center rounded-lg bg-saffron p-2 text-background transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Send className="size-4" />
+            </button>
+          </div>
         </div>
+
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          Enter to submit &bull; Shift+Enter for new line
+          {speechSupported ? (
+            <>
+              {isListening ? (
+                <>Recording... click <MicOff className="inline size-3" /> to stop</>
+              ) : (
+                <>Enter to submit &bull; <Mic className="inline size-3" /> to speak your answer</>
+              )}
+            </>
+          ) : (
+            <>Enter to submit &bull; Shift+Enter for new line</>
+          )}
         </p>
+
+        {/* Unsupported browser notice */}
+        {!speechSupported && (
+          <p className="mt-1 text-center text-xs text-muted-foreground/60">
+            Voice input requires Chrome, Edge, or Safari
+          </p>
+        )}
       </div>
     </div>
   );

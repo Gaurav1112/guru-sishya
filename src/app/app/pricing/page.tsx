@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Check, Sparkles, Crown, Zap } from "lucide-react";
+import { Check, Sparkles, Crown, Zap, Infinity as InfinityIcon } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { PageTransition } from "@/components/page-transition";
 
@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-type PlanType = "monthly" | "semester" | "annual";
+type PlanType = "monthly" | "semester" | "annual" | "lifetime";
 
 // ── Plan data ─────────────────────────────────────────────────────────────────
 
@@ -28,13 +28,14 @@ const PLANS: {
   period: string;
   savingsPct?: number;
   highlight: boolean;
+  isLifetime?: boolean;
   icon: React.ReactNode;
   badge?: string;
 }[] = [
   {
     id: "monthly",
     label: "Monthly",
-    price: 129,
+    price: 149,
     period: "per month",
     highlight: false,
     icon: <Zap className="size-5" />,
@@ -42,24 +43,34 @@ const PLANS: {
   {
     id: "semester",
     label: "Semester",
-    price: 599,
-    originalPrice: 129 * 6,
+    price: 699,
+    originalPrice: 149 * 6,
     period: "for 6 months",
-    savingsPct: Math.round((1 - 599 / (129 * 6)) * 100),
+    savingsPct: Math.round((1 - 699 / (149 * 6)) * 100),
     highlight: false,
     icon: <Sparkles className="size-5" />,
-    badge: "Save 23%",
+    badge: `Save ${Math.round((1 - 699 / (149 * 6)) * 100)}%`,
   },
   {
     id: "annual",
     label: "Annual",
-    price: 999,
-    originalPrice: 129 * 12,
+    price: 1199,
+    originalPrice: 149 * 12,
     period: "per year",
-    savingsPct: Math.round((1 - 999 / (129 * 12)) * 100),
+    savingsPct: Math.round((1 - 1199 / (149 * 12)) * 100),
     highlight: true,
     icon: <Crown className="size-5" />,
-    badge: "Most Popular · Save 36%",
+    badge: `Most Popular · Save ${Math.round((1 - 1199 / (149 * 12)) * 100)}%`,
+  },
+  {
+    id: "lifetime",
+    label: "Lifetime",
+    price: 2999,
+    period: "one-time payment",
+    highlight: false,
+    isLifetime: true,
+    icon: <InfinityIcon className="size-5" />,
+    badge: "Best Value",
   },
 ];
 
@@ -277,7 +288,7 @@ export default function PricingPage() {
       )}
 
       {/* Plan cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {PLANS.map((plan, i) => (
           <motion.div
             key={plan.id}
@@ -285,14 +296,24 @@ export default function PricingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1, duration: 0.45, ease: "easeOut" }}
             className={`relative flex flex-col rounded-2xl border p-6 transition-all ${
-              plan.highlight
+              plan.isLifetime
+                ? "border-gold/60 bg-gradient-to-b from-gold/15 via-gold/5 to-background shadow-lg shadow-gold/20 ring-1 ring-gold/30"
+                : plan.highlight
                 ? "border-saffron/50 bg-gradient-to-b from-saffron/10 via-gold/5 to-background shadow-lg shadow-saffron/10"
                 : "border-border/50 bg-surface"
             }`}
           >
             {/* Badge */}
             {plan.badge && (
-              plan.highlight ? (
+              plan.isLifetime ? (
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold bg-gradient-to-r from-gold to-saffron text-background"
+                >
+                  {plan.badge}
+                </motion.div>
+              ) : plan.highlight ? (
                 <motion.div
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -312,7 +333,9 @@ export default function PricingPage() {
             {/* Icon + label */}
             <div
               className={`flex size-10 items-center justify-center rounded-full mb-4 ${
-                plan.highlight
+                plan.isLifetime
+                  ? "bg-gold/25 text-gold ring-1 ring-gold/40"
+                  : plan.highlight
                   ? "bg-saffron/20 text-saffron"
                   : "bg-gold/10 text-gold"
               }`}
@@ -340,7 +363,9 @@ export default function PricingPage() {
               disabled={!!loadingPlan || isActive}
               onClick={() => handleBuyPlan(plan.id)}
               className={`mt-auto w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-all disabled:opacity-60 ${
-                plan.highlight
+                plan.isLifetime
+                  ? "bg-gradient-to-r from-gold to-saffron text-background hover:opacity-90"
+                  : plan.highlight
                   ? "bg-saffron text-background hover:bg-saffron/90"
                   : "border border-saffron/50 text-saffron hover:bg-saffron/10"
               }`}
