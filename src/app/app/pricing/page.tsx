@@ -451,7 +451,7 @@ export default function PricingPage() {
       </section>
 
       {/* Reassurance footer */}
-      <div className="grid gap-4 sm:grid-cols-3 text-center text-sm text-muted-foreground">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 text-center text-sm text-muted-foreground">
         {[
           { icon: "🔒", text: "Payments secured by Razorpay" },
           { icon: "📱", text: "Works on all devices, offline-ready" },

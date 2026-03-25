@@ -395,7 +395,7 @@ function SetupScreen({ onStart }: SetupScreenProps) {
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Interview Type
           </h2>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {(["technical", "behavioral", "mixed"] as const).map((t) => (
               <button
                 key={t}
@@ -428,7 +428,7 @@ function SetupScreen({ onStart }: SetupScreenProps) {
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Difficulty
           </h2>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {(["Easy", "Medium", "Hard", "Mixed"] as const).map((d) => (
               <button
                 key={d}
@@ -893,7 +893,7 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
       : 0;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] max-h-[800px]">
+    <div className="flex flex-col h-[calc(100vh-7rem)] sm:h-[calc(100vh-8rem)] max-h-[800px]">
       {/* Interview header */}
       <div className="shrink-0 flex items-center gap-4 rounded-t-xl border border-b-0 border-border/50 bg-surface px-4 py-3">
         {/* Interviewer avatar */}
@@ -911,15 +911,15 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
           </p>
         </div>
 
-        {/* Progress */}
-        <div className="hidden sm:flex items-center gap-3">
+        {/* Progress — compact on mobile, full on sm+ */}
+        <div className="flex items-center gap-3">
           <div className="text-right">
             <p className="text-xs text-muted-foreground">
               {currentQuestionIndex >= 0
                 ? `Q${Math.min(currentQuestionIndex + 1, maxQuestions)} of ${maxQuestions}`
                 : `0 of ${maxQuestions}`}
             </p>
-            <div className="mt-1 h-1.5 w-24 rounded-full bg-muted/40 overflow-hidden">
+            <div className="mt-1 h-1.5 w-16 sm:w-24 rounded-full bg-muted/40 overflow-hidden">
               <div
                 className="h-full rounded-full bg-saffron transition-all duration-500"
                 style={{ width: `${progress}%` }}

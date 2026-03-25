@@ -1041,9 +1041,9 @@ export default function QuestionsPage() {
       </AnimatePresence>
 
       {/* Search + Controls */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         {/* Search */}
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1 min-w-[140px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <input
             type="text"
@@ -1247,7 +1247,7 @@ export default function QuestionsPage() {
               type="button"
               onClick={goPrev}
               disabled={currentIndex === 0}
-              className="flex items-center gap-1 rounded-xl border border-border/50 bg-surface px-4 py-2.5 text-sm font-medium transition-all hover:bg-surface-hover disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 rounded-xl border border-border/50 bg-surface px-4 py-2.5 min-h-[44px] text-sm font-medium transition-all hover:bg-surface-hover disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="size-4" />
               Previous
@@ -1281,7 +1281,7 @@ export default function QuestionsPage() {
               type="button"
               onClick={goNext}
               disabled={currentIndex >= totalFiltered - 1}
-              className="flex items-center gap-1 rounded-xl border border-border/50 bg-surface px-4 py-2.5 text-sm font-medium transition-all hover:bg-surface-hover disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 rounded-xl border border-border/50 bg-surface px-4 py-2.5 min-h-[44px] text-sm font-medium transition-all hover:bg-surface-hover disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Next
               <ChevronRight className="size-4" />

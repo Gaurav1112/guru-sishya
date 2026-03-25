@@ -96,7 +96,7 @@ function AnimatedCounter({
 function StaggeredHeadline({ text }: { text: string }) {
   const words = text.split(" ");
   return (
-    <h1 className="font-heading text-4xl font-bold leading-tight md:text-6xl bg-gradient-to-r from-saffron via-gold to-teal bg-clip-text text-transparent">
+    <h1 className="font-heading text-3xl font-bold leading-tight sm:text-4xl md:text-6xl bg-gradient-to-r from-saffron via-gold to-teal bg-clip-text text-transparent">
       {words.map((word, i) => (
         <motion.span
           key={i}
@@ -150,7 +150,7 @@ export function Hero() {
         </motion.p>
 
         {/* Stats grid — counter animation */}
-        <div className="mt-6 grid grid-cols-4 gap-3 max-w-lg mx-auto">
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto">
           {STATS.map((stat, i) => (
             <AnimatedCounter
               key={stat.label}

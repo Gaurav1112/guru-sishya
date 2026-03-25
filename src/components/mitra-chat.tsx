@@ -470,9 +470,9 @@ export function MitraChat() {
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close Mitra"
-                className="flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+                className="flex size-8 sm:size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
               >
-                <X className="size-4" />
+                <X className="size-5 sm:size-4" />
               </button>
             </div>
 
@@ -509,7 +509,7 @@ export function MitraChat() {
             {hitLimit ? (
               <UpgradeNudge />
             ) : (
-              <div className="border-t border-border/50 bg-background/80 px-3 py-2.5">
+              <div className="sticky bottom-0 border-t border-border/50 bg-background/80 px-3 py-2.5">
                 {/* Free message counter for non-Pro */}
                 {!isActivePro && freeCount > 0 && freeCount < FREE_MESSAGE_LIMIT && (
                   <p className="mb-1.5 text-center text-[10px] text-muted-foreground">

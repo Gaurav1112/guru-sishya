@@ -68,7 +68,7 @@ function DeckSummary({
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-3 w-full">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
         {[
           { label: "Easy",  count: easy,  color: "text-teal" },
           { label: "Good",  count: good,  color: "text-saffron" },
