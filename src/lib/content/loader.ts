@@ -47,6 +47,9 @@ const CONTENT_FILES = [
   "/content/kafka.json",
   "/content/aws.json",
   "/content/k8s-docker.json",
+  "/content/javascript.json",
+  "/content/react-nextjs.json",
+  "/content/html-css.json",
 ];
 
 let _contentCache: TopicContent[] | null = null;
