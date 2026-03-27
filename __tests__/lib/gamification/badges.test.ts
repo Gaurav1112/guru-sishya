@@ -26,6 +26,14 @@ function makeStats(overrides: Partial<UserStats> = {}): UserStats {
     categoriesExplored: 0,
     totalQuizzes: 0,
     badgeCount: 0,
+    sessionsCompleted: 0,
+    highScoreQuizzes: 0,
+    excellentQuizzes: 0,
+    dailyChallengesCompleted: 0,
+    timedTestsCompleted: 0,
+    quizzesInOneDay: 0,
+    interviewsCompleted: 0,
+    interviewHighScore: 0,
     ...overrides,
   };
 }
@@ -35,8 +43,8 @@ function makeStats(overrides: Partial<UserStats> = {}): UserStats {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("BADGE_DEFINITIONS", () => {
-  it("has exactly 30 badge definitions", () => {
-    expect(BADGE_DEFINITIONS).toHaveLength(30);
+  it("has exactly 33 badge definitions", () => {
+    expect(BADGE_DEFINITIONS).toHaveLength(33);
   });
 
   it("has unique IDs", () => {

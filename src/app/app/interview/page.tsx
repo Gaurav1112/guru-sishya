@@ -10,6 +10,11 @@ import { PremiumGate } from "@/components/premium-gate";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
 import { generateFlashcardsFromInterview } from "@/lib/flashcard-generator";
+import { sounds } from "@/lib/audio";
+import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
+import { shouldDropChest, recordChest, generateChestContents } from "@/lib/gamification/treasure-chests";
+import { checkOneMoreRound, type OneMoreRoundTrigger } from "@/lib/gamification/one-more-round";
+import { xpProgressInLevel } from "@/lib/gamification/xp";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -498,6 +503,14 @@ function SetupScreen({ onStart }: SetupScreenProps) {
 
 // ── Results screen ─────────────────────────────────────────────────────────────
 
+interface InterviewRewards {
+  xp: number;
+  coins: number;
+  newBadges: { name: string; icon: string }[];
+  chestDropped: boolean;
+  oneMoreRound: OneMoreRoundTrigger | null;
+}
+
 interface ResultsScreenProps {
   messages: ChatMessage[];
   scores: number[];
@@ -505,6 +518,7 @@ interface ResultsScreenProps {
   questions: InterviewQuestion[];
   onRestart: () => void;
   elapsed: number;
+  rewards: InterviewRewards | null;
 }
 
 function ResultsScreen({
@@ -514,6 +528,7 @@ function ResultsScreen({
   questions,
   onRestart,
   elapsed,
+  rewards,
 }: ResultsScreenProps) {
   const avg = scores.length > 0
     ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10)
@@ -560,6 +575,45 @@ function ResultsScreen({
             {scores.length} questions &bull; {config.company} &bull; {config.type} &bull;{" "}
             {minutes}m {seconds}s
           </p>
+
+          {/* Rewards earned */}
+          {rewards && (rewards.xp > 0 || rewards.coins > 0) && (
+            <div className="flex items-center justify-center gap-4 mt-4">
+              {rewards.xp > 0 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-saffron/10 text-saffron text-sm font-semibold">
+                  +{rewards.xp} XP
+                </div>
+              )}
+              {rewards.coins > 0 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold/10 text-gold text-sm font-semibold">
+                  +{rewards.coins} coins
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* New badges */}
+          {rewards && rewards.newBadges.length > 0 && (
+            <div className="flex items-center justify-center gap-2 mt-3">
+              {rewards.newBadges.map((b) => (
+                <div
+                  key={b.name}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo/30 bg-indigo/10 text-sm font-medium text-indigo"
+                >
+                  <span>{b.icon}</span> {b.name}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Treasure chest */}
+          {rewards?.chestDropped && (
+            <div className="mt-3 text-center">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gold/30 bg-gold/10 text-sm font-medium text-gold animate-pulse">
+                Treasure Chest earned!
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Per-question scores */}
@@ -619,6 +673,20 @@ function ResultsScreen({
           </div>
         )}
 
+        {/* One More Round prompt */}
+        {rewards?.oneMoreRound && (
+          <div className="rounded-xl border border-saffron/20 bg-saffron/5 p-4 text-center space-y-2">
+            <p className="text-sm text-foreground font-medium">
+              {rewards.oneMoreRound.message}
+            </p>
+            {rewards.oneMoreRound.xpMultiplier > 1 && (
+              <p className="text-xs text-saffron font-semibold">
+                {rewards.oneMoreRound.xpMultiplier}x XP bonus on your next round!
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
@@ -627,7 +695,7 @@ function ResultsScreen({
             className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border/50 bg-surface px-4 py-3 text-sm font-semibold transition-all hover:bg-surface-hover"
           >
             <RotateCcw className="size-4" />
-            New Interview
+            {rewards?.oneMoreRound ? "One More Round!" : "New Interview"}
           </button>
           <Link
             href="/app/questions"
@@ -813,6 +881,13 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
     setTimeout(() => {
       setIsThinking(false);
       setScores((prev) => [...prev, result.score]);
+
+      // Play sound based on score
+      if (result.score >= 8) {
+        sounds.correct();
+      } else if (result.score < 4) {
+        sounds.wrong();
+      }
 
       // Feedback message
       const feedbackLines: string[] = [];
@@ -1258,8 +1333,9 @@ export default function InterviewPage() {
   const [chatKey, setChatKey] = useState(0);
   const [elapsedFinal, setElapsedFinal] = useState(0);
   const [freeInterviewsUsed, setFreeInterviewsUsed] = useState(0);
+  const [interviewRewards, setInterviewRewards] = useState<InterviewRewards | null>(null);
 
-  const { isPremium, premiumUntil } = useStore();
+  const { isPremium, premiumUntil, addXP, addCoins, queueCelebration, totalXP, currentStreak, longestStreak, level } = useStore();
   const isActivePremium =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
@@ -1310,16 +1386,47 @@ export default function InterviewPage() {
     setElapsedFinal(finalElapsed);
     setPhase("complete");
 
+    // ── Calculate rewards ────────────────────────────────────────────────
+    const totalQuestions = finalScores.length;
+    const correctCount = finalScores.filter((s) => s >= 7).length;
+    const avgScore = totalQuestions > 0
+      ? finalScores.reduce((sum, s) => sum + s, 0) / totalQuestions
+      : 0;
+    const overallScorePercent = totalQuestions > 0
+      ? Math.round((finalScores.reduce((a, b) => a + b, 0) / totalQuestions) * 10)
+      : 0;
+
+    // XP: 10 base per question + 5 bonus per correct answer
+    const baseXP = totalQuestions * 10;
+    const bonusXP = correctCount * 5;
+    const earnedXP = baseXP + bonusXP;
+
+    // Coins: 5 per question + 20 bonus if avg >= 70%
+    const baseCoins = totalQuestions * 5;
+    const bonusCoins = avgScore >= 7 ? 20 : 0;
+    const earnedCoins = baseCoins + bonusCoins;
+
+    // Award XP and coins
+    addXP(earnedXP);
+    addCoins(earnedCoins, "Mock Interview");
+
+    // Play completion sound
+    if (avgScore >= 9) {
+      sounds.perfect();
+    } else {
+      sounds.levelUp();
+    }
+
+    // Queue celebrations
+    if (avgScore >= 9) {
+      queueCelebration({ type: "perfect_round", data: { score: overallScorePercent } });
+    } else {
+      queueCelebration({ type: "xp_gain", data: { amount: earnedXP } });
+    }
+
     // Save results to localStorage for the Revision page
     if (config) {
       try {
-        const overallScore =
-          finalScores.length > 0
-            ? Math.round(
-                (finalScores.reduce((a, b) => a + b, 0) / finalScores.length) * 10
-              )
-            : 0;
-
         const history = JSON.parse(
           localStorage.getItem("gs-interview-history") ?? "[]"
         ) as object[];
@@ -1329,7 +1436,7 @@ export default function InterviewPage() {
           company: config.company,
           topic: config.topic,
           questions: results,
-          overallScore,
+          overallScore: overallScorePercent,
         });
 
         localStorage.setItem(
@@ -1340,6 +1447,68 @@ export default function InterviewPage() {
         // ignore localStorage errors
       }
     }
+
+    // ── Treasure chest check ─────────────────────────────────────────────
+    let chestDropped = false;
+    try {
+      const history = JSON.parse(
+        localStorage.getItem("gs-interview-history") ?? "[]"
+      ) as object[];
+      const roundsCompleted = history.length;
+      const lastChestAt = parseInt(localStorage.getItem("gs-interview-last-chest") ?? "0", 10);
+      if (shouldDropChest(roundsCompleted, lastChestAt)) {
+        chestDropped = true;
+        localStorage.setItem("gs-interview-last-chest", String(roundsCompleted));
+        recordChest().catch(() => {});
+        sounds.coin();
+      }
+    } catch {
+      // ignore
+    }
+
+    // ── Badge check (async) ──────────────────────────────────────────────
+    const rewardsPayload: InterviewRewards = {
+      xp: earnedXP,
+      coins: earnedCoins,
+      newBadges: [],
+      chestDropped,
+      oneMoreRound: null,
+    };
+
+    getUserStats({ currentStreak, longestStreak, totalXP: totalXP + earnedXP, level })
+      .then((stats) => checkAndUnlockBadges(stats))
+      .then((newBadges) => {
+        if (newBadges.length > 0) {
+          for (const badge of newBadges) {
+            queueCelebration({ type: "badge", data: { badge: { name: badge.name, icon: badge.icon } } });
+            sounds.badge();
+          }
+          rewardsPayload.newBadges = newBadges.map((b) => ({ name: b.name, icon: b.icon }));
+        }
+
+        // ── One More Round check ────────────────────────────────────────
+        const progress = xpProgressInLevel(totalXP + earnedXP);
+        const xpToNextLevel = progress.needed - progress.current;
+        const oneMore = checkOneMoreRound({
+          lastQuizScore: overallScorePercent,
+          xpToNextLevel,
+          badgesNearUnlock: 0,
+          inSessionStreak: correctCount,
+          dailyChallengeAvailable: false,
+          decayedTopicCount: 0,
+          consecutivePrompts: 0,
+        });
+        rewardsPayload.oneMoreRound = oneMore;
+
+        setInterviewRewards({ ...rewardsPayload });
+      })
+      .catch(() => {
+        // Still show rewards even if badge check fails
+        setInterviewRewards({ ...rewardsPayload });
+      });
+
+    // Set initial rewards immediately (badges update async)
+    setInterviewRewards(rewardsPayload);
 
     // Auto-feed wrong answers into the revision (flashcard) system
     const interviewResults = results.map((r) => ({
@@ -1365,6 +1534,7 @@ export default function InterviewPage() {
     setScores([]);
     setElapsedFinal(0);
     setError(null);
+    setInterviewRewards(null);
   }
 
   return (
@@ -1433,6 +1603,7 @@ export default function InterviewPage() {
           questions={questions}
           onRestart={handleRestart}
           elapsed={elapsedFinal}
+          rewards={interviewRewards}
         />
       )}
     </div>

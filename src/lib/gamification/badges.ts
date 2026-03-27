@@ -25,6 +25,9 @@ export interface UserStats {
   dailyChallengesCompleted: number;
   timedTestsCompleted: number;
   quizzesInOneDay: number;      // max quizzes attempted on a single calendar day
+  // Interview stats
+  interviewsCompleted: number;
+  interviewHighScore: number;    // highest overall score (0-100) across all mock interviews
 }
 
 export interface BadgeDefinition {
@@ -321,6 +324,35 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     hint: "A true champion of knowledge",
     check: (stats) => stats.badgeCount >= 15,
   },
+
+  // ── Interview (3) ─────────────────────────────────────────────────────
+  {
+    id: "interview_first",
+    name: "First Interview",
+    description: "Complete your first mock interview",
+    category: "exploration",
+    icon: "🎤",
+    hint: "Start a mock interview and finish all questions",
+    check: (stats) => stats.interviewsCompleted >= 1,
+  },
+  {
+    id: "interview_ace",
+    name: "Interview Ace",
+    description: "Score 80%+ on a mock interview",
+    category: "mastery",
+    icon: "🌟",
+    hint: "Prepare well and ace your next mock interview",
+    check: (stats) => stats.interviewHighScore >= 80,
+  },
+  {
+    id: "interview_veteran",
+    name: "Interview Veteran",
+    description: "Complete 10 mock interviews",
+    category: "consistency",
+    icon: "🎖️",
+    hint: "Practice makes perfect — keep interviewing",
+    check: (stats) => stats.interviewsCompleted >= 10,
+  },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -419,6 +451,19 @@ export async function getUserStats(storeState: {
   // Decayed topics reviewed — use totalQuizzes as a reasonable proxy
   const decayedTopicsReviewed = totalQuizzes;
 
+  // Interview stats from localStorage
+  let interviewsCompleted = 0;
+  let interviewHighScore = 0;
+  try {
+    if (typeof window !== "undefined") {
+      const history = JSON.parse(localStorage.getItem("gs-interview-history") || "[]");
+      interviewsCompleted = history.length;
+      interviewHighScore = Math.max(0, ...history.map((h: { overallScore?: number }) => h.overallScore ?? 0));
+    }
+  } catch {
+    // ignore
+  }
+
   return {
     currentStreak: storeState.currentStreak,
     longestStreak: storeState.longestStreak,
@@ -439,6 +484,8 @@ export async function getUserStats(storeState: {
     dailyChallengesCompleted,
     timedTestsCompleted,
     quizzesInOneDay,
+    interviewsCompleted,
+    interviewHighScore,
   };
 }
 
