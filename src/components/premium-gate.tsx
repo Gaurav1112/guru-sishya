@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Lock, RefreshCw } from "lucide-react";
+import { Lock, RefreshCw, Timer } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { useFeatureLimit } from "@/hooks/use-feature-limit";
 
 // ── Feature definitions ───────────────────────────────────────────────────────
 
@@ -97,14 +98,26 @@ interface PremiumGateProps {
   children?: React.ReactNode;
   /** When true, renders children with a blur overlay instead of replacing them */
   overlay?: boolean;
+  /**
+   * Optional daily-limit feature key (from FREE_LIMITS). When provided,
+   * if the free user has exhausted today's allowance a daily-limit message
+   * is shown instead of (or in addition to) the premium-upgrade gate.
+   */
+  limitFeature?: string;
 }
 
-export function PremiumGate({ feature, children, overlay = true }: PremiumGateProps) {
+export function PremiumGate({ feature, children, overlay = true, limitFeature }: PremiumGateProps) {
   const { isPremium, premiumUntil, paymentId, planType, checkPremiumExpiry } = useStore();
 
   // Synchronous expiry check — runs BEFORE render decision, not in useEffect
   // This prevents the flash of premium content on mobile
   const checkResult = checkPremiumExpiry();
+
+  // Daily-limit check — hook must be called unconditionally
+  // Use "__none__" sentinel when no limitFeature is provided so the hook
+  // always runs but has no real limit to check.
+  const featureLimit = useFeatureLimit(limitFeature ?? "__none__");
+  const limit = limitFeature ? featureLimit : null;
 
   // Also verify in useEffect for cleanup side effects
   useEffect(() => {
@@ -120,6 +133,54 @@ export function PremiumGate({ feature, children, overlay = true }: PremiumGatePr
 
   if (isActive) {
     return <>{children}</>;
+  }
+
+  // Daily limit exhausted (free user hit their per-day cap)
+  if (limit && !limit.allowed) {
+    const limitMsg = `Daily limit reached (${limit.limit} ${limit.label}/day). Resets tomorrow or upgrade to Pro.`;
+    if (overlay) {
+      return (
+        <div className="relative">
+          <div className="pointer-events-none select-none blur-sm opacity-40">
+            {children}
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/60 backdrop-blur-[2px]">
+            <div className="mx-4 flex flex-col items-center gap-3 rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/10 to-background p-6 text-center shadow-xl max-w-sm w-full">
+              <div className="flex size-12 items-center justify-center rounded-full border border-saffron/40 bg-saffron/10">
+                <Timer className="size-5 text-saffron" />
+              </div>
+              <div>
+                <p className="font-heading font-semibold text-foreground">Daily Limit Reached</p>
+                <p className="mt-1 text-sm text-muted-foreground">{limitMsg}</p>
+              </div>
+              <Link
+                href="/app/pricing"
+                className="mt-1 inline-flex items-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+              >
+                Upgrade to Pro
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/10 to-background p-6 text-center">
+        <div className="flex size-12 items-center justify-center rounded-full border border-saffron/40 bg-saffron/10">
+          <Timer className="size-5 text-saffron" />
+        </div>
+        <div>
+          <p className="font-heading font-semibold text-foreground">Daily Limit Reached</p>
+          <p className="mt-1 text-sm text-muted-foreground">{limitMsg}</p>
+        </div>
+        <Link
+          href="/app/pricing"
+          className="mt-1 inline-flex items-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+        >
+          Upgrade to Pro
+        </Link>
+      </div>
+    );
   }
 
   const { title, description } = FEATURE_LABELS[feature];

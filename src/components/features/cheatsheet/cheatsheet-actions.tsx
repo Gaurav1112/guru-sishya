@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { RefreshCw, Copy, Printer, Clock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFeatureLimit } from "@/hooks/use-feature-limit";
+import { toast } from "sonner";
 
 interface CheatsheetActionsProps {
   markdown: string;
@@ -16,6 +18,7 @@ export function CheatsheetActions({
   isRegenerating = false,
 }: CheatsheetActionsProps) {
   const [copied, setCopied] = useState(false);
+  const exportLimit = useFeatureLimit("cheatsheet_export");
 
   const handleCopyMarkdown = async () => {
     try {
@@ -28,6 +31,12 @@ export function CheatsheetActions({
   };
 
   const handlePrint = () => {
+    if (!exportLimit.allowed) {
+      toast("Cheatsheet export is a Pro feature. Upgrade to export.", {
+        action: { label: "Upgrade", onClick: () => window.location.assign("/app/pricing") },
+      });
+      return;
+    }
     window.print();
   };
 

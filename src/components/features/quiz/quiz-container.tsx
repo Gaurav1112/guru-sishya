@@ -6,6 +6,7 @@ import { Loader2, AlertCircle, Zap, Timer, Lock } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAI } from "@/hooks/use-ai";
 import { useStore } from "@/lib/store";
+import { useFeatureLimit } from "@/hooks/use-feature-limit";
 import { PremiumGate } from "@/components/premium-gate";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
@@ -332,6 +333,9 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
   const [showTimerGate, setShowTimerGate] = useState(false);
 
+  // Daily quiz question limit for free users (10 questions/day)
+  const quizLimit = useFeatureLimit("quiz");
+
   // Static provider: load quiz bank directly for instant question delivery
   const [quizBank, setQuizBank] = useState<QuizBankQuestion[] | null>(null);
   const isStatic = aiProvider === "static";
@@ -624,6 +628,18 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     setPhase("adaptive_loading");
     setError(null);
     try {
+      // Check and consume one daily quiz question slot (free users: 10/day)
+      if (!isActivePremium) {
+        const canContinue = await quizLimit.increment();
+        if (!canContinue) {
+          toast("Daily quiz limit reached. Upgrade to Pro for unlimited questions.", {
+            action: { label: "Upgrade", onClick: () => window.location.assign("/app/pricing") },
+          });
+          setPhase("result");
+          return;
+        }
+      }
+
       const prevQs = adaptiveQuestions.map((q) => q.question.substring(0, 80));
 
       if (isStatic && quizBank && quizBank.length > 0) {
@@ -663,7 +679,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate question");
     }
-  }, [ai, adaptiveQuestions, currentLevel, topicName, isStatic, quizBank]);
+  }, [ai, adaptiveQuestions, currentLevel, topicName, isStatic, quizBank, isActivePremium, quizLimit]);
 
   // ── Adaptive: grade answer ───────────────────────────────────────────────────
 
