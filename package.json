@@ -25,6 +25,7 @@
     "dexie": "^4.3.0",
     "dexie-react-hooks": "^4.2.0",
     "framer-motion": "^12.38.0",
+    "html2canvas": "^1.4.1",
     "immer": "^11.1.4",
     "lucide-react": "^0.577.0",
     "mermaid": "^11.13.0",

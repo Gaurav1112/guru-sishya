@@ -10,6 +10,7 @@ import { StreakFlame } from "@/components/gamification/streak-flame";
 import { LevelBadge } from "@/components/gamification/level-badge";
 import { BadgeMandir } from "@/components/gamification/badge-mandir";
 import { ShareButton } from "@/components/share-button";
+import { ShareCard } from "@/components/profile/share-card";
 import { Button } from "@/components/ui/button";
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -343,6 +344,17 @@ export default function ProfilePage() {
     displayName ??
     null;
 
+  // Stats needed for share card
+  const quizAttempts = useLiveQuery(() => db.quizAttempts.toArray(), []);
+  const badgeCount = useLiveQuery(() => db.badges.count(), []) ?? 0;
+  const totalQuestions = (quizAttempts ?? []).reduce(
+    (acc, q) => acc + (q.questions?.length ?? 0),
+    0
+  );
+  const attemptCount = quizAttempts?.length ?? 0;
+  const totalScore = (quizAttempts ?? []).reduce((acc, q) => acc + q.score, 0);
+  const accuracy = attemptCount > 0 ? Math.round(totalScore / attemptCount) : 0;
+
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-12">
       {/* ── Google account info (when signed in) ───────────────────────── */}
@@ -382,12 +394,19 @@ export default function ProfilePage() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-heading text-xl font-bold">Your Stats</h2>
-          <ShareButton
-            type="stats"
-            value={level}
-            shareText={`I'm Level ${level} on Guru Sishya with ${totalXP.toLocaleString()} XP! Building real software engineering interview mastery.`}
-            size="sm"
-          />
+          <div className="flex items-center gap-2">
+            <ShareCard
+              badgeCount={badgeCount}
+              totalQuestions={totalQuestions}
+              accuracy={accuracy}
+            />
+            <ShareButton
+              type="stats"
+              value={level}
+              shareText={`I'm Level ${level} on Guru Sishya with ${totalXP.toLocaleString()} XP! Building real software engineering interview mastery.`}
+              size="sm"
+            />
+          </div>
         </div>
         <StatsGrid />
       </section>

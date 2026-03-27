@@ -2,6 +2,17 @@ import type { StateCreator } from "zustand";
 import { db } from "@/lib/db";
 import { levelFromXP } from "@/lib/gamification/xp";
 
+async function syncProfileToDexie(xp: number, level: number, coins: number) {
+  try {
+    const existing = await db.userProfile.toCollection().first();
+    if (existing) {
+      await db.userProfile.update(existing.id!, { totalXP: xp, level, totalCoins: coins });
+    } else {
+      await db.userProfile.add({ level, totalXP: xp, totalCoins: coins });
+    }
+  } catch {}
+}
+
 export interface GameState {
   totalXP: number;
   level: number;
@@ -57,7 +68,7 @@ export const createGameSlice: StateCreator<
   streakRepairAvailable: false,
 
   // Actions
-  addXP: (amount) =>
+  addXP: (amount) => {
     set((state) => {
       // Apply 1.5x multiplier if an XP boost is active and not expired
       let effective = amount;
@@ -80,7 +91,11 @@ export const createGameSlice: StateCreator<
         state.dailyXPDate = today;
       }
       state.dailyXP += effective;
-    }),
+    });
+    // Fire-and-forget Dexie sync
+    const { totalXP, level, coins } = get();
+    syncProfileToDexie(totalXP, level, coins);
+  },
 
   addCoins: (amount, reason) => {
     set((state) => {
@@ -90,6 +105,9 @@ export const createGameSlice: StateCreator<
     db.coinTransactions
       .add({ type: "earn", amount, reason, createdAt: new Date() })
       .catch(() => {});
+    // Sync profile to Dexie
+    const { totalXP, level, coins } = get();
+    syncProfileToDexie(totalXP, level, coins);
   },
 
   spendCoins: (amount, reason) => {

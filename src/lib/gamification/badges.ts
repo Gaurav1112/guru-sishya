@@ -460,14 +460,29 @@ export async function checkAndUnlockBadges(stats: UserStats): Promise<BadgeDefin
   for (const badge of BADGE_DEFINITIONS) {
     if (unlockedIds.has(badge.id)) continue; // already unlocked
     if (badge.check(stats)) {
-      await db.badges.add({
-        type: badge.id,
-        name: badge.name,
-        description: badge.description,
-        icon: badge.icon,
-        unlockedAt: new Date(),
-      });
-      newlyUnlocked.push(badge);
+      try {
+        await db.badges.add({
+          type: badge.id,
+          name: badge.name,
+          description: badge.description,
+          icon: badge.icon,
+          unlockedAt: new Date(),
+        });
+        newlyUnlocked.push(badge);
+      } catch {
+        try {
+          await db.badges.add({
+            type: badge.id,
+            name: badge.name,
+            description: badge.description,
+            icon: badge.icon,
+            unlockedAt: new Date(),
+          });
+          newlyUnlocked.push(badge);
+        } catch {
+          // Silently skip — will retry next check
+        }
+      }
     }
   }
 

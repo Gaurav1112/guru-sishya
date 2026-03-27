@@ -11,6 +11,7 @@ import { getDueCards, getReviewHistory } from "@/lib/flashcard-generator";
 import { FlashcardDeck } from "@/components/features/review/flashcard-deck";
 import { PremiumGate } from "@/components/premium-gate";
 import { Button } from "@/components/ui/button";
+import { checkStreak, recordDailyActivity } from "@/lib/gamification/streaks";
 import type { Flashcard } from "@/lib/types";
 import type { TimedTestResult } from "@/lib/review/question-selector";
 
@@ -405,6 +406,10 @@ export default function ReviewPage() {
   const isPremium = useStore((s) => s.isPremium);
   const premiumUntil = useStore((s) => s.premiumUntil);
   const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const currentStreak = useStore((s) => s.currentStreak);
+  const longestStreak = useStore((s) => s.longestStreak);
+  const streakFreezes = useStore((s) => s.streakFreezes);
+  const setStreak = useStore((s) => s.setStreak);
 
   useEffect(() => {
     async function load() {
@@ -433,6 +438,19 @@ export default function ReviewPage() {
 
   function handleReviewComplete() {
     setIsReviewing(false);
+    // Update main streak after completing a review session
+    const today = new Date().toISOString().slice(0, 10);
+    const streakResult = checkStreak(
+      {
+        currentStreak,
+        longestStreak,
+        freezesAvailable: streakFreezes,
+        lastActivityDate: today,
+      },
+      today
+    );
+    setStreak(streakResult.newState.currentStreak, streakResult.newState.longestStreak);
+    recordDailyActivity(today).catch(() => {});
     // History will reload via the useEffect dependency on isReviewing
   }
 
