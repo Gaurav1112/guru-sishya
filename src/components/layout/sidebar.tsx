@@ -77,6 +77,14 @@ export function Sidebar() {
     return db.flashcards.where("nextReviewAt").belowOrEqual(today).count();
   }, []);
 
+  // Live count of pending revision items (interview wrong answers not yet mastered)
+  const revisionCount = useLiveQuery(async () => {
+    const cards = await db.flashcards
+      .filter((f) => f.concept.startsWith("interview_wrong::") && f.interval < 30)
+      .count();
+    return cards;
+  }, []);
+
   const isActivePro =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
@@ -99,6 +107,11 @@ export function Sidebar() {
               {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
                 <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
                   {dueCount > 99 ? "99+" : dueCount}
+                </span>
+              )}
+              {item.href === "/app/revision" && revisionCount !== undefined && revisionCount > 0 && (
+                <span className="flex items-center justify-center rounded-full bg-amber-500 text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+                  {revisionCount > 99 ? "99+" : revisionCount}
                 </span>
               )}
               {item.href === "/app/challenges" && activeChallenges > 0 && (
