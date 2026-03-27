@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { useMitraLimit } from "@/hooks/use-mitra-limit";
+import { createAIProvider } from "@/lib/ai";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -445,17 +446,49 @@ function buildRelatedLinks(topicLabel: string | null, category?: string): Relate
   return links;
 }
 
+function getSuggestedQuestions(topic: string, knowledge: QAItem[], count: number = 3): string[] {
+  const topicItems = knowledge.filter(item =>
+    item.category?.toLowerCase().includes(topic.toLowerCase())
+  );
+  const shuffled = topicItems.sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count).map(item => item.question);
+}
+
 function buildMitraResponse(
   query: string,
-  knowledge: QAItem[]
+  knowledge: QAItem[],
+  recentMessages?: ChatMessage[]
 ): Omit<ChatMessage, "id" | "role" | "timestamp"> {
-  const { answer, confidence, question, category } = findBestAnswer(query, knowledge);
-  const topicLabel = detectTopicLabel(query) ?? (category || null);
+  // Context enrichment for follow-up questions
+  let enrichedQuery = query;
+  if (recentMessages && recentMessages.length > 0) {
+    const pronouns = /\b(it|this|that|they|them|its|these|those|the same)\b/i;
+    if (pronouns.test(query) || query.split(/\s+/).length <= 4) {
+      // Find the last Mitra response's topic
+      const lastMitra = [...recentMessages].reverse().find(m => m.role === "mitra" && m.matchedQuestion);
+      if (lastMitra?.matchedQuestion) {
+        // Strip "Related: " prefix if present
+        const topic = lastMitra.matchedQuestion.replace(/^Related:\s*/i, "");
+        enrichedQuery = `${topic} ${query}`;
+      }
+    }
+  }
+
+  const { answer, confidence, question, category } = findBestAnswer(enrichedQuery, knowledge);
+  const topicLabel = detectTopicLabel(enrichedQuery) ?? (category || null);
 
   if (confidence < 0.35 || !answer) {
+    // Try to at least point the user to relevant topics
+    const helpfulFallback = topicLabel
+      ? `I'm not sure about that specific question, but I can help you explore ${topicLabel}. Try asking about a specific concept like "What is..." or "How does... work?"`
+      : `I'm not sure about that. Try asking about a specific CS concept like "Explain HashMap internals" or "What is CAP theorem?" I know hundreds of interview topics!`;
+
+    const followUps = topicLabel ? getSuggestedQuestions(topicLabel, knowledge) : undefined;
+
     return {
-      text: "I don't have specific information on that yet. Try asking about: Java, System Design, Kafka, AWS, Kubernetes, Design Patterns, or Data Structures.",
+      text: helpfulFallback,
       relatedLinks: buildRelatedLinks(topicLabel),
+      followUps: followUps && followUps.length > 0 ? followUps : undefined,
     };
   }
 
@@ -788,23 +821,76 @@ export function MitraChat() {
       setInput("");
       setIsTyping(true);
 
-      // Simulate thinking delay proportional to query length
-      const delay = Math.max(500, Math.min(1200, trimmed.length * 10));
-      await new Promise((res) => setTimeout(res, delay));
+      try {
+        // Simulate thinking delay proportional to query length
+        const delay = Math.max(500, Math.min(1200, trimmed.length * 10));
+        await new Promise((res) => setTimeout(res, delay));
 
-      const partial = buildMitraResponse(trimmed, knowledgeItems);
+        // Pass recent conversation context for follow-up resolution
+        const recentMessages = messages.slice(-10);
+        let partial = buildMitraResponse(trimmed, knowledgeItems, recentMessages);
 
-      const mitraMsg: ChatMessage = {
-        id: `mitra-${Date.now()}`,
-        role: "mitra",
-        ...partial,
-        timestamp: Date.now(),
-      };
+        // If knowledge base couldn't answer, try AI provider fallback
+        if (partial.text.includes("I'm not sure about that")) {
+          const { apiKey, aiProvider } = useStore.getState();
+          if (aiProvider !== "static" && apiKey) {
+            try {
+              const provider = createAIProvider(apiKey, aiProvider);
+              const systemPrompt =
+                "You are Mitra, a friendly software engineering interview preparation tutor. " +
+                "You're helping a student revise and learn. Be concise, practical, and encouraging. " +
+                "Use examples and analogies. If the student asks about a topic, explain it clearly. " +
+                "If they ask follow-up questions, maintain context from the conversation. " +
+                "Keep responses under 300 words. Format with short paragraphs.";
 
-      setIsTyping(false);
-      setMessages((prev) => [...prev, mitraMsg]);
+              // Build conversation history for context
+              const historyMessages = [...recentMessages, userMsg];
+              const conversationContext = historyMessages
+                .map((m) =>
+                  m.role === "user" ? `Student: ${m.text}` : `Mitra: ${m.text}`
+                )
+                .join("\n\n");
+
+              const userPrompt = `Conversation so far:\n${conversationContext}\n\nRespond to the student's latest message.`;
+              const aiResponse = await provider.generateText(userPrompt, systemPrompt, { maxTokens: 800 });
+
+              if (aiResponse && aiResponse.trim()) {
+                partial = {
+                  text: aiResponse.trim(),
+                  relatedLinks: partial.relatedLinks,
+                  followUps: partial.followUps,
+                };
+              }
+            } catch {
+              // Keep the knowledge base fallback response
+            }
+          }
+        }
+
+        const mitraMsg: ChatMessage = {
+          id: `mitra-${Date.now()}`,
+          role: "mitra",
+          ...partial,
+          timestamp: Date.now(),
+        };
+
+        setMessages((prev) => [...prev, mitraMsg]);
+      } catch {
+        // Always recover from errors
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `mitra-${Date.now()}`,
+            role: "mitra" as const,
+            text: "Sorry, I had trouble processing that. Could you rephrase your question?",
+            timestamp: Date.now(),
+          },
+        ]);
+      } finally {
+        setIsTyping(false);
+      }
     },
-    [isTyping, knowledgeItems, mitraLimit]
+    [isTyping, knowledgeItems, mitraLimit, messages]
   );
 
   const sendMessage = useCallback(() => {
