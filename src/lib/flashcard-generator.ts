@@ -115,6 +115,58 @@ export async function generateFlashcardsFromSession(
 }
 
 /**
+ * Generate flashcards from mock interview results.
+ * Questions scoring below threshold automatically enter spaced repetition.
+ */
+export async function generateFlashcardsFromInterview(
+  results: Array<{
+    question: string;
+    modelAnswer: string;
+    userAnswer: string;
+    score: number;
+    topic?: string;
+  }>,
+  topicId?: number
+): Promise<number> {
+  let created = 0;
+  const targetTopicId = topicId ?? 0; // 0 = general/interview
+
+  for (const result of results) {
+    // Only create cards for questions scored < 7 (struggled)
+    if (result.score >= 7) continue;
+
+    const concept = `interview_wrong::${result.question.substring(0, 100)}`;
+
+    try {
+      // Check if flashcard already exists for this concept
+      const existing = await db.flashcards
+        .where("topicId")
+        .equals(targetTopicId)
+        .filter((f) => f.concept === concept)
+        .first();
+
+      if (!existing) {
+        await db.flashcards.add({
+          topicId: targetTopicId,
+          concept,
+          front: result.question,
+          back: result.modelAnswer || result.userAnswer || "Review this question",
+          easeFactor: 2.5,
+          interval: 0,
+          repetitions: 0,
+          nextReviewAt: new Date(), // Due immediately
+        });
+        created++;
+      }
+    } catch {
+      // Skip individual errors
+    }
+  }
+
+  return created;
+}
+
+/**
  * Get all flashcards due for review today (nextReviewAt <= end of today).
  */
 export async function getDueCards(date?: Date): Promise<Flashcard[]> {

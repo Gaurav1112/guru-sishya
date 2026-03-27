@@ -8,6 +8,8 @@ import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { PageTransition } from "@/components/page-transition";
 import { PremiumGate } from "@/components/premium-gate";
 import { useStore } from "@/lib/store";
+import { toast } from "sonner";
+import { generateFlashcardsFromInterview } from "@/lib/flashcard-generator";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -1338,6 +1340,22 @@ export default function InterviewPage() {
         // ignore localStorage errors
       }
     }
+
+    // Auto-feed wrong answers into the revision (flashcard) system
+    const interviewResults = results.map((r) => ({
+      question: r.question,
+      modelAnswer: r.modelAnswer,
+      userAnswer: r.userAnswer,
+      score: r.score,
+      topic: config?.topic ?? "",
+    }));
+    generateFlashcardsFromInterview(interviewResults).then((cardsCreated) => {
+      if (cardsCreated > 0) {
+        toast(`${cardsCreated} question${cardsCreated > 1 ? "s" : ""} added to your revision queue`);
+      }
+    }).catch(() => {
+      // Non-critical — ignore errors
+    });
   }
 
   function handleRestart() {
