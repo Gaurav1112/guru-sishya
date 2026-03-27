@@ -861,6 +861,27 @@ export default function QuestionsPage() {
     [allQuestions]
   );
 
+  // ── Persist / restore position ────────────────────────────────────────────
+
+  // Save position whenever it changes
+  useEffect(() => {
+    localStorage.setItem("gs-questions-last-index", String(currentIndex));
+  }, [currentIndex]);
+
+  // Restore position on mount (once questions are loaded)
+  useEffect(() => {
+    if (filteredQuestions.length === 0) return;
+    const saved = localStorage.getItem("gs-questions-last-index");
+    if (saved) {
+      const idx = parseInt(saved, 10);
+      if (idx > 0 && idx < filteredQuestions.length) {
+        setCurrentIndex(idx);
+      }
+    }
+    // Only run once when the full question list first becomes available
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredQuestions.length]);
+
   // Slide animation variants
   const slideVariants = {
     enter: (dir: number) => ({
@@ -1190,9 +1211,11 @@ export default function QuestionsPage() {
           {/* Progress bar */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-1.5">
-              <p className="text-xs text-muted-foreground page-number">
-                Question {currentIndex + 1} of {totalFiltered}
-              </p>
+              {/* Prominent question counter */}
+              <div className="flex items-center gap-2 text-lg font-semibold">
+                <span className="text-saffron">Q{currentIndex + 1}</span>
+                <span className="text-muted-foreground text-sm">of {totalFiltered}</span>
+              </div>
               <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                 {quizMode && (
                   <span className="flex items-center gap-1 text-gold">
@@ -1205,7 +1228,7 @@ export default function QuestionsPage() {
                 </span>
               </div>
             </div>
-            <div className="h-1 w-full rounded-full bg-muted/40 overflow-hidden">
+            <div className="relative w-full h-1.5 bg-muted rounded-full overflow-hidden">
               <motion.div
                 className="h-full rounded-full bg-gradient-to-r from-saffron to-gold progress-fill"
                 initial={{ width: 0 }}
@@ -1286,7 +1309,7 @@ export default function QuestionsPage() {
             </button>
 
             <div className="flex items-center gap-1.5">
-              {/* Quick jump dots - show max 7 */}
+              {/* Quick jump dots — only when ≤7 questions */}
               {totalFiltered <= 7
                 ? Array.from({ length: totalFiltered }, (_, i) => (
                     <button
@@ -1306,7 +1329,30 @@ export default function QuestionsPage() {
                       aria-label={`Go to question ${i + 1}`}
                     />
                   ))
-                : null}
+                : (
+                    /* Always-visible jump-to input for large sets */
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Go to:</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={totalFiltered}
+                        placeholder={`1-${totalFiltered}`}
+                        className="w-20 h-8 text-sm text-center bg-muted rounded-lg border border-border/50 text-foreground focus:outline-none focus:ring-1 focus:ring-saffron/40 focus:border-saffron/40"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const val = parseInt((e.target as HTMLInputElement).value, 10);
+                            if (val >= 1 && val <= totalFiltered) {
+                              setDirection(val - 1 > currentIndex ? 1 : -1);
+                              setCurrentIndex(val - 1);
+                              setIsFlipped(false);
+                              (e.target as HTMLInputElement).value = "";
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
             </div>
 
             <button
