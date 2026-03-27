@@ -147,15 +147,25 @@ const TOPIC_MAP: Record<string, string> = {
   ts:                "Core CS & Languages",
   // DSA
   "binary search":   "Data Structures & Algorithms",
+  "binary tree":     "Data Structures & Algorithms",
   "data structure":  "Data Structures & Algorithms",
   "dynamic programming": "Data Structures & Algorithms",
+  "hash map":        "Data Structures & Algorithms",
   "linked list":     "Data Structures & Algorithms",
+  "merge sort":      "Data Structures & Algorithms",
+  "quick sort":      "Data Structures & Algorithms",
+  "sliding window":  "Data Structures & Algorithms",
+  "two pointer":     "Data Structures & Algorithms",
   algorithm:         "Data Structures & Algorithms",
   array:             "Data Structures & Algorithms",
+  arraylist:         "Data Structures & Algorithms",
+  bfs:               "Data Structures & Algorithms",
+  dfs:               "Data Structures & Algorithms",
   dp:                "Data Structures & Algorithms",
   graph:             "Data Structures & Algorithms",
   hash:              "Data Structures & Algorithms",
   heap:              "Data Structures & Algorithms",
+  linkedlist:        "Data Structures & Algorithms",
   queue:             "Data Structures & Algorithms",
   recursion:         "Data Structures & Algorithms",
   sorting:           "Data Structures & Algorithms",
@@ -181,6 +191,12 @@ const SYNONYMS: Record<string, string[]> = {
   thread:                ["threading", "multithreading", "concurrent"],
   cache:                 ["caching", "cached"],
   node:                  ["nodejs", "node.js"],
+  "linked list":         ["linkedlist", "linked-list"],
+  "array list":          ["arraylist", "array-list"],
+  "hash map":            ["hashmap", "hash-map"],
+  "binary search tree":  ["bst"],
+  "breadth first search": ["bfs", "breadth-first"],
+  "depth first search":  ["dfs", "depth-first"],
 };
 
 // Stem pairs: if query contains the left stem, also search for the right form
@@ -306,13 +322,14 @@ async function loadKnowledge(): Promise<QAItem[]> {
 
   await Promise.all([...fetches, dailyFetch]);
 
-  // Load topic content files — extract Q&A from quizBank and plan sessions
-  for (const file of TOPIC_CONTENT_FILES) {
+  // Load topic content files — extract Q&A from quizBank and plan sessions (parallel)
+  const topicFetches = TOPIC_CONTENT_FILES.map(async (file) => {
     try {
       const res = await fetch(file);
-      if (!res.ok) continue;
+      if (!res.ok) return [];
       const data = await res.json();
       const topics = Array.isArray(data) ? data : [data];
+      const localItems: QAItem[] = [];
 
       for (const topic of topics) {
         const category = topic.topic || topic.name || "";
@@ -321,7 +338,7 @@ async function loadKnowledge(): Promise<QAItem[]> {
         if (topic.quizBank && Array.isArray(topic.quizBank)) {
           for (const q of topic.quizBank) {
             if (q.question && q.explanation) {
-              items.push({
+              localItems.push({
                 question: q.question,
                 answer: q.explanation,
                 category,
@@ -335,7 +352,7 @@ async function loadKnowledge(): Promise<QAItem[]> {
         if (topic.plan?.sessions && Array.isArray(topic.plan.sessions)) {
           for (const session of topic.plan.sessions) {
             if (session.title && session.content) {
-              items.push({
+              localItems.push({
                 question: `Explain ${session.title}`,
                 answer: typeof session.content === "string"
                   ? session.content.substring(0, 500)
@@ -346,9 +363,15 @@ async function loadKnowledge(): Promise<QAItem[]> {
           }
         }
       }
+      return localItems;
     } catch {
-      // Skip files that fail to load
+      return [];
     }
+  });
+
+  const topicResults = await Promise.all(topicFetches);
+  for (const batch of topicResults) {
+    if (batch) items.push(...batch);
   }
 
   // Filter out items with empty or trivially short answers
@@ -419,19 +442,35 @@ function scoreItem(
 
   let score = 0;
 
-  // Phrase bonus: consecutive query words appearing in the question
+  // Phrase bonus: consecutive query words in question (stronger weight)
   const queryPhrase = queryWords.join(" ");
-  if (queryPhrase.length > 3 && qText.includes(queryPhrase)) score += 0.5;
+  if (queryPhrase.length > 3 && qText.includes(queryPhrase)) score += 1.0;
+
+  // Also check if the full query appears in the answer
+  if (queryPhrase.length > 3 && aText.includes(queryPhrase)) score += 0.3;
 
   // Per-word scoring: question matches weight more than answer matches
+  let questionHits = 0;
+  let answerHits = 0;
   for (const word of expandedWords) {
-    if (word.length < 2) continue;
-    if (qText.includes(word)) score += 0.4;
-    else if (aText.includes(word)) score += 0.15;
+    if (word.length < 3) continue; // skip very short words
+    if (qText.includes(word)) {
+      score += 0.4;
+      questionHits++;
+    } else if (aText.includes(word)) {
+      score += 0.15;
+      answerHits++;
+    }
   }
 
-  // Normalise so longer expanded sets don't dominate
-  return score / Math.max(expandedWords.length, 1);
+  // Coverage bonus: reward when most query words match
+  const totalHits = questionHits + answerHits;
+  const coverage = totalHits / Math.max(expandedWords.length, 1);
+  if (coverage >= 0.8) score += 0.3; // most words matched
+  if (coverage >= 0.5) score += 0.1; // half matched
+
+  // Normalize less aggressively — use sqrt to dampen long query penalty
+  return score / Math.max(Math.sqrt(expandedWords.length), 1);
 }
 
 function findBestAnswer(
@@ -553,7 +592,7 @@ function buildMitraResponse(
   const { answer, confidence, question, category } = findBestAnswer(enrichedQuery, knowledge);
   const topicLabel = detectTopicLabel(enrichedQuery) ?? (category || null);
 
-  if (confidence < 0.35 || !answer) {
+  if (confidence < 0.25 || !answer) {
     // Try to at least point the user to relevant topics
     const helpfulFallback = topicLabel
       ? `I'm not sure about that specific question, but I can help you explore ${topicLabel}. Try asking about a specific concept like "What is..." or "How does... work?"`
