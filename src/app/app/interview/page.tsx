@@ -338,6 +338,47 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
+// ── Countdown bar ──────────────────────────────────────────────────────────────
+
+function CountdownBar({ startTime }: { startTime: number }) {
+  const [elapsed, setElapsed] = useState(0);
+  const MAX_TIME = 180; // 3 minutes
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [startTime]);
+
+  const progress = Math.max(0, 1 - elapsed / MAX_TIME);
+  const color =
+    elapsed < 60 ? "bg-emerald-500" : elapsed < 120 ? "bg-yellow-500" : "bg-red-500";
+  const bonusLabel =
+    elapsed < 60
+      ? "Speed Bonus: 2x"
+      : elapsed < 120
+      ? "Speed Bonus: 1.5x"
+      : elapsed < 180
+      ? "Normal"
+      : "0.75x";
+
+  return (
+    <div className="space-y-1">
+      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+        <div
+          className={`h-full ${color} rounded-full transition-all duration-1000 ease-linear`}
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
+      <div className="flex justify-between text-[10px] text-muted-foreground">
+        <span>{elapsed}s</span>
+        <span>{bonusLabel}</span>
+      </div>
+    </div>
+  );
+}
+
 // ── Setup screen ───────────────────────────────────────────────────────────────
 
 interface SetupScreenProps {
@@ -509,6 +550,7 @@ interface InterviewRewards {
   newBadges: { name: string; icon: string }[];
   chestDropped: boolean;
   oneMoreRound: OneMoreRoundTrigger | null;
+  avgSpeedMultiplier: number;
 }
 
 interface ResultsScreenProps {
@@ -578,7 +620,7 @@ function ResultsScreen({
 
           {/* Rewards earned */}
           {rewards && (rewards.xp > 0 || rewards.coins > 0) && (
-            <div className="flex items-center justify-center gap-4 mt-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
               {rewards.xp > 0 && (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-saffron/10 text-saffron text-sm font-semibold">
                   +{rewards.xp} XP
@@ -587,6 +629,11 @@ function ResultsScreen({
               {rewards.coins > 0 && (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold/10 text-gold text-sm font-semibold">
                   +{rewards.coins} coins
+                </div>
+              )}
+              {rewards.avgSpeedMultiplier > 1 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm font-semibold">
+                  {rewards.avgSpeedMultiplier.toFixed(1)}x Speed Bonus
                 </div>
               )}
             </div>
@@ -718,6 +765,7 @@ interface QuestionResult {
   modelAnswer: string;
   score: number;
   feedback: string;
+  speedMultiplier: number;
 }
 
 interface InterviewChatProps {
@@ -737,6 +785,7 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
   const [isThinking, setIsThinking] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
+  const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -844,6 +893,7 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
         setIsThinking(false);
         setCurrentQuestionIndex(index);
         setPhase("awaiting");
+        setQuestionStartTime(Date.now());
 
         const q = questions[index];
         const prefix =
@@ -877,6 +927,12 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
 
     const q = questions[currentQuestionIndex];
     const result = scoreAnswer(answer, q.answer);
+    const elapsedSecs = questionStartTime ? (Date.now() - questionStartTime) / 1000 : 180;
+    const speedMultiplier =
+      elapsedSecs < 60 ? 2.0 : elapsedSecs < 120 ? 1.5 : elapsedSecs < 180 ? 1.0 : 0.75;
+    if (speedMultiplier > 1) {
+      toast(`Speed Bonus! ${speedMultiplier}x XP`);
+    }
 
     setTimeout(() => {
       setIsThinking(false);
@@ -928,6 +984,7 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
           modelAnswer: q.answer,
           score: result.score,
           feedback: feedbackText,
+          speedMultiplier,
         },
       ]);
 
@@ -971,6 +1028,7 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
     isListening,
     maxQuestions,
     phase,
+    questionStartTime,
     questions,
     resetTranscript,
     stopListening,
@@ -1184,6 +1242,13 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
 
       {/* Input area */}
       <div className="shrink-0 rounded-b-xl border border-t border-border/50 bg-surface p-4">
+        {/* Countdown timer bar — visible only while awaiting an answer */}
+        {phase === "awaiting" && questionStartTime !== null && (
+          <div className="mb-3">
+            <CountdownBar startTime={questionStartTime} />
+          </div>
+        )}
+
         {/* Live transcription preview */}
         <AnimatePresence>
           {isListening && interimTranscript && (
@@ -1396,10 +1461,16 @@ export default function InterviewPage() {
       ? Math.round((finalScores.reduce((a, b) => a + b, 0) / totalQuestions) * 10)
       : 0;
 
-    // XP: 10 base per question + 5 bonus per correct answer
+    // Speed multiplier: average across all answers
+    const avgSpeedMultiplier =
+      results.length > 0
+        ? results.reduce((sum, r) => sum + (r.speedMultiplier ?? 1), 0) / results.length
+        : 1;
+
+    // XP: 10 base per question + 5 bonus per correct answer, scaled by speed multiplier
     const baseXP = totalQuestions * 10;
     const bonusXP = correctCount * 5;
-    const earnedXP = baseXP + bonusXP;
+    const earnedXP = Math.round((baseXP + bonusXP) * avgSpeedMultiplier);
 
     // Coins: 5 per question + 20 bonus if avg >= 70%
     const baseCoins = totalQuestions * 5;
@@ -1473,6 +1544,7 @@ export default function InterviewPage() {
       newBadges: [],
       chestDropped,
       oneMoreRound: null,
+      avgSpeedMultiplier,
     };
 
     getUserStats({ currentStreak, longestStreak, totalXP: totalXP + earnedXP, level })
