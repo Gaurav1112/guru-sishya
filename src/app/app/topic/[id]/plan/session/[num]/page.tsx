@@ -279,7 +279,7 @@ export default function SessionViewPage({
 
       if (nowCompleted) {
         addXP(20);
-        addCoins(1, "plan_session_complete");
+        addCoins(10, "plan_session_complete");
         queueCelebration({ type: "xp_gain", data: { amount: 20 } });
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 2000);
@@ -664,8 +664,8 @@ export default function SessionViewPage({
             </p>
             <p className="text-xs text-muted-foreground">
               {isCompleted
-                ? "You earned +20 XP and +1 coin for this session."
-                : "Complete this session to earn +20 XP and +1 coin."}
+                ? "You earned +20 XP and +10 coins for this session."
+                : "Complete this session to earn +20 XP and +10 coins."}
             </p>
           </div>
           <Button
@@ -694,7 +694,7 @@ export default function SessionViewPage({
         {showConfirmComplete && (
           <div className="rounded-xl border border-teal/30 bg-teal/5 p-4 space-y-3">
             <p className="text-sm font-medium">Mark this session complete?</p>
-            <p className="text-xs text-muted-foreground">This will award +20 XP and +1 coin.</p>
+            <p className="text-xs text-muted-foreground">This will award +20 XP and +10 coins.</p>
             <div className="flex gap-2">
               <Button onClick={doMarkComplete} size="sm" className="bg-teal text-white">Yes, Complete</Button>
               <Button onClick={() => setShowConfirmComplete(false)} size="sm" variant="outline">Cancel</Button>
@@ -755,7 +755,7 @@ export default function SessionViewPage({
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-teal/40 bg-surface/95 px-10 py-8 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
             <CheckCircle2 className="size-12 text-teal" />
             <p className="font-heading text-xl font-bold text-foreground">Session Complete!</p>
-            <p className="text-sm text-muted-foreground">+20 XP &amp; +1 coin awarded</p>
+            <p className="text-sm text-muted-foreground">+20 XP &amp; +10 coins awarded</p>
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Clock, Target, BookOpen, HelpCircle, ExternalLink, Lock } from "lucide-react";
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Clock, Target, BookOpen, HelpCircle, ExternalLink, Lock, Loader2, Check } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -296,19 +296,32 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
             </div>
           )}
 
-          {/* Mark complete button */}
-          {!completed && (
-            <Button
-              onClick={onComplete}
-              disabled={isLoading}
-              size="sm"
-              className="w-full bg-teal/20 text-teal border border-teal/30 hover:bg-teal/30"
-              variant="ghost"
-            >
-              <CheckCircle2 className="size-3.5 mr-1.5" />
-              Mark Session Complete (+20 XP, +10 coins)
-            </Button>
-          )}
+          {/* Mark complete / completed button — always visible */}
+          <Button
+            onClick={onComplete}
+            disabled={isLoading || isLocked}
+            size="sm"
+            className={cn(
+              "w-full",
+              completed
+                ? "bg-teal/10 text-teal border border-teal/20 hover:bg-red-500/10 hover:text-red-400 hover:border-red-400/30"
+                : "bg-teal/20 text-teal border border-teal/30 hover:bg-teal/30"
+            )}
+            variant="ghost"
+          >
+            {isLoading ? (
+              <Loader2 className="size-4 animate-spin mr-2" />
+            ) : completed ? (
+              <>
+                <Check className="size-4 mr-2" />
+                Completed — Click to undo
+              </>
+            ) : (
+              <>
+                Mark Session Complete (+20 XP, +10 coins)
+              </>
+            )}
+          </Button>
         </CardContent>
       )}
     </Card>
