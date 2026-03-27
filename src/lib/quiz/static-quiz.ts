@@ -6,6 +6,48 @@ import type { QuizBankQuestion } from "@/lib/content/loader";
 import { shuffleOptions, createSeededRng } from "./shuffle";
 
 /**
+ * Format a plain-text quiz feedback string into readable markdown.
+ * Splits at sentence boundaries and highlights the verdict.
+ */
+function formatExplanation(rawFeedback: string): string {
+  if (!rawFeedback) return "";
+
+  let verdict = "";
+  let explanation = rawFeedback;
+
+  // Extract verdict prefix
+  const correctMatch = rawFeedback.match(/^(Correct!)\s*([\s\S]*)/);
+  const incorrectMatch = rawFeedback.match(/^(Incorrect\.\s*(?:The (?:correct|expected|statement)[^.]+\.))\s*([\s\S]*)/);
+  const recordedMatch = rawFeedback.match(/^(Answer recorded\.|Your answer was too brief\.|Excellent answer![^.]*\.|Good answer[^.]*\.|Partial answer[^.]*\.|Your answer only touched[^.]*\.|Your answer didn't cover[^.]*\.)\s*([\s\S]*)/);
+
+
+  if (correctMatch) {
+    verdict = `**${correctMatch[1]}**`;
+    explanation = correctMatch[2];
+  } else if (incorrectMatch) {
+    verdict = `**${incorrectMatch[1]}**`;
+    explanation = incorrectMatch[2];
+  } else if (recordedMatch) {
+    verdict = `**${recordedMatch[1]}**`;
+    explanation = recordedMatch[2];
+  }
+
+  // Add paragraph breaks after sentences ending with a capital-letter-starting next sentence
+  const formatted = explanation
+    .replace(/\.\s+(?=[A-Z])/g, ".\n\n")
+    .replace(/:\s*-\s*/g, ":\n- ")
+    .trim();
+
+  if (verdict && formatted) {
+    return `${verdict}\n\n${formatted}`;
+  }
+  if (verdict) {
+    return verdict;
+  }
+  return formatted;
+}
+
+/**
  * Pick a question from the quiz bank at the requested difficulty,
  * avoiding previously used questions.
  *
@@ -82,9 +124,11 @@ export function gradeStaticQuestion(
 
     return {
       score: isCorrect ? 10 : 0,
-      feedback: isCorrect
-        ? `Correct! ${question.explanation}`
-        : `Incorrect. The correct answer was ${question.correctAnswer}. ${question.explanation}`,
+      feedback: formatExplanation(
+        isCorrect
+          ? `Correct! ${question.explanation}`
+          : `Incorrect. The correct answer was ${question.correctAnswer}. ${question.explanation}`
+      ),
       missed: isCorrect ? [] : [`The correct answer was: ${optionText}`],
       perfectAnswer: optionText || question.correctAnswer || "",
     };
@@ -95,9 +139,11 @@ export function gradeStaticQuestion(
     const isCorrect = normalUser === correct;
     return {
       score: isCorrect ? 10 : 0,
-      feedback: isCorrect
-        ? `Correct! The statement is ${question.correctAnswer}. ${question.explanation}`
-        : `Incorrect. The statement is ${question.correctAnswer}. ${question.explanation}`,
+      feedback: formatExplanation(
+        isCorrect
+          ? `Correct! The statement is ${question.correctAnswer}. ${question.explanation}`
+          : `Incorrect. The statement is ${question.correctAnswer}. ${question.explanation}`
+      ),
       missed: isCorrect
         ? []
         : [`The correct answer was: ${question.correctAnswer}`],
@@ -114,12 +160,13 @@ export function gradeStaticQuestion(
 
     return {
       score,
-      feedback:
+      feedback: formatExplanation(
         score === 10
           ? `Correct! ${question.explanation}`
           : score === 6
             ? `Close, but the expected answer was: ${question.correctAnswer}. ${question.explanation}`
-            : `Incorrect. The expected answer was: ${question.correctAnswer}. ${question.explanation}`,
+            : `Incorrect. The expected answer was: ${question.correctAnswer}. ${question.explanation}`
+      ),
       missed:
         score < 10
           ? [`Expected: ${question.correctAnswer}`]
@@ -158,9 +205,11 @@ function gradeOpenEnded(
     const hasSubstance = userAnswer.trim().split(/\s+/).length >= 5;
     return {
       score: hasSubstance ? 6 : 3,
-      feedback: hasSubstance
-        ? `Answer recorded. ${explanation}`
-        : `Your answer was too brief. ${explanation}`,
+      feedback: formatExplanation(
+        hasSubstance
+          ? `Answer recorded. ${explanation}`
+          : `Your answer was too brief. ${explanation}`
+      ),
       missed: [],
       perfectAnswer: correctAnswer,
     };
@@ -175,20 +224,20 @@ function gradeOpenEnded(
 
   if (ratio >= 0.7) {
     score = 9;
-    feedback = `Excellent answer! You covered the key concepts well. ${explanation}`;
+    feedback = formatExplanation(`Excellent answer! You covered the key concepts well. ${explanation}`);
   } else if (ratio >= 0.5) {
     score = 7;
-    feedback = `Good answer with some gaps. ${explanation}`;
+    feedback = formatExplanation(`Good answer with some gaps. ${explanation}`);
   } else if (ratio >= 0.3) {
     score = 5;
-    feedback = `Partial answer — you missed some key points. ${explanation}`;
+    feedback = formatExplanation(`Partial answer — you missed some key points. ${explanation}`);
   } else if (ratio > 0) {
     score = 3;
-    feedback = `Your answer only touched on a few key points. ${explanation}`;
+    feedback = formatExplanation(`Your answer only touched on a few key points. ${explanation}`);
   } else {
     const hasSubstance = userAnswer.trim().split(/\s+/).length >= 5;
     score = hasSubstance ? 3 : 1;
-    feedback = `Your answer didn't cover the expected concepts. ${explanation}`;
+    feedback = formatExplanation(`Your answer didn't cover the expected concepts. ${explanation}`);
   }
 
   const missedKeywords = keywords.filter((kw) => !answerLower.includes(kw));
