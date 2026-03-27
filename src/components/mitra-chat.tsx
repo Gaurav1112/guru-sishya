@@ -574,11 +574,11 @@ function buildMitraResponse(
   knowledge: QAItem[],
   recentMessages?: ChatMessage[]
 ): Omit<ChatMessage, "id" | "role" | "timestamp"> {
-  // Context enrichment for follow-up questions
+  // Context enrichment for follow-up questions (pronouns only)
   let enrichedQuery = query;
   if (recentMessages && recentMessages.length > 0) {
     const pronouns = /\b(it|this|that|they|them|its|these|those|the same)\b/i;
-    if (pronouns.test(query) || query.split(/\s+/).length <= 4) {
+    if (pronouns.test(query)) {
       // Find the last Mitra response's topic
       const lastMitra = [...recentMessages].reverse().find(m => m.role === "mitra" && m.matchedQuestion);
       if (lastMitra?.matchedQuestion) {
@@ -589,7 +589,19 @@ function buildMitraResponse(
     }
   }
 
-  const { answer, confidence, question, category } = findBestAnswer(enrichedQuery, knowledge);
+  // Search with enriched query first
+  const enrichedResult = findBestAnswer(enrichedQuery, knowledge);
+
+  // If enrichment made it worse, fall back to original query
+  let result = enrichedResult;
+  if (enrichedQuery !== query) {
+    const originalResult = findBestAnswer(query, knowledge);
+    if (originalResult.confidence > enrichedResult.confidence) {
+      result = originalResult;
+    }
+  }
+
+  const { answer, confidence, question, category } = result;
   const topicLabel = detectTopicLabel(enrichedQuery) ?? (category || null);
 
   if (confidence < 0.25 || !answer) {
