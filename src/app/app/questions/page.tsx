@@ -15,6 +15,7 @@ import { CodeLanguageToggle } from "@/components/code-language-toggle";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { QuestionGrid } from "@/components/features/questions/question-gallery";
+import { DrumPicker } from "@/components/features/questions/drum-picker";
 import { MiniMapStrip } from "@/components/features/questions/mini-map-strip";
 import { PremiumGate } from "@/components/premium-gate";
 import { useFeatureLimit } from "@/hooks/use-feature-limit";
@@ -1415,13 +1416,17 @@ export default function QuestionsPage() {
             </div>
           </div>
 
-          {/* Floating grid — right side, hidden on mobile */}
+          {/* Drum picker — right side, hidden on mobile */}
           <div className="hidden md:block w-52 shrink-0">
             <div className="sticky top-20">
-              <QuestionGrid
-                questions={galleryQuestions}
-                currentIndex={currentIndex}
-                categoryName={activeCategory}
+              <DrumPicker
+                items={galleryQuestions.map(q => ({
+                  index: q.index,
+                  label: String(q.index + 1),
+                  status: q.status,
+                  bookmarked: q.bookmarked,
+                }))}
+                selectedIndex={currentIndex}
                 onSelect={(idx) => {
                   setDirection(idx > currentIndex ? 1 : -1);
                   setCurrentIndex(idx);
@@ -1446,20 +1451,23 @@ export default function QuestionsPage() {
         </div>
       )}
 
-      {/* Mobile grid bottom sheet */}
+      {/* Mobile drum bottom sheet */}
       {showMobileGallery && currentQuestion && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-6">
-          <QuestionGrid
-            questions={galleryQuestions}
-            currentIndex={currentIndex}
-            categoryName={activeCategory}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-6 bg-background/95 backdrop-blur-sm rounded-t-2xl border-t border-border/30 shadow-2xl">
+          <DrumPicker
+            items={galleryQuestions.map(q => ({
+              index: q.index,
+              label: String(q.index + 1),
+              status: q.status,
+              bookmarked: q.bookmarked,
+            }))}
+            selectedIndex={currentIndex}
             onSelect={(idx) => {
               setDirection(idx > currentIndex ? 1 : -1);
               setCurrentIndex(idx);
               setIsFlipped(false);
               setShowMobileGallery(false);
             }}
-            className="max-h-[40vh]"
           />
         </div>
       )}
