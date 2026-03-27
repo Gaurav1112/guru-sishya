@@ -8,6 +8,7 @@ import { Features } from "@/components/landing/features";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Pricing } from "@/components/landing/pricing";
 import { Testimonials } from "@/components/landing/testimonials";
+import { SocialProof } from "@/components/landing/social-proof";
 import { FAQ } from "@/components/landing/faq";
 import { EmailCapture } from "@/components/landing/email-capture";
 import { ExitIntent } from "@/components/landing/exit-intent";
@@ -232,6 +233,9 @@ export default function LandingPage() {
       </ScrollReveal>
       <ScrollReveal delay={0}>
         <Features />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
+        <SocialProof />
       </ScrollReveal>
       <ScrollReveal delay={0}>
         <Testimonials />

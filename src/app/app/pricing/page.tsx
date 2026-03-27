@@ -359,7 +359,7 @@ export default function PricingPage() {
           Stop Guessing. Start Acing Interviews.
         </h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Join 1,000+ engineers who used Guru Sishya to land offers at Google, Amazon, and Meta — with 828 answers, 1,292 quiz questions, and 315 lessons across 53 topics.
+          828 answers, 1,292 quiz questions, and 315 lessons across 53 topics — everything you need to ace your software engineering interviews.
         </p>
 
         {isActive && (
@@ -387,7 +387,7 @@ export default function PricingPage() {
         <CountdownTimer endDate={process.env.NEXT_PUBLIC_LAUNCH_PRICE_END} />
       )}
       <p className="text-center text-muted-foreground text-sm mb-8">
-        Join {process.env.NEXT_PUBLIC_USER_COUNT ?? "500"}+ engineers preparing for interviews
+        Trusted by software engineers preparing for interviews at top tech companies
       </p>
 
       {/* Plan cards */}
