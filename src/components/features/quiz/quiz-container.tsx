@@ -21,7 +21,8 @@ import { TreasureChest } from "@/components/gamification/treasure-chest";
 import { calibrationPrompt } from "@/lib/prompts/quiz-calibration";
 import { quizQuestionPrompt, quizGradingPrompt } from "@/lib/prompts/quiz-generator";
 import { getNextLevel, calculateQuizResult, getStartingLevelFromCalibration } from "@/lib/quiz/engine";
-import { updateFlashcardsFromQuiz } from "@/lib/quiz/spaced-repetition-bridge";
+import { updateFlashcardsFromQuiz, processSkippedQuestion } from "@/lib/quiz/spaced-repetition-bridge";
+import { toast } from "sonner";
 import { generateFlashcardsFromQuiz } from "@/lib/flashcard-generator";
 import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import { checkOneMoreRound } from "@/lib/gamification/one-more-round";
@@ -706,6 +707,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const handleSkip = useCallback(() => {
     if (!currentQuestion) return;
     clearTimer();
+    processSkippedQuestion(topicId, currentQuestion.question, currentQuestion.correctAnswer ?? "");
     const skippedAnswer: AnsweredQuestion = {
       ...currentQuestion,
       userAnswer: "[skipped]",
@@ -778,6 +780,13 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
           perfectAnswer: a.perfectAnswer,
         }))
       );
+
+      const dueCount = await db.flashcards.where("nextReviewAt").belowOrEqual(new Date()).count();
+      if (dueCount >= 3) {
+        toast(`You have ${dueCount} questions to review`, {
+          action: { label: "Start Review", onClick: () => window.location.assign("/app/review") },
+        });
+      }
 
       if (result.xpEarned > 0) addXP(result.xpEarned);
       if (result.coinsEarned > 0) addCoins(result.coinsEarned, "quiz_perfect");

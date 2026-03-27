@@ -68,3 +68,43 @@ export async function updateFlashcardsFromQuiz(
     }
   }
 }
+
+/**
+ * When a user skips a question (navigates past without answering),
+ * create a flashcard with quality=0 so it appears in revision queue immediately.
+ */
+export async function processSkippedQuestion(
+  topicId: number,
+  questionText: string,
+  explanation: string
+): Promise<void> {
+  const concept = questionText.substring(0, 100);
+  try {
+    const existing = await db.flashcards
+      .where({ topicId })
+      .filter((f) => f.concept === concept)
+      .first();
+    if (existing) {
+      const updated = scheduleReview(existing, 0);
+      await db.flashcards.update(existing.id!, {
+        easeFactor: updated.easeFactor,
+        interval: 0,
+        repetitions: 0,
+        nextReviewAt: new Date(),
+      });
+    } else {
+      await db.flashcards.add({
+        topicId,
+        concept,
+        front: questionText,
+        back: explanation || "Review this question",
+        easeFactor: 2.5,
+        interval: 0,
+        repetitions: 0,
+        nextReviewAt: new Date(),
+      });
+    }
+  } catch {
+    // Ignore individual card errors
+  }
+}
