@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components/auth-provider";
 import { useStore } from "@/lib/store";
+import { TourProvider } from "@/components/onboarding/tour-provider";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -122,7 +123,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <AllowlistSync />
       <ProgressSync />
-      {children}
+      <TourProvider>{children}</TourProvider>
       <Toaster position="bottom-right" theme="dark" />
     </AuthProvider>
   );

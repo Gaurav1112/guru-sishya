@@ -35,6 +35,12 @@ export default function SettingsPage() {
           <Separator />
           <div className="flex items-center justify-between"><div><Label>Show me on Leaderboard</Label><p className="text-xs text-muted-foreground">Appear in weekly XP rankings</p></div><Button variant="outline" size="sm" onClick={() => setShowOnLeaderboard(!showOnLeaderboard)}>{showOnLeaderboard ? "On" : "Off"}</Button></div>
           <Separator />
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div><Label>Onboarding Tour</Label><p className="text-xs text-muted-foreground">Replay the guided tour</p></div>
+            <Button variant="outline" size="sm" onClick={() => window.dispatchEvent(new Event("replay-tour"))}>Replay</Button>
+          </div>
+          <Separator />
           <div className="flex items-center justify-between"><div><Label>Daily Goal</Label><p className="text-xs text-muted-foreground">Minutes per day</p></div>
             <div className="flex gap-2">{[5, 10, 15, 20, 30].map((m) => (<Button key={m} variant={dailyGoal === m ? "default" : "outline"} size="sm" onClick={() => setDailyGoal(m)} className={dailyGoal === m ? "bg-saffron" : ""}>{m}</Button>))}</div>
           </div>

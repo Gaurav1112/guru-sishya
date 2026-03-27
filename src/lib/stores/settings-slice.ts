@@ -12,6 +12,8 @@ export interface SettingsState {
   showOnLeaderboard: boolean;
   quizTimerEnabled: boolean;
   displayName: string | null;
+  onboardingCompleted: boolean;
+  visitCount: number;
 }
 
 export interface SettingsActions {
@@ -23,6 +25,8 @@ export interface SettingsActions {
   setShowOnLeaderboard: (show: boolean) => void;
   setQuizTimerEnabled: (enabled: boolean) => void;
   setDisplayName: (name: string) => void;
+  setOnboardingCompleted: (done: boolean) => void;
+  incrementVisitCount: () => void;
 }
 
 export type SettingsSlice = SettingsState & SettingsActions;
@@ -43,6 +47,8 @@ export const createSettingsSlice: StateCreator<
   showOnLeaderboard: true,
   quizTimerEnabled: false,
   displayName: null,
+  onboardingCompleted: false,
+  visitCount: 0,
 
   // Actions
   setApiKey: (key) =>
@@ -77,4 +83,8 @@ export const createSettingsSlice: StateCreator<
     set((state) => {
       state.displayName = name.trim() || null;
     }),
+  setOnboardingCompleted: (done) =>
+    set((state) => { state.onboardingCompleted = done; }),
+  incrementVisitCount: () =>
+    set((state) => { state.visitCount += 1; }),
 });
