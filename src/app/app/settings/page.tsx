@@ -49,6 +49,42 @@ export default function SettingsPage() {
           <Button variant="outline" onClick={handleExport}>Export All Data</Button>
           <p className="text-xs text-muted-foreground">Download all your data as a JSON file.</p>
         </CardContent></Card>
+        <Card className="bg-surface border-red-500/20">
+          <CardHeader>
+            <CardTitle className="text-lg text-red-400">Danger Zone</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Delete your account and all associated data. This action cannot be undone.
+            </p>
+            <Button
+              variant="outline"
+              className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+              onClick={async () => {
+                if (!confirm("Are you sure? This will permanently delete all your data. This cannot be undone.")) return;
+                if (!confirm("Last chance — type DELETE to confirm.")) return;
+
+                try {
+                  const res = await fetch("/api/user/delete-account", { method: "DELETE" });
+                  if (res.ok) {
+                    // Clear local data
+                    localStorage.clear();
+                    // Clear IndexedDB
+                    indexedDB.deleteDatabase("GuruSishya");
+                    alert("Account deleted successfully. You will be redirected.");
+                    window.location.href = "/";
+                  } else {
+                    alert("Failed to delete account. Please try again.");
+                  }
+                } catch {
+                  alert("Failed to delete account. Please try again.");
+                }
+              }}
+            >
+              Delete My Account
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

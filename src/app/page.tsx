@@ -63,6 +63,7 @@ const NAV_LINKS = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Pricing", href: "#pricing" },
   { label: "FAQ", href: "#faq" },
+  { label: "Contact", href: "/contact" },
 ];
 
 function LandingNavbar() {
@@ -319,12 +320,9 @@ export default function LandingPage() {
                 >
                   GitHub
                 </a>
-                <a
-                  href="mailto:kgauravis016@gmail.com"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Contact
-                </a>
+                <Link href="/contact" className="hover:text-foreground transition-colors">
+                  Contact & Support
+                </Link>
               </nav>
             </div>
           </div>
