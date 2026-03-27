@@ -76,15 +76,37 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   try {
+    // For Java: extract the public class name to set the correct filename.
+    // Judge0 defaults to "Main.java" but Java requires filename = class name.
+    let javaClassName: string | undefined;
+    if (lang === "java") {
+      const classMatch = code.match(/public\s+class\s+(\w+)/);
+      javaClassName = classMatch ? classMatch[1] : "Main";
+    }
+
+    const submissionBody: Record<string, unknown> = {
+      source_code: code,
+      language_id: langId,
+      cpu_time_limit: 5,
+      wall_time_limit: 10,
+    };
+
+    // If Java class name is not "Main", we must rename the file
+    if (javaClassName && javaClassName !== "Main") {
+      // Judge0 accepts additional_files but the simpler approach is to
+      // rename the class to Main in the source code automatically.
+      // This is the most reliable approach — avoids filename issues entirely.
+      const renamedCode = code.replace(
+        new RegExp(`public\\s+class\\s+${javaClassName}`),
+        "public class Main"
+      );
+      submissionBody.source_code = renamedCode;
+    }
+
     const judge0Res = await fetch(JUDGE0_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        source_code: code,
-        language_id: langId,
-        cpu_time_limit: 5,
-        wall_time_limit: 10,
-      }),
+      body: JSON.stringify(submissionBody),
       signal: AbortSignal.timeout(45_000),
     });
 
