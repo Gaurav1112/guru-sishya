@@ -81,6 +81,15 @@ export async function loadAllContent(): Promise<TopicContent[]> {
         const normalized = (!item.topic && item.name)
           ? { ...item, topic: item.name }
           : item;
+
+        // Ensure every session has a valid sessionNumber (some content files omit it)
+        if (normalized.plan?.sessions) {
+          normalized.plan.sessions = normalized.plan.sessions.map((s, idx) => ({
+            ...s,
+            sessionNumber: s.sessionNumber ?? idx + 1,
+          }));
+        }
+
         if (normalized.topic) results.push(normalized);
       }
     } catch {

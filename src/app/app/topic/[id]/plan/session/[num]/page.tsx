@@ -179,6 +179,18 @@ export default function SessionViewPage({
     [existingPlan?.id, sessionNum]
   );
 
+  // Guard: show error if session number is invalid (after all hooks)
+  if (isNaN(sessionNum) || sessionNum < 1) {
+    return (
+      <div className="py-20 text-center space-y-3">
+        <p className="text-muted-foreground">Invalid session number.</p>
+        <Link href={`/app/topic/${id}/plan`} className="text-saffron hover:underline text-sm">
+          &larr; Back to Plan
+        </Link>
+      </div>
+    );
+  }
+
   // Parse plan JSON
   let plan: GeneratedPlan | null = null;
   if (existingPlan) {
@@ -189,7 +201,14 @@ export default function SessionViewPage({
     }
   }
 
-  const session = plan?.sessions.find((s) => s.sessionNumber === sessionNum) as SessionWithContent | undefined;
+  // Find session by sessionNumber, falling back to array index for content
+  // files that omit sessionNumber (e.g. system-design-cases.json)
+  const session = (
+    plan?.sessions.find((s) => s.sessionNumber === sessionNum) ??
+    (sessionNum >= 1 && sessionNum <= (plan?.sessions.length ?? 0)
+      ? { ...plan!.sessions[sessionNum - 1], sessionNumber: sessionNum }
+      : undefined)
+  ) as SessionWithContent | undefined;
   const totalSessions = plan?.sessions.length ?? 0;
 
   // Loading states

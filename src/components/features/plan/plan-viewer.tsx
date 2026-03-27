@@ -150,17 +150,21 @@ export function PlanViewer({
           )}
         </div>
 
-        {plan.sessions.map((session) => (
-          <div key={session.sessionNumber}>
+        {plan.sessions.map((session, index) => {
+          // Fallback: some content JSON sessions lack sessionNumber
+          const sNum = session.sessionNumber ?? index + 1;
+          const safeSession = session.sessionNumber != null ? session : { ...session, sessionNumber: sNum };
+          return (
+          <div key={sNum}>
             <SessionCard
-              session={session}
-              completed={isCompleted(session.sessionNumber)}
-              onComplete={() => onSessionComplete(session.sessionNumber)}
-              isLoading={completingSession === session.sessionNumber}
+              session={safeSession}
+              completed={isCompleted(sNum)}
+              onComplete={() => onSessionComplete(sNum)}
+              isLoading={completingSession === sNum}
               topicId={topicId}
             />
             {/* Midpoint checkpoint banner between sessions 5 and 6 */}
-            {session.sessionNumber === 5 && (
+            {sNum === 5 && (
               <div className="my-4 flex items-center gap-3">
                 <div className="flex-1 border-t border-dashed border-border" />
                 <div className="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
@@ -170,7 +174,7 @@ export function PlanViewer({
               </div>
             )}
           </div>
-        ))}
+        );})}
       </div>
     </div>
   );
