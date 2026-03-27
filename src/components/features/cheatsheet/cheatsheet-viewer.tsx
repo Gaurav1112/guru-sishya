@@ -10,6 +10,7 @@ interface CheatsheetViewerProps {
   createdAt: Date;
   onRegenerate: () => void;
   isRegenerating?: boolean;
+  languageFilter?: "java" | "python" | "typescript" | "all";
 }
 
 export function CheatsheetViewer({
@@ -19,6 +20,7 @@ export function CheatsheetViewer({
   createdAt,
   onRegenerate,
   isRegenerating = false,
+  languageFilter = "all",
 }: CheatsheetViewerProps) {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -48,7 +50,7 @@ export function CheatsheetViewer({
 
       {/* Cheat sheet content */}
       <div className="rounded-xl border border-border bg-surface p-6 sm:p-8 print:border-0 print:p-0 print:bg-transparent">
-        <MarkdownRenderer content={content} />
+        <MarkdownRenderer content={content} languageFilter={languageFilter} />
       </div>
     </div>
   );

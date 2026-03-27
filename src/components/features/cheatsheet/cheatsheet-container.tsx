@@ -13,6 +13,7 @@ import { cheatsheetPrompt } from "@/lib/prompts/cheatsheet";
 interface CheatsheetContainerProps {
   topicId: number;
   topicName: string;
+  languageFilter?: "java" | "python" | "typescript" | "all";
 }
 
 type Status = "loading" | "streaming" | "ready" | "error";
@@ -20,6 +21,7 @@ type Status = "loading" | "streaming" | "ready" | "error";
 export function CheatsheetContainer({
   topicId,
   topicName,
+  languageFilter = "all",
 }: CheatsheetContainerProps) {
   const ai = useAI();
   const addXP = useStore((s) => s.addXP);
@@ -187,6 +189,7 @@ export function CheatsheetContainer({
         createdAt={existingSheet.createdAt}
         onRegenerate={handleRegenerate}
         isRegenerating={isRegenerating}
+        languageFilter={languageFilter}
       />
     );
   }

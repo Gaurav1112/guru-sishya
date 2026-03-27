@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { CheatsheetContainer } from "@/components/features/cheatsheet/cheatsheet-container";
 import { PremiumGate } from "@/components/premium-gate";
+import { CodeLanguageToggle } from "@/components/code-language-toggle";
 
 // First 10 topics (by Dexie ID) are free for all users
 const FREE_CHEATSHEET_LIMIT = 10;
@@ -23,6 +24,8 @@ export default function CheatsheetPage({
   const aiProvider = useStore((s) => s.aiProvider);
   const isPremium = useStore((s) => s.isPremium);
   const premiumUntil = useStore((s) => s.premiumUntil);
+  const preferredLanguage = useStore((s) => s.preferredLanguage);
+  const setPreferredLanguage = useStore((s) => s.setPreferredLanguage);
   const hydrated = useHydrated();
 
   const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
@@ -74,12 +77,17 @@ export default function CheatsheetPage({
           <p className="text-xs text-muted-foreground mt-1">Cheat Sheet</p>
         </div>
         <PremiumGate feature="full-cheatsheets" overlay={false}>
-          <CheatsheetContainer topicId={topic.id!} topicName={topic.name} />
+          <CheatsheetContainer topicId={topic.id!} topicName={topic.name} languageFilter={preferredLanguage} />
         </PremiumGate>
       </div>
     );
   }
 
-  return <CheatsheetContainer topicId={topic.id!} topicName={topic.name} />;
+  return (
+    <div>
+      <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} className="mb-4" />
+      <CheatsheetContainer topicId={topic.id!} topicName={topic.name} languageFilter={preferredLanguage} />
+    </div>
+  );
 }
 

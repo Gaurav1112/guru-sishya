@@ -7,6 +7,7 @@ import { MermaidDiagram } from "./mermaid-diagram";
 interface MarkdownRendererProps {
   content: string;
   className?: string;
+  languageFilter?: "java" | "python" | "typescript" | "all";
 }
 
 /**
@@ -14,7 +15,7 @@ interface MarkdownRendererProps {
  * and Feynman chat. Supports GFM (tables, strikethrough, task lists) and
  * renders ```mermaid code blocks as interactive diagrams.
  */
-export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+export function MarkdownRenderer({ content, className, languageFilter = "all" }: MarkdownRendererProps) {
   return (
     <div className={className}>
     <ReactMarkdown
@@ -35,6 +36,22 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
           const isBlock =
             codeClassName != null ||
             codeString.includes("\n");
+
+          if (isBlock && languageFilter !== "all" && language) {
+            const langMap: Record<string, string> = {
+              js: "javascript", ts: "typescript", py: "python", jsx: "javascript", tsx: "typescript",
+            };
+            const normalizedLang = langMap[language] ?? language;
+            const filterMap: Record<string, string[]> = {
+              java: ["java"],
+              python: ["python"],
+              typescript: ["typescript", "javascript"],
+            };
+            const allowed = filterMap[languageFilter];
+            if (allowed && !allowed.includes(normalizedLang)) {
+              return null;
+            }
+          }
 
           if (isBlock) {
             return (

@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { PlanContainer } from "@/components/features/plan/plan-container";
+import { CodeLanguageToggle } from "@/components/code-language-toggle";
 
 export default function PlanPage({
   params,
@@ -16,6 +17,8 @@ export default function PlanPage({
   const topic = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
   const apiKey = useStore((s) => s.apiKey);
   const aiProvider = useStore((s) => s.aiProvider);
+  const preferredLanguage = useStore((s) => s.preferredLanguage);
+  const setPreferredLanguage = useStore((s) => s.setPreferredLanguage);
   const hydrated = useHydrated();
 
   if (!hydrated) {
@@ -54,5 +57,10 @@ export default function PlanPage({
     );
   }
 
-  return <PlanContainer topicId={topic.id!} topicName={topic.name} />;
+  return (
+    <div>
+      <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} className="mb-4" />
+      <PlanContainer topicId={topic.id!} topicName={topic.name} />
+    </div>
+  );
 }

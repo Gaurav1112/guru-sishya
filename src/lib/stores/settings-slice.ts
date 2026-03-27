@@ -14,6 +14,7 @@ export interface SettingsState {
   displayName: string | null;
   onboardingCompleted: boolean;
   visitCount: number;
+  preferredLanguage: "java" | "python" | "typescript" | "all";
 }
 
 export interface SettingsActions {
@@ -27,6 +28,7 @@ export interface SettingsActions {
   setDisplayName: (name: string) => void;
   setOnboardingCompleted: (done: boolean) => void;
   incrementVisitCount: () => void;
+  setPreferredLanguage: (lang: "java" | "python" | "typescript" | "all") => void;
 }
 
 export type SettingsSlice = SettingsState & SettingsActions;
@@ -49,6 +51,7 @@ export const createSettingsSlice: StateCreator<
   displayName: null,
   onboardingCompleted: false,
   visitCount: 0,
+  preferredLanguage: "all",
 
   // Actions
   setApiKey: (key) =>
@@ -87,4 +90,6 @@ export const createSettingsSlice: StateCreator<
     set((state) => { state.onboardingCompleted = done; }),
   incrementVisitCount: () =>
     set((state) => { state.visitCount += 1; }),
+  setPreferredLanguage: (lang) =>
+    set((state) => { state.preferredLanguage = lang; }),
 });
