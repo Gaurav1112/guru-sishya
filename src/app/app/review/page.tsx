@@ -12,6 +12,7 @@ import { FlashcardDeck } from "@/components/features/review/flashcard-deck";
 import { PremiumGate } from "@/components/premium-gate";
 import { Button } from "@/components/ui/button";
 import { checkStreak, recordDailyActivity } from "@/lib/gamification/streaks";
+import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import type { Flashcard } from "@/lib/types";
 import type { TimedTestResult } from "@/lib/review/question-selector";
 
@@ -612,6 +613,20 @@ export default function ReviewPage() {
     );
     setStreak(streakResult.newState.currentStreak, streakResult.newState.longestStreak);
     recordDailyActivity(today).catch(() => {});
+
+    // Check and unlock badges after review session
+    const storeState = useStore.getState();
+    getUserStats({
+      currentStreak: streakResult.newState.currentStreak,
+      longestStreak: streakResult.newState.longestStreak,
+      totalXP: storeState.totalXP,
+      level: storeState.level,
+    }).then((stats) => checkAndUnlockBadges(stats)).then((newBadges) => {
+      for (const badge of newBadges) {
+        storeState.queueCelebration({ type: "badge", data: { badge: { name: badge.name, icon: badge.icon } } });
+      }
+    }).catch(() => {});
+
     // History will reload via the useEffect dependency on isReviewing
   }
 

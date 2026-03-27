@@ -22,6 +22,7 @@ import {
   feynmanVerifyPrompt,
   antiParrotingPrompt,
 } from "@/lib/prompts/feynman";
+import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import type { MasteryScores } from "@/lib/types";
 import type { FeynmanStatus } from "@/lib/stores/chat-slice";
 
@@ -447,6 +448,19 @@ export function FeynmanContainer({ topicId, topicName }: FeynmanContainerProps) 
         addXP(50);
         addCoins(15, "feynman_mastery");
         queueCelebration({ type: "xp_gain", data: { amount: 50, reason: "Feynman mastery" } });
+
+        // Check and unlock badges after Feynman mastery
+        const storeState = useStore.getState();
+        getUserStats({
+          currentStreak: storeState.currentStreak,
+          longestStreak: storeState.longestStreak,
+          totalXP: storeState.totalXP,
+          level: storeState.level,
+        }).then((stats) => checkAndUnlockBadges(stats)).then((newBadges) => {
+          for (const badge of newBadges) {
+            queueCelebration({ type: "badge", data: { badge: { name: badge.name, icon: badge.icon } } });
+          }
+        }).catch(() => {});
       }
 
       await saveSession(mastered, scores);

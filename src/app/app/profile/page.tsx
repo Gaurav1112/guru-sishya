@@ -10,6 +10,7 @@ import { getLevelInfo, xpProgressInLevel } from "@/lib/gamification/xp";
 import { StreakFlame } from "@/components/gamification/streak-flame";
 import { LevelBadge } from "@/components/gamification/level-badge";
 import { BadgeMandir } from "@/components/gamification/badge-mandir";
+import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import { ShareButton } from "@/components/share-button";
 import { ShareCard } from "@/components/profile/share-card";
 import { Button } from "@/components/ui/button";
@@ -475,6 +476,30 @@ export default function ProfilePage() {
 
       {/* ── Badge Mandir ───────────────────────────────────────────────── */}
       <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-heading text-xl font-bold">Badge Mandir</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              const storeState = useStore.getState();
+              const stats = await getUserStats({
+                currentStreak: storeState.currentStreak,
+                longestStreak: storeState.longestStreak,
+                totalXP: storeState.totalXP,
+                level: storeState.level,
+              });
+              const newBadges = await checkAndUnlockBadges(stats);
+              if (newBadges.length > 0) {
+                toast(`${newBadges.length} new badge${newBadges.length > 1 ? "s" : ""} unlocked!`);
+              } else {
+                toast("All earned badges are already unlocked.");
+              }
+            }}
+          >
+            Check Badges
+          </Button>
+        </div>
         <BadgeMandir />
       </section>
 

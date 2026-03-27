@@ -300,7 +300,11 @@ export default function SessionViewPage({
           longestStreak: storeState.longestStreak,
           totalXP: storeState.totalXP,
           level: storeState.level,
-        }).then((stats) => checkAndUnlockBadges(stats)).catch(() => {});
+        }).then((stats) => checkAndUnlockBadges(stats)).then((newBadges) => {
+          for (const badge of newBadges) {
+            queueCelebration({ type: "badge", data: { badge: { name: badge.name, icon: badge.icon } } });
+          }
+        }).catch(() => {});
       }
     } finally {
       setCompleting(false);
