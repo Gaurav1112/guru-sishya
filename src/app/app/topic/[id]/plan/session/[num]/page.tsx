@@ -602,15 +602,19 @@ export default function SessionViewPage({
                 key={i}
                 className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3"
               >
-                <Badge
-                  variant="outline"
-                  className="shrink-0 font-mono text-xs border-teal/30 text-teal bg-teal/5 tabular-nums"
-                >
-                  {act.durationMinutes} min
-                </Badge>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {act.description}
-                </p>
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-teal/10 text-teal text-xs font-bold">
+                  {i + 1}
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm text-foreground leading-relaxed">
+                    {act.description}
+                  </p>
+                  {act.durationMinutes > 0 && (
+                    <span className="text-[10px] text-muted-foreground mt-1 inline-block">
+                      ~{act.durationMinutes} minutes
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
