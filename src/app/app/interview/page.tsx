@@ -1179,6 +1179,17 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
       setIsThinking(false);
       setScores((prev) => [...prev, result.score]);
 
+      // Immediately save wrong answers to revision (don't wait for interview end)
+      if (result.score < 7 && q) {
+        generateFlashcardsFromInterview([{
+          question: q.question,
+          modelAnswer: q.answer || "",
+          userAnswer: answer,
+          score: result.score,
+          topic: config?.topic ?? "",
+        }]).catch(() => {});
+      }
+
       // Play sound based on score
       if (result.score >= 8) {
         sounds.correct();
