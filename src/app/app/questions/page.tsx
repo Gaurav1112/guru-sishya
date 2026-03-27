@@ -11,9 +11,11 @@ import {
   type QuestionCategory,
 } from "@/lib/content/questions-loader";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { CodeLanguageToggle } from "@/components/code-language-toggle";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { PremiumGate } from "@/components/premium-gate";
+import { useFeatureLimit } from "@/hooks/use-feature-limit";
 import {
   Search,
   Bookmark,
@@ -209,6 +211,7 @@ function QuestionCard({
   onToggleBookmark,
   onSetStatus,
   answerLocked,
+  languageFilter,
 }: {
   question: Question;
   isFlipped: boolean;
@@ -218,6 +221,7 @@ function QuestionCard({
   onToggleBookmark: () => void;
   onSetStatus: (s: "known" | "review") => void;
   answerLocked: boolean;
+  languageFilter: "java" | "python" | "typescript" | "all";
 }) {
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -334,7 +338,7 @@ function QuestionCard({
                 <>
                   {/* Answer content */}
                   <div className="flex-1 text-sm">
-                    <MarkdownRenderer content={question.answer} />
+                    <MarkdownRenderer content={question.answer} languageFilter={languageFilter} />
                   </div>
 
                   {/* Status buttons */}
@@ -527,8 +531,6 @@ function FilterPanel({
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 
-const FREE_ANSWER_LIMIT = 5;
-
 export default function QuestionsPage() {
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -545,12 +547,11 @@ export default function QuestionsPage() {
   const [quizMode, setQuizMode] = useState(false);
   const [direction, setDirection] = useState(0); // -1 = left, 1 = right
 
-  // Premium gate: track which question IDs have had answers revealed
-  const { isPremium, premiumUntil } = useStore();
+  // Premium gate
+  const { isPremium, premiumUntil, preferredLanguage, setPreferredLanguage } = useStore();
   const isActivePremium =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
-  // Set of question IDs whose answers have been revealed this session
-  const [revealedAnswerIds, setRevealedAnswerIds] = useState<Set<number>>(new Set());
+  const answerLimit = useFeatureLimit("question_reveal");
 
   // Load bookmarks from Dexie
   const bookmarks = useLiveQuery(
@@ -849,28 +850,23 @@ export default function QuestionsPage() {
   // ── Premium gate helpers ───────────────────────────────────────────────────
   // NOTE: ALL hooks MUST be before any early returns (Rules of Hooks)
 
-  const isAnswerLocked = useCallback(
-    (questionId: number): boolean => {
-      if (isActivePremium) return false;
-      if (revealedAnswerIds.has(questionId)) return false;
-      return revealedAnswerIds.size >= FREE_ANSWER_LIMIT;
-    },
-    [isActivePremium, revealedAnswerIds]
-  );
-
   const handleFlip = useCallback(
-    (questionId: number) => {
-      setIsFlipped((f) => {
-        const nextFlipped = !f;
-        if (nextFlipped && !isActivePremium && !revealedAnswerIds.has(questionId)) {
-          if (revealedAnswerIds.size < FREE_ANSWER_LIMIT) {
-            setRevealedAnswerIds((prev) => new Set([...prev, questionId]));
+    async (questionId: number) => {
+      const currentlyFlipped = isFlipped;
+      if (!currentlyFlipped) {
+        // Flipping to the answer side — check/increment limit
+        if (!isActivePremium) {
+          const canReveal = await answerLimit.increment();
+          if (!canReveal) {
+            // Limit reached — flip to show the locked gate
+            setIsFlipped(true);
+            return;
           }
         }
-        return nextFlipped;
-      });
+      }
+      setIsFlipped((f) => !f);
     },
-    [isActivePremium, revealedAnswerIds]
+    [isActivePremium, answerLimit, isFlipped]
   );
 
   // ── Loading state ──────────────────────────────────────────────────────────
@@ -1042,6 +1038,8 @@ export default function QuestionsPage() {
 
       {/* Search + Controls */}
       <div className="flex items-center gap-2 flex-wrap">
+        {/* Language toggle */}
+        <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} />
         {/* Search */}
         <div className="relative flex-1 min-w-[140px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -1193,9 +1191,9 @@ export default function QuestionsPage() {
                 <Lock className="size-3 text-saffron shrink-0" />
                 <span>
                   <span className="font-semibold text-saffron">
-                    {Math.min(revealedAnswerIds.size, FREE_ANSWER_LIMIT)} of {FREE_ANSWER_LIMIT}
+                    {answerLimit.remaining} of {answerLimit.limit}
                   </span>{" "}
-                  answers unlocked — Upgrade for full access
+                  {answerLimit.label} remaining today — Upgrade for full access
                 </span>
               </div>
               <a
@@ -1236,7 +1234,8 @@ export default function QuestionsPage() {
                 onSetStatus={(s) =>
                   setQuestionStatus(currentQuestion.id, s)
                 }
-                answerLocked={isAnswerLocked(currentQuestion.id)}
+                answerLocked={!isActivePremium && !answerLimit.allowed}
+                languageFilter={preferredLanguage}
               />
             </motion.div>
           </AnimatePresence>

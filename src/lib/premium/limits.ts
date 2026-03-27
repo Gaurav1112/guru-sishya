@@ -5,4 +5,5 @@ export const FREE_LIMITS: Record<string, { daily: number; label: string }> = {
   cheatsheet_export: { daily: 0, label: "cheatsheet exports" },
   bookmark: { daily: 0, label: "bookmarks" },
   revision: { daily: 10, label: "revision cards" },
+  question_reveal: { daily: 5, label: "answer reveals" },
 };
