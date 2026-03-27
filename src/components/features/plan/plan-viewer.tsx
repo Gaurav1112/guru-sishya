@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { ChevronDown, ChevronUp, RefreshCw, Trophy, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress, ProgressLabel } from "@/components/ui/progress";
@@ -94,7 +93,7 @@ export function PlanViewer({
             Plan Overview
           </h2>
           <div className="prose prose-sm prose-invert max-w-none text-muted-foreground">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{plan.overview}</ReactMarkdown>
+            <MarkdownRenderer content={plan.overview} />
           </div>
         </div>
       )}
@@ -119,7 +118,7 @@ export function PlanViewer({
           {skippedExpanded && (
             <div className="px-4 pb-4">
               <div className="prose prose-sm prose-invert max-w-none text-muted-foreground">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{plan.skippedTopics}</ReactMarkdown>
+                <MarkdownRenderer content={plan.skippedTopics} />
               </div>
             </div>
           )}

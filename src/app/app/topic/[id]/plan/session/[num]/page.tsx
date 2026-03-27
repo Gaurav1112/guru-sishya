@@ -6,8 +6,7 @@ import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Loader2, ArrowLeft, ArrowRight, Clock, Target, BookOpen, HelpCircle, Star, CheckCircle2, ChevronDown, ChevronUp, Zap, Terminal, Lock } from "lucide-react";
 import { FloatingStickyNotes } from "@/components/floating-sticky-notes";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
@@ -492,7 +491,7 @@ export default function SessionViewPage({
               "[&_hr]:border-border [&_hr]:my-6",
             )}
           >
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{session.content}</ReactMarkdown>
+            <MarkdownRenderer content={session.content} />
           </div>
         </div>
       )}

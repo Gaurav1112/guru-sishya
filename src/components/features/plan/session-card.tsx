@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { useStore } from "@/lib/store";
 import { PremiumGate } from "@/components/premium-gate";
 import type { GeneratedSession } from "@/lib/plan/types";
@@ -171,7 +170,7 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
                 <span className="text-sm font-semibold text-saffron">Lesson Content</span>
               </div>
               <div className="prose prose-invert prose-sm max-w-none [&_h2]:text-foreground [&_h3]:text-foreground [&_strong]:text-foreground [&_code]:text-saffron [&_code]:bg-muted/50 [&_pre]:bg-muted/80 [&_pre]:rounded-lg [&_table]:text-sm [&_th]:text-left [&_th]:p-2 [&_td]:p-2 [&_a]:text-saffron">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{session.content}</ReactMarkdown>
+                <MarkdownRenderer content={session.content || ""} />
               </div>
             </div>
           )}

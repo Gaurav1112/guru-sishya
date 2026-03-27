@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { ChevronDown, ChevronUp, Star, AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -329,9 +328,7 @@ export function GradeResult({ answer, xpEarned, onNext, isLast }: GradeResultPro
         </CardHeader>
         <CardContent>
           <div className="prose prose-invert max-w-none prose-sm prose-p:leading-relaxed">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {answer.feedback}
-            </ReactMarkdown>
+            <MarkdownRenderer content={answer.feedback || ""} />
           </div>
         </CardContent>
       </Card>
@@ -385,9 +382,7 @@ export function GradeResult({ answer, xpEarned, onNext, isLast }: GradeResultPro
               >
                 <CardContent>
                   <div className="prose prose-invert max-w-none prose-sm prose-p:leading-relaxed">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {answer.perfectAnswer}
-                    </ReactMarkdown>
+                    <MarkdownRenderer content={answer.perfectAnswer || ""} />
                   </div>
                 </CardContent>
               </motion.div>

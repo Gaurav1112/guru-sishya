@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { DifficultyIndicator } from "./difficulty-indicator";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { GeneratedQuestion } from "@/lib/quiz/types";
@@ -52,9 +51,7 @@ export function QuestionCard({
         </CardHeader>
         <CardContent>
           <div className="prose prose-invert max-w-none prose-sm prose-code:bg-muted prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-pre:bg-muted prose-pre:rounded-lg">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {question.question}
-            </ReactMarkdown>
+            <MarkdownRenderer content={question.question || ""} />
           </div>
         </CardContent>
       </Card>
