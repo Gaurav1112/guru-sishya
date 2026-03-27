@@ -68,36 +68,37 @@ let _contentCache: TopicContent[] | null = null;
 export async function loadAllContent(): Promise<TopicContent[]> {
   if (_contentCache !== null) return _contentCache;
 
-  const results: TopicContent[] = [];
-
-  for (const file of CONTENT_FILES) {
+  // Fetch ALL files in parallel (was sequential — 3-5s delay with 19 files)
+  const fetches = CONTENT_FILES.map(async (file) => {
     try {
       const response = await fetch(file);
-      if (!response.ok) continue;
+      if (!response.ok) return [];
       const raw = (await response.json()) as TopicContent | TopicContent[];
       const items: TopicContent[] = Array.isArray(raw) ? raw : [raw];
+      const normalized: TopicContent[] = [];
       for (const item of items) {
-        // Normalise: some files use "name" instead of "topic" — spread to avoid mutation
-        const normalized = (!item.topic && item.name)
+        // Normalise: some files use "name" instead of "topic"
+        const norm = (!item.topic && item.name)
           ? { ...item, topic: item.name }
           : item;
 
-        // Ensure every session has a valid sessionNumber (some content files omit it)
-        if (normalized.plan?.sessions) {
-          normalized.plan.sessions = normalized.plan.sessions.map((s, idx) => ({
+        // Ensure every session has a valid sessionNumber
+        if (norm.plan?.sessions) {
+          norm.plan.sessions = norm.plan.sessions.map((s, idx) => ({
             ...s,
             sessionNumber: s.sessionNumber ?? idx + 1,
           }));
         }
 
-        if (normalized.topic) results.push(normalized);
+        if (norm.topic) normalized.push(norm);
       }
+      return normalized;
     } catch {
-      // Non-critical — file may not exist yet
-      continue;
+      return [];
     }
-  }
+  });
 
+  const results = (await Promise.all(fetches)).flat();
   _contentCache = results;
   return results;
 }

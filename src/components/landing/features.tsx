@@ -15,7 +15,7 @@ const features = [
   {
     title: "20-Hour Pareto Plan",
     description:
-      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 53 built-in topics.",
+      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 65 built-in topics.",
     icon: "📋",
   },
   {

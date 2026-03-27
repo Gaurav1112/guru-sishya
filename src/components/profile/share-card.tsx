@@ -12,10 +12,9 @@ interface ShareCardProps {
 
 export function ShareCard({ badgeCount, totalQuestions, accuracy }: ShareCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const { totalXP, level, currentStreak } = useStore();
+  const { totalXP, level, currentStreak, displayName } = useStore();
   const levelInfo = getLevelInfo(level);
-  // Note: getLevelInfo returns { tier, tierDescription, subLevel, title }
-  // Use levelInfo.title for the display name
+  const userName = displayName || "a software engineer";
 
   const generateImage = useCallback(async (): Promise<Blob | null> => {
     if (!cardRef.current) return null;
@@ -25,15 +24,15 @@ export function ShareCard({ badgeCount, totalQuestions, accuracy }: ShareCardPro
   }, []);
 
   const shareToLinkedIn = useCallback(() => {
-    const text = `🎓 I'm a ${levelInfo.title} on Guru Sishya!\n\n` +
-      `📊 Stats:\n` +
+    const text = `🎓 I'm ${userName}, currently at ${levelInfo.tier} level on Guru Sishya!\n\n` +
+      `📊 My Interview Prep Stats:\n` +
       `• ${totalXP.toLocaleString()} XP earned\n` +
       `• ${badgeCount} badges unlocked\n` +
       `• ${currentStreak}-day learning streak\n` +
       `• ${totalQuestions} questions answered\n` +
       `• ${accuracy}% accuracy\n\n` +
-      `Preparing for software engineering interviews with AI-powered adaptive learning.\n\n` +
-      `Check it out: https://www.guru-sishya.in\n\n` +
+      `Preparing for software engineering interviews with adaptive quizzes, mock interviews, and spaced repetition.\n\n` +
+      `Try it: https://www.guru-sishya.in\n\n` +
       `#InterviewPrep #SoftwareEngineering #GuruSishya #CodingInterview #TechCareer`;
 
     window.open(
@@ -44,7 +43,7 @@ export function ShareCard({ badgeCount, totalQuestions, accuracy }: ShareCardPro
 
   const shareToWhatsApp = useCallback(() => {
     const text = `🎓 *Guru Sishya Progress Update*\n\n` +
-      `I'm a *${levelInfo.title}* (Level ${level})!\n\n` +
+      `I'm ${userName}, currently at *${levelInfo.tier}* level (Level ${level})!\n\n` +
       `📊 ${totalXP.toLocaleString()} XP | ${badgeCount} Badges | ${currentStreak}-day Streak\n` +
       `📝 ${totalQuestions} questions | ${accuracy}% accuracy\n\n` +
       `Preparing for software engineering interviews!\n` +

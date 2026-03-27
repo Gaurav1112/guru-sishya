@@ -496,7 +496,7 @@ export default function DashboardPage() {
             href="/app/topics"
             className="text-sm text-saffron hover:underline"
           >
-            Browse all 53 topics →
+            Browse all 65 topics →
           </Link>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
