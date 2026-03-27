@@ -1,14 +1,18 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { persist } from "zustand/middleware";
 import { createChatSlice, type ChatSlice } from "./chat-slice";
 
-// Build a minimal test store using only the chat slice
+// Build a minimal test store matching the middleware stack expected by the slice
 function makeStore() {
   return create<ChatSlice>()(
-    immer((...args) => ({
-      ...createChatSlice(...args),
-    }))
+    persist(
+      immer((...args) => ({
+        ...createChatSlice(...args),
+      })),
+      { name: "test-chat-store", storage: { getItem: () => null, setItem: () => {}, removeItem: () => {} } }
+    )
   );
 }
 
