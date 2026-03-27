@@ -225,6 +225,33 @@ const CONTENT_FILES = [
   "/content/k8s-docker-qa.json",
   "/content/design-patterns-qa.json",
   "/content/java-qa-all.json",
+  "/content/java-qa-part2.json",
+  "/content/java-qa-part3.json",
+  "/content/company-tech-qa-part3.json",
+  "/content/core-cs-expanded-1.json",
+];
+
+// Topic content files — quizBank Q&A and lesson content extracted from these
+const TOPIC_CONTENT_FILES = [
+  "/content/java-core.json",
+  "/content/spring-boot.json",
+  "/content/ds-algo.json",
+  "/content/dsa-patterns.json",
+  "/content/system-design-fundamentals.json",
+  "/content/system-design-cases.json",
+  "/content/core-cs.json",
+  "/content/design-patterns.json",
+  "/content/javascript.json",
+  "/content/react-nextjs.json",
+  "/content/html-css.json",
+  "/content/aws.json",
+  "/content/kafka.json",
+  "/content/k8s-docker.json",
+  "/content/nosql.json",
+  "/content/nodejs.json",
+  "/content/rdbms-sql.json",
+  "/content/estimation.json",
+  "/content/interview-framework.json",
 ];
 
 // ── Knowledge base (module-level cache) ───────────────────────────────────────
@@ -234,8 +261,9 @@ let knowledgeCache: KnowledgeBase = { items: [], loaded: false };
 async function loadKnowledge(): Promise<QAItem[]> {
   if (knowledgeCache.loaded) return knowledgeCache.items;
 
-  const results: QAItem[] = [];
+  let items: QAItem[] = [];
 
+  // Load existing Q&A files (flat array of {question, answer} objects)
   const fetches = CONTENT_FILES.map((url) =>
     fetch(url)
       .then((r) => (r.ok ? r.json() : []))
@@ -247,7 +275,7 @@ async function loadKnowledge(): Promise<QAItem[]> {
               typeof item.question === "string" &&
               typeof item.answer === "string"
             ) {
-              results.push({
+              items.push({
                 question: item.question,
                 answer: item.answer,
                 category: item.category,
@@ -270,7 +298,7 @@ async function loadKnowledge(): Promise<QAItem[]> {
           if (!item) continue;
           const q = item.question;
           const a = item.explanation ?? item.answer ?? item.correctAnswer ?? "";
-          if (q && a) results.push({ question: q, answer: a, category: item.topic });
+          if (q && a) items.push({ question: q, answer: a, category: item.topic });
         }
       }
     })
@@ -278,8 +306,56 @@ async function loadKnowledge(): Promise<QAItem[]> {
 
   await Promise.all([...fetches, dailyFetch]);
 
-  knowledgeCache = { items: results, loaded: true };
-  return results;
+  // Load topic content files — extract Q&A from quizBank and plan sessions
+  for (const file of TOPIC_CONTENT_FILES) {
+    try {
+      const res = await fetch(file);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const topics = Array.isArray(data) ? data : [data];
+
+      for (const topic of topics) {
+        const category = topic.topic || topic.name || "";
+
+        // Extract from quizBank
+        if (topic.quizBank && Array.isArray(topic.quizBank)) {
+          for (const q of topic.quizBank) {
+            if (q.question && q.explanation) {
+              items.push({
+                question: q.question,
+                answer: q.explanation,
+                category,
+                difficulty: String(q.difficulty || ""),
+              });
+            }
+          }
+        }
+
+        // Extract from plan sessions (lesson content)
+        if (topic.plan?.sessions && Array.isArray(topic.plan.sessions)) {
+          for (const session of topic.plan.sessions) {
+            if (session.title && session.content) {
+              items.push({
+                question: `Explain ${session.title}`,
+                answer: typeof session.content === "string"
+                  ? session.content.substring(0, 500)
+                  : JSON.stringify(session.content).substring(0, 500),
+                category,
+              });
+            }
+          }
+        }
+      }
+    } catch {
+      // Skip files that fail to load
+    }
+  }
+
+  // Filter out items with empty or trivially short answers
+  items = items.filter(item => item.answer && item.answer.trim().length > 10);
+
+  knowledgeCache = { items, loaded: true };
+  return items;
 }
 
 // ── Keyword helpers ───────────────────────────────────────────────────────────
