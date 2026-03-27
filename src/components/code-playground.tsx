@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2, Clock, Copy, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { runJava, runC, runCpp, runGo, runRust, runPython, runJavaScriptSandboxed, type RunResult } from "@/lib/code-runner";
+import { runJava, runC, runCpp, runPython, runJavaScriptSandboxed, type RunResult } from "@/lib/code-runner";
 
 // Monaco must be dynamically imported with ssr: false
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -16,7 +16,7 @@ export interface TestCase {
   description?: string;
 }
 
-export type PlaygroundLanguage = "javascript" | "typescript" | "python" | "java" | "c" | "cpp" | "go" | "rust";
+export type PlaygroundLanguage = "javascript" | "typescript" | "python" | "java" | "c" | "cpp";
 
 interface CodePlaygroundProps {
   defaultCode?: string;
@@ -75,7 +75,7 @@ print(greet("World"))
 print("2 + 2 =", 2 + 2)
 `,
   java: `// Java Playground
-// Compiled and run via Piston cloud (OpenJDK)
+// Compiled and run via Judge0 CE (OpenJDK 17)
 
 public class Main {
     public static void main(String[] args) {
@@ -89,7 +89,7 @@ public class Main {
 }
 `,
   c: `// C Playground
-// Compiled and run via Piston cloud (GCC)
+// Compiled and run via Judge0 CE (GCC 14)
 
 #include <stdio.h>
 
@@ -100,7 +100,7 @@ int main() {
 }
 `,
   cpp: `// C++ Playground
-// Compiled and run via Piston cloud (G++)
+// Compiled and run via Judge0 CE (G++ 14)
 
 #include <iostream>
 using namespace std;
@@ -109,26 +109,6 @@ int main() {
     cout << "Hello, World!" << endl;
     cout << "2 + 2 = " << (2 + 2) << endl;
     return 0;
-}
-`,
-  go: `// Go Playground
-// Compiled and run via Piston cloud
-
-package main
-
-import "fmt"
-
-func main() {
-    fmt.Println("Hello, World!")
-    fmt.Println("2 + 2 =", 2+2)
-}
-`,
-  rust: `// Rust Playground
-// Compiled and run via Piston cloud
-
-fn main() {
-    println!("Hello, World!");
-    println!("2 + 2 = {}", 2 + 2);
 }
 `,
 };
@@ -142,8 +122,6 @@ const LANGUAGES: { value: PlaygroundLanguage; label: string; monacoLang: string;
   { value: "java", label: "Java", monacoLang: "java", remote: true },
   { value: "c", label: "C", monacoLang: "c", remote: true },
   { value: "cpp", label: "C++", monacoLang: "cpp", remote: true },
-  { value: "go", label: "Go", monacoLang: "go", remote: true },
-  { value: "rust", label: "Rust", monacoLang: "rust", remote: true },
 ];
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -193,44 +171,28 @@ export function CodePlayground({
 
     try {
       if (language === "java") {
-        setRunStatus("Compiling via cloud (Piston / OpenJDK)...");
+        setRunStatus("Compiling via Judge0...");
         const result: RunResult = await runJava(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel("Piston API (Java)");
+        setRunnerLabel("Judge0 CE (Java 17)");
         setExecMs(result.durationMs ?? null);
       } else if (language === "c") {
-        setRunStatus("Compiling via cloud (Piston / GCC)...");
+        setRunStatus("Compiling via Judge0...");
         const result: RunResult = await runC(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel("Piston API (C/GCC)");
+        setRunnerLabel("Judge0 CE (GCC 14)");
         setExecMs(result.durationMs ?? null);
       } else if (language === "cpp") {
-        setRunStatus("Compiling via cloud (Piston / G++)...");
+        setRunStatus("Compiling via Judge0...");
         const result: RunResult = await runCpp(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel("Piston API (C++/G++)");
-        setExecMs(result.durationMs ?? null);
-      } else if (language === "go") {
-        setRunStatus("Compiling via cloud (Piston / Go)...");
-        const result: RunResult = await runGo(code);
-        const combined = [result.output, result.error].filter(Boolean).join("\n");
-        setOutput(combined || "(no output)");
-        setOutputError(result.isError);
-        setRunnerLabel("Piston API (Go)");
-        setExecMs(result.durationMs ?? null);
-      } else if (language === "rust") {
-        setRunStatus("Compiling via cloud (Piston / Rust)...");
-        const result: RunResult = await runRust(code);
-        const combined = [result.output, result.error].filter(Boolean).join("\n");
-        setOutput(combined || "(no output)");
-        setOutputError(result.isError);
-        setRunnerLabel("Piston API (Rust)");
+        setRunnerLabel("Judge0 CE (G++ 14)");
         setExecMs(result.durationMs ?? null);
       } else if (language === "python") {
         setRunStatus("Loading Python runtime...");
@@ -241,7 +203,7 @@ export function CodePlayground({
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel(result.runner === "pyodide" ? "Pyodide (Web Worker)" : "Wandbox API");
+        setRunnerLabel(result.runner === "pyodide" ? "Pyodide (Web Worker)" : "Judge0 CE (Python)");
         setExecMs(result.durationMs ?? null);
       } else {
         setRunStatus("Running in sandbox...");
@@ -435,9 +397,9 @@ export function CodePlayground({
               runs in-browser (Pyodide)
             </span>
           )}
-          {!running && !runStatus && (language === "java" || language === "c" || language === "cpp" || language === "go" || language === "rust") && (
+          {!running && !runStatus && (language === "java" || language === "c" || language === "cpp") && (
             <span className="text-[10px] text-muted-foreground/60 italic">
-              compiles via cloud (Piston API)
+              compiles via cloud (Judge0 CE)
             </span>
           )}
 

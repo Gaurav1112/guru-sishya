@@ -2,23 +2,26 @@
 //
 // JavaScript/TypeScript → in-browser sandboxed iframe (runJavaScriptSandboxed)
 // Python               → Pyodide (in-browser WASM, ~5 MB first load, cached)
-// Java/C/C++/Go/Rust   → Piston API via /api/run-code proxy (server-side, no CORS)
+//                        Fallback: Judge0 CE via /api/run-code proxy
+// Java/C/C++           → Judge0 CE via /api/run-code proxy (server-side, no CORS)
 //
-// Piston (emkc.org/api/v2/piston) is free, no API key required, supports 30+ languages.
+// Judge0 CE (ce.judge0.com) is free, no API key required, synchronous mode.
 
 export type RunResult = {
   output: string;
   error: string | null;
   isError: boolean;
   /** How the code was run — shown in the playground UI */
-  runner?: "pyodide" | "piston" | "local" | "iframe";
+  runner?: "pyodide" | "judge0" | "local" | "iframe";
   /** Wall-clock execution time in milliseconds */
   durationMs?: number;
+  /** Memory used (e.g. "128KB") — only available from Judge0 */
+  memory?: string;
 };
 
-// ── Piston API proxy ───────────────────────────────────────────────────────────
-// All compiled languages (Java, C, C++, Go, Rust) are executed server-side via
-// /api/run-code, which proxies to the Piston API (https://emkc.org/api/v2/piston).
+// ── Judge0 CE API proxy ────────────────────────────────────────────────────────
+// All compiled languages (Java, C, C++) are executed server-side via
+// /api/run-code, which proxies to Judge0 CE (https://ce.judge0.com).
 // Server-side fetch avoids CORS issues and hides slow compile waits.
 
 async function runRemote(language: string, code: string): Promise<RunResult> {
@@ -37,20 +40,20 @@ async function runRemote(language: string, code: string): Promise<RunResult> {
         output: "",
         error: `Code execution service returned HTTP ${response.status}. ${text}`.trim(),
         isError: true,
-        runner: "piston",
+        runner: "judge0",
         durationMs: Date.now() - t0,
       };
     }
 
     const data = (await response.json()) as RunResult;
-    return { ...data, runner: "piston", durationMs: data.durationMs ?? Date.now() - t0 };
+    return { ...data, runner: "judge0", durationMs: data.durationMs ?? Date.now() - t0 };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     return {
       output: "",
       error: `Runner error: ${msg}`,
       isError: true,
-      runner: "piston",
+      runner: "judge0",
       durationMs: Date.now() - t0,
     };
   }
@@ -279,11 +282,11 @@ export async function runJavaScriptSandboxed(
 
 /** Run Python 3 code.
  *  Primary:  Pyodide (in-browser WebAssembly — fast, offline-capable, free).
- *  Fallback: Piston API via /api/run-code proxy (if Pyodide fails to load). */
+ *  Fallback: Judge0 CE via /api/run-code proxy (if Pyodide fails to load). */
 export async function runPython(code: string): Promise<RunResult> {
   const pyResult = await runPythonPyodide(code);
 
-  // Fall back to Piston only if Pyodide itself failed to initialise
+  // Fall back to Judge0 only if Pyodide itself failed to initialise
   // (not if the user's Python code threw an error — that is a legitimate result).
   if (pyResult.isError && pyResult.error?.startsWith("Pyodide initialisation failed")) {
     return runRemote("python", code);
@@ -292,32 +295,22 @@ export async function runPython(code: string): Promise<RunResult> {
   return pyResult;
 }
 
-/** Run Java code via the /api/run-code → Piston proxy. */
+/** Run Java code via the /api/run-code → Judge0 CE proxy. */
 export async function runJava(code: string): Promise<RunResult> {
   return runRemote("java", code);
 }
 
-/** Run C code via the /api/run-code → Piston proxy. */
+/** Run C code via the /api/run-code → Judge0 CE proxy. */
 export async function runC(code: string): Promise<RunResult> {
   return runRemote("c", code);
 }
 
-/** Run C++ code via the /api/run-code → Piston proxy. */
+/** Run C++ code via the /api/run-code → Judge0 CE proxy. */
 export async function runCpp(code: string): Promise<RunResult> {
   return runRemote("cpp", code);
 }
 
-/** Run Go code via the /api/run-code → Piston proxy. */
-export async function runGo(code: string): Promise<RunResult> {
-  return runRemote("go", code);
-}
-
-/** Run Rust code via the /api/run-code → Piston proxy. */
-export async function runRust(code: string): Promise<RunResult> {
-  return runRemote("rust", code);
-}
-
-/** Run JavaScript (Node.js) code via Piston.
+/** Run JavaScript (Node.js) code via Judge0 CE.
  *  Note: the in-browser sandboxed iframe is preferred for JS/TS in the playground.
  *  This export exists for cases where remote Node.js execution is needed. */
 export async function runJavaScriptRemote(code: string): Promise<RunResult> {
