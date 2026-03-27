@@ -9,6 +9,7 @@ import { loadAllContent, type TopicContent } from "@/lib/content/loader";
 import { TopicInput } from "@/components/topic-input";
 import { Input } from "@/components/ui/input";
 import { PageTransition } from "@/components/page-transition";
+import { FirstRunModal } from "@/components/onboarding/first-run-modal";
 
 // ── Category metadata ────────────────────────────────────────────────────────
 
@@ -332,6 +333,14 @@ export default function TopicsPage() {
   const [contentLoading, setContentLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [showFirstRun, setShowFirstRun] = useState(false);
+
+  // Show first-run modal if not yet completed
+  useEffect(() => {
+    if (!localStorage.getItem("gs-first-run-done")) {
+      setShowFirstRun(true);
+    }
+  }, []);
 
   // Pre-fill search from URL ?search= param (used by Mitra links)
   useEffect(() => {
@@ -438,6 +447,7 @@ export default function TopicsPage() {
 
   return (
     <PageTransition>
+      {showFirstRun && <FirstRunModal onComplete={() => setShowFirstRun(false)} />}
       <div className="space-y-8">
       {/* Stats Banner */}
       <motion.div
