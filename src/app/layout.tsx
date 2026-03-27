@@ -27,9 +27,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
-  title: "Guru Sishya — Interview Prep Platform for Software Engineers",
+  title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
   description:
-    "Guru Sishya is a software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, Feynman Technique, and AI mock interviews. No credit card needed to start.",
+    "Ace your software engineering interviews with Guru Sishya. 53+ topics, 1290+ curated questions with answers, adaptive quizzes, Feynman Technique, AI mock interviews, and spaced repetition. Trusted by engineers preparing for FAANG.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -68,9 +68,9 @@ export const metadata: Metadata = {
     canonical: "https://www.guru-sishya.in",
   },
   openGraph: {
-    title: "Guru Sishya — Interview Prep Platform for Software Engineers",
+    title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
     description:
-      "Guru Sishya is a software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, Feynman Technique, and AI mock interviews. No credit card needed to start.",
+      "Ace your software engineering interviews with Guru Sishya. 53+ topics, 1290+ curated questions with answers, adaptive quizzes, Feynman Technique, AI mock interviews, and spaced repetition. Trusted by engineers preparing for FAANG.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -80,15 +80,15 @@ export const metadata: Metadata = {
         url: "https://www.guru-sishya.in/api/og",
         width: 1200,
         height: 630,
-        alt: "Guru Sishya — Interview Prep Platform for Software Engineers",
+        alt: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Guru Sishya — Interview Prep Platform for Software Engineers",
+    title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
     description:
-      "Guru Sishya is a software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, Feynman Technique, and AI mock interviews. No credit card needed to start.",
+      "Ace your software engineering interviews with Guru Sishya. 53+ topics, 1290+ curated questions with answers, adaptive quizzes, Feynman Technique, AI mock interviews, and spaced repetition. Trusted by engineers preparing for FAANG.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   appleWebApp: {
