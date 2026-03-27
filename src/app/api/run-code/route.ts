@@ -12,7 +12,19 @@ import { type NextRequest } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 const JUDGE0_URL =
-  "https://ce.judge0.com/submissions?base64_encoded=false&wait=true";
+  "https://ce.judge0.com/submissions?base64_encoded=true&wait=true";
+
+function toBase64(str: string): string {
+  return Buffer.from(str, "utf-8").toString("base64");
+}
+
+function fromBase64(str: string): string {
+  try {
+    return Buffer.from(str, "base64").toString("utf-8");
+  } catch {
+    return str;
+  }
+}
 
 const LANGUAGE_IDS: Record<string, number> = {
   java:       91,   // Java (JDK 17.0.6)
@@ -129,8 +141,9 @@ export async function POST(request: NextRequest): Promise<Response> {
       }
     }
 
+    const finalCode = lang === "java" ? javaCode : code;
     const submissionBody: Record<string, unknown> = {
-      source_code: javaCode,
+      source_code: toBase64(finalCode),
       language_id: langId,
       cpu_time_limit: 5,
       wall_time_limit: 10,
@@ -158,9 +171,9 @@ export async function POST(request: NextRequest): Promise<Response> {
     const result = await judge0Res.json();
     const durationMs = Date.now() - t0;
 
-    const stdout = result.stdout || "";
-    const stderr = result.stderr || "";
-    const compileOutput = result.compile_output || "";
+    const stdout = result.stdout ? fromBase64(result.stdout) : "";
+    const stderr = result.stderr ? fromBase64(result.stderr) : "";
+    const compileOutput = result.compile_output ? fromBase64(result.compile_output) : "";
     const statusId: number = result.status?.id ?? 0;
     const statusDesc: string = result.status?.description ?? "";
 
