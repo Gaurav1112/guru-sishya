@@ -485,6 +485,20 @@ export default function PricingPage() {
         ))}
       </div>
 
+      {/* Student discount banner */}
+      <div className="text-center p-4 rounded-xl border border-indigo-500/20 bg-indigo-500/5">
+        <p className="text-sm font-medium text-indigo-400">
+          Student? Get 30% off with your college email
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Email us at{" "}
+          <a href="mailto:support@guru-sishya.in" className="text-saffron hover:underline">
+            support@guru-sishya.in
+          </a>{" "}
+          with your .edu/.ac.in email for a discount code
+        </p>
+      </div>
+
       {/* Money-back guarantee */}
       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
         <span>🛡️</span>

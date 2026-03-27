@@ -12,6 +12,8 @@ import { BadgeMandir } from "@/components/gamification/badge-mandir";
 import { ShareButton } from "@/components/share-button";
 import { ShareCard } from "@/components/profile/share-card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 
 // ────────────────────────────────────────────────────────────────────────────
 // 30-day dot calendar
@@ -455,6 +457,38 @@ export default function ProfilePage() {
       <section>
         <h2 className="font-heading text-xl font-bold mb-4">Progress Backup</h2>
         <ProgressTransfer />
+      </section>
+
+      {/* ── Refer a Friend ──────────────────────────────────────────────── */}
+      <section>
+        <Card className="bg-surface border-border/50">
+          <CardHeader>
+            <CardTitle className="text-lg">Refer a Friend</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Share your referral link. When a friend subscribes to Pro, you both get 1 month free!
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value="https://guru-sishya.in/?ref=YOUR_ID"
+                className="flex-1 px-3 py-2 rounded-lg bg-muted border border-border/50 text-sm text-foreground"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText("https://guru-sishya.in/?ref=YOUR_ID");
+                  toast("Referral link copied!");
+                }}
+              >
+                Copy
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Coming soon — referral tracking system</p>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

@@ -175,6 +175,14 @@ export const createPremiumSlice: StateCreator<
         // ignore
       }
     }
+    // Also record trial on the server to prevent incognito abuse
+    try {
+      fetch("/api/trial/start", { method: "POST" }).catch(() => {
+        // Server tracking failed — local tracking still works
+      });
+    } catch {
+      // ignore
+    }
     return { success: true };
   },
 

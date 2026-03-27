@@ -13,15 +13,19 @@ export function EmailCapture() {
     if (!email.trim()) return;
     setLoading(true);
 
-    // Store email in localStorage for now (can be sent to backend later)
+    // Store email via API (with localStorage fallback)
     try {
+      await fetch("/api/email-capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), source: "landing_hero" }),
+      });
+    } catch {
+      // Fallback to localStorage
       const emails = JSON.parse(localStorage.getItem("gs-email-captures") || "[]");
       emails.push({ email: email.trim(), capturedAt: new Date().toISOString() });
       localStorage.setItem("gs-email-captures", JSON.stringify(emails));
-    } catch {}
-
-    // Simulate submit delay
-    await new Promise(r => setTimeout(r, 500));
+    }
     setSubmitted(true);
     setLoading(false);
   };
