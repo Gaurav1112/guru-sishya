@@ -40,8 +40,8 @@ describe("shuffle", () => {
     const positionCounts: number[][] = Array.from({ length: 4 }, () => Array(4).fill(0));
     for (let run = 0; run < 1000; run++) {
       const arr = [0, 1, 2, 3];
-      shuffle(arr);
-      arr.forEach((val, pos) => { positionCounts[val][pos]++; });
+      const shuffled = shuffle(arr);
+      shuffled.forEach((val, pos) => { positionCounts[val][pos]++; });
     }
     for (let val = 0; val < 4; val++) {
       for (let pos = 0; pos < 4; pos++) {

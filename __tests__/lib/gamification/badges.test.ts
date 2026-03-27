@@ -66,10 +66,11 @@ describe("BADGE_DEFINITIONS", () => {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("badge check functions", () => {
-  it("prathama_jyoti: unlocked when topicsExplored >= 1", () => {
+  it("prathama_jyoti: unlocked when sessionsCompleted >= 1 or totalQuizzes >= 1", () => {
     const badge = BADGE_DEFINITIONS.find((b) => b.id === "prathama_jyoti")!;
-    expect(badge.check(makeStats({ topicsExplored: 0 }))).toBe(false);
-    expect(badge.check(makeStats({ topicsExplored: 1 }))).toBe(true);
+    expect(badge.check(makeStats({ sessionsCompleted: 0, totalQuizzes: 0 }))).toBe(false);
+    expect(badge.check(makeStats({ totalQuizzes: 1 }))).toBe(true);
+    expect(badge.check(makeStats({ sessionsCompleted: 1 }))).toBe(true);
   });
 
   it("nityam: unlocked when longestStreak >= 7", () => {
@@ -96,10 +97,10 @@ describe("badge check functions", () => {
     expect(badge.check(makeStats({ perfectRounds: 5 }))).toBe(true);
   });
 
-  it("jigyasu: unlocked when topicsExplored >= 10", () => {
+  it("jigyasu: unlocked when topicsExplored >= 5", () => {
     const badge = BADGE_DEFINITIONS.find((b) => b.id === "jigyasu")!;
-    expect(badge.check(makeStats({ topicsExplored: 9 }))).toBe(false);
-    expect(badge.check(makeStats({ topicsExplored: 10 }))).toBe(true);
+    expect(badge.check(makeStats({ topicsExplored: 4 }))).toBe(false);
+    expect(badge.check(makeStats({ topicsExplored: 5 }))).toBe(true);
   });
 
   it("pathik: unlocked when plansCompleted >= 1", () => {
@@ -108,15 +109,16 @@ describe("badge check functions", () => {
     expect(badge.check(makeStats({ plansCompleted: 1 }))).toBe(true);
   });
 
-  it("param_parakrami: unlocked when badgeCount >= 25", () => {
+  it("param_parakrami: unlocked when badgeCount >= 15", () => {
     const badge = BADGE_DEFINITIONS.find((b) => b.id === "param_parakrami")!;
-    expect(badge.check(makeStats({ badgeCount: 24 }))).toBe(false);
-    expect(badge.check(makeStats({ badgeCount: 25 }))).toBe(true);
+    expect(badge.check(makeStats({ badgeCount: 14 }))).toBe(false);
+    expect(badge.check(makeStats({ badgeCount: 15 }))).toBe(true);
   });
 
-  it("brahma_muhurta: always returns false (tracked externally)", () => {
-    const badge = BADGE_DEFINITIONS.find((b) => b.id === "brahma_muhurta")!;
-    expect(badge.check(makeStats({ totalXP: 99999 }))).toBe(false);
+  it("sangam: unlocked when topicsExplored >= 10", () => {
+    const badge = BADGE_DEFINITIONS.find((b) => b.id === "sangam")!;
+    expect(badge.check(makeStats({ topicsExplored: 9 }))).toBe(false);
+    expect(badge.check(makeStats({ topicsExplored: 10 }))).toBe(true);
   });
 });
 
@@ -129,15 +131,15 @@ describe("checkAndUnlockBadges", () => {
     await db.badges.clear();
   });
 
-  it("unlocks prathama_jyoti when topicsExplored >= 1", async () => {
-    const stats = makeStats({ topicsExplored: 1 });
+  it("unlocks prathama_jyoti when totalQuizzes >= 1", async () => {
+    const stats = makeStats({ totalQuizzes: 1 });
     const newlyUnlocked = await checkAndUnlockBadges(stats);
     const ids = newlyUnlocked.map((b) => b.id);
     expect(ids).toContain("prathama_jyoti");
   });
 
   it("does not re-unlock already unlocked badges", async () => {
-    const stats = makeStats({ topicsExplored: 1 });
+    const stats = makeStats({ totalQuizzes: 1 });
     await checkAndUnlockBadges(stats);
     const secondRun = await checkAndUnlockBadges(stats);
     const ids = secondRun.map((b) => b.id);
@@ -145,7 +147,7 @@ describe("checkAndUnlockBadges", () => {
   });
 
   it("unlocks multiple badges at once", async () => {
-    const stats = makeStats({ topicsExplored: 10, longestStreak: 7, perfectRounds: 1 });
+    const stats = makeStats({ topicsExplored: 10, longestStreak: 7, perfectRounds: 1, totalQuizzes: 1 });
     const newlyUnlocked = await checkAndUnlockBadges(stats);
     const ids = newlyUnlocked.map((b) => b.id);
     expect(ids).toContain("prathama_jyoti");
@@ -162,7 +164,7 @@ describe("checkAndUnlockBadges", () => {
   });
 
   it("persists newly unlocked badges in Dexie", async () => {
-    const stats = makeStats({ topicsExplored: 1 });
+    const stats = makeStats({ totalQuizzes: 1 });
     await checkAndUnlockBadges(stats);
     const saved = await db.badges.where("type").equals("prathama_jyoti").first();
     expect(saved).toBeDefined();

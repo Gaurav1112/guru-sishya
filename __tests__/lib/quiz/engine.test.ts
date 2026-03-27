@@ -184,22 +184,22 @@ describe("calculateQuizResult", () => {
     expect(result.xpEarned).toBe(65);
   });
 
-  it("earns 5 coins when some questions are perfect", () => {
+  it("earns 2 coins (base) when some but not all questions are perfect", () => {
     const answers = [makeAnswer(9), makeAnswer(5), makeAnswer(6)];
     const result = calculateQuizResult(answers);
-    expect(result.coinsEarned).toBe(5);
+    expect(result.coinsEarned).toBe(2);
   });
 
-  it("earns 15 coins when all 10+ questions are perfect", () => {
+  it("earns 7 coins when all questions are perfect", () => {
     const answers = Array(10).fill(null).map(() => makeAnswer(9));
     const result = calculateQuizResult(answers);
-    expect(result.coinsEarned).toBe(15);
+    expect(result.coinsEarned).toBe(7);
   });
 
-  it("earns 0 coins when no perfect answers", () => {
+  it("earns 2 coins (base) when no perfect answers", () => {
     const answers = [makeAnswer(7), makeAnswer(6)];
     const result = calculateQuizResult(answers);
-    expect(result.coinsEarned).toBe(0);
+    expect(result.coinsEarned).toBe(2);
   });
 
   it("passes through breakingPointLevel", () => {
