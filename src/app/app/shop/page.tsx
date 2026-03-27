@@ -35,7 +35,7 @@ const SHOP_ITEMS: ShopItem[] = [
   },
   {
     id: "double_xp_boost",
-    name: "Double XP Boost",
+    name: "XP Boost",
     description: "1.5x XP for the next hour",
     effectDetail: "Applies 1.5× multiplier to all XP earned for 60 minutes after purchase.",
     cost: 100,

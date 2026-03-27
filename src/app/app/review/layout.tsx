@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Flashcard Review - Spaced Repetition | Guru Sishya",
   description:
-    "Review interview concepts with SM-2 spaced repetition flashcards. Retain knowledge longer with scientifically-proven review intervals across all 56 topics.",
+    "Review interview concepts with SM-2 spaced repetition flashcards. Retain knowledge longer with scientifically-proven review intervals across all 65 topics.",
   openGraph: {
     title: "Flashcard Review - Spaced Repetition | Guru Sishya",
     description:
