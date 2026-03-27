@@ -50,9 +50,9 @@ export function ShareButtons({ shareUrl, shareText, className }: ShareButtonsPro
   }
 
   function handleLinkedIn() {
-    // LinkedIn share-offsite only accepts a URL; the page OG tags provide the
-    // title / description shown in the preview.
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+    // Use the LinkedIn feed compose URL so the post text is pre-filled.
+    const text = `${shareText} ${shareUrl}`;
+    const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
 

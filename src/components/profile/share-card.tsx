@@ -25,18 +25,33 @@ export function ShareCard({ badgeCount, totalQuestions, accuracy }: ShareCardPro
   }, []);
 
   const shareToLinkedIn = useCallback(() => {
+    const text = `🎓 I'm a ${levelInfo.title} on Guru Sishya!\n\n` +
+      `📊 Stats:\n` +
+      `• ${totalXP.toLocaleString()} XP earned\n` +
+      `• ${badgeCount} badges unlocked\n` +
+      `• ${currentStreak}-day learning streak\n` +
+      `• ${totalQuestions} questions answered\n` +
+      `• ${accuracy}% accuracy\n\n` +
+      `Preparing for software engineering interviews with AI-powered adaptive learning.\n\n` +
+      `Check it out: https://www.guru-sishya.in\n\n` +
+      `#InterviewPrep #SoftwareEngineering #GuruSishya #CodingInterview #TechCareer`;
+
     window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://www.guru-sishya.in")}`,
+      `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
       "_blank"
     );
-  }, []);
+  }, [levelInfo.title, totalXP, badgeCount, currentStreak, totalQuestions, accuracy]);
 
-  const shareToWhatsApp = useCallback(async () => {
-    const text = encodeURIComponent(
-      `I'm a ${levelInfo.title} on Guru Sishya! ${badgeCount} badges, ${currentStreak}-day streak. Check it out: https://www.guru-sishya.in`
-    );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
-  }, [levelInfo.title, badgeCount, currentStreak]);
+  const shareToWhatsApp = useCallback(() => {
+    const text = `🎓 *Guru Sishya Progress Update*\n\n` +
+      `I'm a *${levelInfo.title}* (Level ${level})!\n\n` +
+      `📊 ${totalXP.toLocaleString()} XP | ${badgeCount} Badges | ${currentStreak}-day Streak\n` +
+      `📝 ${totalQuestions} questions | ${accuracy}% accuracy\n\n` +
+      `Preparing for software engineering interviews!\n` +
+      `👉 https://www.guru-sishya.in`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  }, [levelInfo.title, level, totalXP, badgeCount, currentStreak, totalQuestions, accuracy]);
 
   return (
     <>
