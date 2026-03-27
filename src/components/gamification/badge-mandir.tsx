@@ -1,6 +1,7 @@
 "use client";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { db } from "@/lib/db";
 import { BADGE_DEFINITIONS, getUserStats, type BadgeDefinition, type UserStats } from "@/lib/gamification/badges";
@@ -69,16 +70,22 @@ export function BadgeMandir() {
                 {unlocked} of {badges.length} unlocked in this category
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {badges.map((badge) => {
+                {badges.map((badge, i) => {
                   const record = unlockedMap.get(badge.id);
                   return (
-                    <BadgeCard
+                    <motion.div
                       key={badge.id}
-                      badge={badge}
-                      unlocked={!!record}
-                      unlockedAt={record?.unlockedAt}
-                      userStats={userStats ?? undefined}
-                    />
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.05, type: "spring", stiffness: 300, damping: 24 }}
+                    >
+                      <BadgeCard
+                        badge={badge}
+                        unlocked={!!record}
+                        unlockedAt={record?.unlockedAt}
+                        userStats={userStats ?? undefined}
+                      />
+                    </motion.div>
                   );
                 })}
               </div>

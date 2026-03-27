@@ -2,7 +2,8 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { useSession, signIn } from "next-auth/react";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { getLevelInfo, xpProgressInLevel } from "@/lib/gamification/xp";
@@ -14,6 +15,26 @@ import { ShareCard } from "@/components/profile/share-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+
+// ────────────────────────────────────────────────────────────────────────────
+// Animated number counter
+// ────────────────────────────────────────────────────────────────────────────
+
+function AnimatedNumber({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const duration = 800;
+    const start = performance.now();
+    const animate = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      setDisplay(Math.round(progress * value));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [value]);
+  return <span>{display.toLocaleString()}</span>;
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // 30-day dot calendar
@@ -124,15 +145,24 @@ function StatsGrid() {
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-      {stats.map((stat) => (
-        <div
+      {stats.map((stat, i) => (
+        <motion.div
           key={stat.label}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.08, duration: 0.3, ease: "easeOut" }}
           className="rounded-xl border border-border/50 bg-surface p-4 text-center"
         >
           <div className="text-2xl mb-1">{stat.icon}</div>
-          <div className="font-heading text-2xl font-bold">{stat.value}</div>
+          <div className="font-heading text-2xl font-bold">
+            {typeof stat.value === "number" ? (
+              <AnimatedNumber value={stat.value} />
+            ) : (
+              stat.value
+            )}
+          </div>
           <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
-        </div>
+        </motion.div>
       ))}
     </div>
   );

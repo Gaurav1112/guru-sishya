@@ -2,6 +2,7 @@
 import { Loader2 } from "lucide-react";
 import { use, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { motion } from "framer-motion";
 import { db } from "@/lib/db";
 import { findTopicContent, loadAllContent, type TopicContent } from "@/lib/content/loader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -159,27 +160,34 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
 
       {/* Feature cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {featureCards.map((f) => {
+        {featureCards.map((f, i) => {
           const hasContent = builtIn ? CONTENT_KEYS[f.key]?.(builtIn) ?? false : false;
           return (
-            <Link key={f.key} href={`/app/topic/${id}/${f.href}`}>
-              <Card
-                className={`h-full border ${f.color} bg-surface hover:bg-surface-hover transition-colors cursor-pointer relative`}
-              >
-                {contentChecked && hasContent && (
-                  <span className="absolute top-3 right-3 rounded-full bg-teal/20 border border-teal/30 px-1.5 py-0.5 text-[10px] font-medium text-teal">
-                    ready
-                  </span>
-                )}
-                <CardHeader>
-                  <div className="text-2xl mb-1">{f.icon}</div>
-                  <CardTitle className="font-heading text-base">{f.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{f.description}</p>
-                </CardContent>
-              </Card>
-            </Link>
+            <motion.div
+              key={f.key}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08, duration: 0.3, ease: "easeOut" }}
+            >
+              <Link href={`/app/topic/${id}/${f.href}`}>
+                <Card
+                  className={`h-full border ${f.color} bg-surface hover:bg-surface-hover transition-colors cursor-pointer relative`}
+                >
+                  {contentChecked && hasContent && (
+                    <span className="absolute top-3 right-3 rounded-full bg-teal/20 border border-teal/30 px-1.5 py-0.5 text-[10px] font-medium text-teal">
+                      ready
+                    </span>
+                  )}
+                  <CardHeader>
+                    <div className="text-2xl mb-1">{f.icon}</div>
+                    <CardTitle className="font-heading text-base">{f.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{f.description}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
           );
         })}
       </div>
