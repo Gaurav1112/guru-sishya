@@ -22,12 +22,15 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
   themeColor: "#E85D26",
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
-  title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
+  title: "Guru Sishya — Crack Software Engineering Interviews",
   description:
     "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
   keywords: [
@@ -57,18 +60,30 @@ export const metadata: Metadata = {
     "spring boot interview questions",
   ],
   icons: {
-    icon: "/icon-192.svg",
-    apple: "/icon-192.svg",
+    icon: [
+      { url: "/icon-192.svg", type: "image/svg+xml" },
+      { url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/icon-192.svg", sizes: "180x180", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon-192.svg",
   },
+  authors: [{ name: "Guru Sishya", url: "https://www.guru-sishya.in" }],
+  creator: "Guru Sishya",
+  publisher: "Guru Sishya",
   robots: {
     index: true,
     follow: true,
+    "max-snippet": -1,
+    "max-image-preview": "large",
+    "max-video-preview": -1,
   },
   alternates: {
     canonical: "https://www.guru-sishya.in",
   },
   openGraph: {
-    title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
+    title: "Guru Sishya — Crack Software Engineering Interviews",
     description:
       "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
     url: "https://www.guru-sishya.in",
@@ -80,17 +95,18 @@ export const metadata: Metadata = {
         url: "https://www.guru-sishya.in/api/og",
         width: 1200,
         height: 630,
-        alt: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
+        alt: "Guru Sishya — Crack Software Engineering Interviews",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
+    title: "Guru Sishya — Crack Software Engineering Interviews",
     description:
       "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
+  category: "education",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -122,11 +138,7 @@ export default function RootLayout({
               offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
               description:
                 "Software engineering interview preparation platform with 53 topics, 1290+ questions, and STAR behavioral prep for FAANG interviews.",
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "150",
-              },
+              url: "https://www.guru-sishya.in",
             }),
           }}
         />

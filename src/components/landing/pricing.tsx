@@ -9,9 +9,9 @@ interface PlanFeature {
 }
 
 const FREE_FEATURES: PlanFeature[] = [
-  { text: "56 topics with full lessons" },
-  { text: "710+ quiz questions with answers" },
-  { text: "591 complete lessons" },
+  { text: "53 topics with full lessons" },
+  { text: "1290+ quiz questions with answers" },
+  { text: "315 complete lessons" },
   { text: "Progress tracking & gamification" },
   { text: "Learning ladder (5 levels per topic)" },
   { text: "Visual cheat sheets" },
@@ -54,6 +54,7 @@ const PRO_LIFETIME_FEATURES: PlanFeature[] = [
 function CheckIcon({ highlight }: { highlight?: boolean }) {
   return (
     <svg
+      aria-hidden="true"
       className={`h-4 w-4 flex-shrink-0 ${highlight ? "text-saffron" : "text-teal"}`}
       fill="none"
       viewBox="0 0 24 24"

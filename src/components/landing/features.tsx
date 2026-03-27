@@ -15,7 +15,7 @@ const features = [
   {
     title: "20-Hour Pareto Plan",
     description:
-      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 56 built-in topics.",
+      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 53 built-in topics.",
     icon: "📋",
   },
   {
@@ -27,7 +27,7 @@ const features = [
   {
     title: "Quiz Me Till I Break",
     description:
-      "710+ pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
+      "1400+ pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
     icon: "🧠",
   },
   {
@@ -61,7 +61,7 @@ const COMPARISON = [
   },
   {
     feature: "Interview Questions",
-    gs: "710+ with answers",
+    gs: "1400+ with answers",
     lc: "2800+ (no answers)",
     ae: "160",
     nc: "150",
@@ -108,7 +108,7 @@ function CheckCell({ value, highlight }: { value: string; highlight: boolean }) 
     <td className="px-4 py-3 text-sm text-center">
       {isYes ? (
         <span className="inline-flex items-center gap-1 text-teal font-medium">
-          <svg aria-hidden="true" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg aria-hidden="true" role="img" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
           {value}
@@ -127,7 +127,7 @@ export function Features() {
     <>
       <section id="features" className="px-6 py-20">
         <h2 className="mb-4 text-center font-heading text-3xl font-bold">
-          53+ Interview Topics &amp; 1290+ Curated Questions
+          53 Interview Topics &amp; 1290+ Curated Questions
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
           Everything you need to go from beginner to interview-ready. All content
