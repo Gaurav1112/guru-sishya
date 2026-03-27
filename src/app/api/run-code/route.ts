@@ -76,32 +76,38 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   try {
-    // For Java: extract the public class name to set the correct filename.
-    // Judge0 defaults to "Main.java" but Java requires filename = class name.
-    let javaClassName: string | undefined;
+    // For Java: handle three cases:
+    // 1. Code has "public class X" where X != Main → rename to Main
+    // 2. Code has "class X" (no public) → rename to Main and add public
+    // 3. Code is bare methods/snippets (no class declaration) → wrap in Main class
+    let javaCode = code;
     if (lang === "java") {
-      const classMatch = code.match(/public\s+class\s+(\w+)/);
-      javaClassName = classMatch ? classMatch[1] : "Main";
+      const hasClass = /\bclass\s+\w+/.test(code);
+
+      if (!hasClass) {
+        // Bare snippet — wrap in a Main class with common imports
+        javaCode = `import java.util.*;\nimport java.io.*;\n\npublic class Main {\n${code}\n\n    public static void main(String[] args) {\n        System.out.println("// Snippet compiled successfully. Add a main method to see output.");\n    }\n}`;
+      } else {
+        // Has a class — rename to Main
+        const publicClassMatch = code.match(/public\s+class\s+(\w+)/);
+        const plainClassMatch = code.match(/\bclass\s+(\w+)/);
+        const className = publicClassMatch?.[1] || plainClassMatch?.[1];
+
+        if (className && className !== "Main") {
+          // Rename the class to Main
+          javaCode = code
+            .replace(new RegExp(`public\\s+class\\s+${className}`), "public class Main")
+            .replace(new RegExp(`\\bclass\\s+${className}(?!\\w)`), "public class Main");
+        }
+      }
     }
 
     const submissionBody: Record<string, unknown> = {
-      source_code: code,
+      source_code: javaCode,
       language_id: langId,
       cpu_time_limit: 5,
       wall_time_limit: 10,
     };
-
-    // If Java class name is not "Main", we must rename the file
-    if (javaClassName && javaClassName !== "Main") {
-      // Judge0 accepts additional_files but the simpler approach is to
-      // rename the class to Main in the source code automatically.
-      // This is the most reliable approach — avoids filename issues entirely.
-      const renamedCode = code.replace(
-        new RegExp(`public\\s+class\\s+${javaClassName}`),
-        "public class Main"
-      );
-      submissionBody.source_code = renamedCode;
-    }
 
     const judge0Res = await fetch(JUDGE0_URL, {
       method: "POST",
