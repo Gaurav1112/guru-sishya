@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Crown, ShieldCheck } from "lucide-react";
+import { Crown, ShieldCheck, ChevronDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -42,22 +42,24 @@ function useActiveChallengeCount() {
   return count;
 }
 
-const navItems = [
+const primaryNavItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
-  { href: "/app/review", label: "Review", icon: "🔁" },
-  { href: "/app/questions", label: "Questions", icon: "📝" },
-  { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
-  { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
-  { href: "/app/revision", label: "Revision", icon: "📖" },
-  { href: "/app/notes", label: "My Notes", icon: "📝" },
   { href: "/app/topics", label: "Topics", icon: "📚" },
-  { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
+  { href: "/app/questions", label: "Questions", icon: "📝" },
+  { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
+  { href: "/app/review", label: "Review", icon: "🔁" },
   { href: "/app/playground", label: "Playground", icon: "⚡" },
-  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
-  { href: "/app/shop", label: "Shop", icon: "🛒" },
   { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/app/profile", label: "Profile", icon: "👤" },
   { href: "/app/settings", label: "Settings", icon: "⚙️" },
+];
+
+const moreNavItems = [
+  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
+  { href: "/app/shop", label: "Shop", icon: "🛒" },
+  { href: "/app/notes", label: "My Notes", icon: "📓" },
+  { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
+  { href: "/app/revision", label: "Revision", icon: "📖" },
 ];
 
 export function Sidebar() {
@@ -66,6 +68,7 @@ export function Sidebar() {
   const { data: session } = useSession();
   const topics = useLiveQuery(() => db.topics.orderBy("createdAt").reverse().limit(10).toArray());
   const activeChallenges = useActiveChallengeCount();
+  const [showMore, setShowMore] = useState(false);
 
   const isAdmin =
     session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -88,40 +91,81 @@ export function Sidebar() {
   const isActivePro =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
+  // Auto-expand "More" if the active path lives there
+  useEffect(() => {
+    const isMoreActive = moreNavItems.some((item) => pathname === item.href);
+    if (isMoreActive) setShowMore(true);
+  }, [pathname]);
+
+  function renderNavLink(item: { href: string; label: string; icon: string }) {
+    const isActive = pathname === item.href;
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={cn(
+          "relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+          isActive
+            ? "bg-surface text-foreground"
+            : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+        )}
+      >
+        {isActive && (
+          <motion.div
+            layoutId="nav-indicator"
+            className="absolute left-0 top-0 bottom-0 w-0.5 bg-saffron rounded-r"
+            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+          />
+        )}
+        <span>{item.icon}</span>
+        <span className="flex-1">{item.label}</span>
+        {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
+          <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+            {dueCount > 99 ? "99+" : dueCount}
+          </span>
+        )}
+        {item.href === "/app/revision" && revisionCount !== undefined && revisionCount > 0 && (
+          <span className="flex items-center justify-center rounded-full bg-amber-500 text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+            {revisionCount > 99 ? "99+" : revisionCount}
+          </span>
+        )}
+        {item.href === "/app/challenges" && activeChallenges > 0 && (
+          <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+            {activeChallenges}
+          </span>
+        )}
+      </Link>
+    );
+  }
+
   return (
     <aside className="hidden md:flex w-56 flex-col border-r border-border/50 bg-background">
       <nav className="flex-1 space-y-1 p-3">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link key={item.href} href={item.href} className={cn("relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors", isActive ? "bg-surface text-foreground" : "text-muted-foreground hover:bg-surface-hover hover:text-foreground")}>
-              {isActive && (
-                <motion.div
-                  layoutId="nav-indicator"
-                  className="absolute left-0 top-0 bottom-0 w-0.5 bg-saffron rounded-r"
-                  transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                />
-              )}
-              <span>{item.icon}</span>
-              <span className="flex-1">{item.label}</span>
-              {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
-                <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
-                  {dueCount > 99 ? "99+" : dueCount}
-                </span>
-              )}
-              {item.href === "/app/revision" && revisionCount !== undefined && revisionCount > 0 && (
-                <span className="flex items-center justify-center rounded-full bg-amber-500 text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
-                  {revisionCount > 99 ? "99+" : revisionCount}
-                </span>
-              )}
-              {item.href === "/app/challenges" && activeChallenges > 0 && (
-                <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
-                  {activeChallenges}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+        {primaryNavItems.map(renderNavLink)}
+
+        {/* Collapsible "More" section */}
+        <button
+          onClick={() => setShowMore(!showMore)}
+          className="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-surface-hover"
+        >
+          <ChevronDown
+            className={cn(
+              "size-4 transition-transform duration-200",
+              showMore && "rotate-180"
+            )}
+          />
+          <span>More</span>
+          {/* Badge total for hidden items */}
+          {!showMore && (activeChallenges > 0 || (revisionCount !== undefined && revisionCount > 0)) && (
+            <span className="ml-auto flex items-center justify-center rounded-full bg-amber-500 text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+              {(activeChallenges) + (revisionCount ?? 0) > 99
+                ? "99+"
+                : (activeChallenges) + (revisionCount ?? 0)}
+            </span>
+          )}
+        </button>
+
+        {showMore && moreNavItems.map(renderNavLink)}
 
         {/* Admin console link — only visible for admin */}
         {isAdmin && (
