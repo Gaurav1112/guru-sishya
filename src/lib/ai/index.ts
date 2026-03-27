@@ -13,6 +13,7 @@ export type { AIProvider, GenerateOptions, GradeResult } from "./types";
 export { ResilientProvider } from "./resilient-provider";
 export type { ResilientStatus } from "./resilient-provider";
 export { globalAIQueue } from "./queue";
+export { buildSystemPrompt } from "./system-prompt";
 
 // ── Fallback chain definitions ────────────────────────────────────────────
 // When the user selects a provider, we build a failover chain.

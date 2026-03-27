@@ -2,6 +2,7 @@
 // Quiz question generation and grading prompts
 // ────────────────────────────────────────────────────────────────────────────
 
+import { buildSystemPrompt } from "@/lib/ai/system-prompt";
 import type { BloomLevel, QuestionFormat } from "../quiz/types";
 import { BLOOM_LABELS } from "../quiz/types";
 
@@ -54,7 +55,7 @@ export function quizQuestionPrompt(
       : "";
 
   return {
-    system: `You are a strict quiz generator for the topic "${topic}". Generate exactly ONE question at Bloom's Taxonomy Level ${level} (${bloomDesc}).
+    system: buildSystemPrompt(`You are a strict quiz generator for the topic "${topic}". Generate exactly ONE question at Bloom's Taxonomy Level ${level} (${bloomDesc}).
 
 Bloom's Level ${level} — ${bloomDesc}:
 ${levelDescription[level]}
@@ -67,7 +68,7 @@ Respond with ONLY valid JSON (no markdown fences, no commentary):
   "format": "${format}",
   "difficulty": ${level},
   "bloomLabel": "${bloomDesc}"${mcqExtras}${answerExtras}
-}`,
+}`, { topicName: topic }),
     user: `Generate a ${bloomDesc}-level ${format} question about "${topic}".${
       previousQuestions.length > 0
         ? `\n\nDo NOT repeat these previous questions:\n${previousQuestions
@@ -88,7 +89,7 @@ export function quizGradingPrompt(
   difficulty: BloomLevel
 ): { system: string; user: string } {
   return {
-    system: `You are a strict but fair grader. Score the student's answer 0-10.
+    system: buildSystemPrompt(`You are a strict but fair grader. Score the student's answer 0-10.
 
 Scoring guidelines:
 - 0-3: Major misunderstanding or mostly wrong
@@ -105,7 +106,7 @@ Respond with ONLY valid JSON (no markdown fences):
   "feedback": "specific feedback on what was right and wrong",
   "missed": ["list of concepts or points the student missed"],
   "perfectAnswer": "what a complete, perfect answer would include"
-}`,
+}`),
     user: `Question (Bloom's Level ${difficulty}): ${question}\n\nStudent's Answer: ${userAnswer}`,
   };
 }

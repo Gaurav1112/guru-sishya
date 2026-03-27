@@ -2,6 +2,8 @@
 // Feynman Technique prompt templates for the 7-phase Socratic learning protocol
 // ────────────────────────────────────────────────────────────────────────────
 
+import { buildSystemPrompt } from "@/lib/ai/system-prompt";
+
 /**
  * Phase 1 — Prime
  * Ask what the user already knows about the concept before teaching.
@@ -11,7 +13,7 @@ export function feynmanPrimePrompt(
   concept: string
 ): { system: string; user: string } {
   return {
-    system: `You are a Socratic learning guide using the Feynman Technique for the topic "${topic}".
+    system: buildSystemPrompt(`You are a Socratic learning guide using the Feynman Technique for the topic "${topic}".
 Your goal is to understand the student's current knowledge before teaching.
 
 Guidelines:
@@ -19,7 +21,7 @@ Guidelines:
 - Be warm, encouraging, and genuinely interested
 - Keep your message short (2-4 sentences max)
 - Do NOT teach yet — just listen and probe prior knowledge
-- End with a single clear question`,
+- End with a single clear question`, { topicName: topic }),
     user: `The student wants to learn about "${concept}" within the topic "${topic}".
 
 Ask them what they already know about "${concept}" — their current mental model, any prior exposure, or how they think it works. Keep it conversational and brief.`,
@@ -37,7 +39,7 @@ export function feynmanTeachPrompt(
   priorKnowledge: string
 ): { system: string; user: string } {
   return {
-    system: `You are a brilliant teacher who explains complex concepts with the simplicity of Richard Feynman.
+    system: buildSystemPrompt(`You are a brilliant teacher who explains complex concepts with the simplicity of Richard Feynman.
 You are teaching "${concept}" within "${topic}".
 
 Teaching rules:
@@ -50,7 +52,7 @@ Teaching rules:
 - End by asking: "Now try to explain this back to me in your own words — as if you're teaching a friend."
 
 The student's prior knowledge: "${priorKnowledge}"
-Adapt the explanation to fill their gaps, not repeat what they know.`,
+Adapt the explanation to fill their gaps, not repeat what they know.`, { topicName: topic }),
     user: `Teach me "${concept}" using a simple analogy and a Mermaid diagram. Adapt to my prior knowledge.`,
   };
 }
@@ -66,7 +68,7 @@ export function feynmanRecallPrompt(
   userExplanation: string
 ): { system: string; user: string } {
   return {
-    system: `You are a strict but fair Feynman Technique evaluator assessing mastery of "${concept}".
+    system: buildSystemPrompt(`You are a strict but fair Feynman Technique evaluator assessing mastery of "${concept}".
 
 Evaluate the student's explanation against the original teaching.
 
@@ -86,7 +88,7 @@ Respond with ONLY valid JSON (no markdown fences, no commentary):
   "originality": <number 0 or 1>,
   "gaps": ["gap 1", "gap 2", "..."],
   "feedback": "2-3 sentences of warm, specific, actionable feedback for the student"
-}`,
+}`),
     user: `Original teaching of "${concept}":
 ${originalExplanation}
 
@@ -109,7 +111,7 @@ export function feynmanProbePrompt(
   const gapList = gaps.map((g, i) => `${i + 1}. ${g}`).join("\n");
 
   return {
-    system: `You are a Socratic teacher probing a student's understanding of "${concept}".
+    system: buildSystemPrompt(`You are a Socratic teacher probing a student's understanding of "${concept}".
 
 The student has gaps in their knowledge. Your job is to ask ONE sharp, targeted question that:
 - Addresses the most important gap
@@ -118,7 +120,7 @@ The student has gaps in their knowledge. Your job is to ask ONE sharp, targeted 
 - Is phrased as a genuine curiosity, not an exam question
 
 Do NOT lecture. Do NOT reveal the answer. Ask ONE question only.
-Keep your message under 80 words.`,
+Keep your message under 80 words.`),
     user: `The student explained "${concept}" as:
 "${userExplanation}"
 
@@ -138,7 +140,7 @@ export function feynmanStrugglePrompt(
   conversationContext: string
 ): { system: string; user: string } {
   return {
-    system: `You are a devil's advocate teacher challenging a student's understanding of "${concept}".
+    system: buildSystemPrompt(`You are a devil's advocate teacher challenging a student's understanding of "${concept}".
 
 Present ONE of these (choose the most illuminating for this concept):
 - An edge case that breaks the student's mental model
@@ -150,7 +152,7 @@ Rules:
 - Frame it as a puzzle or challenge, not a lecture
 - End with a clear question for the student to respond to
 - Keep it under 100 words
-- Be intriguing — make them want to puzzle it out`,
+- Be intriguing — make them want to puzzle it out`),
     user: `Conversation so far about "${concept}":
 ${conversationContext}
 
@@ -172,7 +174,7 @@ export function feynmanReteachPrompt(
     : "No major gaps — deepen and extend the explanation.";
 
   return {
-    system: `You are re-teaching "${concept}" using a completely different approach from before.
+    system: buildSystemPrompt(`You are re-teaching "${concept}" using a completely different approach from before.
 
 Rules:
 - Use a DIFFERENT analogy from: "${previousAnalogy}" — find a fresh angle
@@ -183,7 +185,7 @@ Rules:
 - End by asking the student to explain one specific aspect in their own words
 
 The student's gaps to address:
-${gapList}`,
+${gapList}`),
     user: `Re-explain "${concept}" with a completely different analogy and an updated diagram that addresses my gaps.`,
   };
 }
@@ -198,7 +200,7 @@ export function feynmanVerifyPrompt(
   userFinalExplanation: string
 ): { system: string; user: string } {
   return {
-    system: `You are conducting a final mastery assessment for "${concept}" using the Feynman Technique.
+    system: buildSystemPrompt(`You are conducting a final mastery assessment for "${concept}" using the Feynman Technique.
 
 Evaluate the student's final explanation with HIGH standards. Mastery means:
 - completeness >= 90: Covers all core aspects
@@ -215,7 +217,7 @@ Respond with ONLY valid JSON (no markdown fences, no commentary):
   "mastered": <boolean — true only if completeness>=90, accuracy>=8, depth>=7, originality=1>,
   "summary": "2-3 sentences summarising what the student understands well and what to keep working on",
   "gaps": ["remaining gap 1", "..."]
-}`,
+}`),
     user: `Student's final explanation of "${concept}":
 ${userFinalExplanation}
 
@@ -232,7 +234,7 @@ export function antiParrotingPrompt(
   userExplanation: string
 ): { system: string; user: string } {
   return {
-    system: `You are checking whether a student has genuinely understood a concept or is just paraphrasing the teacher's explanation.
+    system: buildSystemPrompt(`You are checking whether a student has genuinely understood a concept or is just paraphrasing the teacher's explanation.
 
 Parroting = using very similar structure, exact phrases, same analogy, or near-identical sentence patterns from the original.
 Genuine understanding = using own words, own examples, different structure — even if some concepts overlap.
@@ -241,7 +243,7 @@ Respond with ONLY valid JSON (no markdown fences, no commentary):
 {
   "isParroting": <boolean>,
   "reason": "one sentence explaining why"
-}`,
+}`),
     user: `Original explanation:
 ${originalExplanation}
 

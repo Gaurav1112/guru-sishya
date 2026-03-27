@@ -2,6 +2,8 @@
 // Prompt for AI-generated cheat sheet
 // ────────────────────────────────────────────────────────────────────────────
 
+import { buildSystemPrompt } from "@/lib/ai/system-prompt";
+
 /**
  * Prompt to generate a structured, visually rich cheat sheet for a topic.
  * Uses Miller's chunking (5-7 sections), three-layer concept presentation,
@@ -16,8 +18,7 @@ export function cheatsheetPrompt(
     ? ` Tailor the complexity to a ${level}-level learner.`
     : "";
 
-  return {
-    system: `You are an expert technical writer and educator. Generate a structured, visually rich cheat sheet for the given topic.
+  const systemString = `You are an expert technical writer and educator. Generate a structured, visually rich cheat sheet for the given topic.
 
 FORMAT REQUIREMENTS (follow exactly):
 
@@ -48,7 +49,10 @@ FORMAT REQUIREMENTS (follow exactly):
    - Use valid Mermaid syntax only
    - Wrap in \`\`\`mermaid ... \`\`\` fences
 
-DO NOT include any preamble or explanation outside the cheat sheet content itself. Start directly with the first ## header.${levelContext}`,
+DO NOT include any preamble or explanation outside the cheat sheet content itself. Start directly with the first ## header.${levelContext}`;
+
+  return {
+    system: buildSystemPrompt(systemString, { topicName: topic }),
     user: `Generate a cheat sheet for the topic: "${topic}"${levelContext}
 
 Include all required sections: 5-7 chunked concept sections, a When to Use decision tree (Mermaid diagram), Common Gotchas, and a Quick Reference table.`,

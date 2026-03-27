@@ -453,7 +453,7 @@ function buildMitraResponse(
   const { answer, confidence, question, category } = findBestAnswer(query, knowledge);
   const topicLabel = detectTopicLabel(query) ?? (category || null);
 
-  if (confidence < 0.15 || !answer) {
+  if (confidence < 0.35 || !answer) {
     return {
       text: "I don't have specific information on that yet. Try asking about: Java, System Design, Kafka, AWS, Kubernetes, Design Patterns, or Data Structures.",
       relatedLinks: buildRelatedLinks(topicLabel),
