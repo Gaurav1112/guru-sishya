@@ -54,10 +54,10 @@ export function HowItWorks() {
         className="text-center mb-12"
       >
         <h2 className="font-heading text-3xl font-bold mb-3">
-          How It Works
+          How It Works — Free Topics, Questions &amp; Feynman Technique
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          A battle-tested learning loop that takes you from zero to interview-ready
+          A battle-tested learning loop that takes you from zero to interview-ready — no credit card required
         </p>
       </motion.div>
 
