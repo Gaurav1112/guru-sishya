@@ -12,7 +12,7 @@ export type RunResult = {
   error: string | null;
   isError: boolean;
   /** How the code was run — shown in the playground UI */
-  runner?: "pyodide" | "wandbox" | "local";
+  runner?: "pyodide" | "wandbox" | "local" | "iframe";
   /** Wall-clock execution time in milliseconds */
   durationMs?: number;
 };
@@ -116,84 +116,223 @@ async function runWithWandbox(
   return { output: combined || "(no output)", error: null, isError: false, runner: "wandbox", durationMs };
 }
 
-// ── Pyodide — in-browser Python via WebAssembly ───────────────────────────────
-// Pyodide loads CPython ~5 MB from CDN on first use; subsequent calls are instant
-// because the module is cached in memory. We also cache the pyodide instance
-// in a module-level variable to avoid re-initialising on every run.
+// ── Pyodide — in-browser Python via Web Worker ────────────────────────────────
+// Running Pyodide in a dedicated Web Worker prevents the main thread from
+// freezing during the ~5 MB first-load and during CPU-intensive Python execution.
+// The worker is lazily instantiated and reused across calls.
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _pyodideInstance: any = null;
+let _pyodideWorker: Worker | null = null;
+let _workerReady = false;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function getPyodide(): Promise<any> {
-  if (_pyodideInstance) return _pyodideInstance;
+function getPyodideWorker(): Worker {
+  if (_pyodideWorker && _workerReady) return _pyodideWorker;
 
-  // Dynamically load the Pyodide bootstrap script from CDN.
-  // It attaches `loadPyodide` to globalThis.
-  const script = document.createElement("script");
-  script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
-  await new Promise<void>((resolve, reject) => {
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Pyodide initialisation failed: script load error"));
-    document.head.appendChild(script);
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const loadPyodide = (globalThis as any).loadPyodide;
-  if (typeof loadPyodide !== "function") {
-    throw new Error("Pyodide script loaded but loadPyodide is not available.");
+  // Terminate any stale worker
+  if (_pyodideWorker) {
+    _pyodideWorker.terminate();
   }
 
-  _pyodideInstance = await loadPyodide({
-    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",
-  });
+  // Build worker blob URL so we don't need a separate public/ worker file.
+  // The actual worker logic lives in pyodide-worker.ts; here we inline a
+  // thin bootstrap that importScripts the compiled worker URL.
+  // In Next.js, web workers are referenced via `new Worker(new URL(...))`.
+  // Since this is a TS file consumed by the browser bundle, we use the
+  // Worker constructor with a blob that mirrors pyodide-worker.ts logic.
+  const workerCode = `
+let pyodide = null;
 
-  return _pyodideInstance;
+async function loadPyodide() {
+  if (pyodide) return pyodide;
+  importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js");
+  pyodide = await self.loadPyodide();
+  return pyodide;
+}
+
+self.onmessage = async function(e) {
+  const { code, id } = e.data;
+  try {
+    const py = await loadPyodide();
+    py.runPython("import sys, io\\nsys.stdout = io.StringIO()\\nsys.stderr = io.StringIO()");
+    const start = performance.now();
+    try {
+      py.runPython(code);
+    } catch (err) {
+      const stderr = py.runPython("sys.stderr.getvalue()");
+      self.postMessage({ id, output: "", error: stderr || err.message || String(err), isError: true, runner: "pyodide", durationMs: Math.round(performance.now() - start) });
+      return;
+    }
+    const stdout = py.runPython("sys.stdout.getvalue()");
+    const stderr = py.runPython("sys.stderr.getvalue()");
+    self.postMessage({ id, output: stdout || "", error: stderr || null, isError: !!(stderr && !stdout), runner: "pyodide", durationMs: Math.round(performance.now() - start) });
+  } catch (err) {
+    self.postMessage({ id, output: "", error: "Failed to load Python runtime: " + (err.message || String(err)), isError: true, runner: "pyodide" });
+  }
+};
+`;
+
+  const blob = new Blob([workerCode], { type: "application/javascript" });
+  const url = URL.createObjectURL(blob);
+  _pyodideWorker = new Worker(url);
+  _workerReady = true;
+  return _pyodideWorker;
 }
 
 async function runPythonPyodide(code: string): Promise<RunResult> {
   const t0 = Date.now();
-  try {
-    const pyodide = await getPyodide();
-
-    // Redirect stdout/stderr to StringIO so we can capture print() output.
-    pyodide.runPython(`
-import sys, io as _io
-sys.stdout = _io.StringIO()
-sys.stderr = _io.StringIO()
-`);
-
-    let raisedError: string | null = null;
+  return new Promise<RunResult>((resolve) => {
+    let worker: Worker;
     try {
-      pyodide.runPython(code);
-    } catch (pyErr: unknown) {
-      // Python runtime errors land here as JS exceptions.
-      raisedError = pyErr instanceof Error ? pyErr.message : String(pyErr);
+      worker = getPyodideWorker();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      resolve({
+        output: "",
+        error: `Pyodide initialisation failed: ${msg}`,
+        isError: true,
+        runner: "pyodide",
+        durationMs: Date.now() - t0,
+      });
+      return;
     }
 
-    const stdout: string = pyodide.runPython("sys.stdout.getvalue()");
-    const stderr: string = pyodide.runPython("sys.stderr.getvalue()");
+    const id = Math.random().toString(36).slice(2);
 
-    const durationMs = Date.now() - t0;
-
-    if (raisedError) {
-      // Prefer stderr content if present (it usually has the traceback).
-      const errText = stderr || raisedError;
-      return { output: stdout || "", error: errText, isError: true, runner: "pyodide", durationMs };
-    }
-
-    const combined = [stdout, stderr].filter(Boolean).join("\n");
-    return { output: combined || "(no output)", error: null, isError: false, runner: "pyodide", durationMs };
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return {
-      output: "",
-      error: `Pyodide initialisation failed: ${msg}`,
-      isError: true,
-      runner: "pyodide",
-      durationMs: Date.now() - t0,
+    const handleMessage = (ev: MessageEvent) => {
+      if (ev.data?.id !== id) return;
+      worker.removeEventListener("message", handleMessage);
+      worker.removeEventListener("error", handleError);
+      resolve({
+        output: ev.data.output ?? "",
+        error: ev.data.error ?? null,
+        isError: ev.data.isError ?? false,
+        runner: "pyodide",
+        durationMs: ev.data.durationMs ?? Date.now() - t0,
+      });
     };
+
+    const handleError = (ev: ErrorEvent) => {
+      worker.removeEventListener("message", handleMessage);
+      worker.removeEventListener("error", handleError);
+      // Mark worker as dead so next call recreates it
+      _workerReady = false;
+      _pyodideWorker = null;
+      resolve({
+        output: "",
+        error: `Pyodide worker error: ${ev.message}`,
+        isError: true,
+        runner: "pyodide",
+        durationMs: Date.now() - t0,
+      });
+    };
+
+    worker.addEventListener("message", handleMessage);
+    worker.addEventListener("error", handleError);
+    worker.postMessage({ code, id });
+  });
+}
+
+// ── JS / TS — sandboxed iframe execution ──────────────────────────────────────
+// Running arbitrary JS in `new Function()` can access and mutate the host page.
+// We instead create a sandboxed <iframe> with a unique origin, inject the code,
+// and communicate via postMessage. The iframe is removed after the run.
+
+export async function runJavaScriptSandboxed(
+  code: string,
+  timeoutMs = 5000
+): Promise<RunResult> {
+  if (typeof document === "undefined") {
+    // SSR guard — should never execute server-side
+    return { output: "", error: "Cannot run JS on the server.", isError: true, runner: "local" };
   }
+
+  const t0 = Date.now();
+
+  return new Promise<RunResult>((resolve) => {
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("sandbox", "allow-scripts");
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+    let settled = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const cleanup = () => {
+      clearTimeout(timer);
+      window.removeEventListener("message", onMessage);
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    };
+
+    const settle = (result: RunResult) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(result);
+    };
+
+    timer = setTimeout(() => {
+      settle({
+        output: "",
+        error: `Execution timed out after ${timeoutMs / 1000}s. Check for infinite loops.`,
+        isError: true,
+        runner: "local",
+        durationMs: Date.now() - t0,
+      });
+    }, timeoutMs);
+
+    const nonce = Math.random().toString(36).slice(2);
+
+    const onMessage = (ev: MessageEvent) => {
+      if (ev.data?.nonce !== nonce) return;
+      settle({
+        output: ev.data.output ?? "",
+        error: ev.data.error ?? null,
+        isError: ev.data.isError ?? false,
+        runner: "local",
+        durationMs: Date.now() - t0,
+      });
+    };
+
+    window.addEventListener("message", onMessage);
+
+    // Serialise code safely — JSON.stringify handles escaping
+    const escapedCode = JSON.stringify(code);
+    const escapedNonce = JSON.stringify(nonce);
+
+    const html = `<!DOCTYPE html><html><body><script>
+(function() {
+  var logs = [], errors = [];
+  var _nonce = ${escapedNonce};
+  var stringify = function(v) {
+    if (v === null) return "null";
+    if (v === undefined) return "undefined";
+    if (typeof v === "string") return v;
+    try { return JSON.stringify(v, null, 2); } catch(e) { return String(v); }
+  };
+  console.log = function() { logs.push(Array.prototype.slice.call(arguments).map(stringify).join(" ")); };
+  console.error = function() { errors.push("Error: " + Array.prototype.slice.call(arguments).map(stringify).join(" ")); };
+  console.warn = function() { logs.push("Warn: " + Array.prototype.slice.call(arguments).map(stringify).join(" ")); };
+  console.info = function() { logs.push(Array.prototype.slice.call(arguments).map(stringify).join(" ")); };
+  try {
+    var code = ${escapedCode};
+    (new Function(code))();
+    var out = logs.concat(errors).join("\\n");
+    parent.postMessage({ nonce: _nonce, output: out || "(no output)", error: errors.length ? errors.join("\\n") : null, isError: errors.length > 0 }, "*");
+  } catch(e) {
+    var out2 = logs.join("\\n");
+    parent.postMessage({ nonce: _nonce, output: out2 || "", error: e.message || String(e), isError: true }, "*");
+  }
+})();
+<\/script></body></html>`;
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) {
+      settle({ output: "", error: "Could not create sandbox iframe.", isError: true, runner: "local", durationMs: Date.now() - t0 });
+      return;
+    }
+    iframeDoc.open();
+    iframeDoc.write(html);
+    iframeDoc.close();
+  });
 }
 
 // ── Public API ─────────────────────────────────────────────────────────────────

@@ -2,10 +2,10 @@
 
 import { useState, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2, Clock } from "lucide-react";
+import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2, Clock, Copy, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { runJava, runPython, type RunResult } from "@/lib/code-runner";
+import { runJava, runPython, runJavaScriptSandboxed, type RunResult } from "@/lib/code-runner";
 
 // Monaco must be dynamically imported with ssr: false
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -31,75 +31,8 @@ interface CodePlaygroundProps {
 }
 
 // ── JS / TS execution engine ──────────────────────────────────────────────────
-
-function executeJavaScript(code: string): { output: string; error: string | null } {
-  const logs: string[] = [];
-  const errors: string[] = [];
-
-  // Capture console.log / console.error / console.warn
-  const originalLog = console.log;
-  const originalError = console.error;
-  const originalWarn = console.warn;
-
-  const stringify = (v: unknown): string => {
-    if (v === null) return "null";
-    if (v === undefined) return "undefined";
-    if (typeof v === "string") return v;
-    try {
-      return JSON.stringify(v, null, 2);
-    } catch {
-      return String(v);
-    }
-  };
-
-  console.log = (...args: unknown[]) => logs.push(args.map(stringify).join(" "));
-  console.error = (...args: unknown[]) => errors.push("Error: " + args.map(stringify).join(" "));
-  console.warn = (...args: unknown[]) => logs.push("Warn: " + args.map(stringify).join(" "));
-
-  let timedOut = false;
-
-  try {
-    // Wrap in a timeout-guarded async IIFE using a sync proxy
-    // We use Date.now() checks inside the function to detect runaway loops
-    const startTime = Date.now();
-    const MAX_MS = 5000;
-
-    // Inject a __checkTimeout helper the user code can't easily remove
-    const wrappedCode = `
-"use strict";
-const __start = ${startTime};
-const __checkTimeout = () => {
-  if (Date.now() - __start > ${MAX_MS}) throw new Error("Execution timed out after ${MAX_MS / 1000}s");
-};
-${code}
-`;
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(wrappedCode);
-    fn();
-
-    if (Date.now() - startTime > MAX_MS) {
-      timedOut = true;
-    }
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes("timed out")) timedOut = true;
-    else errors.push(msg);
-  } finally {
-    console.log = originalLog;
-    console.error = originalError;
-    console.warn = originalWarn;
-  }
-
-  if (timedOut) {
-    return { output: "", error: "Execution timed out after 5 seconds. Check for infinite loops." };
-  }
-
-  const combined = [...logs, ...errors].join("\n");
-  return {
-    output: combined || "(no output)",
-    error: errors.length > 0 ? errors.join("\n") : null,
-  };
-}
+// JS/TS execution is handled via sandboxed iframe (runJavaScriptSandboxed)
+// imported from code-runner. No main-thread execution of arbitrary code.
 
 const DEFAULT_CODE: Record<PlaygroundLanguage, string> = {
   javascript: `// JavaScript Playground
@@ -201,6 +134,7 @@ export function CodePlayground({
   const [runStatus, setRunStatus] = useState<string>("");
   const [execMs, setExecMs] = useState<number | null>(null);
   const [outputVisible, setOutputVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
   const editorRef = useRef<unknown>(null);
 
   const handleRun = useCallback(async () => {
@@ -220,19 +154,18 @@ export function CodePlayground({
         setRunnerLabel("cloud compiler (Wandbox)");
         setExecMs(result.durationMs ?? null);
       } else if (language === "python") {
-        setRunStatus("Loading Pyodide (first run downloads ~5 MB)...");
+        setRunStatus("Loading Python runtime...");
+        // Small delay so "Loading Python runtime..." is visible before worker starts
+        await new Promise((r) => setTimeout(r, 50));
+        setRunStatus("Running Python...");
         const result: RunResult = await runPython(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel(result.runner === "pyodide" ? "Pyodide (in-browser)" : "Wandbox API");
+        setRunnerLabel(result.runner === "pyodide" ? "Pyodide (Web Worker)" : "Wandbox API");
         setExecMs(result.durationMs ?? null);
       } else {
-        setRunStatus("");
-        // Local JS/TS execution — small timeout to let the UI update before blocking
-        await new Promise((r) => setTimeout(r, 50));
-        const t0 = Date.now();
-
+        setRunStatus("Running in sandbox...");
         // TypeScript: strip type annotations via a naive regex before running
         let runnable = code;
         if (language === "typescript") {
@@ -245,11 +178,11 @@ export function CodePlayground({
             .replace(/:\s*[\w<>\[\]|&]+(\s*=)/g, "$1");
         }
 
-        const { output: out, error } = executeJavaScript(runnable);
-        setOutput(out);
-        setOutputError(error !== null);
-        setRunnerLabel("in-browser");
-        setExecMs(Date.now() - t0);
+        const result: RunResult = await runJavaScriptSandboxed(runnable);
+        setOutput(result.output || "(no output)");
+        setOutputError(result.isError);
+        setRunnerLabel("sandboxed iframe");
+        setExecMs(result.durationMs ?? null);
       }
     } catch (e) {
       setOutput(e instanceof Error ? e.message : String(e));
@@ -284,6 +217,22 @@ export function CodePlayground({
     setRunStatus("");
     setExecMs(null);
   }, [defaultCode, codeByLanguage]);
+
+  const handleCopyOutput = useCallback(() => {
+    if (!output) return;
+    navigator.clipboard.writeText(output).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }, [output]);
+
+  const handleClearOutput = useCallback(() => {
+    setOutput("");
+    setOutputError(false);
+    setOutputVisible(false);
+    setRunnerLabel("");
+    setExecMs(null);
+  }, []);
 
   const monacoLang = LANGUAGES.find((l) => l.value === language)?.monacoLang ?? "javascript";
 
@@ -445,11 +394,34 @@ export function CodePlayground({
               </span>
             )}
             {execMs !== null && (
-              <span className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground/50">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground/50">
                 <Clock className="size-2.5" />
                 {execMs < 1000 ? `${execMs}ms` : `${(execMs / 1000).toFixed(1)}s`}
               </span>
             )}
+            <div className="ml-auto flex items-center gap-1">
+              {output && (
+                <button
+                  type="button"
+                  onClick={handleCopyOutput}
+                  title="Copy output"
+                  className="rounded p-1 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Copy className="size-3" />
+                  {copied && (
+                    <span className="ml-1 text-[9px] text-green-400">Copied!</span>
+                  )}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleClearOutput}
+                title="Clear output"
+                className="rounded p-1 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="size-3" />
+              </button>
+            </div>
           </div>
           <pre
             className={cn(
