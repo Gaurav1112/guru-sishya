@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
+import { useMitraLimit } from "@/hooks/use-mitra-limit";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -60,8 +61,6 @@ interface ChatMessage {
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-
-const FREE_MESSAGE_LIMIT = 3;
 
 // Expanded keyword → topic label mapping (multi-word phrases checked first)
 const TOPIC_MAP: Record<string, string> = {
@@ -686,11 +685,11 @@ function UpgradeNudge() {
 
 export function MitraChat() {
   const { isPremium, premiumUntil } = useStore();
+  const mitraLimit = useMitraLimit();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING_MESSAGE]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [freeCount, setFreeCount] = useState(0);
   const [knowledgeLoaded, setKnowledgeLoaded] = useState(false);
   const [knowledgeItems, setKnowledgeItems] = useState<QAItem[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -710,8 +709,8 @@ export function MitraChat() {
   const isActivePro =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
-  // Whether free user has hit message limit
-  const hitLimit = !isActivePro && freeCount >= FREE_MESSAGE_LIMIT;
+  // Whether free user has hit message limit (Dexie-backed, persists across refreshes)
+  const hitLimit = !mitraLimit.allowed;
 
   // Fill input from voice transcript and auto-send when speech stops
   useEffect(() => {
@@ -763,7 +762,20 @@ export function MitraChat() {
   const dispatchQuery = useCallback(
     async (query: string) => {
       const trimmed = query.trim();
-      if (!trimmed || isTyping || hitLimit) return;
+      if (!trimmed || isTyping) return;
+
+      // Check and increment Dexie-backed usage limit
+      const canSend = await mitraLimit.increment();
+      if (!canSend) {
+        const limitMsg: ChatMessage = {
+          id: `mitra-limit-${Date.now()}`,
+          role: "mitra",
+          text: `You've reached your daily limit of ${mitraLimit.limit} Mitra messages. Upgrade to Pro for unlimited conversations!`,
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, limitMsg]);
+        return;
+      }
 
       const userMsg: ChatMessage = {
         id: `user-${Date.now()}`,
@@ -775,7 +787,6 @@ export function MitraChat() {
       setMessages((prev) => [...prev, userMsg]);
       setInput("");
       setIsTyping(true);
-      if (!isActivePro) setFreeCount((c) => c + 1);
 
       // Simulate thinking delay proportional to query length
       const delay = Math.max(500, Math.min(1200, trimmed.length * 10));
@@ -793,7 +804,7 @@ export function MitraChat() {
       setIsTyping(false);
       setMessages((prev) => [...prev, mitraMsg]);
     },
-    [isTyping, hitLimit, knowledgeItems, isActivePro]
+    [isTyping, knowledgeItems, mitraLimit]
   );
 
   const sendMessage = useCallback(() => {
@@ -900,9 +911,11 @@ export function MitraChat() {
 
               {!isActivePro && (
                 <span className="inline-flex items-center gap-1 rounded-full border border-saffron/30 bg-saffron/10 px-2 py-0.5 text-[10px] font-semibold text-saffron">
-                  {FREE_MESSAGE_LIMIT - freeCount > 0
-                    ? `${FREE_MESSAGE_LIMIT - freeCount} free left`
-                    : "Limit reached"}
+                  {!mitraLimit.allowed
+                    ? "Limit reached"
+                    : mitraLimit.limit !== Infinity
+                    ? `${mitraLimit.remaining} free left`
+                    : null}
                 </span>
               )}
               {isActivePro && (
@@ -971,11 +984,12 @@ export function MitraChat() {
             ) : (
               <div className="sticky bottom-0 border-t border-border/50 bg-background/80 px-3 py-2.5">
                 {!isActivePro &&
-                  freeCount > 0 &&
-                  freeCount < FREE_MESSAGE_LIMIT && (
+                  mitraLimit.remaining > 0 &&
+                  mitraLimit.limit !== Infinity &&
+                  mitraLimit.remaining < mitraLimit.limit && (
                     <p className="mb-1.5 text-center text-[10px] text-muted-foreground">
-                      {FREE_MESSAGE_LIMIT - freeCount} free message
-                      {FREE_MESSAGE_LIMIT - freeCount !== 1 ? "s" : ""} remaining
+                      {mitraLimit.remaining} free message
+                      {mitraLimit.remaining !== 1 ? "s" : ""} remaining
                       {" • "}
                       <Link
                         href="/app/pricing"
