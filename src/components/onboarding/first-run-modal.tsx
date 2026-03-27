@@ -70,7 +70,7 @@ export function FirstRunModal({ onComplete }: FirstRunModalProps) {
               </div>
               <button
                 type="button"
-                onClick={onComplete}
+                onClick={() => { localStorage.setItem("gs-first-run-done", "1"); onComplete(); }}
                 className="mt-4 text-xs text-muted-foreground hover:text-foreground"
               >
                 Skip — I know what I want
