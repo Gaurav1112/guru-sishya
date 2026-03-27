@@ -85,10 +85,22 @@ export async function POST(request: NextRequest): Promise<Response> {
       const hasClass = /\bclass\s+\w+/.test(code);
 
       if (!hasClass) {
-        // Bare snippet — wrap in a Main class with common imports
-        javaCode = `import java.util.*;\nimport java.io.*;\n\npublic class Main {\n${code}\n\n    public static void main(String[] args) {\n        System.out.println("// Snippet compiled successfully. Add a main method to see output.");\n    }\n}`;
+        // Bare snippet — wrap in a Main class with common imports and interview helper types
+        const needsListNode = /\bListNode\b/.test(code);
+        const needsTreeNode = /\bTreeNode\b/.test(code);
+        const needsNode = /\bNode\b/.test(code) && !needsListNode && !needsTreeNode;
+
+        let helpers = "";
+        if (needsListNode) helpers += `class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) { this.val = val; } ListNode(int val, ListNode next) { this.val = val; this.next = next; } public String toString() { StringBuilder sb = new StringBuilder(); ListNode c = this; while (c != null) { sb.append(c.val); if (c.next != null) sb.append("->"); c = c.next; } return sb.toString(); } }\n`;
+        if (needsTreeNode) helpers += `class TreeNode { int val; TreeNode left, right; TreeNode() {} TreeNode(int val) { this.val = val; } TreeNode(int val, TreeNode l, TreeNode r) { this.val = val; left = l; right = r; } }\n`;
+        if (needsNode) helpers += `class Node { int val; Node next, random; Node(int v) { val = v; } }\n`;
+
+        const hasMain = /public\s+static\s+void\s+main/.test(code);
+        const mainMethod = hasMain ? "" : `\n    public static void main(String[] args) {\n        System.out.println("Compiled successfully. Add a main method to test.");\n    }`;
+
+        javaCode = `import java.util.*;\nimport java.io.*;\nimport java.util.stream.*;\n\n${helpers}\npublic class Main {\n${code}\n${mainMethod}\n}`;
       } else {
-        // Has a class — rename to Main
+        // Has a class — rename to Main, and prepend helper types if referenced but not defined
         const publicClassMatch = code.match(/public\s+class\s+(\w+)/);
         const plainClassMatch = code.match(/\bclass\s+(\w+)/);
         const className = publicClassMatch?.[1] || plainClassMatch?.[1];
@@ -98,6 +110,21 @@ export async function POST(request: NextRequest): Promise<Response> {
           javaCode = code
             .replace(new RegExp(`public\\s+class\\s+${className}`), "public class Main")
             .replace(new RegExp(`\\bclass\\s+${className}(?!\\w)`), "public class Main");
+        }
+
+        // Prepend helper types if used but not defined in the code
+        const needsListNode = /\bListNode\b/.test(code) && !/class\s+ListNode\b/.test(code);
+        const needsTreeNode = /\bTreeNode\b/.test(code) && !/class\s+TreeNode\b/.test(code);
+
+        let prefix = "";
+        if (!code.includes("import java.util")) {
+          prefix += "import java.util.*;\nimport java.io.*;\nimport java.util.stream.*;\n\n";
+        }
+        if (needsListNode) prefix += `class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) { this.val = val; } ListNode(int val, ListNode next) { this.val = val; this.next = next; } }\n`;
+        if (needsTreeNode) prefix += `class TreeNode { int val; TreeNode left, right; TreeNode() {} TreeNode(int val) { this.val = val; } TreeNode(int val, TreeNode l, TreeNode r) { this.val = val; left = l; right = r; } }\n`;
+
+        if (prefix) {
+          javaCode = prefix + javaCode;
         }
       }
     }
