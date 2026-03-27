@@ -14,7 +14,8 @@ import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
-import { QuestionGallery } from "@/components/features/questions/question-gallery";
+import { QuestionGrid } from "@/components/features/questions/question-gallery";
+import { MiniMapStrip } from "@/components/features/questions/mini-map-strip";
 import { PremiumGate } from "@/components/premium-gate";
 import { useFeatureLimit } from "@/hooks/use-feature-limit";
 import {
@@ -762,12 +763,21 @@ export default function QuestionsPage() {
           e.preventDefault();
           goRandom();
           break;
+        case "g":
+        case "G":
+          e.preventDefault();
+          jumpInputRef.current?.focus();
+          jumpInputRef.current?.select();
+          break;
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goNext, goPrev, goRandom]);
+
+  // Jump input ref — focused by pressing G
+  const jumpInputRef = useRef<HTMLInputElement>(null);
 
   // Touch swipe support
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -1224,13 +1234,56 @@ export default function QuestionsPage() {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
+            {/* MiniMap strip — always visible above the card */}
+            <div className="mb-3">
+              <MiniMapStrip
+                items={galleryQuestions.map((q) => ({ status: q.status }))}
+                currentIndex={currentIndex}
+                onSeek={(idx) => {
+                  setDirection(idx > currentIndex ? 1 : -1);
+                  setCurrentIndex(idx);
+                  setIsFlipped(false);
+                }}
+              />
+            </div>
+
             {/* Progress bar */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-1.5">
-                {/* Prominent question counter */}
-                <div className="flex items-center gap-2 text-lg font-semibold">
-                  <span className="text-saffron">Q{currentIndex + 1}</span>
-                  <span className="text-muted-foreground text-sm">of {totalFiltered}</span>
+                {/* Prominent question counter + jump input */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 text-lg font-semibold">
+                    <span className="text-saffron">Q{currentIndex + 1}</span>
+                    <span className="text-muted-foreground text-sm">of {totalFiltered}</span>
+                  </div>
+                  {/* Jump input — press G to focus */}
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-muted-foreground hidden sm:inline">Go to:</span>
+                    <input
+                      ref={jumpInputRef}
+                      type="number"
+                      min={1}
+                      max={totalFiltered}
+                      placeholder="#"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const val = parseInt((e.target as HTMLInputElement).value, 10);
+                          if (!isNaN(val) && val >= 1 && val <= totalFiltered) {
+                            const idx = val - 1;
+                            setDirection(idx > currentIndex ? 1 : -1);
+                            setCurrentIndex(idx);
+                            setIsFlipped(false);
+                          }
+                          (e.target as HTMLInputElement).value = "";
+                          (e.target as HTMLInputElement).blur();
+                        }
+                        if (e.key === "Escape") {
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      className="w-14 rounded border border-border/50 bg-surface px-1.5 py-0.5 text-xs text-center placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-saffron/40 focus:border-saffron/40"
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                   {quizMode && (
@@ -1362,12 +1415,13 @@ export default function QuestionsPage() {
             </div>
           </div>
 
-          {/* Floating gallery — right side, hidden on mobile */}
-          <div className="hidden lg:block w-56 shrink-0">
+          {/* Floating grid — right side, hidden on mobile */}
+          <div className="hidden lg:block w-52 shrink-0">
             <div className="sticky top-20">
-              <QuestionGallery
+              <QuestionGrid
                 questions={galleryQuestions}
                 currentIndex={currentIndex}
+                categoryName={activeCategory}
                 onSelect={(idx) => {
                   setDirection(idx > currentIndex ? 1 : -1);
                   setCurrentIndex(idx);
@@ -1391,12 +1445,13 @@ export default function QuestionsPage() {
         </div>
       )}
 
-      {/* Mobile gallery bottom sheet */}
+      {/* Mobile grid bottom sheet */}
       {showMobileGallery && currentQuestion && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-6">
-          <QuestionGallery
+          <QuestionGrid
             questions={galleryQuestions}
             currentIndex={currentIndex}
+            categoryName={activeCategory}
             onSelect={(idx) => {
               setDirection(idx > currentIndex ? 1 : -1);
               setCurrentIndex(idx);
