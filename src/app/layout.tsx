@@ -163,7 +163,7 @@ export default function RootLayout({
               "@type": "Organization",
               name: "Guru Sishya",
               url: "https://www.guru-sishya.in",
-              logo: "https://www.guru-sishya.in/api/og",
+              logo: "https://www.guru-sishya.in/icon-512.svg",
               sameAs: ["https://github.com/Gaurav1112/guru-sishya"],
               contactPoint: {
                 "@type": "ContactPoint",

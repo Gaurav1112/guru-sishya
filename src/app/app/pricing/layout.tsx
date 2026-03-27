@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Pricing - Free & Pro Plans | Guru Sishya",
     description:
-      "Start free with 56 topics and 710+ questions. Upgrade to Pro for AI features from Rs 129/month.",
+      "Start free with 56 topics, 710+ questions, and full lessons. Upgrade to Pro for AI-powered features and certificates from Rs 129/month.",
     url: "https://www.guru-sishya.in/app/pricing",
   },
 };

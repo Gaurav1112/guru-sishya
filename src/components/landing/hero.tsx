@@ -96,7 +96,7 @@ function AnimatedCounter({
 function StaggeredHeadline({ text }: { text: string }) {
   const words = text.split(" ");
   return (
-    <h1 className="font-heading text-3xl font-bold leading-tight sm:text-4xl md:text-6xl bg-gradient-to-r from-saffron via-gold to-teal bg-clip-text text-transparent">
+    <h1 className="font-heading text-3xl font-bold leading-tight sm:text-4xl md:text-6xl text-saffron bg-gradient-to-r from-saffron via-gold to-teal bg-clip-text text-transparent">
       {words.map((word, i) => (
         <motion.span
           key={i}
@@ -223,6 +223,7 @@ export function Hero() {
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
               <svg
+                aria-hidden="true"
                 className="h-3.5 w-3.5 text-teal flex-shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"

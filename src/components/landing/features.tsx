@@ -108,7 +108,7 @@ function CheckCell({ value, highlight }: { value: string; highlight: boolean }) 
     <td className="px-4 py-3 text-sm text-center">
       {isYes ? (
         <span className="inline-flex items-center gap-1 text-teal font-medium">
-          <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg aria-hidden="true" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
           {value}
@@ -185,19 +185,19 @@ export function Features() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border/60 bg-surface">
-                <th className="px-4 py-4 text-left text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-4 py-4 text-left text-sm font-semibold text-muted-foreground">
                   Feature
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-bold text-saffron bg-saffron/5">
+                <th scope="col" className="px-4 py-4 text-center text-sm font-bold text-saffron bg-saffron/5">
                   Guru Sishya
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
                   LeetCode Premium
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
                   AlgoExpert
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
                   NeetCode Pro
                 </th>
               </tr>

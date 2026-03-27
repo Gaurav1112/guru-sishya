@@ -89,7 +89,12 @@ function FAQRow({ item, index }: { item: FAQItem; index: number }) {
 
 export function FAQ() {
   return (
-    <section id="faq" className="px-6 py-20 bg-gradient-to-b from-transparent via-surface/20 to-transparent">
+    <section
+      id="faq"
+      className="px-6 py-20 bg-gradient-to-b from-transparent via-surface/20 to-transparent"
+      itemScope
+      itemType="https://schema.org/FAQPage"
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -107,7 +112,13 @@ export function FAQ() {
 
       <div className="mx-auto max-w-2xl space-y-3">
         {FAQS.map((item, i) => (
-          <FAQRow key={item.q} item={item} index={i} />
+          <div key={item.q} itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+            <meta itemProp="name" content={item.q} />
+            <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+              <meta itemProp="text" content={item.a} />
+            </div>
+            <FAQRow item={item} index={i} />
+          </div>
         ))}
       </div>
     </section>

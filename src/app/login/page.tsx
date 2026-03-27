@@ -6,6 +6,7 @@ import { SignInForm } from "./signin-form";
 
 export const metadata = {
   title: "Sign In — Guru Sishya",
+  description: "Sign in to Guru Sishya to sync your interview prep progress across devices, track badges, and join the leaderboard.",
 };
 
 

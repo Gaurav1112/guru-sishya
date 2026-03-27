@@ -215,8 +215,11 @@ function FinalCTA() {
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen">
-      <LandingNavbar />
+    <div className="min-h-screen">
+      <header>
+        <LandingNavbar />
+      </header>
+      <main>
       <Hero />
       <ScrollReveal delay={0}>
         <CompanyLogoStrip />
@@ -239,6 +242,7 @@ export default function LandingPage() {
       <ScrollReveal delay={0}>
         <FinalCTA />
       </ScrollReveal>
+      </main>
       <footer className="border-t border-border/50 py-12 px-6">
         <div className="mx-auto max-w-5xl">
           {/* Footer grid with organized link sections */}
@@ -332,6 +336,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }

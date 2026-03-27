@@ -545,13 +545,13 @@ export default function PricingPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border/50">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground w-full">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-muted-foreground w-full">
                   Feature
                 </th>
-                <th className="px-4 py-3 text-center font-medium text-muted-foreground whitespace-nowrap">
+                <th scope="col" className="px-4 py-3 text-center font-medium text-muted-foreground whitespace-nowrap">
                   Free
                 </th>
-                <th className="px-4 py-3 text-center font-semibold text-saffron whitespace-nowrap">
+                <th scope="col" className="px-4 py-3 text-center font-semibold text-saffron whitespace-nowrap">
                   Pro
                 </th>
               </tr>
@@ -598,19 +598,19 @@ export default function PricingPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border/60 bg-surface">
-                <th className="px-4 py-4 text-left text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-4 py-4 text-left text-sm font-semibold text-muted-foreground">
                   Feature
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-bold text-saffron bg-saffron/5">
+                <th scope="col" className="px-4 py-4 text-center text-sm font-bold text-saffron bg-saffron/5">
                   Guru Sishya
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
                   LeetCode Premium
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
                   AlgoExpert
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
                   NeetCode Pro
                 </th>
               </tr>
