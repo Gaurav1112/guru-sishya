@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components/auth-provider";
 import { useStore } from "@/lib/store";
 import { TourProvider } from "@/components/onboarding/tour-provider";
+import { StickyUpgradeBar } from "@/components/pricing/sticky-upgrade-bar";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -124,6 +125,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <AllowlistSync />
       <ProgressSync />
       <TourProvider>{children}</TourProvider>
+      <StickyUpgradeBar />
       <Toaster position="bottom-right" theme="dark" />
     </AuthProvider>
   );

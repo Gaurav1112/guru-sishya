@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 import { PageTransition } from "@/components/page-transition";
+import { CountdownTimer } from "@/components/pricing/countdown-timer";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -375,6 +376,14 @@ export default function PricingPage() {
           {error}
         </div>
       )}
+
+      {/* Countdown timer + social proof */}
+      {process.env.NEXT_PUBLIC_LAUNCH_PRICE_END && (
+        <CountdownTimer endDate={process.env.NEXT_PUBLIC_LAUNCH_PRICE_END} />
+      )}
+      <p className="text-center text-muted-foreground text-sm mb-8">
+        Join {process.env.NEXT_PUBLIC_USER_COUNT ?? "500"}+ engineers preparing for interviews
+      </p>
 
       {/* Plan cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
