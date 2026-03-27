@@ -390,10 +390,10 @@ export default function DashboardPage() {
 
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <span>
-            <strong className="text-foreground">53</strong> topics ready
+            <strong className="text-foreground">65</strong> topics ready
           </span>
           <span>
-            <strong className="text-foreground">1290+</strong> quiz questions
+            <strong className="text-foreground">1400+</strong> quiz questions
           </span>
           <span>
             <strong className="text-foreground">{topicCount ?? 0}</strong>{" "}

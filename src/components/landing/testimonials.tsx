@@ -58,7 +58,7 @@ const WHAT_YOU_GET = [
     span: "",
   },
   {
-    number: "591",
+    number: "670+",
     title: "Full Lessons",
     description: "Complete teaching content — not just activity lists. Each lesson covers theory, examples, and code.",
     badges: ["Python", "TypeScript"],
