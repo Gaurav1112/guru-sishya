@@ -41,8 +41,7 @@ export function CheatsheetActions({
   };
 
   const handleReviewLater = () => {
-    // Placeholder: log to console for now; a full reminder system comes later
-    console.log("[Guru Sishya] Review Later flagged at", new Date().toISOString());
+    // Placeholder: full reminder system coming in a future release
   };
 
   return (

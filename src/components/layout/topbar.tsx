@@ -187,7 +187,7 @@ export function Topbar() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-2 sm:gap-4">
         <StreakFlame streak={currentStreak} size="sm" />
         {xpBoostActive && (
           <span
@@ -200,7 +200,11 @@ export function Topbar() {
         <div className="hidden sm:block">
           <XPBar totalXP={totalXP} level={level} />
         </div>
-        <CoinDisplay coins={coins} />
+        {/* Coin display: icon+count on sm+, icon only on mobile */}
+        <div className="flex items-center gap-1 text-sm">
+          <span className="inline-block text-gold">🪙</span>
+          <span className="hidden sm:inline font-medium tabular-nums">{coins.toLocaleString()}</span>
+        </div>
         <LevelBadge level={level} size="sm" className="hidden sm:inline-flex" />
         <UserMenu />
       </div>

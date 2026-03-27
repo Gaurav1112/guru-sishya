@@ -140,7 +140,7 @@ function LandingNavbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2.5"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}

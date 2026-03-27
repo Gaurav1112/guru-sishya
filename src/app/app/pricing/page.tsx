@@ -135,10 +135,10 @@ function CompetitorCell({ value }: { value: string }) {
   const isYes = value === "Yes" || value === "Built-in" || value === "Included";
   const isNo = value === "No" || value === "Premium only" || value === "Partial";
   return (
-    <td className="px-4 py-3 text-sm text-center">
+    <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-center">
       {isYes ? (
         <span className="inline-flex items-center gap-1 text-teal font-medium">
-          <Check className="h-4 w-4 flex-shrink-0" />
+          <Check className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
           {value}
         </span>
       ) : isNo ? (
@@ -556,16 +556,16 @@ export default function PricingPage() {
           Free vs Pro
         </h2>
         <div className="overflow-x-auto rounded-2xl border border-border/50">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-border/50">
-                <th scope="col" className="px-4 py-3 text-left font-medium text-muted-foreground w-full">
+                <th scope="col" className="px-3 sm:px-4 py-3 text-left font-medium text-muted-foreground w-full">
                   Feature
                 </th>
-                <th scope="col" className="px-4 py-3 text-center font-medium text-muted-foreground whitespace-nowrap">
+                <th scope="col" className="px-3 sm:px-4 py-3 text-center font-medium text-muted-foreground whitespace-nowrap">
                   Free
                 </th>
-                <th scope="col" className="px-4 py-3 text-center font-semibold text-saffron whitespace-nowrap">
+                <th scope="col" className="px-3 sm:px-4 py-3 text-center font-semibold text-saffron whitespace-nowrap">
                   Pro
                 </th>
               </tr>
@@ -578,17 +578,17 @@ export default function PricingPage() {
                     i % 2 === 0 ? "bg-transparent" : "bg-surface/40"
                   }`}
                 >
-                  <td className="px-4 py-3 text-foreground/80">{feat.label}</td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-3 sm:px-4 py-3 text-foreground/80">{feat.label}</td>
+                  <td className="px-3 sm:px-4 py-3 text-center">
                     {feat.free ? (
-                      <Check className="mx-auto size-4 text-teal" />
+                      <Check className="mx-auto size-3.5 sm:size-4 text-teal" />
                     ) : (
                       <span className="text-muted-foreground/40">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-3 sm:px-4 py-3 text-center">
                     {feat.pro ? (
-                      <Check className="mx-auto size-4 text-saffron" />
+                      <Check className="mx-auto size-3.5 sm:size-4 text-saffron" />
                     ) : (
                       <span className="text-muted-foreground/40">—</span>
                     )}
@@ -612,20 +612,20 @@ export default function PricingPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border/60 bg-surface">
-                <th scope="col" className="px-4 py-4 text-left text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-2 sm:px-4 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">
                   Feature
                 </th>
-                <th scope="col" className="px-4 py-4 text-center text-sm font-bold text-saffron bg-saffron/5">
+                <th scope="col" className="px-2 sm:px-4 py-3 sm:py-4 text-center text-xs sm:text-sm font-bold text-saffron bg-saffron/5">
                   Guru Sishya
                 </th>
-                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
-                  LeetCode Premium
+                <th scope="col" className="px-2 sm:px-4 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-muted-foreground">
+                  LeetCode
                 </th>
-                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
+                <th scope="col" className="px-2 sm:px-4 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-muted-foreground">
                   AlgoExpert
                 </th>
-                <th scope="col" className="px-4 py-4 text-center text-sm font-semibold text-muted-foreground">
-                  NeetCode Pro
+                <th scope="col" className="px-2 sm:px-4 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-muted-foreground">
+                  NeetCode
                 </th>
               </tr>
             </thead>
@@ -635,8 +635,8 @@ export default function PricingPage() {
                   key={row.feature}
                   className={`border-b border-border/40 last:border-0 ${i % 2 === 0 ? "bg-background" : "bg-surface/30"}`}
                 >
-                  <td className="px-4 py-3 text-sm font-medium">{row.feature}</td>
-                  <td className={`px-4 py-3 text-sm text-center font-semibold bg-saffron/5 ${row.gsHighlight ? "text-saffron" : "text-foreground"}`}>
+                  <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium">{row.feature}</td>
+                  <td className={`px-2 sm:px-4 py-3 text-xs sm:text-sm text-center font-semibold bg-saffron/5 ${row.gsHighlight ? "text-saffron" : "text-foreground"}`}>
                     {row.gs}
                   </td>
                   <CompetitorCell value={row.lc} />
