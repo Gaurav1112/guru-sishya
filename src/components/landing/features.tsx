@@ -127,7 +127,7 @@ export function Features() {
     <>
       <section id="features" className="px-6 py-20">
         <h2 className="mb-4 text-center font-heading text-3xl font-bold">
-          Free Access to 53+ Interview Topics &amp; 1290+ Questions
+          53+ Interview Topics &amp; 1290+ Curated Questions
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
           Everything you need to go from beginner to interview-ready. All content
@@ -168,7 +168,7 @@ export function Features() {
           className="text-center mb-12"
         >
           <h2 className="font-heading text-3xl font-bold mb-3">
-            Why Guru Sishya? Free Tier vs Pro — vs the Competition
+            Why Guru Sishya? See How We Compare
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             More content, better answers, unique features — at a fraction of the cost

@@ -27,9 +27,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
-  title: "Guru Sishya — Free Interview Prep: Questions & Topics",
+  title: "Guru Sishya — Interview Prep Platform for Software Engineers",
   description:
-    "Guru Sishya is a free software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, and the Feynman Technique. No credit card needed. Upgrade to Pro for AI interviews and unlimited access.",
+    "Guru Sishya is a software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, Feynman Technique, and AI mock interviews. No credit card needed to start.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -68,9 +68,9 @@ export const metadata: Metadata = {
     canonical: "https://www.guru-sishya.in",
   },
   openGraph: {
-    title: "Guru Sishya — Free Interview Prep: Questions & Topics",
+    title: "Guru Sishya — Interview Prep Platform for Software Engineers",
     description:
-      "Guru Sishya is a free software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, and the Feynman Technique. No credit card needed. Upgrade to Pro for AI interviews and unlimited access.",
+      "Guru Sishya is a software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, Feynman Technique, and AI mock interviews. No credit card needed to start.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -80,15 +80,15 @@ export const metadata: Metadata = {
         url: "https://www.guru-sishya.in/api/og",
         width: 1200,
         height: 630,
-        alt: "Guru Sishya — Free Interview Prep: Questions & Topics",
+        alt: "Guru Sishya — Interview Prep Platform for Software Engineers",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Guru Sishya — Free Interview Prep: Questions & Topics",
+    title: "Guru Sishya — Interview Prep Platform for Software Engineers",
     description:
-      "Guru Sishya is a free software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, and the Feynman Technique. No credit card needed. Upgrade to Pro for AI interviews and unlimited access.",
+      "Guru Sishya is a software engineering interview prep platform with 53+ topics, 1290+ questions, adaptive quizzes, Feynman Technique, and AI mock interviews. No credit card needed to start.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   appleWebApp: {
@@ -121,7 +121,7 @@ export default function RootLayout({
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
               description:
-                "Free software engineering interview preparation platform with 53 topics, 1290+ questions, and STAR behavioral prep for FAANG interviews.",
+                "Software engineering interview preparation platform with 53 topics, 1290+ questions, and STAR behavioral prep for FAANG interviews.",
               aggregateRating: {
                 "@type": "AggregateRating",
                 ratingValue: "4.8",
@@ -140,7 +140,7 @@ export default function RootLayout({
               name: "Guru Sishya",
               url: "https://www.guru-sishya.in",
               description:
-                "Free software engineering interview preparation platform for Indian developers targeting FAANG and top tech companies.",
+                "Software engineering interview preparation platform for Indian developers targeting FAANG and top tech companies.",
               potentialAction: {
                 "@type": "SearchAction",
                 target: {

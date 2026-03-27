@@ -136,7 +136,7 @@ export function Hero() {
         </motion.div>
 
         {/* Headline — word-by-word stagger */}
-        <StaggeredHeadline text="Free Interview Questions & Topics for Software Engineers" />
+        <StaggeredHeadline text="Crack Your Software Engineering Interview With Confidence" />
 
         {/* Subheadline */}
         <motion.p
