@@ -7,6 +7,7 @@ import { ChevronRight, Mic, MicOff, Send, Clock, RotateCcw, Trophy, ChevronDown,
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { PageTransition } from "@/components/page-transition";
 import { PremiumGate } from "@/components/premium-gate";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
 import { generateFlashcardsFromInterview } from "@/lib/flashcard-generator";
@@ -1247,7 +1248,7 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
           {
             id: modelMsgId,
             role: "interviewer",
-            content: `**Model Answer:**\n\n${q.answer}`,
+            content: `### Model Answer\n\n${q.answer.replace(/\. /g, '.\n\n')}`,
             timestamp: new Date(),
           },
         ]);
@@ -1553,24 +1554,11 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
                       </AnimatePresence>
                     </div>
                   ) : (
-                    <div
-                      className={`text-sm leading-relaxed ${
-                        isUser
-                          ? "text-foreground whitespace-pre-wrap"
-                          : "text-foreground"
-                      }`}
-                    >
-                      {/* Render simple bold markdown inline */}
-                      {msg.content.split(/(\*\*[^*]+\*\*)/).map((part, i) =>
-                        part.startsWith("**") && part.endsWith("**") ? (
-                          <strong key={i} className="font-semibold text-foreground">
-                            {part.slice(2, -2)}
-                          </strong>
-                        ) : (
-                          <span key={i} className="whitespace-pre-wrap">
-                            {part}
-                          </span>
-                        )
+                    <div className="text-sm leading-relaxed">
+                      {isUser ? (
+                        <p className="text-foreground whitespace-pre-wrap">{msg.content}</p>
+                      ) : (
+                        <MarkdownRenderer content={msg.content} className="prose-sm" />
                       )}
                     </div>
                   )}
