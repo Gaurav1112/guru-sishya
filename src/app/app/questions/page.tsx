@@ -14,6 +14,7 @@ import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
+import { QuestionGallery } from "@/components/features/questions/question-gallery";
 import { PremiumGate } from "@/components/premium-gate";
 import { useFeatureLimit } from "@/hooks/use-feature-limit";
 import {
@@ -546,6 +547,7 @@ export default function QuestionsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [quizMode, setQuizMode] = useState(false);
   const [direction, setDirection] = useState(0); // -1 = left, 1 = right
+  const [showMobileGallery, setShowMobileGallery] = useState(false);
 
   // Premium gate
   const { isPremium, premiumUntil, preferredLanguage, setPreferredLanguage } = useStore();
@@ -657,6 +659,18 @@ export default function QuestionsPage() {
 
     return qs;
   }, [allQuestions, activeCategory, search, difficulty, companyFilter, selectedCompany, statusFilter, bookmarkMap]);
+
+  // Build tile status array for the gallery
+  const galleryQuestions = useMemo(
+    () =>
+      filteredQuestions.map((q, i) => ({
+        index: i,
+        questionId: q.id,
+        status: bookmarkMap.get(q.id)?.status ?? ("unseen" as const),
+        bookmarked: bookmarkMap.get(q.id)?.bookmarked ?? false,
+      })),
+    [filteredQuestions, bookmarkMap]
+  );
 
   const currentQuestion = filteredQuestions[currentIndex] ?? null;
   const totalFiltered = filteredQuestions.length;
@@ -1201,196 +1215,196 @@ export default function QuestionsPage() {
         </div>
       )}
 
-      {/* Question Card */}
+      {/* Question Card + Gallery layout */}
       {currentQuestion && (
-        <div
-          className="relative"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Progress bar */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-1.5">
-              {/* Prominent question counter */}
-              <div className="flex items-center gap-2 text-lg font-semibold">
-                <span className="text-saffron">Q{currentIndex + 1}</span>
-                <span className="text-muted-foreground text-sm">of {totalFiltered}</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                {quizMode && (
-                  <span className="flex items-center gap-1 text-gold">
-                    <Sparkles className="size-3" />
-                    Quiz Mode
-                  </span>
-                )}
-                <span className="hidden sm:inline">
-                  Arrow keys or swipe to navigate
-                </span>
-              </div>
-            </div>
-            <div className="relative w-full h-1.5 bg-muted rounded-full overflow-hidden">
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-saffron to-gold progress-fill"
-                initial={{ width: 0 }}
-                animate={{
-                  width: `${((currentIndex + 1) / totalFiltered) * 100}%`,
-                }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-              />
-            </div>
-          </div>
-
-          {/* Premium gate banner — shown to free users */}
-          {!isActivePremium && (
-            <div className="flex items-center justify-between mb-3 rounded-lg border border-saffron/20 bg-saffron/5 px-3 py-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Lock className="size-3 text-saffron shrink-0" />
-                <span>
-                  <span className="font-semibold text-saffron">
-                    {answerLimit.remaining} of {answerLimit.limit}
-                  </span>{" "}
-                  {answerLimit.label} remaining today — Upgrade for full access
-                </span>
-              </div>
-              <a
-                href="/app/pricing"
-                className="shrink-0 rounded-md bg-saffron px-2.5 py-1 text-[10px] font-bold text-background hover:opacity-90 transition-opacity"
-              >
-                Upgrade
-              </a>
-            </div>
-          )}
-
-          {/* Animated card */}
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={currentQuestion.id}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 },
-                scale: { duration: 0.2 },
-              }}
-            >
-              <QuestionCard
-                question={currentQuestion}
-                isFlipped={isFlipped}
-                onFlip={() => handleFlip(currentQuestion.id)}
-                isBookmarked={
-                  bookmarkMap.get(currentQuestion.id)?.bookmarked ?? false
-                }
-                status={
-                  bookmarkMap.get(currentQuestion.id)?.status ?? "unseen"
-                }
-                onToggleBookmark={() => toggleBookmark(currentQuestion.id)}
-                onSetStatus={(s) =>
-                  setQuestionStatus(currentQuestion.id, s)
-                }
-                answerLocked={!isActivePremium && !answerLimit.allowed}
-                languageFilter={preferredLanguage}
-              />
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Navigation arrows */}
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <button
-              type="button"
-              onClick={goPrev}
-              disabled={currentIndex === 0}
-              className="flex items-center gap-1 rounded-xl border border-border/50 bg-surface px-4 py-2.5 min-h-[44px] text-sm font-medium transition-all hover:bg-surface-hover disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="size-4" />
-              Previous
-            </button>
-
-            <div className="flex items-center gap-1.5">
-              {/* Quick jump dots — only when ≤7 questions */}
-              {totalFiltered <= 7
-                ? Array.from({ length: totalFiltered }, (_, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => {
-                        setDirection(i > currentIndex ? 1 : -1);
-                        setIsFlipped(false);
-                        setCurrentIndex(i);
-                      }}
-                      className={cn(
-                        "size-2 rounded-full transition-all",
-                        i === currentIndex
-                          ? "bg-saffron scale-125"
-                          : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                      )}
-                      aria-label={`Go to question ${i + 1}`}
-                    />
-                  ))
-                : (
-                    /* Always-visible jump-to input for large sets */
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">Go to:</span>
-                      <input
-                        type="number"
-                        min={1}
-                        max={totalFiltered}
-                        placeholder={`1-${totalFiltered}`}
-                        className="w-20 h-8 text-sm text-center bg-muted rounded-lg border border-border/50 text-foreground focus:outline-none focus:ring-1 focus:ring-saffron/40 focus:border-saffron/40"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            const val = parseInt((e.target as HTMLInputElement).value, 10);
-                            if (val >= 1 && val <= totalFiltered) {
-                              setDirection(val - 1 > currentIndex ? 1 : -1);
-                              setCurrentIndex(val - 1);
-                              setIsFlipped(false);
-                              (e.target as HTMLInputElement).value = "";
-                            }
-                          }
-                        }}
-                      />
-                    </div>
+        <div className="flex gap-4">
+          {/* Main content — takes most of the width */}
+          <div
+            className="flex-1 min-w-0 relative"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Progress bar */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-1.5">
+                {/* Prominent question counter */}
+                <div className="flex items-center gap-2 text-lg font-semibold">
+                  <span className="text-saffron">Q{currentIndex + 1}</span>
+                  <span className="text-muted-foreground text-sm">of {totalFiltered}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  {quizMode && (
+                    <span className="flex items-center gap-1 text-gold">
+                      <Sparkles className="size-3" />
+                      Quiz Mode
+                    </span>
                   )}
+                  <span className="hidden sm:inline">
+                    Arrow keys or swipe to navigate
+                  </span>
+                </div>
+              </div>
+              <div className="relative w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-saffron to-gold progress-fill"
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: `${((currentIndex + 1) / totalFiltered) * 100}%`,
+                  }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+              </div>
             </div>
 
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={currentIndex >= totalFiltered - 1}
-              className="flex items-center gap-1 rounded-xl border border-border/50 bg-surface px-4 py-2.5 min-h-[44px] text-sm font-medium transition-all hover:bg-surface-hover disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              Next
-              <ChevronRight className="size-4" />
-            </button>
+            {/* Premium gate banner — shown to free users */}
+            {!isActivePremium && (
+              <div className="flex items-center justify-between mb-3 rounded-lg border border-saffron/20 bg-saffron/5 px-3 py-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Lock className="size-3 text-saffron shrink-0" />
+                  <span>
+                    <span className="font-semibold text-saffron">
+                      {answerLimit.remaining} of {answerLimit.limit}
+                    </span>{" "}
+                    {answerLimit.label} remaining today — Upgrade for full access
+                  </span>
+                </div>
+                <a
+                  href="/app/pricing"
+                  className="shrink-0 rounded-md bg-saffron px-2.5 py-1 text-[10px] font-bold text-background hover:opacity-90 transition-opacity"
+                >
+                  Upgrade
+                </a>
+              </div>
+            )}
+
+            {/* Animated card */}
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={currentQuestion.id}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                  scale: { duration: 0.2 },
+                }}
+              >
+                <QuestionCard
+                  question={currentQuestion}
+                  isFlipped={isFlipped}
+                  onFlip={() => handleFlip(currentQuestion.id)}
+                  isBookmarked={
+                    bookmarkMap.get(currentQuestion.id)?.bookmarked ?? false
+                  }
+                  status={
+                    bookmarkMap.get(currentQuestion.id)?.status ?? "unseen"
+                  }
+                  onToggleBookmark={() => toggleBookmark(currentQuestion.id)}
+                  onSetStatus={(s) =>
+                    setQuestionStatus(currentQuestion.id, s)
+                  }
+                  answerLocked={!isActivePremium && !answerLimit.allowed}
+                  languageFilter={preferredLanguage}
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Subtle prev/next navigation */}
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <button
+                type="button"
+                onClick={goPrev}
+                disabled={currentIndex === 0}
+                className="flex items-center gap-1 rounded-lg border border-border/40 bg-surface/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-surface-hover hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="size-3.5" />
+                Prev
+              </button>
+
+              <button
+                type="button"
+                onClick={goNext}
+                disabled={currentIndex >= totalFiltered - 1}
+                className="flex items-center gap-1 rounded-lg border border-border/40 bg-surface/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-surface-hover hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                Next
+                <ChevronRight className="size-3.5" />
+              </button>
+            </div>
+
+            {/* Keyboard shortcuts hint */}
+            <div className="hidden md:flex items-center justify-center gap-4 mt-4 text-[10px] text-muted-foreground/50">
+              <span>
+                <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
+                  &larr;
+                </kbd>{" "}
+                /{" "}
+                <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
+                  &rarr;
+                </kbd>{" "}
+                navigate
+              </span>
+              <span>
+                <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
+                  Space
+                </kbd>{" "}
+                flip
+              </span>
+              <span>
+                <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
+                  R
+                </kbd>{" "}
+                random
+              </span>
+            </div>
           </div>
 
-          {/* Keyboard shortcuts hint */}
-          <div className="hidden md:flex items-center justify-center gap-4 mt-4 text-[10px] text-muted-foreground/50">
-            <span>
-              <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
-                &larr;
-              </kbd>{" "}
-              /{" "}
-              <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
-                &rarr;
-              </kbd>{" "}
-              navigate
-            </span>
-            <span>
-              <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
-                Space
-              </kbd>{" "}
-              flip
-            </span>
-            <span>
-              <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
-                R
-              </kbd>{" "}
-              random
-            </span>
+          {/* Floating gallery — right side, hidden on mobile */}
+          <div className="hidden lg:block w-56 shrink-0">
+            <div className="sticky top-20">
+              <QuestionGallery
+                questions={galleryQuestions}
+                currentIndex={currentIndex}
+                onSelect={(idx) => {
+                  setDirection(idx > currentIndex ? 1 : -1);
+                  setCurrentIndex(idx);
+                  setIsFlipped(false);
+                }}
+              />
+            </div>
           </div>
+        </div>
+      )}
+
+      {/* Mobile gallery trigger — floating button */}
+      {currentQuestion && (
+        <div className="lg:hidden fixed bottom-20 right-4 z-40">
+          <button
+            onClick={() => setShowMobileGallery(!showMobileGallery)}
+            className="size-12 rounded-full bg-saffron text-background font-bold shadow-lg flex items-center justify-center text-sm hover:opacity-90 transition-opacity"
+          >
+            {currentIndex + 1}
+          </button>
+        </div>
+      )}
+
+      {/* Mobile gallery bottom sheet */}
+      {showMobileGallery && currentQuestion && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-6">
+          <QuestionGallery
+            questions={galleryQuestions}
+            currentIndex={currentIndex}
+            onSelect={(idx) => {
+              setDirection(idx > currentIndex ? 1 : -1);
+              setCurrentIndex(idx);
+              setIsFlipped(false);
+              setShowMobileGallery(false);
+            }}
+            className="max-h-[40vh]"
+          />
         </div>
       )}
     </div>
