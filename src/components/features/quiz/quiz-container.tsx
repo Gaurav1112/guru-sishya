@@ -38,6 +38,7 @@ import { BLOOM_LABELS, type BloomLevel, type GeneratedQuestion, type AnsweredQue
 import { findTopicContent, type QuizBankQuestion } from "@/lib/content/loader";
 import { pickQuestion, gradeStaticQuestion } from "@/lib/quiz/static-quiz";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 
 const SESSION_CAP = 15;
 const CALIBRATION_COUNT = 5;
@@ -897,13 +898,16 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       });
       setOneMoreRoundTrigger(trigger);
 
+      const score = Math.round(result.averageScore * 10);
+      trackEvent("quiz_completed", { topic: topicName, score });
+
       if (bpLevel !== null) {
         setPhase("breaking_point");
       } else {
         setPhase("result");
       }
     },
-    [addCoins, addXP, topicId, roundsCompleted, lastChestRound, consecutivePrompts]
+    [addCoins, addXP, topicId, topicName, roundsCompleted, lastChestRound, consecutivePrompts]
   );
 
   // ── Trigger adaptive question load when entering adaptive_loading ────────────

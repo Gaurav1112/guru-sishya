@@ -13,6 +13,7 @@ import { planGenerationPrompt } from "@/lib/prompts/plan-generator";
 import { findTopicContent } from "@/lib/content/loader";
 import { generateFlashcardsFromSession } from "@/lib/flashcard-generator";
 import type { DiagnosticAnswer, GeneratedPlan, PlanViewStatus } from "@/lib/plan/types";
+import { trackEvent } from "@/lib/analytics";
 
 interface PlanContainerProps {
   topicId: number;
@@ -139,6 +140,7 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
         setStatus("ready");
         addXP(15);
         addCoins(5, "plan_loaded");
+        trackEvent("plan_generated", { topic: topicName });
         return;
       }
     } catch {
@@ -198,6 +200,7 @@ export function PlanContainer({ topicId, topicName }: PlanContainerProps) {
 
         setGeneratedPlan(plan);
         setStatus("ready");
+        trackEvent("plan_generated", { topic: topicName });
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to generate plan"

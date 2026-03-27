@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 import { PageTransition } from "@/components/page-transition";
 import { CountdownTimer } from "@/components/pricing/countdown-timer";
+import { trackEvent } from "@/lib/analytics";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -305,6 +306,10 @@ export default function PricingPage() {
                   verifyData.paymentId,
                   verifyData.planType ?? planType
                 );
+                trackEvent("subscription_purchased", {
+                  plan_type: verifyData.planType ?? planType,
+                  amount: amount as number,
+                });
                 resolve();
               } catch (verifyErr) {
                 reject(verifyErr);
