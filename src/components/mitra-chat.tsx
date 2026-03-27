@@ -1069,7 +1069,7 @@ export function MitraChat() {
               whileTap={{ scale: 0.94 }}
               onClick={() => setOpen(true)}
               aria-label="Open Mitra — your study buddy"
-              className="fixed bottom-5 right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
+              className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
             >
               <Bot className="size-6 text-white" />
               <span className="absolute inset-0 animate-ping rounded-full border border-indigo-400/30 opacity-60" />
@@ -1085,7 +1085,7 @@ export function MitraChat() {
               whileTap={{ scale: 0.94 }}
               onClick={() => setOpen(true)}
               aria-label="Mitra — upgrade to Pro to unlock unlimited chat"
-              className="fixed bottom-5 right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
+              className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]"
             >
               <Bot className="size-6 text-white opacity-70" />
               <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-saffron border border-background shadow">
@@ -1098,16 +1098,32 @@ export function MitraChat() {
       {/* Chat window */}
       <AnimatePresence>
         {open && (
+          <>
+            {/* Mobile backdrop */}
+            <motion.div
+              key="mitra-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="sm:hidden fixed inset-0 z-[85] bg-black/50"
+              onClick={() => setOpen(false)}
+            />
           <motion.div
             key="mitra-window"
-            initial={{ opacity: 0, scale: 0.88, y: 20, originX: 1, originY: 1 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.88, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
             transition={{ type: "spring", stiffness: 340, damping: 28 }}
-            className={`fixed z-[90] flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-background shadow-[0_8px_48px_rgba(0,0,0,0.5)]
-              inset-0 sm:inset-auto
-              sm:bottom-5 sm:right-5 sm:w-[370px] sm:h-[560px]`}
+            className={`fixed z-[90] flex flex-col overflow-hidden border border-border/60 bg-background shadow-[0_8px_48px_rgba(0,0,0,0.5)]
+              inset-x-0 bottom-0 rounded-t-2xl h-[85vh]
+              sm:inset-auto sm:bottom-5 sm:right-5 sm:w-[370px] sm:h-[560px] sm:rounded-2xl`}
           >
+            {/* Mobile drag handle */}
+            <div className="sm:hidden flex justify-center pt-2 pb-1 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+            </div>
+
             {/* Header */}
             <div className="flex items-center gap-2.5 border-b border-border/50 bg-gradient-to-r from-indigo-950/80 to-background px-4 py-3">
               <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 border border-indigo-500/30">
@@ -1141,14 +1157,14 @@ export function MitraChat() {
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close Mitra"
-                className="flex size-8 sm:size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+                className="flex size-10 sm:size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
               >
                 <X className="size-5 sm:size-4" />
               </button>
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+            <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-3">
               {/* Loading state */}
               {!knowledgeLoaded && open && (
                 <motion.div
@@ -1195,7 +1211,7 @@ export function MitraChat() {
             {hitLimit ? (
               <UpgradeNudge />
             ) : (
-              <div className="sticky bottom-0 border-t border-border/50 bg-background/80 px-3 py-2.5">
+              <div className="shrink-0 border-t border-border/50 bg-background/80 px-3 py-2.5 pb-safe">
                 {!isActivePro &&
                   mitraLimit.remaining > 0 &&
                   mitraLimit.limit !== Infinity &&
@@ -1256,6 +1272,7 @@ export function MitraChat() {
               </div>
             )}
           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>

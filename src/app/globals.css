@@ -119,6 +119,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Safe-area bottom padding for mobile keyboard / home indicator */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
 /* Shimmer loading animation */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
