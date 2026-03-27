@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronRight, Mic, MicOff, Send, Clock, RotateCcw, Trophy, ChevronDown, ArrowLeft } from "lucide-react";
+import { ChevronRight, Mic, MicOff, Send, Clock, RotateCcw, Trophy, ChevronDown, ArrowLeft, Lightbulb, SkipForward, BookOpen } from "lucide-react";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { PageTransition } from "@/components/page-transition";
 import { PremiumGate } from "@/components/premium-gate";
@@ -410,6 +410,66 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
+
+// ── Power-up bar ───────────────────────────────────────────────────────────────
+
+interface PowerUpBarProps {
+  onHint: () => void;
+  onSkip: () => void;
+  onPhoneAFriend: () => void;
+  hintTokens: number;
+  coins: number;
+  hintsUsed: number;
+  skipsUsed: number;
+}
+
+function PowerUpBar({
+  onHint,
+  onSkip,
+  onPhoneAFriend,
+  hintTokens,
+  coins,
+  hintsUsed,
+  skipsUsed,
+}: PowerUpBarProps) {
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 bg-surface/50 rounded-lg border border-border/30 flex-wrap">
+      <button
+        onClick={onHint}
+        disabled={hintTokens <= 0}
+        type="button"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 text-xs font-medium hover:bg-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        title="Reveal key concepts from the answer"
+      >
+        <Lightbulb className="size-3.5" />
+        Hint ({hintTokens})
+      </button>
+
+      <button
+        onClick={onSkip}
+        disabled={coins < 50 || skipsUsed >= 2}
+        type="button"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        title="Skip this question (50 coins)"
+      >
+        <SkipForward className="size-3.5" />
+        Skip (50c)
+      </button>
+
+      <button
+        onClick={onPhoneAFriend}
+        disabled={coins < 30}
+        type="button"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 text-xs font-medium hover:bg-indigo-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        title="Get a brief hint from the answer (30 coins)"
+      >
+        <BookOpen className="size-3.5" />
+        Friend (30c)
+      </button>
+    </div>
+  );
+}
+
 // ── Countdown bar ──────────────────────────────────────────────────────────────
 
 function CountdownBar({ startTime }: { startTime: number }) {
@@ -634,6 +694,8 @@ interface ResultsScreenProps {
   onRestart: () => void;
   elapsed: number;
   rewards: InterviewRewards | null;
+  hintsUsed: number;
+  skipsUsed: number;
 }
 
 function ResultsScreen({
@@ -644,6 +706,8 @@ function ResultsScreen({
   onRestart,
   elapsed,
   rewards,
+  hintsUsed,
+  skipsUsed,
 }: ResultsScreenProps) {
   const avg = scores.length > 0
     ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10)
@@ -849,6 +913,13 @@ function ResultsScreen({
           </div>
         )}
 
+        {/* Power-up usage summary */}
+        {(hintsUsed > 0 || skipsUsed > 0) && (
+          <div className="text-xs text-muted-foreground text-center">
+            Power-ups used:{hintsUsed > 0 ? ` ${hintsUsed} hint${hintsUsed > 1 ? "s" : ""}` : ""}{skipsUsed > 0 ? ` ${skipsUsed} skip${skipsUsed > 1 ? "s" : ""}` : ""}
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
           <button
@@ -887,11 +958,14 @@ interface InterviewChatProps {
   config: InterviewConfig;
   questions: InterviewQuestion[];
   rounds: InterviewRound[];
-  onComplete: (scores: number[], elapsed: number, results: QuestionResult[]) => void;
+  onComplete: (scores: number[], elapsed: number, results: QuestionResult[], hintsUsed: number, skipsUsed: number) => void;
   isPremium: boolean;
 }
 
 function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatProps) {
+  const { hintTokens, coins, useHintToken, spendCoins } = useStore();
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [skipsUsed, setSkipsUsed] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userInput, setUserInput] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
@@ -1216,6 +1290,86 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
     userInput,
   ]);
 
+
+  const handleHint = useCallback(() => {
+    const success = useHintToken();
+    if (!success) {
+      toast("No hint tokens available");
+      return;
+    }
+    const currentQ = questions[currentQuestionIndex];
+    if (!currentQ) return;
+    const answer = currentQ.answer ?? "";
+    const keywords = answer
+      .split(/\s+/)
+      .filter((w) => w.length >= 4)
+      .filter(
+        (w) =>
+          !["this", "that", "with", "from", "have", "been", "will", "would", "could", "should", "they", "them", "their", "these", "those", "about", "which", "where", "when"].includes(
+            w.toLowerCase()
+          )
+      )
+      .slice(0, 3)
+      .map((w) => w.replace(/[^a-zA-Z]/g, ""))
+      .filter(Boolean);
+    setHintsUsed((n) => n + 1);
+    toast(`Hint: Key concepts — ${keywords.join(", ") || "review the fundamentals"}`);
+  }, [useHintToken, questions, currentQuestionIndex]);
+
+  const handleSkip = useCallback(() => {
+    if (skipsUsed >= 2) {
+      toast("Maximum 2 skips per interview");
+      return;
+    }
+    const success = spendCoins(50, "Interview Skip");
+    if (!success) {
+      toast("Not enough coins (need 50)");
+      return;
+    }
+    const q = questions[currentQuestionIndex];
+    if (!q || phase !== "awaiting") return;
+    setSkipsUsed((n) => n + 1);
+    addMessage("user", "⏭ Skipped");
+    setScores((prev) => [...prev, 0]);
+    setQuestionResults((prev) => [
+      ...prev,
+      {
+        question: q.question,
+        userAnswer: "(skipped)",
+        modelAnswer: q.answer,
+        score: 0,
+        feedback: "Question was skipped.",
+        speedMultiplier: 1,
+      },
+    ]);
+    const nextIndex = currentQuestionIndex + 1;
+    if (nextIndex >= maxQuestions) {
+      setTimeout(() => {
+        addMessage("interviewer", `That concludes our interview! You answered all ${maxQuestions} questions. Great effort — let me compile your results...`);
+        setPhase("done");
+      }, 600);
+    } else {
+      setPhase("feedback");
+      setTimeout(() => {
+        addMessage("interviewer", "No problem — moving to the next question...");
+        setTimeout(() => askNextQuestion(nextIndex), 800);
+      }, 600);
+    }
+  }, [skipsUsed, spendCoins, questions, currentQuestionIndex, phase, addMessage, maxQuestions, askNextQuestion]);
+
+  const handlePhoneAFriend = useCallback(() => {
+    const success = spendCoins(30, "Phone a Friend");
+    if (!success) {
+      toast("Not enough coins (need 30)");
+      return;
+    }
+    const currentQ = questions[currentQuestionIndex];
+    if (!currentQ) return;
+    const answer = currentQ.answer ?? "";
+    const hint = answer.substring(0, 120).trimEnd() + "...";
+    toast(`Your friend says: "${hint}"`, { duration: 6000 });
+  }, [spendCoins, questions, currentQuestionIndex]);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -1447,7 +1601,7 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
           >
             <button
               type="button"
-              onClick={() => onComplete(scores, elapsed, questionResults)}
+              onClick={() => onComplete(scores, elapsed, questionResults, hintsUsed, skipsUsed)}
               className="flex items-center gap-2 rounded-xl bg-saffron px-6 py-3 text-sm font-semibold text-background transition-all hover:opacity-90 shadow-lg shadow-saffron/20"
             >
               <Trophy className="size-4" />
@@ -1459,6 +1613,21 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Power-up bar */}
+      {phase === "awaiting" && (
+        <div className="shrink-0 border border-t-0 border-b-0 border-border/50 bg-surface px-4 py-2">
+          <PowerUpBar
+            onHint={handleHint}
+            onSkip={handleSkip}
+            onPhoneAFriend={handlePhoneAFriend}
+            hintTokens={hintTokens}
+            coins={coins}
+            hintsUsed={hintsUsed}
+            skipsUsed={skipsUsed}
+          />
+        </div>
+      )}
 
       {/* Input area */}
       <div className="shrink-0 rounded-b-xl border border-t border-border/50 bg-surface p-4">
@@ -1619,6 +1788,8 @@ export default function InterviewPage() {
   const [elapsedFinal, setElapsedFinal] = useState(0);
   const [freeInterviewsUsed, setFreeInterviewsUsed] = useState(0);
   const [interviewRewards, setInterviewRewards] = useState<InterviewRewards | null>(null);
+  const [finalHintsUsed, setFinalHintsUsed] = useState(0);
+  const [finalSkipsUsed, setFinalSkipsUsed] = useState(0);
   const [interviewRounds, setInterviewRounds] = useState<InterviewRound[]>([]);
 
   const { isPremium, premiumUntil, addXP, addCoins, queueCelebration, totalXP, currentStreak, longestStreak, level } = useStore();
@@ -1672,9 +1843,11 @@ export default function InterviewPage() {
     }
   }
 
-  function handleComplete(finalScores: number[], finalElapsed: number, results: QuestionResult[]) {
+  function handleComplete(finalScores: number[], finalElapsed: number, results: QuestionResult[], finalHintsUsed: number = 0, finalSkipsUsed: number = 0) {
     setScores(finalScores);
     setElapsedFinal(finalElapsed);
+    setFinalHintsUsed(finalHintsUsed);
+    setFinalSkipsUsed(finalSkipsUsed);
     setPhase("complete");
 
     // ── Calculate rewards ────────────────────────────────────────────────
@@ -1889,7 +2062,7 @@ export default function InterviewPage() {
           config={config}
           questions={questions}
           rounds={interviewRounds}
-          onComplete={(scores, elapsed, results) => handleComplete(scores, elapsed, results)}
+          onComplete={(scores, elapsed, results, hu, su) => handleComplete(scores, elapsed, results, hu, su)}
           isPremium={isActivePremium}
         />
       )}
@@ -1905,6 +2078,8 @@ export default function InterviewPage() {
           onRestart={handleRestart}
           elapsed={elapsedFinal}
           rewards={interviewRewards}
+          hintsUsed={finalHintsUsed}
+          skipsUsed={finalSkipsUsed}
         />
       )}
     </div>
