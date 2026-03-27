@@ -27,7 +27,7 @@ const features = [
   {
     title: "Quiz Me Till I Break",
     description:
-      "1290+ pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
+      "1400+ pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
     icon: "🧠",
   },
   {

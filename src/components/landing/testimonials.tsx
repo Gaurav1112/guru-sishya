@@ -14,7 +14,7 @@ const WHAT_YOU_GET = [
     span: "md:col-span-2",
   },
   {
-    number: "710+",
+    number: "828",
     title: "Interview Questions",
     description: "Detailed answers, not just hints. Every question comes with a full explanation so you actually learn.",
     badges: ["Detailed Answers"],

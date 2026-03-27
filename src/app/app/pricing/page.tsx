@@ -91,7 +91,7 @@ const COMPARISON = [
   },
   {
     feature: "Interview Questions",
-    gs: "710+ with answers",
+    gs: "828 with answers",
     lc: "2800+ (no answers)",
     ae: "160",
     nc: "150",
@@ -156,7 +156,7 @@ function CompetitorCell({ value }: { value: string }) {
 // ── Feature comparison data ───────────────────────────────────────────────────
 
 const FEATURES = [
-  { label: "All 54 topics + quiz banks", free: true, pro: true },
+  { label: "All 65 topics + quiz banks", free: true, pro: true },
   { label: "First 5 interview Q&A answers per topic", free: true, pro: true },
   { label: "First 2 learning sessions per topic", free: true, pro: true },
   { label: "First 3 STAR method answers", free: true, pro: true },
@@ -359,7 +359,7 @@ export default function PricingPage() {
           Stop Guessing. Start Acing Interviews.
         </h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          828 answers, 1,292 quiz questions, and 315 lessons across 53 topics — everything you need to ace your software engineering interviews.
+          828 answers, 1,400+ quiz questions, and 670+ lessons across 65 topics — everything you need to ace your software engineering interviews.
         </p>
 
         {isActive && (

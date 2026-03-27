@@ -10,7 +10,7 @@ interface FAQItem {
 const FAQS: FAQItem[] = [
   {
     q: "What does Guru Sishya offer for interview preparation?",
-    a: "Guru Sishya provides 63+ comprehensive topics, 830+ curated interview questions with detailed answers, AI mock interviews, STAR behavioral prep for 6 FAANG companies, adaptive quizzes, spaced repetition flashcards, and a code playground — all in one platform. Pro members get unlimited access to all features.",
+    a: "Guru Sishya provides 65+ comprehensive topics, 828 curated interview questions with detailed answers, AI mock interviews, STAR behavioral prep for 6 FAANG companies, adaptive quizzes, spaced repetition flashcards, and a code playground — all in one platform. Pro members get unlimited access to all features.",
   },
   {
     q: "Do I need an API key or AI subscription?",
@@ -18,11 +18,11 @@ const FAQS: FAQItem[] = [
   },
   {
     q: "What topics does Guru Sishya cover?",
-    a: "63+ topics across multiple domains: System Design (30 topics), Data Structures & Algorithms (10 topics), Java Core, Spring Boot, JavaScript/TypeScript, React/Next.js, Node.js, HTML/CSS, RDBMS/SQL, NoSQL, Kafka, AWS, Kubernetes/Docker, Design Patterns, and more. New topics are added regularly.",
+    a: "65+ topics across multiple domains: System Design (30 topics), Data Structures & Algorithms (10 topics), Java Core, Spring Boot, JavaScript/TypeScript, React/Next.js, Node.js, HTML/CSS, RDBMS/SQL, NoSQL, Kafka, AWS, Kubernetes/Docker, Design Patterns, and more. New topics are added regularly.",
   },
   {
     q: "How is this different from LeetCode, AlgoExpert, or NeetCode?",
-    a: "Guru Sishya combines comprehensive teaching content with 830+ questions (with full answers, not just hints), 58 STAR behavioral answers, AI mock interviews, company-specific prep for FAANG, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes — all at ₹149/month. Competitors charge ₹991–₹2,917/month and still lack behavioral prep and offline support.",
+    a: "Guru Sishya combines comprehensive teaching content with 828 questions (with full answers, not just hints), 58 STAR behavioral answers, AI mock interviews, company-specific prep for FAANG, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes — all at ₹149/month. Competitors charge ₹991–₹2,917/month and still lack behavioral prep and offline support.",
   },
   {
     q: "Does it cover behavioral interviews?",
