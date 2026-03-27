@@ -3,6 +3,7 @@
 // ────────────────────────────────────────────────────────────────────────────
 
 import type { QuizBankQuestion } from "@/lib/content/loader";
+import { shuffleOptions, createSeededRng } from "./shuffle";
 
 /**
  * Pick a question from the quiz bank at the requested difficulty,
@@ -17,31 +18,39 @@ import type { QuizBankQuestion } from "@/lib/content/loader";
 export function pickQuestion(
   quizBank: QuizBankQuestion[],
   difficulty: number,
-  previousQuestions: string[]
+  previousQuestions: string[],
+  sessionSeed?: number
 ): QuizBankQuestion | null {
   const prevSet = new Set(previousQuestions.map((q) => q.trim().toLowerCase()));
   const available = quizBank.filter(
     (q) => !prevSet.has(q.question.trim().toLowerCase())
   );
-
   if (available.length === 0) return null;
 
-  // Try exact difficulty match
+  const rng = sessionSeed != null
+    ? createSeededRng(sessionSeed + previousQuestions.length)
+    : undefined;
+  const pick = (arr: QuizBankQuestion[]) =>
+    arr[Math.floor((rng ?? Math.random)() * arr.length)];
+
   const exactMatch = available.filter((q) => q.difficulty === difficulty);
+  let question: QuizBankQuestion;
   if (exactMatch.length > 0) {
-    return exactMatch[Math.floor(Math.random() * exactMatch.length)];
+    question = pick(exactMatch);
+  } else {
+    const nearMatch = available.filter((q) => Math.abs(q.difficulty - difficulty) <= 1);
+    question = nearMatch.length > 0 ? pick(nearMatch) : pick(available);
   }
 
-  // Try +/-1 difficulty
-  const nearMatch = available.filter(
-    (q) => Math.abs(q.difficulty - difficulty) <= 1
-  );
-  if (nearMatch.length > 0) {
-    return nearMatch[Math.floor(Math.random() * nearMatch.length)];
+  if (question.options && question.options.length > 1 && question.correctAnswer) {
+    const { shuffledOptions, newCorrectAnswer } = shuffleOptions(
+      [...question.options],
+      question.correctAnswer,
+      rng ?? Math.random
+    );
+    return { ...question, options: shuffledOptions, correctAnswer: newCorrectAnswer };
   }
-
-  // Fall back to any remaining question
-  return available[Math.floor(Math.random() * available.length)];
+  return question;
 }
 
 /**
