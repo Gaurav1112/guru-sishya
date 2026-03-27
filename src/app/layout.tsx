@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
   title: "Guru Sishya — Crack Software Engineering Interviews",
   description:
-    "Ace software engineering interviews with 65+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
+    "Ace software engineering interviews with 130+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Works offline, no signup needed.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -85,7 +85,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Guru Sishya — Crack Software Engineering Interviews",
     description:
-      "Ace software engineering interviews with 65+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
+      "Ace software engineering interviews with 130+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Works offline, no signup needed.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Guru Sishya — Crack Software Engineering Interviews",
     description:
-      "Ace software engineering interviews with 65+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
+      "Ace software engineering interviews with 130+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Works offline, no signup needed.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   category: "education",
