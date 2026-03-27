@@ -1,14 +1,23 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 // ── GET /api/user/progress?email= ────────────────────────────────────────────
 // Returns user progress from Supabase. Falls back to zeroed defaults when no
 // record exists so the client never has to handle null.
+// SECURITY: Authenticated — users can only read their own progress.
 
 export async function GET(req: NextRequest) {
-  const email = req.nextUrl.searchParams.get("email");
-  if (!email) {
-    return NextResponse.json({ error: "email required" }, { status: 400 });
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // SECURITY: Only allow users to query their own data (prevents IDOR)
+  const email = session.user.email.toLowerCase();
+  const requestedEmail = req.nextUrl.searchParams.get("email")?.toLowerCase();
+  if (requestedEmail && requestedEmail !== email) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const supabase = getSupabaseAdmin();
@@ -31,12 +40,17 @@ export async function GET(req: NextRequest) {
 
 // ── POST /api/user/progress ───────────────────────────────────────────────────
 // Upserts user progress into Supabase. Conflict key is email.
+// SECURITY: Authenticated — users can only write their own progress.
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const {
-      email,
       total_xp,
       level,
       current_streak,
@@ -46,9 +60,8 @@ export async function POST(req: NextRequest) {
       quizzes_taken,
     } = body;
 
-    if (!email) {
-      return NextResponse.json({ error: "email required" }, { status: 400 });
-    }
+    // SECURITY: Always use the authenticated email, never trust client-supplied email
+    const email = session.user.email.toLowerCase();
 
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.from("user_progress").upsert(

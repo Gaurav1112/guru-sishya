@@ -51,9 +51,9 @@ export async function GET() {
           }}
         >
           {[
-            { num: "56", label: "Topics" },
-            { num: "710+", label: "Questions" },
-            { num: "591", label: "Lessons" },
+            { num: "65", label: "Topics" },
+            { num: "828", label: "Questions" },
+            { num: "670+", label: "Lessons" },
             { num: "58", label: "STAR Answers" },
           ].map((stat) => (
             <div

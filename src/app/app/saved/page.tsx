@@ -227,7 +227,7 @@ export default function SavedQuestionsPage() {
             href="/app/questions"
             className="text-sm text-saffron hover:underline"
           >
-            Browse all 830+ questions →
+            Browse all 828 questions →
           </Link>
         </div>
       </div>

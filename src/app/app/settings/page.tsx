@@ -35,10 +35,9 @@ export default function SettingsPage() {
           <Separator />
           <div className="flex items-center justify-between"><div><Label>Show me on Leaderboard</Label><p className="text-xs text-muted-foreground">Appear in weekly XP rankings</p></div><Button variant="outline" size="sm" onClick={() => setShowOnLeaderboard(!showOnLeaderboard)}>{showOnLeaderboard ? "On" : "Off"}</Button></div>
           <Separator />
-          <Separator />
           <div className="flex items-center justify-between">
-            <div><Label>Onboarding Tour</Label><p className="text-xs text-muted-foreground">Replay the guided tour</p></div>
-            <Button variant="outline" size="sm" onClick={() => window.dispatchEvent(new Event("replay-tour"))}>Replay</Button>
+            <div><Label>Onboarding Tour</Label><p className="text-xs text-muted-foreground">Replay the guided tour (starts on the Dashboard)</p></div>
+            <Button variant="outline" size="sm" onClick={() => { useStore.getState().setOnboardingCompleted(false); window.location.href = "/app/dashboard"; }}>Replay</Button>
           </div>
           <Separator />
           <div className="flex items-center justify-between"><div><Label>Daily Goal</Label><p className="text-xs text-muted-foreground">Minutes per day</p></div>
@@ -61,23 +60,24 @@ export default function SettingsPage() {
               variant="outline"
               className="border-red-500/30 text-red-400 hover:bg-red-500/10"
               onClick={async () => {
-                if (!confirm("Are you sure? This will permanently delete all your data. This cannot be undone.")) return;
-                if (!confirm("Last chance — type DELETE to confirm.")) return;
+                if (!confirm("Are you sure? This will permanently delete all your data. This action cannot be undone.")) return;
+                if (!confirm("Last chance. Are you absolutely sure you want to delete everything?")) return;
 
                 try {
-                  const res = await fetch("/api/user/delete-account", { method: "DELETE" });
-                  if (res.ok) {
-                    // Clear local data
-                    localStorage.clear();
-                    // Clear IndexedDB
-                    indexedDB.deleteDatabase("GuruSishya");
-                    alert("Account deleted successfully. You will be redirected.");
-                    window.location.href = "/";
-                  } else {
-                    alert("Failed to delete account. Please try again.");
+                  // Try server-side deletion first (only matters if signed in)
+                  try {
+                    await fetch("/api/user/delete-account", { method: "DELETE" });
+                  } catch {
+                    // Server deletion is best-effort — local wipe is the primary action
                   }
+
+                  // Always clear local data regardless of API result
+                  localStorage.clear();
+                  indexedDB.deleteDatabase("GuruSishya");
+                  alert("All local data deleted. You will be redirected to the home page.");
+                  window.location.href = "/";
                 } catch {
-                  alert("Failed to delete account. Please try again.");
+                  alert("Failed to delete data. Please try again.");
                 }
               }}
             >

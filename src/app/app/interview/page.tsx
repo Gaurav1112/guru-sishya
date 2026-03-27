@@ -536,7 +536,7 @@ function SetupScreen({ onStart }: SetupScreenProps) {
             Mock Interview Simulator
           </h1>
           <p className="text-sm text-muted-foreground">
-            Powered by 710+ pre-generated interview questions — no AI API needed.
+            Powered by 828 pre-generated interview questions — no AI API needed.
             <br />
             Get real-time feedback on your answers using keyword analysis.
           </p>

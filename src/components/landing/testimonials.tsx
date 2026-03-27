@@ -14,7 +14,7 @@ const WHAT_YOU_GET = [
     span: "md:col-span-2",
   },
   {
-    number: "710+",
+    number: "828",
     title: "Interview Questions",
     description: "Detailed answers, not just hints. Every question comes with a full explanation so you actually learn.",
     badges: ["Detailed Answers"],
@@ -58,7 +58,7 @@ const WHAT_YOU_GET = [
     span: "",
   },
   {
-    number: "591",
+    number: "670+",
     title: "Full Lessons",
     description: "Complete teaching content — not just activity lists. Each lesson covers theory, examples, and code.",
     badges: ["Python", "TypeScript"],

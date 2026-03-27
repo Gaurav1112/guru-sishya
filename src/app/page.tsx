@@ -73,7 +73,7 @@ function LandingNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/60 backdrop-blur-md border-b border-border/30">
+    <nav aria-label="Main navigation" className="sticky top-0 z-50 bg-background/60 backdrop-blur-md border-b border-border/30">
       <div className="flex h-14 items-center justify-between px-6">
         <div className="flex items-center gap-6">
           <Link href="/" className="font-heading text-lg font-bold text-saffron tracking-wider hover:opacity-80 transition-opacity">
@@ -195,7 +195,7 @@ function FinalCTA() {
           Ready to Crack Your Interview?
         </h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          56 topics, 710+ questions, 58 STAR behavioral answers — all free. No signup, no credit card.
+          65 topics, 1400+ questions, 58 STAR behavioral answers — all free. No signup, no credit card.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/app/topics">
@@ -220,10 +220,13 @@ function FinalCTA() {
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:rounded-lg focus:bg-saffron focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-background">
+        Skip to main content
+      </a>
       <header>
         <LandingNavbar />
       </header>
-      <main>
+      <main id="main-content">
       <Hero />
       <ScrollReveal delay={0}>
         <CompanyLogoStrip />
@@ -261,7 +264,7 @@ export default function LandingPage() {
                 GURU SISHYA
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Free software engineering interview preparation platform. 56 topics, 710+ questions, works offline.
+                Free software engineering interview preparation platform. 65 topics, 1400+ questions, works offline.
               </p>
             </div>
 

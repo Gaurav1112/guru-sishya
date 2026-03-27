@@ -22,14 +22,17 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
   themeColor: "#E85D26",
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
-  title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
+  title: "Guru Sishya — Crack Software Engineering Interviews",
   description:
-    "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
+    "Ace software engineering interviews with 65+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -57,20 +60,32 @@ export const metadata: Metadata = {
     "spring boot interview questions",
   ],
   icons: {
-    icon: "/icon-192.svg",
-    apple: "/icon-192.svg",
+    icon: [
+      { url: "/icon-192.svg", type: "image/svg+xml" },
+      { url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/icon-192.svg", sizes: "180x180", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon-192.svg",
   },
+  authors: [{ name: "Guru Sishya", url: "https://www.guru-sishya.in" }],
+  creator: "Guru Sishya",
+  publisher: "Guru Sishya",
   robots: {
     index: true,
     follow: true,
+    "max-snippet": -1,
+    "max-image-preview": "large",
+    "max-video-preview": -1,
   },
   alternates: {
     canonical: "https://www.guru-sishya.in",
   },
   openGraph: {
-    title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
+    title: "Guru Sishya — Crack Software Engineering Interviews",
     description:
-      "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
+      "Ace software engineering interviews with 65+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -80,17 +95,18 @@ export const metadata: Metadata = {
         url: "https://www.guru-sishya.in/api/og",
         width: 1200,
         height: 630,
-        alt: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
+        alt: "Guru Sishya — Crack Software Engineering Interviews",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
+    title: "Guru Sishya — Crack Software Engineering Interviews",
     description:
-      "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
+      "Ace software engineering interviews with 65+ topics, 1400+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
+  category: "education",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -121,12 +137,8 @@ export default function RootLayout({
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
               description:
-                "Software engineering interview preparation platform with 53 topics, 1290+ questions, and STAR behavioral prep for FAANG interviews.",
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "150",
-              },
+                "Software engineering interview preparation platform with 65 topics, 1400+ questions, and STAR behavioral prep for FAANG interviews.",
+              url: "https://www.guru-sishya.in",
             }),
           }}
         />
@@ -186,7 +198,7 @@ export default function RootLayout({
                   name: "Is Guru Sishya really free? What's the catch?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes - 56 topics, 710+ quiz questions with answers, 591 full lessons, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 129/month or Rs 999/year) for AI-powered features like the Feynman Technique and custom topic generation, but the core prep content will always be free.",
+                    text: "Yes - 65 topics, 1400+ quiz questions with answers, 670+ full lessons, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 129/month or Rs 999/year) for AI-powered features like the Feynman Technique and custom topic generation, but the core prep content will always be free.",
                   },
                 },
                 {
@@ -202,7 +214,7 @@ export default function RootLayout({
                   name: "What topics does Guru Sishya cover?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "56 topics across four domains: System Design Fundamentals (load balancing, caching, databases, message queues, CDNs), System Design Case Studies (Twitter, YouTube, Uber, etc.), Data Structures and Algorithms (arrays, trees, dynamic programming, graphs), and Core CS (operating systems, networking, databases, compilers). More topics are added regularly.",
+                    text: "65 topics across four domains: System Design Fundamentals (load balancing, caching, databases, message queues, CDNs), System Design Case Studies (Twitter, YouTube, Uber, etc.), Data Structures and Algorithms (arrays, trees, dynamic programming, graphs), and Core CS (operating systems, networking, databases, compilers). More topics are added regularly.",
                   },
                 },
                 {
@@ -210,7 +222,7 @@ export default function RootLayout({
                   name: "How is Guru Sishya different from LeetCode, AlgoExpert, or NeetCode?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Guru Sishya is the only platform that combines all of this in one place for free: 710+ questions with full answers (not just hints), 58 STAR behavioral answers, 32 system design topics, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes. Competitors charge Rs 991-Rs 2917/month and still lack behavioral prep and offline support.",
+                    text: "Guru Sishya is the only platform that combines all of this in one place for free: 828 questions with full answers (not just hints), 58 STAR behavioral answers, 32 system design topics, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes. Competitors charge Rs 991-Rs 2917/month and still lack behavioral prep and offline support.",
                   },
                 },
                 {

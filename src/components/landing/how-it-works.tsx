@@ -6,7 +6,7 @@ const STEPS = [
     step: "01",
     title: "Pick a Topic",
     description:
-      "Browse 56 interview topics across System Design, DS&A, and Core CS. Search, filter by category, or follow the visual roadmap.",
+      "Browse 65 interview topics across System Design, DS&A, and Core CS. Search, filter by category, or follow the visual roadmap.",
     color: "border-saffron/50 bg-saffron/5",
     numberColor: "text-saffron",
     icon: (

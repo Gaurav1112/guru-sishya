@@ -539,26 +539,26 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Share your referral link. When a friend subscribes to Pro, you both get 1 month free!
+              Share Guru Sishya with friends preparing for interviews.
             </p>
             <div className="flex items-center gap-2">
               <input
                 readOnly
-                value="https://guru-sishya.in/?ref=YOUR_ID"
+                value="https://guru-sishya.in/"
                 className="flex-1 px-3 py-2 rounded-lg bg-muted border border-border/50 text-sm text-foreground"
               />
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  navigator.clipboard.writeText("https://guru-sishya.in/?ref=YOUR_ID");
-                  toast("Referral link copied!");
+                  navigator.clipboard.writeText("https://guru-sishya.in/");
+                  toast("Link copied!");
                 }}
               >
                 Copy
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">Coming soon — referral tracking system</p>
+            <p className="text-xs text-muted-foreground">Referral rewards coming soon</p>
           </CardContent>
         </Card>
       </section>

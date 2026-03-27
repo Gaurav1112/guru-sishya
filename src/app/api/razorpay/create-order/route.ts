@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // ── Plan definitions ─────────────────────────────────────────────────────────
 
@@ -44,6 +45,15 @@ function getRazorpayInstance() {
 // ── POST /api/razorpay/create-order ─────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // SECURITY: Rate limit order creation to prevent abuse
+  const ip = req.headers.get("x-forwarded-for") ?? "unknown";
+  if (!checkRateLimit(`razorpay-order:${ip}`, 5, 60000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Try again later." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await req.json();
     const { planType } = body as { planType?: string };
