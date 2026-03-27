@@ -15,12 +15,20 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (pathname === "/app/dashboard" && !hasIncremented.current) {
       hasIncremented.current = true;
-      if (!onboardingCompleted && visitCount === 0) {
+
+      // Only show tour at most twice per week (every 3.5+ days)
+      const lastShown = localStorage.getItem("gs-tour-last-shown");
+      const daysSinceLastShown = lastShown
+        ? (Date.now() - parseInt(lastShown, 10)) / (1000 * 60 * 60 * 24)
+        : Infinity;
+
+      if (!onboardingCompleted && daysSinceLastShown >= 3.5) {
         setCurrentStep(0);
+        localStorage.setItem("gs-tour-last-shown", String(Date.now()));
       }
       incrementVisitCount();
     }
-  }, [pathname, incrementVisitCount, onboardingCompleted, visitCount]);
+  }, [pathname, incrementVisitCount, onboardingCompleted]);
 
   function handleNext() {
     if (currentStep >= TOUR_STEPS.length - 1) {

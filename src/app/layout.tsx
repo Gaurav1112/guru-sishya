@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
   title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
   description:
-    "Ace your software engineering interviews with Guru Sishya. 53+ topics, 1290+ curated questions with answers, adaptive quizzes, Feynman Technique, AI mock interviews, and spaced repetition. Trusted by engineers preparing for FAANG.",
+    "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
     description:
-      "Ace your software engineering interviews with Guru Sishya. 53+ topics, 1290+ curated questions with answers, adaptive quizzes, Feynman Technique, AI mock interviews, and spaced repetition. Trusted by engineers preparing for FAANG.",
+      "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Guru Sishya — Crack Software Engineering Interviews | 53+ Topics",
     description:
-      "Ace your software engineering interviews with Guru Sishya. 53+ topics, 1290+ curated questions with answers, adaptive quizzes, Feynman Technique, AI mock interviews, and spaced repetition. Trusted by engineers preparing for FAANG.",
+      "Ace software engineering interviews with 53+ topics, 1290+ questions with answers, STAR behavioral prep, and adaptive quizzes. Free, offline, no signup.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   appleWebApp: {
