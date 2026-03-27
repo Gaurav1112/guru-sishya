@@ -37,10 +37,36 @@ export function BadgeMandir() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-heading text-lg font-bold">Badge Mandir</h3>
-        <span className="text-sm text-muted-foreground">
-          {unlockedBadges?.length ?? 0}/{BADGE_DEFINITIONS.length} unlocked
+        <span className="text-sm text-saffron font-semibold">
+          {unlockedBadges?.length ?? 0} of {BADGE_DEFINITIONS.length} earned
         </span>
       </div>
+
+      {/* Recently Earned section (last 7 days) */}
+      {(() => {
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const recentBadges = BADGE_DEFINITIONS.filter((b) => {
+          const record = unlockedMap.get(b.id);
+          return record && record.unlockedAt && new Date(record.unlockedAt) >= sevenDaysAgo;
+        });
+        if (recentBadges.length === 0) return null;
+        return (
+          <div className="mb-6">
+            <h4 className="text-sm font-semibold text-gold mb-2">Recently Earned</h4>
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {recentBadges.map((badge) => (
+                <div
+                  key={badge.id}
+                  className="shrink-0 w-24 text-center p-3 rounded-xl bg-gold/10 border border-gold/30"
+                >
+                  <span className="text-2xl">{badge.icon}</span>
+                  <p className="text-xs font-semibold mt-1 leading-tight">{badge.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       <Tabs defaultValue="consistency">
         <TabsList className="mb-4 flex flex-wrap gap-1 h-auto">
@@ -62,15 +88,24 @@ export function BadgeMandir() {
 
         {CATEGORIES.map((cat) => {
           const badges = BADGE_DEFINITIONS.filter((b) => b.category === cat.id);
-          const unlocked = badges.filter((b) => unlockedMap.has(b.id)).length;
+          const unlockedCount = badges.filter((b) => unlockedMap.has(b.id)).length;
+
+          // Sort: earned badges first, then locked
+          const sortedBadges = [...badges].sort((a, b) => {
+            const aUnlocked = unlockedMap.has(a.id);
+            const bUnlocked = unlockedMap.has(b.id);
+            if (aUnlocked && !bUnlocked) return -1;
+            if (!aUnlocked && bUnlocked) return 1;
+            return 0;
+          });
 
           return (
             <TabsContent key={cat.id} value={cat.id}>
               <p className="text-xs text-muted-foreground mb-3">
-                {unlocked} of {badges.length} unlocked in this category
+                {unlockedCount} of {badges.length} unlocked in this category
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {badges.map((badge, i) => {
+                {sortedBadges.map((badge, i) => {
                   const record = unlockedMap.get(badge.id);
                   return (
                     <motion.div

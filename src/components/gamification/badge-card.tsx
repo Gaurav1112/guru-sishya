@@ -1,4 +1,6 @@
 "use client";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { BadgeDefinition, UserStats } from "@/lib/gamification/badges";
 
 interface BadgeCardProps {
@@ -129,46 +131,60 @@ function getBadgeProgress(badge: BadgeDefinition, stats: UserStats): ProgressInf
 // ────────────────────────────────────────────────────────────────────────────
 
 export function BadgeCard({ badge, unlocked, unlockedAt, userStats }: BadgeCardProps) {
-  if (unlocked) {
-    return (
-      <div className="flex flex-col items-center gap-2 rounded-xl border border-gold/30 bg-surface p-4 shadow-[0_0_12px_rgba(234,179,8,0.12)] transition-shadow hover:shadow-[0_0_20px_rgba(234,179,8,0.25)]">
-        <span className="text-3xl">{badge.icon}</span>
-        <div className="text-center">
-          <p className="font-heading text-sm font-bold text-gold leading-tight">{badge.name}</p>
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{badge.description}</p>
-          {unlockedAt && (
-            <p className="text-[10px] text-muted-foreground/60 mt-1">
-              {unlockedAt.toLocaleDateString()}
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   const progress = userStats ? getBadgeProgress(badge, userStats) : null;
   const pct = progress ? Math.min(100, Math.round((progress.current / progress.target) * 100)) : null;
 
   return (
-    <div className="flex flex-col items-center gap-2 rounded-xl border border-border/40 bg-surface/50 p-4 opacity-60">
-      <span className="text-3xl grayscale">{badge.icon}</span>
+    <div
+      className={cn(
+        "flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition-all duration-200",
+        unlocked
+          ? "border-saffron/50 bg-saffron/10 shadow-md shadow-saffron/10 scale-[1.02] hover:shadow-lg hover:shadow-saffron/20"
+          : "border-border/20 bg-muted/5 opacity-50"
+      )}
+    >
+      <span className={cn("text-3xl", !unlocked && "grayscale opacity-40")}>
+        {badge.icon}
+      </span>
       <div className="text-center w-full">
-        <p className="font-heading text-sm font-bold text-muted-foreground leading-tight">{badge.name}</p>
-        <p className="text-xs text-muted-foreground/70 mt-1 line-clamp-2">{badge.description}</p>
+        <p
+          className={cn(
+            "font-heading text-sm font-bold leading-tight",
+            unlocked ? "text-foreground" : "text-muted-foreground"
+          )}
+        >
+          {badge.name}
+        </p>
+        <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{badge.description}</p>
 
-        {progress && pct !== null && (
-          <div className="mt-2 w-full">
-            <div className="flex justify-between text-[10px] text-muted-foreground/60 mb-1">
-              <span>{progress.current}/{progress.target} {progress.label}</span>
-              <span>{pct}%</span>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-muted/40 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gold/50 transition-all"
-                style={{ width: `${pct}%` }}
-              />
-            </div>
+        {unlocked ? (
+          <div className="flex items-center justify-center gap-1 mt-2 text-[10px] font-semibold text-teal-400">
+            <Check className="size-3" />
+            Earned!
           </div>
+        ) : (
+          <div className="mt-2 w-full">
+            {progress && pct !== null ? (
+              <>
+                <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-saffron/50 transition-all"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[9px] text-muted-foreground/60 mt-0.5">
+                  <span>{progress.current}/{progress.target} {progress.label}</span>
+                  <span>{pct}%</span>
+                </div>
+              </>
+            ) : null}
+          </div>
+        )}
+
+        {unlocked && unlockedAt && (
+          <p className="text-[9px] text-muted-foreground/50 mt-0.5">
+            {unlockedAt.toLocaleDateString()}
+          </p>
         )}
       </div>
     </div>
