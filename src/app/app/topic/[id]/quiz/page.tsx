@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { QuizContainer } from "@/components/features/quiz/quiz-container";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
+import { BackButton } from "@/components/back-button";
 
 export default function QuizPage({
   params,
@@ -59,6 +60,7 @@ export default function QuizPage({
 
   return (
     <div>
+      <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
       <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} className="mb-4" />
       <QuizContainer topicId={topic.id!} topicName={topic.name} />
     </div>

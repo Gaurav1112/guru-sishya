@@ -8,6 +8,7 @@ import { useHydrated } from "@/hooks/use-hydrated";
 import { CheatsheetContainer } from "@/components/features/cheatsheet/cheatsheet-container";
 import { PremiumGate } from "@/components/premium-gate";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
+import { BackButton } from "@/components/back-button";
 
 // First 10 topics (by Dexie ID) are free for all users
 const FREE_CHEATSHEET_LIMIT = 10;
@@ -72,6 +73,7 @@ export default function CheatsheetPage({
   if (isGated) {
     return (
       <div className="max-w-xl mx-auto py-4 space-y-4">
+        <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
         <div>
           <h1 className="font-heading text-xl font-bold">{topic.name}</h1>
           <p className="text-xs text-muted-foreground mt-1">Cheat Sheet</p>
@@ -85,6 +87,7 @@ export default function CheatsheetPage({
 
   return (
     <div>
+      <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
       <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} className="mb-4" />
       <CheatsheetContainer topicId={topic.id!} topicName={topic.name} languageFilter={preferredLanguage} />
     </div>

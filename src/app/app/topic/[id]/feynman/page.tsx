@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { FeynmanContainer } from "@/components/features/feynman/feynman-container";
 import { PremiumGate } from "@/components/premium-gate";
+import { BackButton } from "@/components/back-button";
 
 function FeynmanPreview() {
   return (
@@ -77,7 +78,12 @@ export default function FeynmanPage({
 
   // Gate entire feature for free users — show preview + gate
   if (!isActivePremium) {
-    return <FeynmanPreview />;
+    return (
+      <div>
+        <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
+        <FeynmanPreview />
+      </div>
+    );
   }
 
   if (!apiKey && aiProvider !== "ollama" && aiProvider !== "static") {
@@ -108,5 +114,10 @@ export default function FeynmanPage({
     );
   }
 
-  return <FeynmanContainer topicId={topic.id!} topicName={topic.name} />;
+  return (
+    <div>
+      <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
+      <FeynmanContainer topicId={topic.id!} topicName={topic.name} />
+    </div>
+  );
 }

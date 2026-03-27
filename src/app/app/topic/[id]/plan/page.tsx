@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { PlanContainer } from "@/components/features/plan/plan-container";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
+import { BackButton } from "@/components/back-button";
 
 export default function PlanPage({
   params,
@@ -59,6 +60,7 @@ export default function PlanPage({
 
   return (
     <div>
+      <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
       <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} className="mb-4" />
       <PlanContainer topicId={topic.id!} topicName={topic.name} />
     </div>

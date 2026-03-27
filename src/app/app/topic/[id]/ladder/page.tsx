@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { LadderContainer } from "@/components/features/ladder/ladder-container";
+import { BackButton } from "@/components/back-button";
 
 export default function LadderPage({
   params,
@@ -55,5 +56,10 @@ export default function LadderPage({
     );
   }
 
-  return <LadderContainer topicId={topic.id!} topicName={topic.name} />;
+  return (
+    <div>
+      <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
+      <LadderContainer topicId={topic.id!} topicName={topic.name} />
+    </div>
+  );
 }

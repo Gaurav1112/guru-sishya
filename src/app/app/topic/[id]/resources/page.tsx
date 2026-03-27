@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { ResourceContainer } from "@/components/features/resources/resource-container";
+import { BackButton } from "@/components/back-button";
 
 export default function ResourcesPage({
   params,
@@ -54,5 +55,10 @@ export default function ResourcesPage({
     );
   }
 
-  return <ResourceContainer topicId={topic.id!} topicName={topic.name} />;
+  return (
+    <div>
+      <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
+      <ResourceContainer topicId={topic.id!} topicName={topic.name} />
+    </div>
+  );
 }

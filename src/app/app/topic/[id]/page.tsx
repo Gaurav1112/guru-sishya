@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { findTopicContent, loadAllContent, type TopicContent } from "@/lib/content/loader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { BackButton } from "@/components/back-button";
 
 const featureCards = [
   { key: "plan", title: "20-Hour Pareto Plan", description: "Focused plan targeting the 20% that drives 80%", href: "plan", icon: "📋", color: "border-saffron/30" },
@@ -116,6 +117,7 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
 
   return (
     <div>
+      <BackButton href="/app/topics" label="Back to Topics" />
       {/* Header */}
       <div className="mb-6 flex flex-col gap-2">
         <div className="flex items-start gap-3 flex-wrap">
