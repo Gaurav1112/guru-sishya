@@ -47,6 +47,78 @@ interface InterviewConfig {
   topic: string; // "All" or specific topic like "System Design", "Java", "Kafka"
 }
 
+interface InterviewRound {
+  label: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  questions: InterviewQuestion[];
+  isBoss: boolean;
+}
+
+// ── Round builder ──────────────────────────────────────────────────────────────
+
+function buildRounds(allQuestions: InterviewQuestion[], isPro: boolean): InterviewRound[] {
+  const shuffle = <T,>(arr: T[]): T[] => [...arr].sort(() => Math.random() - 0.5);
+
+  const easy = shuffle(allQuestions.filter(q => q.difficulty === "Easy"));
+  const medium = shuffle(allQuestions.filter(q => q.difficulty === "Medium"));
+  const hard = shuffle(allQuestions.filter(q => q.difficulty === "Hard"));
+  const allShuffled = shuffle(allQuestions);
+
+  // Helper: pick N from pool, falling back to allShuffled if not enough
+  const pick = (pool: InterviewQuestion[], n: number, exclude: Set<string>): InterviewQuestion[] => {
+    const filtered = pool.filter(q => !exclude.has(q.question));
+    if (filtered.length >= n) return filtered.slice(0, n);
+    const remaining = allShuffled.filter(q => !exclude.has(q.question));
+    return [...filtered, ...remaining].slice(0, n);
+  };
+
+  const used = new Set<string>();
+
+  const easyCount = isPro ? 2 : 1;
+  const mediumCount = isPro ? 3 : 1;
+  const hardCount = isPro ? 3 : 1;
+
+  const easyPicked = pick(easy, easyCount, used);
+  easyPicked.forEach(q => used.add(q.question));
+
+  const mediumPicked = pick(medium, mediumCount, used);
+  mediumPicked.forEach(q => used.add(q.question));
+
+  const hardPicked = pick(hard, hardCount, used);
+
+  return [
+    { label: "Round 1: Warm-Up", difficulty: "Easy", questions: easyPicked, isBoss: false },
+    { label: "Round 2: Deep Dive", difficulty: "Medium", questions: mediumPicked, isBoss: false },
+    { label: "Round 3: Boss Round", difficulty: "Hard", questions: hardPicked, isBoss: true },
+  ];
+}
+
+// Helper: flatten rounds into a single question array
+function flattenRounds(rounds: InterviewRound[]): InterviewQuestion[] {
+  return rounds.flatMap(r => r.questions);
+}
+
+// Helper: find which round a global question index belongs to
+function getRoundForIndex(rounds: InterviewRound[], globalIndex: number): { roundIndex: number; localIndex: number } {
+  let offset = 0;
+  for (let i = 0; i < rounds.length; i++) {
+    if (globalIndex < offset + rounds[i].questions.length) {
+      return { roundIndex: i, localIndex: globalIndex - offset };
+    }
+    offset += rounds[i].questions.length;
+  }
+  return { roundIndex: rounds.length - 1, localIndex: 0 };
+}
+
+// Helper: get the first global index of a round
+function getRoundStartIndex(rounds: InterviewRound[], roundIndex: number): number {
+  let offset = 0;
+  for (let i = 0; i < roundIndex; i++) {
+    offset += rounds[i].questions.length;
+  }
+  return offset;
+}
+
 const TOPICS = [
   "All Topics",
   "System Design",
@@ -558,16 +630,17 @@ interface ResultsScreenProps {
   scores: number[];
   config: InterviewConfig;
   questions: InterviewQuestion[];
+  rounds: InterviewRound[];
   onRestart: () => void;
   elapsed: number;
   rewards: InterviewRewards | null;
 }
 
 function ResultsScreen({
-  messages,
   scores,
   config,
   questions,
+  rounds,
   onRestart,
   elapsed,
   rewards,
@@ -663,27 +736,69 @@ function ResultsScreen({
           )}
         </div>
 
-        {/* Per-question scores */}
-        <section className="space-y-3">
+        {/* Per-question scores — grouped by round */}
+        <section className="space-y-4">
           <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">
             Question Scores
           </h3>
-          <div className="space-y-2">
-            {scores.map((s, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 rounded-xl border border-border/50 bg-surface px-4 py-3"
-              >
-                <span className="shrink-0 text-xs font-bold text-muted-foreground w-4">
-                  Q{i + 1}
-                </span>
-                <p className="flex-1 text-sm truncate">
-                  {questions[i]?.question ?? ""}
-                </p>
-                <ScoreBadge score={s} />
-              </div>
-            ))}
-          </div>
+          {rounds.length > 0 ? (
+            rounds.map((round, rIdx) => {
+              const startIdx = getRoundStartIndex(rounds, rIdx);
+              return (
+                <div key={rIdx} className="space-y-2">
+                  <h4 className={`font-semibold text-sm flex items-center gap-2 ${
+                    round.isBoss ? "text-red-400" : "text-foreground"
+                  }`}>
+                    {round.label}
+                    {round.isBoss && (
+                      <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-500/20 text-red-400 rounded uppercase tracking-wider">
+                        Boss
+                      </span>
+                    )}
+                  </h4>
+                  {round.questions.map((q, qIdx) => {
+                    const globalIdx = startIdx + qIdx;
+                    const s = scores[globalIdx] ?? 0;
+                    return (
+                      <div
+                        key={globalIdx}
+                        className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
+                          round.isBoss
+                            ? "border-red-500/20 bg-red-500/5"
+                            : "border-border/50 bg-surface"
+                        }`}
+                      >
+                        <span className="shrink-0 text-xs font-bold text-muted-foreground w-4">
+                          Q{globalIdx + 1}
+                        </span>
+                        <p className="flex-1 text-sm truncate">
+                          {q.question}
+                        </p>
+                        <ScoreBadge score={s} />
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })
+          ) : (
+            <div className="space-y-2">
+              {scores.map((s, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 rounded-xl border border-border/50 bg-surface px-4 py-3"
+                >
+                  <span className="shrink-0 text-xs font-bold text-muted-foreground w-4">
+                    Q{i + 1}
+                  </span>
+                  <p className="flex-1 text-sm truncate">
+                    {questions[i]?.question ?? ""}
+                  </p>
+                  <ScoreBadge score={s} />
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Strengths & weaknesses */}
@@ -771,11 +886,12 @@ interface QuestionResult {
 interface InterviewChatProps {
   config: InterviewConfig;
   questions: InterviewQuestion[];
+  rounds: InterviewRound[];
   onComplete: (scores: number[], elapsed: number, results: QuestionResult[]) => void;
   isPremium: boolean;
 }
 
-function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
+function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userInput, setUserInput] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
@@ -786,6 +902,8 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
   const [elapsed, setElapsed] = useState(0);
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
+  const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
+  const [showRoundTransition, setShowRoundTransition] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -827,8 +945,12 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
     }
   }, [isListening, startListening, stopListening, resetTranscript]);
 
+  const { addXP: chatAddXP, addCoins: chatAddCoins } = useStore();
   const company = COMPANIES.find((c) => c.id === config.company) ?? COMPANIES[5];
   const maxQuestions = questions.length;
+  const hasRounds = rounds.length > 0;
+  const currentRound = hasRounds ? rounds[currentRoundIndex] : null;
+  const isBossRound = currentRound?.isBoss ?? false;
 
   // Auto-scroll
   useEffect(() => {
@@ -859,8 +981,11 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
 
   // Welcome message on mount
   useEffect(() => {
+    const roundInfo = hasRounds
+      ? ` We'll go through 3 rounds: Warm-Up, Deep Dive, and a Boss Round finale.`
+      : "";
     const greetings = [
-      `Welcome! I'm your interviewer from ${config.company === "General" ? "a top tech company" : config.company}. I'll be asking you ${maxQuestions} ${config.type} question${maxQuestions !== 1 ? "s" : ""} today.`,
+      `Welcome! I'm your interviewer from ${config.company === "General" ? "a top tech company" : config.company}. I'll be asking you ${maxQuestions} ${config.type} question${maxQuestions !== 1 ? "s" : ""} today.${roundInfo}`,
       `After each answer, I'll give you feedback on what you covered well and what you might have missed. Ready to begin?`,
     ];
 
@@ -888,6 +1013,37 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
         return;
       }
 
+      // Check if we're entering a new round
+      if (hasRounds && index > 0) {
+        const prevRound = getRoundForIndex(rounds, index - 1);
+        const nextRound = getRoundForIndex(rounds, index);
+        if (nextRound.roundIndex !== prevRound.roundIndex) {
+          // Show round transition interstitial
+          setShowRoundTransition(true);
+          setTimeout(() => {
+            setShowRoundTransition(false);
+            setCurrentRoundIndex(nextRound.roundIndex);
+            // Announce the new round in chat
+            const round = rounds[nextRound.roundIndex];
+            const roundAnnounce = round.isBoss
+              ? `**${round.label}** -- The difficulty rises. Prove your mastery.`
+              : `**${round.label}** -- Let's move on.`;
+            addMessage("interviewer", roundAnnounce);
+            // Then ask the question after a beat
+            setTimeout(() => doAskQuestion(index), 1000);
+          }, 2000);
+          return;
+        }
+      }
+
+      doAskQuestion(index);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [addMessage, maxQuestions, questions, hasRounds, rounds]
+  );
+
+  const doAskQuestion = useCallback(
+    (index: number) => {
       setIsThinking(true);
       setTimeout(() => {
         setIsThinking(false);
@@ -896,18 +1052,28 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
         setQuestionStartTime(Date.now());
 
         const q = questions[index];
-        const prefix =
-          index === 0
-            ? "Let's start with our first question:"
-            : index === maxQuestions - 1
-            ? "Final question:"
-            : `Question ${index + 1} of ${maxQuestions}:`;
+
+        // Build prefix with round awareness
+        let prefix: string;
+        if (hasRounds) {
+          const { roundIndex, localIndex } = getRoundForIndex(rounds, index);
+          const round = rounds[roundIndex];
+          const bossTag = round.isBoss ? " [BOSS]" : "";
+          prefix = `${round.label}${bossTag} — Question ${localIndex + 1} of ${round.questions.length}:`;
+        } else {
+          prefix =
+            index === 0
+              ? "Let's start with our first question:"
+              : index === maxQuestions - 1
+              ? "Final question:"
+              : `Question ${index + 1} of ${maxQuestions}:`;
+        }
 
         addMessage("interviewer", `${prefix}\n\n**${q.question}**`);
         inputRef.current?.focus();
       }, 1200 + Math.random() * 600);
     },
-    [addMessage, maxQuestions, questions]
+    [addMessage, maxQuestions, questions, hasRounds, rounds]
   );
 
   const handleSubmitAnswer = useCallback(() => {
@@ -972,6 +1138,17 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
 
       feedbackLines.push(`\n**Score: ${result.score}/10**`);
 
+      // Boss defeat bonus
+      const currentRoundInfo = hasRounds ? getRoundForIndex(rounds, currentQuestionIndex) : null;
+      const isCurrentBoss = currentRoundInfo ? rounds[currentRoundInfo.roundIndex]?.isBoss : false;
+      if (isCurrentBoss && result.score >= 7) {
+        chatAddXP(30);
+        chatAddCoins(20, "Boss Defeated");
+        feedbackLines.push(`\n**Boss Defeated! +30 XP, +20 coins**`);
+        toast("Boss Defeated! +30 XP, +20 coins");
+        sounds.coin();
+      }
+
       const feedbackText = feedbackLines.join("\n");
       addMessage("feedback", feedbackText);
 
@@ -1024,13 +1201,17 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
   }, [
     addMessage,
     askNextQuestion,
+    chatAddCoins,
+    chatAddXP,
     currentQuestionIndex,
+    hasRounds,
     isListening,
     maxQuestions,
     phase,
     questionStartTime,
     questions,
     resetTranscript,
+    rounds,
     stopListening,
     userInput,
   ]);
@@ -1063,8 +1244,13 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
           <p className="text-sm font-semibold">
             {config.company === "General" ? "Tech" : config.company} Interviewer
           </p>
-          <p className="text-xs text-muted-foreground capitalize">
-            {config.type} &bull; {config.difficulty}
+          <p className="text-xs text-muted-foreground capitalize flex items-center gap-1.5">
+            {config.type} &bull; {currentRound ? currentRound.label : config.difficulty}
+            {isBossRound && (
+              <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-500/20 text-red-400 rounded uppercase tracking-wider">
+                Boss
+              </span>
+            )}
           </p>
         </div>
 
@@ -1092,8 +1278,42 @@ function InterviewChat({ config, questions, onComplete }: InterviewChatProps) {
         </div>
       </div>
 
+      {/* Round transition overlay */}
+      <AnimatePresence>
+        {showRoundTransition && (
+          <motion.div
+            key="round-transition"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+          >
+            <div className="text-center space-y-3">
+              {hasRounds && currentRoundIndex + 1 < rounds.length && (
+                <>
+                  <div className={`text-3xl font-bold ${
+                    rounds[currentRoundIndex + 1]?.isBoss ? "text-red-400" : "text-saffron"
+                  }`}>
+                    {rounds[currentRoundIndex + 1]?.label || "Final Results"}
+                  </div>
+                  {rounds[currentRoundIndex + 1]?.isBoss && (
+                    <div className="text-red-400/70 text-lg animate-pulse">Prepare yourself...</div>
+                  )}
+                  {!rounds[currentRoundIndex + 1]?.isBoss && (
+                    <div className="text-muted-foreground text-sm">Difficulty increasing...</div>
+                  )}
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Chat area */}
-      <div className="flex-1 overflow-y-auto border border-t-0 border-b-0 border-border/50 bg-background/50 p-4 space-y-4">
+      <div className={`flex-1 overflow-y-auto border border-t-0 border-b-0 border-border/50 bg-background/50 p-4 space-y-4 transition-all duration-500 ${
+        isBossRound ? "ring-2 ring-red-500/30 shadow-lg shadow-red-500/10" : ""
+      }`}>
         <AnimatePresence mode="popLayout">
           {messages.map((msg) => {
             const isInterviewer = msg.role === "interviewer";
@@ -1399,6 +1619,7 @@ export default function InterviewPage() {
   const [elapsedFinal, setElapsedFinal] = useState(0);
   const [freeInterviewsUsed, setFreeInterviewsUsed] = useState(0);
   const [interviewRewards, setInterviewRewards] = useState<InterviewRewards | null>(null);
+  const [interviewRounds, setInterviewRounds] = useState<InterviewRound[]>([]);
 
   const { isPremium, premiumUntil, addXP, addCoins, queueCelebration, totalXP, currentStreak, longestStreak, level } = useStore();
   const isActivePremium =
@@ -1420,10 +1641,12 @@ export default function InterviewPage() {
     setConfig(cfg);
 
     try {
-      const questionCount = isActivePremium ? PRO_QUESTIONS : FREE_QUESTIONS;
-      const qs = await loadInterviewQuestions(cfg, questionCount);
+      // Load a generous pool so we can partition by difficulty into rounds
+      // Override difficulty to "Mixed" to get all difficulty levels
+      const poolConfig = { ...cfg, difficulty: "Mixed" as const };
+      const pool = await loadInterviewQuestions(poolConfig, 50);
 
-      if (qs.length === 0) {
+      if (pool.length === 0) {
         setError(
           "No questions found for this combination. Try 'General' company or 'Mixed' type."
         );
@@ -1436,7 +1659,10 @@ export default function InterviewPage() {
         setFreeInterviewsUsed((n) => n + 1);
       }
 
-      setQuestions(qs);
+      // Build progressive rounds from the pool
+      const rounds = buildRounds(pool, isActivePremium);
+      setInterviewRounds(rounds);
+      setQuestions(flattenRounds(rounds));
       setChatKey((k) => k + 1);
       setPhase("active");
     } catch {
@@ -1607,6 +1833,7 @@ export default function InterviewPage() {
     setElapsedFinal(0);
     setError(null);
     setInterviewRewards(null);
+    setInterviewRounds([]);
   }
 
   return (
@@ -1661,6 +1888,7 @@ export default function InterviewPage() {
           key={chatKey}
           config={config}
           questions={questions}
+          rounds={interviewRounds}
           onComplete={(scores, elapsed, results) => handleComplete(scores, elapsed, results)}
           isPremium={isActivePremium}
         />
@@ -1673,6 +1901,7 @@ export default function InterviewPage() {
           scores={scores}
           config={config}
           questions={questions}
+          rounds={interviewRounds}
           onRestart={handleRestart}
           elapsed={elapsedFinal}
           rewards={interviewRewards}
