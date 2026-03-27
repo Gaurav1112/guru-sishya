@@ -11,9 +11,9 @@ const TRUST_BADGES = [
 ];
 
 const STATS = [
-  { value: 56, display: "56", label: "Topics", color: "text-saffron" },
-  { value: 710, display: "710+", label: "Questions", color: "text-teal" },
-  { value: 591, display: "591", label: "Lessons", color: "text-gold" },
+  { value: 53, display: "53", label: "Topics", color: "text-saffron" },
+  { value: 1290, display: "1290+", label: "Questions", color: "text-teal" },
+  { value: 315, display: "315", label: "Lessons", color: "text-gold" },
   { value: 6, display: "6", label: "FAANG Companies", color: "text-indigo", suffix: "" },
 ];
 
@@ -86,7 +86,7 @@ function AnimatedCounter({
         {hasPlus && "+"}
         {hasPct && "%"}
       </div>
-      <div className="text-[10px] text-muted-foreground mt-0.5">{label}</div>
+      <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
     </motion.div>
   );
 }
@@ -144,8 +144,8 @@ export function Hero() {
           transition={{ delay: 0.7, duration: 0.5 }}
           className="mx-auto mt-5 max-w-xl text-base text-muted-foreground leading-relaxed"
         >
-          <span className="text-foreground font-semibold">56 topics</span>,{" "}
-          <span className="text-foreground font-semibold">710+ curated questions</span>,{" "}
+          <span className="text-foreground font-semibold">53 topics</span>,{" "}
+          <span className="text-foreground font-semibold">1290+ curated questions</span>,{" "}
           <span className="text-foreground font-semibold">STAR behavioral prep</span> for Google, Amazon, Microsoft, Meta &mdash; trusted by engineers
         </motion.p>
 

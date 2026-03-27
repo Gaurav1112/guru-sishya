@@ -26,9 +26,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.guru-sishya.in"),
   title: "Guru Sishya — Interview Prep Platform for Software Engineers",
   description:
-    "Crack software engineering interviews with 63+ topics, 830+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
+    "Crack software engineering interviews with 53+ topics, 1290+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -56,7 +57,12 @@ export const metadata: Metadata = {
     "spring boot interview questions",
   ],
   icons: {
-    apple: "/icon.png",
+    icon: "/icon-192.svg",
+    apple: "/icon-192.svg",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
   alternates: {
     canonical: "https://www.guru-sishya.in",
@@ -64,7 +70,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Guru Sishya — Interview Prep Platform for Software Engineers",
     description:
-      "Crack software engineering interviews with 63+ topics, 830+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
+      "Crack software engineering interviews with 53+ topics, 1290+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -82,7 +88,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Guru Sishya — Interview Prep Platform for Software Engineers",
     description:
-      "Crack software engineering interviews with 63+ topics, 830+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
+      "Crack software engineering interviews with 53+ topics, 1290+ curated questions, AI mock interviews, STAR behavioral prep, and adaptive quizzes. Works offline.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   appleWebApp: {
@@ -115,7 +121,7 @@ export default function RootLayout({
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
               description:
-                "Free software engineering interview preparation platform with 56 topics, 710+ questions, and STAR behavioral prep for FAANG interviews.",
+                "Free software engineering interview preparation platform with 53 topics, 1290+ questions, and STAR behavioral prep for FAANG interviews.",
               aggregateRating: {
                 "@type": "AggregateRating",
                 ratingValue: "4.8",

@@ -105,7 +105,7 @@ function LandingNavbar() {
           </Link>
           {/* Hamburger — mobile only */}
           <button
-            className="sm:hidden ml-1 flex flex-col justify-center items-center w-8 h-8 gap-1.5 rounded focus:outline-none"
+            className="sm:hidden ml-1 flex flex-col justify-center items-center w-12 h-12 p-2 gap-1.5 rounded focus:outline-none"
             aria-label="Toggle menu"
             onClick={() => setMenuOpen((v) => !v)}
           >
