@@ -4,7 +4,7 @@ import { use, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Loader2, ArrowLeft, ArrowRight, Clock, Target, BookOpen, HelpCircle, Star, CheckCircle2, ChevronDown, ChevronUp, Zap, Terminal } from "lucide-react";
+import { Loader2, ArrowLeft, ArrowRight, Clock, Target, BookOpen, HelpCircle, Star, CheckCircle2, ChevronDown, ChevronUp, Zap, Terminal, Lock } from "lucide-react";
 import { FloatingStickyNotes } from "@/components/floating-sticky-notes";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -16,9 +16,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
+import { PremiumGate } from "@/components/premium-gate";
 import type { GeneratedPlan } from "@/lib/plan/types";
 import type { LangCode } from "@/components/code-tabs";
 import type { PlaygroundLanguage } from "@/components/code-playground";
+
+const FREE_SESSION_LIMIT = 2;
 
 // Dynamic imports — Monaco must never run on the server
 const CodePlayground = dynamic(
@@ -139,6 +142,10 @@ export default function SessionViewPage({
   const addXP = useStore((s) => s.addXP);
   const addCoins = useStore((s) => s.addCoins);
   const queueCelebration = useStore((s) => s.queueCelebration);
+  const isPremium = useStore((s) => s.isPremium);
+  const premiumUntil = useStore((s) => s.premiumUntil);
+  const isActivePremium =
+    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
   const [completing, setCompleting] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -208,6 +215,28 @@ export default function SessionViewPage({
         <Link href={`/app/topic/${id}/plan`} className="text-saffron hover:underline text-sm">
           ← Back to Plan
         </Link>
+      </div>
+    );
+  }
+
+  // Gate sessions beyond the free limit for non-premium users
+  if (!isActivePremium && sessionNum > FREE_SESSION_LIMIT) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 pb-16">
+        <div>
+          <Link
+            href={`/app/topic/${id}/plan`}
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            <ArrowLeft className="size-3.5 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Plan
+          </Link>
+        </div>
+        <div className="space-y-1">
+          <p className="font-mono text-sm text-muted-foreground">Session {sessionNum} of {totalSessions}</p>
+          <h1 className="font-heading text-2xl font-bold leading-tight">{session.title}</h1>
+        </div>
+        <PremiumGate feature="full-sessions" overlay={false} />
       </div>
     );
   }
@@ -692,16 +721,29 @@ export default function SessionViewPage({
         )}
 
         {nextNum ? (
-          <Link
-            href={`/app/topic/${id}/plan/session/${nextNum}`}
-            className="flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors group text-right ml-auto"
-          >
-            <span>
-              <span className="block text-xs text-muted-foreground/70">Next</span>
-              Session {nextNum}
-            </span>
-            <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+          !isActivePremium && nextNum > FREE_SESSION_LIMIT ? (
+            <Link
+              href="/app/pricing"
+              className="flex items-center gap-2 rounded-lg border border-saffron/40 bg-saffron/5 px-4 py-2.5 text-sm text-saffron hover:bg-saffron/10 transition-colors text-right ml-auto"
+            >
+              <span>
+                <span className="block text-xs text-saffron/70">Next</span>
+                Session {nextNum}
+              </span>
+              <Lock className="size-4" />
+            </Link>
+          ) : (
+            <Link
+              href={`/app/topic/${id}/plan/session/${nextNum}`}
+              className="flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors group text-right ml-auto"
+            >
+              <span>
+                <span className="block text-xs text-muted-foreground/70">Next</span>
+                Session {nextNum}
+              </span>
+              <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          )
         ) : (
           <div />
         )}
