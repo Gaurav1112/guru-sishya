@@ -105,6 +105,13 @@ export interface QuizSessionState {
   updatedAt: Date;
 }
 
+export interface UsageTracking {
+  id?: number;
+  feature: string;
+  date: string; // YYYY-MM-DD
+  count: number;
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Database class
 // ────────────────────────────────────────────────────────────────────────────
@@ -137,6 +144,7 @@ class GuruSishyaDB extends Dexie {
   timedTestResults!: EntityTable<TimedTestResult, "id">;
   questionBookmarks!: EntityTable<QuestionBookmark, "id">;
   quizSessionState!: EntityTable<QuizSessionState, "id">;
+  usageTracking!: EntityTable<UsageTracking, "id">;
 
   constructor() {
     super("GuruSishya");
@@ -312,6 +320,39 @@ class GuruSishyaDB extends Dexie {
       questionBookmarks: "++id, questionId, bookmarked, status, lastSeenAt",
       // Phase 11 — Quiz Session Resume
       quizSessionState: "++id, topicId, updatedAt",
+    });
+
+    this.version(7).stores({
+      topics: "++id, name, category, createdAt",
+      learningPlans: "++id, topicId, status, createdAt",
+      quizAttempts: "++id, topicId, score, difficulty, completedAt",
+      flashcards:
+        "++id, topicId, concept, nextReviewAt, easeFactor, interval, repetitions",
+      chatSessions: "++id, topicId, technique, createdAt",
+      chatMessages: "++id, sessionId, role, createdAt",
+      cheatSheets: "++id, topicId, version, level, createdAt",
+      resources: "++id, topicId, createdAt",
+      badges: "++id, type, name, unlockedAt",
+      streakHistory: "++id, date, maintained",
+      dailyChallenges: "++id, date, topic, answered, score",
+      coinTransactions: "++id, type, amount, reason, createdAt",
+      inventory: "++id, itemType, itemId, acquiredAt, equipped",
+      guidedPathProgress: "++id, topicId, currentStep, startedAt",
+      skillTreeNodes: "++id, topicId, concept, mastery, [topicId+concept]",
+      leaderboardUsers: "++id, name, archetype, weeklyXP, league",
+      leaderboardHistory: "++id, weekStart, userId, xp, rank, league",
+      treasureChests: "++id, earnedAt, opened",
+      planSessions: "++id, planId, sessionNumber, completed, completedAt",
+      userProfile: "++id, level, totalXP, totalCoins",
+      ladderCache: "++id, topicId, createdAt",
+      graduationTests: "++id, topicId, level, passed, attemptedAt",
+      levelProgress: "++id, topicId, unlockedLevel, updatedAt",
+      aiCache: "++id, promptHash, createdAt",
+      timedTestResults: "++id, type, completedAt",
+      questionBookmarks: "++id, questionId, bookmarked, status, lastSeenAt",
+      quizSessionState: "++id, topicId, updatedAt",
+      // Batch 3 — Free tier usage tracking
+      usageTracking: "++id, feature, date, [feature+date]",
     });
   }
 }
