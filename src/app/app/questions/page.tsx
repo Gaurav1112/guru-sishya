@@ -1416,7 +1416,7 @@ export default function QuestionsPage() {
           </div>
 
           {/* Floating grid — right side, hidden on mobile */}
-          <div className="hidden lg:block w-52 shrink-0">
+          <div className="hidden md:block w-52 shrink-0">
             <div className="sticky top-20">
               <QuestionGrid
                 questions={galleryQuestions}
@@ -1435,19 +1435,20 @@ export default function QuestionsPage() {
 
       {/* Mobile gallery trigger — floating button */}
       {currentQuestion && (
-        <div className="lg:hidden fixed bottom-20 right-4 z-40">
+        <div className="md:hidden fixed bottom-20 right-4 z-40">
           <button
             onClick={() => setShowMobileGallery(!showMobileGallery)}
-            className="size-12 rounded-full bg-saffron text-background font-bold shadow-lg flex items-center justify-center text-sm hover:opacity-90 transition-opacity"
+            className="size-14 rounded-2xl bg-gradient-to-br from-saffron to-gold text-background font-bold shadow-lg shadow-saffron/30 flex flex-col items-center justify-center gap-0.5"
           >
-            {currentIndex + 1}
+            <span className="text-lg font-bold">{currentIndex + 1}</span>
+            <span className="text-[8px] opacity-80">of {totalFiltered}</span>
           </button>
         </div>
       )}
 
       {/* Mobile grid bottom sheet */}
       {showMobileGallery && currentQuestion && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-6">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-6">
           <QuestionGrid
             questions={galleryQuestions}
             currentIndex={currentIndex}

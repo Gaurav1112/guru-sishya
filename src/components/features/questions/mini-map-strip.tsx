@@ -66,7 +66,7 @@ export function MiniMapStrip({ items, currentIndex, onSeek }: MiniMapStripProps)
       <canvas
         ref={canvasRef}
         onClick={handleClick}
-        className="w-full h-2 rounded-full cursor-pointer hover:h-3 transition-all"
+        className="w-full h-3 rounded-full cursor-pointer hover:h-4 transition-all"
         style={{ imageRendering: "pixelated" }}
       />
       {/* Hover tooltip would go here */}
