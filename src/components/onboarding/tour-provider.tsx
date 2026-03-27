@@ -15,10 +15,10 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (pathname === "/app/dashboard" && !hasIncremented.current) {
       hasIncremented.current = true;
-      incrementVisitCount();
-      if (!onboardingCompleted && visitCount <= 1) {
+      if (!onboardingCompleted && visitCount === 0) {
         setCurrentStep(0);
       }
+      incrementVisitCount();
     }
   }, [pathname, incrementVisitCount, onboardingCompleted, visitCount]);
 

@@ -11,11 +11,12 @@ export function createSeededRng(seed: number): () => number {
 }
 
 export function shuffle<T>(arr: T[], rng: () => number = Math.random): T[] {
-  for (let i = arr.length - 1; i > 0; i--) {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [result[i], result[j]] = [result[j], result[i]];
   }
-  return arr;
+  return result;
 }
 
 export function shuffleOptions(

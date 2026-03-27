@@ -745,7 +745,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         const { nextLevel: rawNextLevel, breakingPoint } = getNextLevel(
           currentLevel,
           graded.score,
-          isLow ? consecutiveLow : 0
+          isLow ? newConsecutiveLow : 0
         );
         // Free users are capped at Medium (level 3)
         const nextLevel = isActivePremium ? rawNextLevel : Math.min(rawNextLevel, 3) as BloomLevel;

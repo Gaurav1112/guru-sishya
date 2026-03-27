@@ -39,16 +39,23 @@ export function useFeatureLimit(feature: string): FeatureLimitResult {
   const increment = useCallback(async (): Promise<boolean> => {
     if (isActivePro) return true;
     const today = getToday();
-    const existing = await db.usageTracking.where({ feature, date: today }).first();
-    const currentCount = existing?.count ?? 0;
-    if (currentCount >= dailyLimit) return false;
-    if (existing) {
-      await db.usageTracking.update(existing.id!, { count: currentCount + 1 });
-    } else {
-      await db.usageTracking.add({ feature, date: today, count: 1 });
+
+    const canProceed = await db.transaction("rw", db.usageTracking, async () => {
+      const existing = await db.usageTracking.where({ feature, date: today }).first();
+      const currentCount = existing?.count ?? 0;
+      if (currentCount >= dailyLimit) return false;
+      if (existing) {
+        await db.usageTracking.update(existing.id!, { count: currentCount + 1 });
+      } else {
+        await db.usageTracking.add({ feature, date: today, count: 1 });
+      }
+      return true;
+    });
+
+    if (canProceed) {
+      setCount((prev) => prev + 1);
     }
-    setCount(currentCount + 1);
-    return true;
+    return canProceed;
   }, [feature, dailyLimit, isActivePro]);
 
   if (isActivePro) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { db } from "@/lib/db";
 
@@ -11,6 +11,7 @@ interface BookmarkButtonProps {
 
 export function BookmarkButton({ questionId, questionText: _questionText }: BookmarkButtonProps) {
   const [bookmarked, setBookmarked] = useState(false);
+  const processing = useRef(false);
 
   useEffect(() => {
     db.questionBookmarks
@@ -21,13 +22,19 @@ export function BookmarkButton({ questionId, questionText: _questionText }: Book
   }, [questionId]);
 
   async function toggle() {
-    const existing = await db.questionBookmarks.where({ questionId }).first();
-    if (existing) {
-      await db.questionBookmarks.update(existing.id!, { bookmarked: !existing.bookmarked, lastSeenAt: new Date() });
-      setBookmarked(!existing.bookmarked);
-    } else {
-      await db.questionBookmarks.add({ questionId, bookmarked: true, status: "unseen", lastSeenAt: new Date() });
-      setBookmarked(true);
+    if (processing.current) return;
+    processing.current = true;
+    try {
+      const existing = await db.questionBookmarks.where({ questionId }).first();
+      if (existing) {
+        await db.questionBookmarks.update(existing.id!, { bookmarked: !existing.bookmarked, lastSeenAt: new Date() });
+        setBookmarked(!existing.bookmarked);
+      } else {
+        await db.questionBookmarks.add({ questionId, bookmarked: true, status: "unseen", lastSeenAt: new Date() });
+        setBookmarked(true);
+      }
+    } finally {
+      processing.current = false;
     }
   }
 

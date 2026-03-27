@@ -24,13 +24,12 @@ export function ShareCard({ badgeCount, totalQuestions, accuracy }: ShareCardPro
     return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
   }, []);
 
-  const shareToLinkedIn = useCallback(async () => {
-    await generateImage();
-    const text = encodeURIComponent(
-      `I'm a ${levelInfo.title} on Guru Sishya! ${badgeCount} badges, ${currentStreak}-day streak, ${totalQuestions} questions answered. #GuruSishya #InterviewPrep`
+  const shareToLinkedIn = useCallback(() => {
+    window.open(
+      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://www.guru-sishya.in")}`,
+      "_blank"
     );
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://www.guru-sishya.in")}`, "_blank");
-  }, [generateImage, levelInfo.title, badgeCount, currentStreak, totalQuestions]);
+  }, []);
 
   const shareToWhatsApp = useCallback(async () => {
     const text = encodeURIComponent(
