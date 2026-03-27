@@ -146,11 +146,24 @@ export async function generateFlashcardsFromInterview(
         .first();
 
       if (!existing) {
+        // Store rich metadata: model answer + user's wrong answer + score
+        const richBack = [
+          `### Model Answer\n\n${result.modelAnswer || "No model answer available."}`,
+          result.userAnswer && result.userAnswer !== "(not answered)"
+            ? `\n\n---\n\n### Your Answer (Score: ${result.score}/10)\n\n${result.userAnswer}`
+            : `\n\n---\n\n*You did not answer this question.*`,
+          result.score < 4
+            ? `\n\n> **Focus area**: This is a weak spot. Study the model answer carefully and practice explaining it out loud.`
+            : result.score < 7
+            ? `\n\n> **Almost there**: You covered some key points but missed important details. Compare your answer with the model.`
+            : "",
+        ].join("");
+
         await db.flashcards.add({
           topicId: targetTopicId,
           concept,
           front: result.question,
-          back: result.modelAnswer || result.userAnswer || "Review this question",
+          back: richBack,
           easeFactor: 2.5,
           interval: 0,
           repetitions: 0,

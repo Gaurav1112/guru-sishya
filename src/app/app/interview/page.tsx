@@ -1179,6 +1179,17 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
       setIsThinking(false);
       setScores((prev) => [...prev, result.score]);
 
+      // Immediately save wrong answers to revision (don't wait for interview end)
+      if (result.score < 7 && q) {
+        generateFlashcardsFromInterview([{
+          question: q.question,
+          modelAnswer: q.answer || "",
+          userAnswer: answer,
+          score: result.score,
+          topic: config?.topic ?? "",
+        }]).catch(() => {});
+      }
+
       // Play sound based on score
       if (result.score >= 8) {
         sounds.correct();
@@ -1970,11 +1981,12 @@ export default function InterviewPage() {
     setInterviewRewards(rewardsPayload);
 
     // Auto-feed wrong answers into the revision (flashcard) system
-    const interviewResults = results.map((r) => ({
-      question: r.question,
-      modelAnswer: r.modelAnswer,
-      userAnswer: r.userAnswer,
-      score: r.score,
+    // Ensure ALL questions are included, even unanswered ones (score = 0)
+    const interviewResults = questions.map((q, i) => ({
+      question: q.question,
+      modelAnswer: q.answer || "",
+      userAnswer: results[i]?.userAnswer || "(not answered)",
+      score: results[i]?.score ?? 0,
       topic: config?.topic ?? "",
     }));
     generateFlashcardsFromInterview(interviewResults).then((cardsCreated) => {

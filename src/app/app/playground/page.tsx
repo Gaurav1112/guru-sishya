@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { CodePlayground, type PlaygroundLanguage } from "@/components/code-playground";
-import { Code2, Lightbulb } from "lucide-react";
+import { Code2, Lightbulb, Lock } from "lucide-react";
+import { useStore } from "@/lib/store";
+import { toast } from "sonner";
+
+const FREE_LANGUAGES: PlaygroundLanguage[] = ["javascript", "python"];
 
 // ── Algorithm templates ───────────────────────────────────────────────────────
 
@@ -558,9 +562,17 @@ export default function PlaygroundPage() {
   const [selectedTemplate, setSelectedTemplate] = useState(0);
   const [key, setKey] = useState(0); // force re-mount on template change
 
+  const { isPremium, premiumUntil } = useStore();
+  const isActivePro = isPremium && premiumUntil && new Date(premiumUntil) > new Date();
+
   const template = TEMPLATES[selectedTemplate];
 
   function handleTemplateSelect(idx: number) {
+    const lang = TEMPLATES[idx].language;
+    if (!isActivePro && !FREE_LANGUAGES.includes(lang)) {
+      toast("Upgrade to Pro for Java, C, C++, and TypeScript compilation.");
+      return;
+    }
     setSelectedTemplate(idx);
     setKey((k) => k + 1); // re-mount editor with fresh state
   }
@@ -596,7 +608,12 @@ export default function PlaygroundPage() {
                   : "text-muted-foreground hover:bg-surface-hover hover:text-foreground border border-transparent"
               }`}
             >
-              <div className="text-sm font-medium">{t.label}</div>
+              <div className="text-sm font-medium flex items-center gap-1.5">
+                {t.label}
+                {!isActivePro && !FREE_LANGUAGES.includes(t.language) && (
+                  <Lock className="size-3 text-muted-foreground/60" />
+                )}
+              </div>
               <div className="text-xs text-muted-foreground mt-0.5">{t.description}</div>
               <div className={`text-[10px] mt-1 font-mono rounded px-1 py-0.5 inline-block ${
                 t.language === "typescript"
@@ -621,6 +638,13 @@ export default function PlaygroundPage() {
           height={480}
           title={template.label}
           className="shadow-lg"
+          onLanguageGate={(lang) => {
+            if (!isActivePro && !FREE_LANGUAGES.includes(lang)) {
+              toast("Upgrade to Pro for Java, C, C++, and TypeScript compilation.");
+              return false;
+            }
+            return true;
+          }}
         />
       </div>
 
