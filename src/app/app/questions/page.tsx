@@ -807,6 +807,9 @@ export default function QuestionsPage() {
 
   const setQuestionStatus = useCallback(
     async (questionId: number, status: "known" | "review") => {
+      // Find the full question object so we can use its text for the flashcard
+      const question = allQuestions.find((q) => q.id === questionId);
+
       const existing = await db.questionBookmarks
         .where("questionId")
         .equals(questionId)
@@ -824,8 +827,38 @@ export default function QuestionsPage() {
           lastSeenAt: new Date(),
         });
       }
+
+      // Sync with flashcards table for spaced-repetition
+      if (question) {
+        const concept = `question_review::${question.question.substring(0, 100)}`;
+        const existingCard = await db.flashcards
+          .filter((f) => f.concept === concept)
+          .first();
+
+        if (status === "review") {
+          // Create a flashcard due immediately if one doesn't exist yet
+          if (!existingCard) {
+            await db.flashcards.add({
+              topicId: 0,
+              concept,
+              front: question.question,
+              back: question.answer || "Review this question",
+              easeFactor: 2.5,
+              interval: 0,
+              repetitions: 0,
+              nextReviewAt: new Date(),
+            });
+          }
+        } else if (status === "known" && existingCard) {
+          // Push the review date 30 days out — effectively mastered
+          await db.flashcards.update(existingCard.id!, {
+            interval: 30,
+            nextReviewAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          });
+        }
+      }
     },
-    []
+    [allQuestions]
   );
 
   // Slide animation variants
