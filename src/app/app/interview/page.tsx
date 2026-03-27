@@ -1970,11 +1970,12 @@ export default function InterviewPage() {
     setInterviewRewards(rewardsPayload);
 
     // Auto-feed wrong answers into the revision (flashcard) system
-    const interviewResults = results.map((r) => ({
-      question: r.question,
-      modelAnswer: r.modelAnswer,
-      userAnswer: r.userAnswer,
-      score: r.score,
+    // Ensure ALL questions are included, even unanswered ones (score = 0)
+    const interviewResults = questions.map((q, i) => ({
+      question: q.question,
+      modelAnswer: q.answer || "",
+      userAnswer: results[i]?.userAnswer || "(not answered)",
+      score: results[i]?.score ?? 0,
       topic: config?.topic ?? "",
     }));
     generateFlashcardsFromInterview(interviewResults).then((cardsCreated) => {

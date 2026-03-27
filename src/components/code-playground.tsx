@@ -28,6 +28,8 @@ interface CodePlaygroundProps {
   height?: number;
   title?: string;
   className?: string;
+  /** Optional gate callback — return false to block a language switch (e.g. pro gate) */
+  onLanguageGate?: (lang: PlaygroundLanguage) => boolean;
 }
 
 // ── JS / TS execution engine ──────────────────────────────────────────────────
@@ -148,6 +150,7 @@ export function CodePlayground({
   height = 300,
   title,
   className,
+  onLanguageGate,
 }: CodePlaygroundProps) {
   const [language, setLanguage] = useState<PlaygroundLanguage>(initialLanguage);
   const initialCode = codeByLanguage?.[initialLanguage] ?? defaultCode ?? DEFAULT_CODE[initialLanguage];
@@ -166,6 +169,8 @@ export function CodePlayground({
   useEffect(() => {
     if (codeByLanguage && codeByLanguage[language]) {
       setCode(codeByLanguage[language]!);
+    } else if (DEFAULT_CODE[language]) {
+      setCode(DEFAULT_CODE[language]);
     }
   }, [language, codeByLanguage]);
 
@@ -252,6 +257,9 @@ export function CodePlayground({
   }, [defaultCode, codeByLanguage, language]);
 
   const handleLanguageChange = useCallback((lang: PlaygroundLanguage) => {
+    // Allow parent to block the switch (e.g. pro gate)
+    if (onLanguageGate && !onLanguageGate(lang)) return;
+
     setLanguage(lang);
     if (codeByLanguage?.[lang] !== undefined) {
       setCode(codeByLanguage[lang]!);
@@ -264,7 +272,7 @@ export function CodePlayground({
     setRunnerLabel("");
     setRunStatus("");
     setExecMs(null);
-  }, [defaultCode, codeByLanguage]);
+  }, [defaultCode, codeByLanguage, onLanguageGate]);
 
   const handleCopyOutput = useCallback(() => {
     if (!output) return;
