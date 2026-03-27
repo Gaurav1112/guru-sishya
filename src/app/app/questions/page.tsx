@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { QuestionGrid } from "@/components/features/questions/question-gallery";
 import { DrumPicker } from "@/components/features/questions/drum-picker";
+import { ConstellationNavigator } from "@/components/features/questions/constellation-navigator";
 import { MiniMapStrip } from "@/components/features/questions/mini-map-strip";
 import { PremiumGate } from "@/components/premium-gate";
 import { useFeatureLimit } from "@/hooks/use-feature-limit";
@@ -602,6 +603,15 @@ export default function QuestionsPage() {
     }
     return counts;
   }, [allQuestions]);
+
+  // Build category data for ConstellationNavigator
+  const categoryData = useMemo(
+    () =>
+      getCategories()
+        .filter((cat) => cat === "All Questions" || (categoryCounts[cat] ?? 0) > 0)
+        .map((name) => ({ name, count: categoryCounts[name] ?? 0 })),
+    [categoryCounts]
+  );
 
   // Filter questions
   const filteredQuestions = useMemo(() => {
@@ -1416,18 +1426,20 @@ export default function QuestionsPage() {
             </div>
           </div>
 
-          {/* Drum picker — right side, hidden on mobile */}
-          <div className="hidden md:block w-52 shrink-0">
-            <div className="sticky top-20 relative bg-surface/80 backdrop-blur-sm border border-border/30 rounded-2xl shadow-xl overflow-hidden">
-              <DrumPicker
-                items={galleryQuestions.map(q => ({
-                  index: q.index,
-                  label: String(q.index + 1),
-                  status: q.status,
-                  bookmarked: q.bookmarked,
-                }))}
-                selectedIndex={currentIndex}
-                onSelect={(idx) => {
+          {/* Constellation navigator — right side, hidden on mobile */}
+          <div className="hidden md:block w-56 shrink-0">
+            <div className="sticky top-20">
+              <ConstellationNavigator
+                categories={categoryData}
+                activeCategory={activeCategory}
+                questions={galleryQuestions}
+                currentIndex={currentIndex}
+                onSelectCategory={(cat) => {
+                  setActiveCategory(cat as QuestionCategory);
+                  setCurrentIndex(0);
+                  setIsFlipped(false);
+                }}
+                onSelectQuestion={(idx) => {
                   setDirection(idx > currentIndex ? 1 : -1);
                   setCurrentIndex(idx);
                   setIsFlipped(false);
