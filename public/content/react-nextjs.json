@@ -132,7 +132,7 @@
           "sessionNumber": 1,
           "title": "React Fundamentals — JSX, Components, Props, State",
           "paretoJustification": "Components, props, and state are the ABC of React. Every React interview starts here. Getting these right unlocks all other topics.",
-          "content": "## Session 1: React Fundamentals\n\nReact's mental model is a function from state to UI: `UI = f(state)`. Every re-render is React calling your component function again with new state or props.\n\n### JSX\n\nJSX is syntactic sugar over `React.createElement`. The JSX transformer (Babel/SWC) converts it at build time.\n\n```tsx\n// JSX compiles to:\nconst el = <div className=\"card\">Hello</div>;\n// React.createElement('div', { className: 'card' }, 'Hello')\n\n// Expressions in JSX — use {}\nconst name = 'Alice';\nconst el2 = <h1>Hello, {name.toUpperCase()}</h1>;\n\n// Conditional rendering\nconst Card = ({ isLoading, data }: { isLoading: boolean; data?: string }) => (\n  <div>\n    {isLoading ? <Spinner /> : <p>{data}</p>}\n    {data && <Badge />}  {/* short-circuit — renders Badge only if data is truthy */}\n  </div>\n);\n\n// List rendering\nconst List = ({ items }: { items: { id: string; label: string }[] }) => (\n  <ul>\n    {items.map(item => (\n      <li key={item.id}>{item.label}</li>  // key must be unique and stable\n    ))}\n  </ul>\n);\n```\n\n### Components and Props\n\n```tsx\n// Typed props with TypeScript\ninterface ButtonProps {\n  label: string;\n  variant?: 'primary' | 'secondary' | 'danger';\n  disabled?: boolean;\n  onClick: () => void;\n  children?: React.ReactNode;\n}\n\nconst Button: React.FC<ButtonProps> = ({\n  label,\n  variant = 'primary',\n  disabled = false,\n  onClick,\n  children\n}) => (\n  <button\n    className={`btn btn-${variant}`}\n    disabled={disabled}\n    onClick={onClick}\n  >\n    {children ?? label}\n  </button>\n);\n\n// Composition over configuration\nconst Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (\n  <div className={`card ${className}`}>{children}</div>\n);\n\nconst UserCard = ({ user }: { user: User }) => (\n  <Card className=\"user-card\">\n    <h2>{user.name}</h2>\n    <p>{user.email}</p>\n    <Button label=\"Edit\" onClick={() => {}} />\n  </Card>\n);\n```\n\n### State with useState\n\n```tsx\nimport { useState } from 'react';\n\ninterface Counter {\n  count: number;\n  step: number;\n}\n\nconst CounterApp = () => {\n  const [counter, setCounter] = useState<Counter>({ count: 0, step: 1 });\n\n  const increment = () =>\n    // Always use functional update when new state depends on previous\n    setCounter(prev => ({ ...prev, count: prev.count + prev.step }));\n\n  const decrement = () =>\n    setCounter(prev => ({ ...prev, count: prev.count - prev.step }));\n\n  const setStep = (step: number) =>\n    setCounter(prev => ({ ...prev, step }));\n\n  return (\n    <div>\n      <p>Count: {counter.count} (step: {counter.step})</p>\n      <button onClick={decrement}>-</button>\n      <button onClick={increment}>+</button>\n      <input\n        type=\"number\"\n        value={counter.step}\n        onChange={e => setStep(Number(e.target.value))}\n      />\n    </div>\n  );\n};\n```\n\n### Controlled vs Uncontrolled Inputs\n\n```tsx\n// Controlled — React owns the value\nconst ControlledForm = () => {\n  const [email, setEmail] = useState('');\n  return (\n    <input\n      value={email}      // React drives the value\n      onChange={e => setEmail(e.target.value)}\n    />\n  );\n};\n\n// Uncontrolled — DOM owns the value, read via ref\nconst UncontrolledForm = () => {\n  const inputRef = useRef<HTMLInputElement>(null);\n  const handleSubmit = () => console.log(inputRef.current?.value);\n  return <input ref={inputRef} defaultValue=\"initial\" />;\n};\n```\n\n### Interview Insight\n\n\"Why shouldn't you mutate state directly?\" — React uses reference equality to detect changes. If you mutate an object in place (obj.name = 'new'), the reference is unchanged, React sees no change, and no re-render occurs. Always return new objects/arrays from state updates.",
+          "content": "## Session 1: React Fundamentals\n\n\n```mermaid\ngraph LR\n    JSX[JSX] -->|React.createElement| VD[Virtual DOM]\n    VD -->|Diffing| DIFF[Reconciliation]\n    DIFF -->|Minimal updates| DOM[Real DOM]\n    ST[State Change] -->|setState / useState| VD\n    PR[Props Change] -->|parent re-render| VD\n```\n\n\nReact's mental model is a function from state to UI: `UI = f(state)`. Every re-render is React calling your component function again with new state or props.\n\n### JSX\n\nJSX is syntactic sugar over `React.createElement`. The JSX transformer (Babel/SWC) converts it at build time.\n\n```tsx\n// JSX compiles to:\nconst el = <div className=\"card\">Hello</div>;\n// React.createElement('div', { className: 'card' }, 'Hello')\n\n// Expressions in JSX — use {}\nconst name = 'Alice';\nconst el2 = <h1>Hello, {name.toUpperCase()}</h1>;\n\n// Conditional rendering\nconst Card = ({ isLoading, data }: { isLoading: boolean; data?: string }) => (\n  <div>\n    {isLoading ? <Spinner /> : <p>{data}</p>}\n    {data && <Badge />}  {/* short-circuit — renders Badge only if data is truthy */}\n  </div>\n);\n\n// List rendering\nconst List = ({ items }: { items: { id: string; label: string }[] }) => (\n  <ul>\n    {items.map(item => (\n      <li key={item.id}>{item.label}</li>  // key must be unique and stable\n    ))}\n  </ul>\n);\n```\n\n### Components and Props\n\n```tsx\n// Typed props with TypeScript\ninterface ButtonProps {\n  label: string;\n  variant?: 'primary' | 'secondary' | 'danger';\n  disabled?: boolean;\n  onClick: () => void;\n  children?: React.ReactNode;\n}\n\nconst Button: React.FC<ButtonProps> = ({\n  label,\n  variant = 'primary',\n  disabled = false,\n  onClick,\n  children\n}) => (\n  <button\n    className={`btn btn-${variant}`}\n    disabled={disabled}\n    onClick={onClick}\n  >\n    {children ?? label}\n  </button>\n);\n\n// Composition over configuration\nconst Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (\n  <div className={`card ${className}`}>{children}</div>\n);\n\nconst UserCard = ({ user }: { user: User }) => (\n  <Card className=\"user-card\">\n    <h2>{user.name}</h2>\n    <p>{user.email}</p>\n    <Button label=\"Edit\" onClick={() => {}} />\n  </Card>\n);\n```\n\n### State with useState\n\n```tsx\nimport { useState } from 'react';\n\ninterface Counter {\n  count: number;\n  step: number;\n}\n\nconst CounterApp = () => {\n  const [counter, setCounter] = useState<Counter>({ count: 0, step: 1 });\n\n  const increment = () =>\n    // Always use functional update when new state depends on previous\n    setCounter(prev => ({ ...prev, count: prev.count + prev.step }));\n\n  const decrement = () =>\n    setCounter(prev => ({ ...prev, count: prev.count - prev.step }));\n\n  const setStep = (step: number) =>\n    setCounter(prev => ({ ...prev, step }));\n\n  return (\n    <div>\n      <p>Count: {counter.count} (step: {counter.step})</p>\n      <button onClick={decrement}>-</button>\n      <button onClick={increment}>+</button>\n      <input\n        type=\"number\"\n        value={counter.step}\n        onChange={e => setStep(Number(e.target.value))}\n      />\n    </div>\n  );\n};\n```\n\n### Controlled vs Uncontrolled Inputs\n\n```tsx\n// Controlled — React owns the value\nconst ControlledForm = () => {\n  const [email, setEmail] = useState('');\n  return (\n    <input\n      value={email}      // React drives the value\n      onChange={e => setEmail(e.target.value)}\n    />\n  );\n};\n\n// Uncontrolled — DOM owns the value, read via ref\nconst UncontrolledForm = () => {\n  const inputRef = useRef<HTMLInputElement>(null);\n  const handleSubmit = () => console.log(inputRef.current?.value);\n  return <input ref={inputRef} defaultValue=\"initial\" />;\n};\n```\n\n### Interview Insight\n\n\"Why shouldn't you mutate state directly?\" — React uses reference equality to detect changes. If you mutate an object in place (obj.name = 'new'), the reference is unchanged, React sees no change, and no re-render occurs. Always return new objects/arrays from state updates.",
           "objectives": [
             "Explain JSX and how it compiles to React.createElement",
             "Create typed function components with required and optional props",
@@ -150,8 +150,16 @@
             }
           ],
           "resources": [
-            { "title": "React Docs: Describing the UI", "type": "documentation", "url": "https://react.dev/learn/describing-the-ui" },
-            { "title": "React Docs: Adding Interactivity", "type": "documentation", "url": "https://react.dev/learn/adding-interactivity" }
+            {
+              "title": "React Docs: Describing the UI",
+              "type": "documentation",
+              "url": "https://react.dev/learn/describing-the-ui"
+            },
+            {
+              "title": "React Docs: Adding Interactivity",
+              "type": "documentation",
+              "url": "https://react.dev/learn/adding-interactivity"
+            }
           ],
           "reviewQuestions": [
             "Why does React require a key prop when rendering lists? What makes a good key?:::React uses the key to identify which items changed, were added, or were removed between renders. Without keys, React re-renders the entire list on any change. With stable, unique keys, it diffs efficiently and only updates changed items. A good key is: stable (doesn't change between renders), unique among siblings, and meaningful (the item's ID). A bad key is the array index — it causes incorrect diffs when items are reordered or inserted, potentially mixing up component state between items.",
@@ -183,8 +191,16 @@
             }
           ],
           "resources": [
-            { "title": "React Docs: useEffect", "type": "documentation", "url": "https://react.dev/reference/react/useEffect" },
-            { "title": "A Complete Guide to useEffect (Dan Abramov)", "type": "article", "url": "https://overreacted.io/a-complete-guide-to-useeffect/" }
+            {
+              "title": "React Docs: useEffect",
+              "type": "documentation",
+              "url": "https://react.dev/reference/react/useEffect"
+            },
+            {
+              "title": "A Complete Guide to useEffect (Dan Abramov)",
+              "type": "article",
+              "url": "https://overreacted.io/a-complete-guide-to-useeffect/"
+            }
           ],
           "reviewQuestions": [
             "What is a stale closure in useEffect and how do you fix it?:::A stale closure occurs when a useEffect callback captures a variable (usually state or props) at the time the effect was created, but the effect continues to run with the old value even after the variable changes. This happens when you omit that variable from the dependency array. Fixes: (1) add the variable to the deps array (correct approach), (2) use a ref via useLatestRef() pattern so the effect always reads the latest value without re-running, (3) restructure the code so the effect doesn't need the variable.",
@@ -216,8 +232,16 @@
             }
           ],
           "resources": [
-            { "title": "Zustand Documentation", "type": "documentation", "url": "https://zustand-demo.pmnd.rs/" },
-            { "title": "Redux Toolkit Documentation", "type": "documentation", "url": "https://redux-toolkit.js.org/introduction/getting-started" }
+            {
+              "title": "Zustand Documentation",
+              "type": "documentation",
+              "url": "https://zustand-demo.pmnd.rs/"
+            },
+            {
+              "title": "Redux Toolkit Documentation",
+              "type": "documentation",
+              "url": "https://redux-toolkit.js.org/introduction/getting-started"
+            }
           ],
           "reviewQuestions": [
             "When should you use Context vs Zustand vs Redux?:::Context: low-frequency updates to global values like theme, auth user, locale — values that don't change often. It's built-in (no dependency) but causes all consumers to re-render on any change. Zustand: medium-complexity client state with frequent updates (cart, UI state, filter selections) — simple API, excellent performance via selector subscriptions, great DevTools, no boilerplate. Redux Toolkit: large applications with complex async flows, multiple developers, strong need for DevTools time-travel debugging, or existing Redux codebases. Not needed for most apps in 2024.",
@@ -249,8 +273,16 @@
             }
           ],
           "resources": [
-            { "title": "React Patterns", "type": "article", "url": "https://reactpatterns.com/" },
-            { "title": "Compound Components Pattern", "type": "article", "url": "https://kentcdodds.com/blog/compound-components-with-react-hooks" }
+            {
+              "title": "React Patterns",
+              "type": "article",
+              "url": "https://reactpatterns.com/"
+            },
+            {
+              "title": "Compound Components Pattern",
+              "type": "article",
+              "url": "https://kentcdodds.com/blog/compound-components-with-react-hooks"
+            }
           ],
           "reviewQuestions": [
             "What problem do HOCs solve and why did the industry largely move away from them?:::HOCs solve cross-cutting concerns — adding shared behavior (auth, logging, analytics) to many components without modifying them. They work by wrapping a component in another. The industry moved toward hooks because HOCs have significant drawbacks: prop name collisions (two HOCs both inject a user prop), unclear prop origins (where does this prop come from?), wrapper hell in React DevTools (15 nested HOC wrappers), and TypeScript complexity. Custom hooks provide the same code reuse with none of these issues.",
@@ -264,7 +296,7 @@
           "sessionNumber": 5,
           "title": "Next.js App Router — Server Components, Client Components, Layouts, Loading/Error",
           "paretoJustification": "The App Router is the core of Next.js 14+ and is the primary differentiator from older Pages Router. Every Next.js interview covers Server Components.",
-          "content": "## Session 5: Next.js App Router\n\nThe App Router (introduced in Next.js 13, stable in 14) is a fundamental shift in how React applications are structured. React Server Components run exclusively on the server; Client Components hydrate in the browser.\n\n### File Conventions\n\n```\napp/\n  layout.tsx           — root layout: persistent shell, wraps all routes\n  page.tsx             — / route\n  loading.tsx          — automatic Suspense wrapper for this segment\n  error.tsx            — error boundary for this segment ('use client')\n  not-found.tsx        — shown when notFound() is called\n  globals.css\n  (auth)/              — route group: groups routes without affecting URL\n    login/page.tsx     — /login\n    register/page.tsx  — /register\n  dashboard/\n    layout.tsx         — nested layout for /dashboard/*\n    page.tsx           — /dashboard\n    analytics/\n      page.tsx         — /dashboard/analytics\n  products/\n    [id]/              — dynamic segment\n      page.tsx         — /products/:id\n    [...slug]/page.tsx — catch-all: /products/a/b/c\n```\n\n### Server vs Client Components\n\n```tsx\n// Server Component (default — no 'use client')\n// Can: async/await, access DB directly, keep secrets on server\n// Cannot: useState, useEffect, event handlers, browser APIs\nasync function ProductPage({ params }: { params: Promise<{ id: string }> }) {\n  const { id } = await params;\n  const product = await db.product.findUnique({ where: { id } });\n  if (!product) notFound();\n\n  return (\n    <div>\n      <h1>{product.name}</h1>\n      <p>${product.price}</p>\n      {/* Client Component for interactivity */}\n      <AddToCartButton productId={product.id} />\n    </div>\n  );\n}\n\n// Client Component — interactive leaf nodes\n'use client';\nimport { useState } from 'react';\nimport { useCartStore } from '@/store/cart';\n\nfunction AddToCartButton({ productId }: { productId: string }) {\n  const [added, setAdded] = useState(false);\n  const addItem = useCartStore(s => s.addItem);\n\n  const handleClick = async () => {\n    addItem({ id: productId });\n    setAdded(true);\n    setTimeout(() => setAdded(false), 2000);\n  };\n\n  return (\n    <button onClick={handleClick}>\n      {added ? 'Added!' : 'Add to Cart'}\n    </button>\n  );\n}\n```\n\n### Layouts and Loading\n\n```tsx\n// app/dashboard/layout.tsx — persistent across dashboard routes\nexport default function DashboardLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <div className=\"dashboard\">\n      <Sidebar />  {/* renders once, persists across navigation */}\n      <main>{children}</main>\n    </div>\n  );\n}\n\n// app/dashboard/loading.tsx — shown instantly while page.tsx is fetching\nexport default function DashboardLoading() {\n  return <DashboardSkeleton />; // skeleton UI\n}\n\n// app/dashboard/error.tsx — catches errors from page.tsx\n'use client'; // error boundaries must be Client Components\nimport { useEffect } from 'react';\n\nexport default function DashboardError({\n  error,\n  reset\n}: {\n  error: Error & { digest?: string };\n  reset: () => void;\n}) {\n  useEffect(() => {\n    console.error(error);\n  }, [error]);\n\n  return (\n    <div>\n      <h2>Something went wrong</h2>\n      <button onClick={reset}>Try again</button>\n    </div>\n  );\n}\n```\n\n### Metadata and SEO\n\n```tsx\n// Static metadata\nexport const metadata: Metadata = {\n  title: 'Dashboard | MyApp',\n  description: 'Manage your account'\n};\n\n// Dynamic metadata\nexport async function generateMetadata(\n  { params }: { params: Promise<{ id: string }> }\n): Promise<Metadata> {\n  const { id } = await params;\n  const product = await fetchProduct(id);\n  return {\n    title: product.name,\n    openGraph: { images: [{ url: product.imageUrl }] }\n  };\n}\n```",
+          "content": "## Session 5: Next.js App Router\n\n\n```mermaid\ngraph TB\n    REQ[Request] --> MW[Middleware<br/>Edge Runtime]\n    MW --> ROUTER{App Router}\n    ROUTER -->|RSC| SC[Server Component<br/>async, no JS bundle]\n    ROUTER -->|use client| CC[Client Component<br/>useState, onClick]\n    SC -->|fetch| DB[(Database / API)]\n    SC -->|stream| HTML[HTML Response]\n    CC -->|hydrate| INT[Interactive UI]\n```\n\n\nThe App Router (introduced in Next.js 13, stable in 14) is a fundamental shift in how React applications are structured. React Server Components run exclusively on the server; Client Components hydrate in the browser.\n\n### File Conventions\n\n```\napp/\n  layout.tsx           — root layout: persistent shell, wraps all routes\n  page.tsx             — / route\n  loading.tsx          — automatic Suspense wrapper for this segment\n  error.tsx            — error boundary for this segment ('use client')\n  not-found.tsx        — shown when notFound() is called\n  globals.css\n  (auth)/              — route group: groups routes without affecting URL\n    login/page.tsx     — /login\n    register/page.tsx  — /register\n  dashboard/\n    layout.tsx         — nested layout for /dashboard/*\n    page.tsx           — /dashboard\n    analytics/\n      page.tsx         — /dashboard/analytics\n  products/\n    [id]/              — dynamic segment\n      page.tsx         — /products/:id\n    [...slug]/page.tsx — catch-all: /products/a/b/c\n```\n\n### Server vs Client Components\n\n```tsx\n// Server Component (default — no 'use client')\n// Can: async/await, access DB directly, keep secrets on server\n// Cannot: useState, useEffect, event handlers, browser APIs\nasync function ProductPage({ params }: { params: Promise<{ id: string }> }) {\n  const { id } = await params;\n  const product = await db.product.findUnique({ where: { id } });\n  if (!product) notFound();\n\n  return (\n    <div>\n      <h1>{product.name}</h1>\n      <p>${product.price}</p>\n      {/* Client Component for interactivity */}\n      <AddToCartButton productId={product.id} />\n    </div>\n  );\n}\n\n// Client Component — interactive leaf nodes\n'use client';\nimport { useState } from 'react';\nimport { useCartStore } from '@/store/cart';\n\nfunction AddToCartButton({ productId }: { productId: string }) {\n  const [added, setAdded] = useState(false);\n  const addItem = useCartStore(s => s.addItem);\n\n  const handleClick = async () => {\n    addItem({ id: productId });\n    setAdded(true);\n    setTimeout(() => setAdded(false), 2000);\n  };\n\n  return (\n    <button onClick={handleClick}>\n      {added ? 'Added!' : 'Add to Cart'}\n    </button>\n  );\n}\n```\n\n### Layouts and Loading\n\n```tsx\n// app/dashboard/layout.tsx — persistent across dashboard routes\nexport default function DashboardLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <div className=\"dashboard\">\n      <Sidebar />  {/* renders once, persists across navigation */}\n      <main>{children}</main>\n    </div>\n  );\n}\n\n// app/dashboard/loading.tsx — shown instantly while page.tsx is fetching\nexport default function DashboardLoading() {\n  return <DashboardSkeleton />; // skeleton UI\n}\n\n// app/dashboard/error.tsx — catches errors from page.tsx\n'use client'; // error boundaries must be Client Components\nimport { useEffect } from 'react';\n\nexport default function DashboardError({\n  error,\n  reset\n}: {\n  error: Error & { digest?: string };\n  reset: () => void;\n}) {\n  useEffect(() => {\n    console.error(error);\n  }, [error]);\n\n  return (\n    <div>\n      <h2>Something went wrong</h2>\n      <button onClick={reset}>Try again</button>\n    </div>\n  );\n}\n```\n\n### Metadata and SEO\n\n```tsx\n// Static metadata\nexport const metadata: Metadata = {\n  title: 'Dashboard | MyApp',\n  description: 'Manage your account'\n};\n\n// Dynamic metadata\nexport async function generateMetadata(\n  { params }: { params: Promise<{ id: string }> }\n): Promise<Metadata> {\n  const { id } = await params;\n  const product = await fetchProduct(id);\n  return {\n    title: product.name,\n    openGraph: { images: [{ url: product.imageUrl }] }\n  };\n}\n```",
           "objectives": [
             "Explain the difference between Server and Client Components and the rules of each",
             "Use file conventions: layout.tsx, loading.tsx, error.tsx, not-found.tsx",
@@ -282,8 +314,16 @@
             }
           ],
           "resources": [
-            { "title": "Next.js App Router Documentation", "type": "documentation", "url": "https://nextjs.org/docs/app" },
-            { "title": "Next.js Server Components", "type": "documentation", "url": "https://nextjs.org/docs/app/building-your-application/rendering/server-components" }
+            {
+              "title": "Next.js App Router Documentation",
+              "type": "documentation",
+              "url": "https://nextjs.org/docs/app"
+            },
+            {
+              "title": "Next.js Server Components",
+              "type": "documentation",
+              "url": "https://nextjs.org/docs/app/building-your-application/rendering/server-components"
+            }
           ],
           "reviewQuestions": [
             "What can Server Components do that Client Components cannot, and vice versa?:::Server Components can: run async code (async/await at component level), access databases and file systems directly, use environment variables and secrets safely (never sent to browser), reduce bundle size (server code never ships to client). Client Components can: use React hooks (useState, useEffect, useContext), handle browser events (onClick, onChange), access browser APIs (window, localStorage, navigator), and use third-party libraries that depend on browser APIs. The boundary rule: you can import Client Components in Server Components, but not vice versa.",
@@ -315,8 +355,16 @@
             }
           ],
           "resources": [
-            { "title": "Next.js Data Fetching Docs", "type": "documentation", "url": "https://nextjs.org/docs/app/building-your-application/data-fetching" },
-            { "title": "Next.js Server Actions Docs", "type": "documentation", "url": "https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations" }
+            {
+              "title": "Next.js Data Fetching Docs",
+              "type": "documentation",
+              "url": "https://nextjs.org/docs/app/building-your-application/data-fetching"
+            },
+            {
+              "title": "Next.js Server Actions Docs",
+              "type": "documentation",
+              "url": "https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations"
+            }
           ],
           "reviewQuestions": [
             "Explain the difference between SSG, ISR, and SSR in Next.js App Router.:::SSG (Static Site Generation): pages are rendered at BUILD time using cached fetches. HTML is the same for all users and requests. Best for: marketing, documentation, unchanging content. ISR (Incremental Static Regeneration): pages are rendered at build time but revalidated in the background after N seconds (next: { revalidate: N }). First request after expiry gets stale content while a fresh version is built. Best for: product listings, blog posts, prices. SSR (Server-Side Rendering): page is rendered fresh on every request (cache: 'no-store'). Best for: personalized, real-time, or user-specific data.",
@@ -348,8 +396,16 @@
             }
           ],
           "resources": [
-            { "title": "Auth.js Documentation", "type": "documentation", "url": "https://authjs.dev/" },
-            { "title": "Next.js Middleware Documentation", "type": "documentation", "url": "https://nextjs.org/docs/app/building-your-application/routing/middleware" }
+            {
+              "title": "Auth.js Documentation",
+              "type": "documentation",
+              "url": "https://authjs.dev/"
+            },
+            {
+              "title": "Next.js Middleware Documentation",
+              "type": "documentation",
+              "url": "https://nextjs.org/docs/app/building-your-application/routing/middleware"
+            }
           ],
           "reviewQuestions": [
             "Where does Next.js middleware run and why does this matter for authentication?:::Middleware runs at the Edge — before the request reaches the Next.js server, on Vercel's distributed edge network (or as a Node.js middleware locally). This means route protection happens before any page rendering, database queries, or data fetching. It's fast (low latency), runs globally, and can redirect unauthenticated users without them ever seeing a flash of the protected page. The trade-off: Edge runtime has limitations — no native Node.js APIs, limited npm packages. Auth checks in middleware should be based on the JWT/session cookie, not database lookups.",
@@ -381,8 +437,16 @@
             }
           ],
           "resources": [
-            { "title": "Next.js Image Optimization", "type": "documentation", "url": "https://nextjs.org/docs/app/building-your-application/optimizing/images" },
-            { "title": "React useTransition", "type": "documentation", "url": "https://react.dev/reference/react/useTransition" }
+            {
+              "title": "Next.js Image Optimization",
+              "type": "documentation",
+              "url": "https://nextjs.org/docs/app/building-your-application/optimizing/images"
+            },
+            {
+              "title": "React useTransition",
+              "type": "documentation",
+              "url": "https://react.dev/reference/react/useTransition"
+            }
           ],
           "reviewQuestions": [
             "How does Suspense streaming improve perceived performance in Next.js?:::Without Suspense, a Server Component page waits for ALL data to be fetched before sending any HTML. With Suspense boundaries wrapping slow data sections, Next.js streams the page: the shell (layout, headers, placeholders) is sent immediately, and each Suspense boundary streams its content as the underlying async component resolves. The user sees the page structure instantly and watches sections fill in progressively. This improves TTFB perception and Time to Interactive — especially critical when some data is fast and some is slow.",
@@ -414,8 +478,16 @@
             }
           ],
           "resources": [
-            { "title": "React Testing Library Docs", "type": "documentation", "url": "https://testing-library.com/docs/react-testing-library/intro/" },
-            { "title": "MSW Documentation", "type": "documentation", "url": "https://mswjs.io/docs/" }
+            {
+              "title": "React Testing Library Docs",
+              "type": "documentation",
+              "url": "https://testing-library.com/docs/react-testing-library/intro/"
+            },
+            {
+              "title": "MSW Documentation",
+              "type": "documentation",
+              "url": "https://mswjs.io/docs/"
+            }
           ],
           "reviewQuestions": [
             "Why does Testing Library recommend getByRole over getByTestId?:::getByRole queries by ARIA role — the semantic role of the element as perceived by assistive technologies and the Accessibility Tree. Querying by role (button, textbox, heading) aligns with how users and screen readers interact with the UI, not how it's implemented. If you rename a CSS class or restructure the DOM but keep the same role and accessible name, the test still passes. getByTestId relies on a data-testid attribute — a test-only artifact that has no user-facing meaning and requires you to add attributes to every tested element.",
@@ -447,8 +519,16 @@
             }
           ],
           "resources": [
-            { "title": "Next.js Deployment Documentation", "type": "documentation", "url": "https://nextjs.org/docs/app/building-your-application/deploying" },
-            { "title": "Sentry for Next.js", "type": "documentation", "url": "https://docs.sentry.io/platforms/javascript/guides/nextjs/" }
+            {
+              "title": "Next.js Deployment Documentation",
+              "type": "documentation",
+              "url": "https://nextjs.org/docs/app/building-your-application/deploying"
+            },
+            {
+              "title": "Sentry for Next.js",
+              "type": "documentation",
+              "url": "https://docs.sentry.io/platforms/javascript/guides/nextjs/"
+            }
           ],
           "reviewQuestions": [
             "What is the purpose of a multi-stage Docker build for Next.js?:::Multi-stage builds produce smaller, more secure production images. Stage 1 (deps) installs all node_modules including devDependencies. Stage 2 (builder) runs next build with access to all deps. Stage 3 (runner) copies only the built output (.next/standalone, public, static) — devDependencies, source files, and build tools are NOT included. The result is a lean production image (~100-200MB vs 1GB+). The standalone output (output: 'standalone' in next.config.ts) includes a minimal Node.js server with only the required node_modules.",
@@ -550,7 +630,12 @@
         "format": "multiple_choice",
         "difficulty": 2,
         "bloomLabel": "Remember",
-        "options": ["useRef", "useState", "useCallback", "useMemo"],
+        "options": [
+          "useRef",
+          "useState",
+          "useCallback",
+          "useMemo"
+        ],
         "correctAnswer": "useCallback",
         "explanation": "useCallback(fn, deps) returns a memoized version of the function that only changes when one of the dependencies changes. This is useful for passing callbacks to child components wrapped in React.memo — without useCallback, the callback would be a new function reference on every parent render, causing the memoized child to re-render unnecessarily."
       },

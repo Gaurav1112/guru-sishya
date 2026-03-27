@@ -131,7 +131,7 @@
         {
           "sessionNumber": 1,
           "title": "OOP Fundamentals — Classes, Inheritance, Polymorphism, Interfaces",
-          "content": "Java OOP rests on four pillars: encapsulation, inheritance, polymorphism, abstraction.\n\n```java\nabstract class Shape {\n  abstract double area();\n  void print() { System.out.println(\"Area: \" + area()); }\n}\nclass Circle extends Shape {\n  double r;\n  Circle(double r) { this.r = r; }\n  double area() { return Math.PI * r * r; }\n}\ninterface Drawable { void draw(); }\nclass Square extends Shape implements Drawable {\n  double s;\n  Square(double s) { this.s = s; }\n  double area() { return s * s; }\n  public void draw() { System.out.println(\"Drawing square\"); }\n}\nShape sh = new Circle(5); // polymorphism\nsh.print(); // late binding calls Circle.area()\n```\nKey: abstract class provides partial implementation; interface defines a contract. A class can implement multiple interfaces but extend only one class.",
+          "content": "```mermaid\ngraph TB\n    OOP[OOP Pillars] --> ENC[Encapsulation<br/>private fields + getters]\n    OOP --> INH[Inheritance<br/>extends / implements]\n    OOP --> POL[Polymorphism<br/>method overriding]\n    OOP --> ABS[Abstraction<br/>abstract class / interface]\n    INH --> SC[Single Class Inheritance]\n    INH --> MI[Multiple Interface Implementation]\n```\n\nJava OOP rests on four pillars: encapsulation, inheritance, polymorphism, abstraction.\n\n```java\nabstract class Shape {\n  abstract double area();\n  void print() { System.out.println(\"Area: \" + area()); }\n}\nclass Circle extends Shape {\n  double r;\n  Circle(double r) { this.r = r; }\n  double area() { return Math.PI * r * r; }\n}\ninterface Drawable { void draw(); }\nclass Square extends Shape implements Drawable {\n  double s;\n  Square(double s) { this.s = s; }\n  double area() { return s * s; }\n  public void draw() { System.out.println(\"Drawing square\"); }\n}\nShape sh = new Circle(5); // polymorphism\nsh.print(); // late binding calls Circle.area()\n```\nKey: abstract class provides partial implementation; interface defines a contract. A class can implement multiple interfaces but extend only one class.",
           "objectives": [
             "Explain the four pillars of OOP with Java examples",
             "Distinguish abstract classes from interfaces and know when to use each",
@@ -158,7 +158,7 @@
         {
           "sessionNumber": 2,
           "title": "Collections Framework — List, Set, Map, Queue, Choosing the Right Collection",
-          "content": "Java Collections provide ready-made data structures for every need.\n\n```java\n// List: ordered, allows duplicates\nList<String> list = new ArrayList<>(); // O(1) get, O(n) insert mid\nList<String> linked = new LinkedList<>(); // O(1) insert ends, O(n) get\n\n// Set: unique elements\nSet<Integer> hashSet = new HashSet<>();   // O(1) ops, no order\nSet<Integer> treeSet = new TreeSet<>();   // O(log n), sorted\n\n// Map: key-value pairs\nMap<String,Integer> map = new HashMap<>();\nmap.put(\"a\", 1);\nmap.getOrDefault(\"b\", 0); // safe get\nmap.computeIfAbsent(\"c\", k -> k.length());\n\n// Queue / Deque\nDeque<String> deque = new ArrayDeque<>();\ndeque.offerFirst(\"front\"); deque.offerLast(\"back\");\n\n// Frequency count pattern\nMap<Character,Integer> freq = new HashMap<>();\nfor (char c : \"hello\".toCharArray())\n  freq.merge(c, 1, Integer::sum);\n```",
+          "content": "```mermaid\ngraph TB\n    IT[Iterable] --> COL[Collection]\n    COL --> LIST[List]\n    COL --> SET[Set]\n    COL --> QUEUE[Queue]\n    LIST --> AL[ArrayList<br/>O 1 get, O n insert]\n    LIST --> LL[LinkedList<br/>O n get, O 1 insert]\n    SET --> HS[HashSet<br/>O 1 add/contains]\n    SET --> TS[TreeSet<br/>O log n sorted]\n    QUEUE --> PQ[PriorityQueue<br/>O log n poll]\n    QUEUE --> DQ[ArrayDeque<br/>O 1 push/pop]\n    MAP[Map] --> HM[HashMap<br/>O 1 get/put]\n    MAP --> TM[TreeMap<br/>O log n sorted]\n    MAP --> CHM[ConcurrentHashMap<br/>Thread-safe]\n```\n\nJava Collections provide ready-made data structures for every need.\n\n```java\n// List: ordered, allows duplicates\nList<String> list = new ArrayList<>(); // O(1) get, O(n) insert mid\nList<String> linked = new LinkedList<>(); // O(1) insert ends, O(n) get\n\n// Set: unique elements\nSet<Integer> hashSet = new HashSet<>();   // O(1) ops, no order\nSet<Integer> treeSet = new TreeSet<>();   // O(log n), sorted\n\n// Map: key-value pairs\nMap<String,Integer> map = new HashMap<>();\nmap.put(\"a\", 1);\nmap.getOrDefault(\"b\", 0); // safe get\nmap.computeIfAbsent(\"c\", k -> k.length());\n\n// Queue / Deque\nDeque<String> deque = new ArrayDeque<>();\ndeque.offerFirst(\"front\"); deque.offerLast(\"back\");\n\n// Frequency count pattern\nMap<Character,Integer> freq = new HashMap<>();\nfor (char c : \"hello\".toCharArray())\n  freq.merge(c, 1, Integer::sum);\n```",
           "objectives": [
             "Choose the correct collection type for a given access pattern",
             "Explain time complexity of ArrayList vs LinkedList vs HashMap",
@@ -404,28 +404,48 @@
       {
         "id": "jc-q1",
         "question": "What is the output of: String a = \"hello\"; String b = \"hello\"; System.out.println(a == b);",
-        "options": ["true", "false", "Compilation error", "Runtime exception"],
+        "options": [
+          "true",
+          "false",
+          "Compilation error",
+          "Runtime exception"
+        ],
         "correctIndex": 0,
         "explanation": "String literals are stored in the String pool. Both 'a' and 'b' point to the same interned String object in the pool, so == (reference equality) returns true. If either were created with 'new String(\"hello\")', the result would be false since 'new' bypasses the pool and creates a new heap object."
       },
       {
         "id": "jc-q2",
         "question": "Which collection provides O(1) average-case time for get(), put(), and containsKey()?",
-        "options": ["TreeMap", "LinkedHashMap", "HashMap", "Hashtable"],
+        "options": [
+          "TreeMap",
+          "LinkedHashMap",
+          "HashMap",
+          "Hashtable"
+        ],
         "correctIndex": 2,
         "explanation": "HashMap uses hashing — computations are O(1) average for get, put, and containsKey (assuming low collision rate and good hash distribution). TreeMap is O(log n) as it uses a Red-Black tree. LinkedHashMap is also O(1) average but slightly slower due to maintaining insertion-order linked list. Hashtable is synchronized but also O(1) average — however it's legacy and slower than HashMap due to full synchronization on every operation."
       },
       {
         "id": "jc-q3",
         "question": "What happens when you call stream() operations without a terminal operation?",
-        "options": ["The pipeline executes immediately", "Nothing executes — streams are lazy", "A compilation error occurs", "An IllegalStateException is thrown"],
+        "options": [
+          "The pipeline executes immediately",
+          "Nothing executes — streams are lazy",
+          "A compilation error occurs",
+          "An IllegalStateException is thrown"
+        ],
         "correctIndex": 1,
         "explanation": "Stream intermediate operations (filter, map, sorted, etc.) are lazy — they build a pipeline description but do not execute any computation. Execution only begins when a terminal operation (collect, forEach, count, findFirst, etc.) is called. This enables short-circuiting optimizations: for example, findFirst() on a filtered stream stops processing as soon as one match is found, rather than filtering the entire collection."
       },
       {
         "id": "jc-q4",
         "question": "Which keyword ensures a field is NOT serialized when using Java object serialization?",
-        "options": ["volatile", "transient", "static", "abstract"],
+        "options": [
+          "volatile",
+          "transient",
+          "static",
+          "abstract"
+        ],
         "correctIndex": 1,
         "explanation": "The transient keyword marks a field to be excluded from Java serialization. When an object is written to an ObjectOutputStream, transient fields are skipped — they will have their default value (null for objects, 0 for numbers, false for booleans) when deserialized. Use it for sensitive data (passwords), derived/cached values, or non-serializable dependencies. Note: static fields are also not serialized (they belong to the class, not the instance), but transient is the explicit mechanism for instance fields."
       },
@@ -468,7 +488,12 @@
       {
         "id": "jc-q8",
         "question": "What is the output of: List<Integer> list = Arrays.asList(1, 2, 3); list.add(4);",
-        "options": ["[1, 2, 3, 4]", "UnsupportedOperationException", "IndexOutOfBoundsException", "NullPointerException"],
+        "options": [
+          "[1, 2, 3, 4]",
+          "UnsupportedOperationException",
+          "IndexOutOfBoundsException",
+          "NullPointerException"
+        ],
         "correctIndex": 1,
         "explanation": "Arrays.asList() returns a fixed-size List backed by the original array. You can call set() to modify existing elements, but add() and remove() throw UnsupportedOperationException because the underlying array cannot change size. To get a mutable copy, use: new ArrayList<>(Arrays.asList(1, 2, 3)) or List.of() (Java 9+, also immutable). List.copyOf() (Java 10+) creates an unmodifiable copy."
       },

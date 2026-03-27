@@ -2,7 +2,7 @@
   {
     "topic": "Spring Boot",
     "category": "Programming Languages",
-    "cheatSheet": "# Spring Boot Cheat Sheet\n\n## Annotations\n@Component, @Service, @Repository, @RestController, @Controller, @Configuration, @Bean\n\n## Dependency Injection\n@Autowired, @Qualifier, @Value, @Primary, constructor injection (preferred)\n\n## Data\nJPA, @Entity, @Id, @GeneratedValue, @Repository, @Transactional, Hibernate ORM\n\n## REST\n@GetMapping, @PostMapping, @PutMapping, @DeleteMapping, @RequestBody, @PathVariable\n\n## Security\nJWT, @PreAuthorize, @Secured, OAuth2, SecurityFilterChain\n\n## Testing\n@SpringBootTest, MockMvc, Mockito, @MockBean, @WebMvcTest\n\n## Actuator\n/actuator/health, /actuator/metrics, /actuator/info",
+    "cheatSheet": "## Spring Boot Cheat Sheet\n\n### Core Annotations\n| Annotation | Purpose |\n|------------|---------|\n| @SpringBootApplication | Main class (Config + AutoConfig + Scan) |\n| @Component | Generic bean |\n| @Service | Business logic bean |\n| @Repository | Data access bean |\n| @RestController | REST endpoints |\n| @Configuration | Java-based config class |\n| @Bean | Method-level bean definition |\n\n### Dependency Injection\n| Annotation | Purpose |\n|------------|---------|\n| @Autowired | Inject dependency (prefer constructor) |\n| @Qualifier | Disambiguate multiple beans |\n| @Value | Inject property value |\n| @Primary | Default bean when multiple candidates |\n| @Scope | singleton, prototype, request, session |\n\n### REST API\n| Annotation | HTTP Method |\n|------------|-------------|\n| @GetMapping | GET |\n| @PostMapping | POST |\n| @PutMapping | PUT |\n| @DeleteMapping | DELETE |\n| @RequestBody | Deserialize JSON body |\n| @PathVariable | Extract from URL path |\n| @RequestParam | Extract query parameter |\n\n### JPA / Data\n| Annotation | Purpose |\n|------------|---------|\n| @Entity | Maps class to DB table |\n| @Id + @GeneratedValue | Primary key |\n| @OneToMany, @ManyToOne | Relationships |\n| @Transactional | Transaction boundary |\n| JpaRepository | CRUD + paging + sorting |\n\n### Security\n- JWT: stateless auth, Bearer token\n- SecurityFilterChain: configure routes, CORS, CSRF\n- @PreAuthorize: method-level security\n- BCryptPasswordEncoder: password hashing\n\n### Testing\n| Annotation | Purpose |\n|------------|---------|\n| @SpringBootTest | Full integration test |\n| @WebMvcTest | Controller layer only |\n| @DataJpaTest | Repository layer only |\n| @MockBean | Replace bean with mock |\n\n### Actuator\n- /actuator/health, /actuator/metrics, /actuator/info, /actuator/env",
     "resources": [
       {
         "title": "Spring Boot Official Docs",
@@ -35,31 +35,61 @@
           "level": 1,
           "title": "Shishya",
           "description": "Can create a Spring Boot app, understand starters and auto-configuration basics",
-          "skills": ["@SpringBootApplication", "application.properties", "Maven/Gradle starters", "Embedded Tomcat"]
+          "skills": [
+            "@SpringBootApplication",
+            "application.properties",
+            "Maven/Gradle starters",
+            "Embedded Tomcat"
+          ]
         },
         {
           "level": 2,
           "title": "Abhyasi",
           "description": "Builds REST APIs with validation, understands DI and bean lifecycle",
-          "skills": ["@RestController", "Bean scopes", "@Autowired", "ResponseEntity", "Bean Validation"]
+          "skills": [
+            "@RestController",
+            "Bean scopes",
+            "@Autowired",
+            "ResponseEntity",
+            "Bean Validation"
+          ]
         },
         {
           "level": 3,
           "title": "Sadhaka",
           "description": "Integrates Spring Data JPA, writes custom queries, handles exceptions globally",
-          "skills": ["JPA Repositories", "@Entity", "JPQL", "@ControllerAdvice", "Spring Security basics"]
+          "skills": [
+            "JPA Repositories",
+            "@Entity",
+            "JPQL",
+            "@ControllerAdvice",
+            "Spring Security basics"
+          ]
         },
         {
           "level": 4,
           "title": "Praveen",
           "description": "Implements JWT auth, caching, microservices patterns, and writes integration tests",
-          "skills": ["JWT", "@Cacheable", "Feign Client", "@SpringBootTest", "Actuator", "Profiles"]
+          "skills": [
+            "JWT",
+            "@Cacheable",
+            "Feign Client",
+            "@SpringBootTest",
+            "Actuator",
+            "Profiles"
+          ]
         },
         {
           "level": 5,
           "title": "Maharishi",
           "description": "Designs production-grade systems: Docker, observability, circuit breakers, performance tuning",
-          "skills": ["Docker", "HikariCP", "Resilience4j", "Distributed tracing", "GraalVM native"]
+          "skills": [
+            "Docker",
+            "HikariCP",
+            "Resilience4j",
+            "Distributed tracing",
+            "GraalVM native"
+          ]
         }
       ]
     },
@@ -71,9 +101,19 @@
           "sessionNumber": 1,
           "title": "Spring Boot Basics",
           "objective": "Understand auto-configuration, starters, and application properties",
-          "keyConcepts": ["Auto-configuration", "Starters", "application.properties", "@SpringBootApplication", "Embedded server"],
-          "content": "Spring Boot eliminates boilerplate via auto-configuration: it detects classpath dependencies and configures beans automatically. @SpringBootApplication = @Configuration + @EnableAutoConfiguration + @ComponentScan. Starters bundle related dependencies (spring-boot-starter-web pulls Tomcat + Jackson + Spring MVC). Properties are set in application.properties or application.yml. The embedded Tomcat runs on port 8080 by default — override with server.port. Use @Value or @ConfigurationProperties to inject config values into beans.",
-          "activities": ["Create a Hello World app with spring initializr", "Override default port and add a custom property", "Inspect auto-configured beans with --debug flag"],
+          "keyConcepts": [
+            "Auto-configuration",
+            "Starters",
+            "application.properties",
+            "@SpringBootApplication",
+            "Embedded server"
+          ],
+          "content": "\n\n```mermaid\ngraph TB\n    SBA[@SpringBootApplication] --> CFG[@Configuration]\n    SBA --> EAC[@EnableAutoConfiguration]\n    SBA --> CS[@ComponentScan]\n    CS --> CTRL[@RestController]\n    CS --> SVC[@Service]\n    CS --> REPO[@Repository]\n    CTRL -->|calls| SVC\n    SVC -->|calls| REPO\n    REPO -->|JPA| DB[(Database)]\n    EMB[Embedded Tomcat<br/>Port 8080] --> CTRL\n```\n\nSpring Boot eliminates boilerplate via auto-configuration: it detects classpath dependencies and configures beans automatically. @SpringBootApplication = @Configuration + @EnableAutoConfiguration + @ComponentScan. Starters bundle related dependencies (spring-boot-starter-web pulls Tomcat + Jackson + Spring MVC). Properties are set in application.properties or application.yml. The embedded Tomcat runs on port 8080 by default — override with server.port. Use @Value or @ConfigurationProperties to inject config values into beans.",
+          "activities": [
+            "Create a Hello World app with spring initializr",
+            "Override default port and add a custom property",
+            "Inspect auto-configured beans with --debug flag"
+          ],
           "reviewQuestions": [
             "What does @SpringBootApplication combine?",
             "How does auto-configuration decide which beans to create?",
@@ -92,9 +132,20 @@
           "sessionNumber": 2,
           "title": "Dependency Injection & IoC",
           "objective": "Master Spring's IoC container, bean scopes, and DI patterns",
-          "keyConcepts": ["IoC Container", "@Component", "@Bean", "@Autowired", "Bean scopes", "Constructor injection"],
+          "keyConcepts": [
+            "IoC Container",
+            "@Component",
+            "@Bean",
+            "@Autowired",
+            "Bean scopes",
+            "Constructor injection"
+          ],
           "content": "Spring's IoC container manages bean lifecycle. Stereotype annotations: @Component (generic), @Service (business logic), @Repository (data layer — adds exception translation), @RestController (web). @Bean declares beans in @Configuration classes. Constructor injection is preferred over @Autowired field injection — it enables immutability and easier testing. Bean scopes: singleton (default, one per container), prototype (new instance each time), request/session (web only). Use @Qualifier to resolve ambiguity when multiple beans match.",
-          "activities": ["Refactor field injection to constructor injection", "Create a prototype-scoped bean and verify new instances", "Use @Qualifier to select between two implementations"],
+          "activities": [
+            "Refactor field injection to constructor injection",
+            "Create a prototype-scoped bean and verify new instances",
+            "Use @Qualifier to select between two implementations"
+          ],
           "reviewQuestions": [
             "Why is constructor injection preferred over field injection?",
             "What is the default bean scope in Spring?",
@@ -113,9 +164,20 @@
           "sessionNumber": 3,
           "title": "REST APIs",
           "objective": "Build robust REST APIs with validation, proper status codes, and error responses",
-          "keyConcepts": ["@RestController", "@RequestMapping", "ResponseEntity", "Bean Validation", "@PathVariable", "@RequestBody"],
-          "content": "REST controllers use @RestController (= @Controller + @ResponseBody). Map HTTP methods with @GetMapping, @PostMapping, @PutMapping, @DeleteMapping. @PathVariable extracts URI segments; @RequestParam extracts query params; @RequestBody deserializes JSON. Return ResponseEntity<T> for full control over status codes and headers. Bean Validation: annotate DTOs with @NotNull, @NotBlank, @Min, @Email and add @Valid on @RequestBody. Validation errors throw MethodArgumentNotValidException — handle globally with @ControllerAdvice.",
-          "activities": ["Build a CRUD REST API for a resource", "Add @Valid to a POST endpoint and test with invalid payload", "Return 201 Created with Location header on resource creation"],
+          "keyConcepts": [
+            "@RestController",
+            "@RequestMapping",
+            "ResponseEntity",
+            "Bean Validation",
+            "@PathVariable",
+            "@RequestBody"
+          ],
+          "content": "\n\n```mermaid\ngraph LR\n    CL[Client] -->|HTTP Request| FLT[Filter Chain<br/>Security, CORS]\n    FLT --> DS[DispatcherServlet]\n    DS --> CTRL[@RestController]\n    CTRL -->|@RequestBody| SVC[@Service<br/>Business Logic]\n    SVC --> REPO[@Repository]\n    REPO --> DB[(Database)]\n    CTRL -->|@ResponseBody| CL\n```\n\nREST controllers use @RestController (= @Controller + @ResponseBody). Map HTTP methods with @GetMapping, @PostMapping, @PutMapping, @DeleteMapping. @PathVariable extracts URI segments; @RequestParam extracts query params; @RequestBody deserializes JSON. Return ResponseEntity<T> for full control over status codes and headers. Bean Validation: annotate DTOs with @NotNull, @NotBlank, @Min, @Email and add @Valid on @RequestBody. Validation errors throw MethodArgumentNotValidException — handle globally with @ControllerAdvice.",
+          "activities": [
+            "Build a CRUD REST API for a resource",
+            "Add @Valid to a POST endpoint and test with invalid payload",
+            "Return 201 Created with Location header on resource creation"
+          ],
           "reviewQuestions": [
             "What is the difference between @Controller and @RestController?",
             "How do you return a 404 status from a REST controller?",
@@ -134,9 +196,20 @@
           "sessionNumber": 4,
           "title": "Spring Data JPA",
           "objective": "Persist entities using JPA repositories, understand relationships and query methods",
-          "keyConcepts": ["@Entity", "JpaRepository", "JPQL", "@Transactional", "Relationships", "Pagination"],
+          "keyConcepts": [
+            "@Entity",
+            "JpaRepository",
+            "JPQL",
+            "@Transactional",
+            "Relationships",
+            "Pagination"
+          ],
           "content": "Spring Data JPA wraps Hibernate. Annotate POJOs with @Entity and @Id. Extend JpaRepository<T, ID> to get CRUD + pagination for free. Derive queries from method names: findByEmailAndActive, findByAgeGreaterThan. Write JPQL with @Query for complex queries. @Transactional on service methods ensures atomicity — Spring creates a proxy that manages transactions. Relationships: @OneToMany, @ManyToOne, @ManyToMany with FetchType.LAZY (default). Use Pageable for pagination and avoid N+1 with JOIN FETCH or @EntityGraph.",
-          "activities": ["Create an @Entity with a @OneToMany relationship", "Write a derived query and a @Query JPQL query", "Paginate results using Pageable"],
+          "activities": [
+            "Create an @Entity with a @OneToMany relationship",
+            "Write a derived query and a @Query JPQL query",
+            "Paginate results using Pageable"
+          ],
           "reviewQuestions": [
             "What is the N+1 query problem and how do you solve it?",
             "What does @Transactional do and where should it be placed?",
@@ -155,9 +228,20 @@
           "sessionNumber": 5,
           "title": "Spring Security",
           "objective": "Implement authentication and authorization using JWT and OAuth2",
-          "keyConcepts": ["SecurityFilterChain", "JWT", "@PreAuthorize", "OAuth2", "UserDetailsService", "Password encoding"],
+          "keyConcepts": [
+            "SecurityFilterChain",
+            "JWT",
+            "@PreAuthorize",
+            "OAuth2",
+            "UserDetailsService",
+            "Password encoding"
+          ],
           "content": "Spring Security uses a filter chain to intercept requests. Configure via SecurityFilterChain bean. For JWT: validate the token in an OncePerRequestFilter, extract claims, set Authentication in SecurityContextHolder. UserDetailsService loads user data for authentication. Passwords must be encoded with BCryptPasswordEncoder — never store plaintext. Method security: enable with @EnableMethodSecurity, then use @PreAuthorize(\"hasRole('ADMIN')\") on service methods. OAuth2 login is configured via spring.security.oauth2.client properties.",
-          "activities": ["Implement JWT authentication filter", "Secure endpoints with role-based access", "Hash a password with BCrypt and verify"],
+          "activities": [
+            "Implement JWT authentication filter",
+            "Secure endpoints with role-based access",
+            "Hash a password with BCrypt and verify"
+          ],
           "reviewQuestions": [
             "How does JWT authentication work in Spring Security?",
             "What is the difference between authentication and authorization?",
@@ -176,9 +260,20 @@
           "sessionNumber": 6,
           "title": "Microservices",
           "objective": "Build microservices with service discovery, config server, and API gateway",
-          "keyConcepts": ["Eureka", "Spring Cloud Config", "API Gateway", "Feign Client", "Load Balancing", "Circuit Breaker"],
+          "keyConcepts": [
+            "Eureka",
+            "Spring Cloud Config",
+            "API Gateway",
+            "Feign Client",
+            "Load Balancing",
+            "Circuit Breaker"
+          ],
           "content": "Microservices split monoliths into independently deployable services. Eureka Server provides service registry — each service registers itself and discovers others by name. Spring Cloud Config Server centralizes configuration in a Git repo. Spring Cloud Gateway routes requests, handles auth, rate limiting, and cross-cutting concerns. Feign Client simplifies HTTP calls between services using declarative interfaces. Resilience4j provides circuit breakers to stop cascading failures. @LoadBalanced RestTemplate or WebClient distributes requests across instances.",
-          "activities": ["Set up Eureka Server and register two services", "Create a Feign Client to call another microservice", "Add a circuit breaker with Resilience4j fallback"],
+          "activities": [
+            "Set up Eureka Server and register two services",
+            "Create a Feign Client to call another microservice",
+            "Add a circuit breaker with Resilience4j fallback"
+          ],
           "reviewQuestions": [
             "What problem does a service registry solve?",
             "What is a circuit breaker and when does it open?",
@@ -197,9 +292,20 @@
           "sessionNumber": 7,
           "title": "Testing",
           "objective": "Write unit, slice, and integration tests using JUnit 5, Mockito, and MockMvc",
-          "keyConcepts": ["@SpringBootTest", "@WebMvcTest", "MockMvc", "@MockBean", "Mockito", "Testcontainers"],
+          "keyConcepts": [
+            "@SpringBootTest",
+            "@WebMvcTest",
+            "MockMvc",
+            "@MockBean",
+            "Mockito",
+            "Testcontainers"
+          ],
           "content": "Spring Boot testing pyramid: unit tests (plain JUnit 5 + Mockito, fast), slice tests (test a layer in isolation), integration tests (full context). @WebMvcTest loads only the web layer — pair with @MockBean for services. MockMvc performs HTTP requests without a running server. @SpringBootTest loads the full context and is slower — use for integration tests. @DataJpaTest loads only JPA components with an in-memory H2 DB. Mockito: when().thenReturn() stubs, verify() checks invocations. Testcontainers spins up real databases in Docker for integration tests.",
-          "activities": ["Write a @WebMvcTest for a controller", "Mock a service using @MockBean", "Write a @DataJpaTest for a repository query"],
+          "activities": [
+            "Write a @WebMvcTest for a controller",
+            "Mock a service using @MockBean",
+            "Write a @DataJpaTest for a repository query"
+          ],
           "reviewQuestions": [
             "What is the difference between @SpringBootTest and @WebMvcTest?",
             "What is @MockBean and how does it differ from Mockito.mock()?",
@@ -218,9 +324,20 @@
           "sessionNumber": 8,
           "title": "Caching & Performance",
           "objective": "Add caching with @Cacheable, configure Redis, and tune HikariCP connection pool",
-          "keyConcepts": ["@Cacheable", "@CacheEvict", "Redis", "HikariCP", "Connection pooling", "@EnableCaching"],
+          "keyConcepts": [
+            "@Cacheable",
+            "@CacheEvict",
+            "Redis",
+            "HikariCP",
+            "Connection pooling",
+            "@EnableCaching"
+          ],
           "content": "Enable caching with @EnableCaching and annotate methods with @Cacheable(\"users\") — Spring intercepts the call and returns cached results on subsequent calls with the same key. @CacheEvict clears stale cache entries on updates or deletes. Default cache is ConcurrentHashMap (in-memory). For distributed caching, use Redis via spring-boot-starter-data-redis. HikariCP is Spring Boot's default connection pool — tune with spring.datasource.hikari.maximum-pool-size (default 10). Key metrics: pool wait time, active connections. Too-large pools cause contention; too-small pools cause queuing.",
-          "activities": ["Add @Cacheable to a service method and verify caching", "Evict cache on update with @CacheEvict", "Configure Redis as cache manager in application.properties"],
+          "activities": [
+            "Add @Cacheable to a service method and verify caching",
+            "Evict cache on update with @CacheEvict",
+            "Configure Redis as cache manager in application.properties"
+          ],
           "reviewQuestions": [
             "What does @Cacheable do and what is its default key?",
             "When should you use Redis over in-memory caching?",
@@ -239,9 +356,20 @@
           "sessionNumber": 9,
           "title": "Error Handling, Actuator & Logging",
           "objective": "Handle exceptions globally, monitor with Actuator, and configure structured logging",
-          "keyConcepts": ["@ControllerAdvice", "@ExceptionHandler", "Actuator", "Micrometer", "Logback", "MDC"],
+          "keyConcepts": [
+            "@ControllerAdvice",
+            "@ExceptionHandler",
+            "Actuator",
+            "Micrometer",
+            "Logback",
+            "MDC"
+          ],
           "content": "Centralize error handling with @ControllerAdvice + @ExceptionHandler — catches exceptions across all controllers and returns consistent error responses. Spring Boot Actuator exposes /actuator/health, /actuator/metrics, /actuator/info and integrates with Prometheus/Grafana via Micrometer. Secure actuator endpoints by exposing only needed ones. Logback is the default logging framework — configure via logback-spring.xml. Use SLF4J (Logger = LoggerFactory.getLogger(Class)) not System.out.println. MDC (Mapped Diagnostic Context) adds request-scoped fields (user ID, request ID) to all log lines automatically.",
-          "activities": ["Create a @ControllerAdvice that returns RFC 7807 problem details", "Expose /actuator/health and /actuator/metrics via properties", "Add MDC request ID to all log lines via a filter"],
+          "activities": [
+            "Create a @ControllerAdvice that returns RFC 7807 problem details",
+            "Expose /actuator/health and /actuator/metrics via properties",
+            "Add MDC request ID to all log lines via a filter"
+          ],
           "reviewQuestions": [
             "How does @ControllerAdvice differ from try-catch in controllers?",
             "What is Micrometer and how does it relate to Actuator?",
@@ -260,9 +388,20 @@
           "sessionNumber": 10,
           "title": "Production: Docker, Profiles & Health Checks",
           "objective": "Package and deploy Spring Boot apps with Docker, use profiles for environments, and configure health checks",
-          "keyConcepts": ["Docker", "Profiles", "@Profile", "Health indicators", "Graceful shutdown", "Layered JARs"],
+          "keyConcepts": [
+            "Docker",
+            "Profiles",
+            "@Profile",
+            "Health indicators",
+            "Graceful shutdown",
+            "Layered JARs"
+          ],
           "content": "Spring Profiles separate config per environment — application-dev.properties, application-prod.properties. Activate via spring.profiles.active=prod or SPRING_PROFILES_ACTIVE env var. Use @Profile(\"dev\") on beans that should only exist in certain environments. Dockerize with a layered JAR Dockerfile for efficient layer caching. Set JAVA_OPTS for JVM memory tuning (-Xms256m -Xmx512m). Enable graceful shutdown with spring.lifecycle.timeout-per-shutdown-phase=30s. Actuator /health is your Docker HEALTHCHECK endpoint. In K8s: /actuator/health/liveness and /actuator/health/readiness are separate probes.",
-          "activities": ["Create a multi-stage Dockerfile with layered JAR", "Define dev and prod profiles with different DB configs", "Configure K8s liveness and readiness probes using Actuator"],
+          "activities": [
+            "Create a multi-stage Dockerfile with layered JAR",
+            "Define dev and prod profiles with different DB configs",
+            "Configure K8s liveness and readiness probes using Actuator"
+          ],
           "reviewQuestions": [
             "What are Spring Profiles and why are they useful?",
             "What is the benefit of a layered JAR in Docker?",

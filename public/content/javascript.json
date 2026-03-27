@@ -150,8 +150,16 @@
             }
           ],
           "resources": [
-            { "title": "YDKJS: Scope & Closures", "type": "book", "url": "https://github.com/getify/You-Dont-Know-JS/blob/2nd-ed/scope-closures/README.md" },
-            { "title": "MDN: Closures", "type": "article", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures" }
+            {
+              "title": "YDKJS: Scope & Closures",
+              "type": "book",
+              "url": "https://github.com/getify/You-Dont-Know-JS/blob/2nd-ed/scope-closures/README.md"
+            },
+            {
+              "title": "MDN: Closures",
+              "type": "article",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures"
+            }
           ],
           "reviewQuestions": [
             "What is the Temporal Dead Zone and which declarations does it apply to?:::The TDZ is the period between the start of a block scope and the line where a let or const variable is declared. During this period, the variable exists in the scope (it has been hoisted) but has not been initialized, so accessing it throws a ReferenceError. var does not have a TDZ — it is hoisted and initialized to undefined immediately. The TDZ exists to prevent the confusing behavior of accessing a variable before it is meaningfully defined.",
@@ -165,7 +173,7 @@
           "sessionNumber": 2,
           "title": "Prototypes & Classes — Prototype Chain, ES6 Classes, this Keyword",
           "paretoJustification": "Prototype chain and this binding are among the most common JS interview topics. Classes are used everywhere in modern codebases.",
-          "content": "## Session 2: Prototypes & Classes\n\nJavaScript's object system is prototype-based. ES6 classes are syntactic sugar over this system — understanding both layers is essential for interviews and debugging.\n\n### The Prototype Chain\n\nEvery JavaScript object has an internal `[[Prototype]]` link to another object (or null). When you access a property, JS looks for it on the object itself first, then walks up the chain.\n\n```javascript\nconst animal = {\n  breathe() { return `${this.name} breathes`; }\n};\n\nconst dog = Object.create(animal);\ndog.name = 'Rex';\ndog.bark = function() { return 'Woof!'; };\n\nconsole.log(dog.bark());     // 'Woof!' — own property\nconsole.log(dog.breathe());  // 'Rex breathes' — found on prototype\nconsole.log(Object.getPrototypeOf(dog) === animal); // true\n\n// Check own vs inherited\nconsole.log(dog.hasOwnProperty('bark'));    // true\nconsole.log(dog.hasOwnProperty('breathe')); // false\n```\n\n### Constructor Functions (pre-ES6)\n\n```javascript\nfunction Vehicle(make, model) {\n  this.make = make;\n  this.model = model;\n}\n\nVehicle.prototype.toString = function() {\n  return `${this.make} ${this.model}`;\n};\n\nfunction Car(make, model, doors) {\n  Vehicle.call(this, make, model); // borrow constructor\n  this.doors = doors;\n}\n\nCar.prototype = Object.create(Vehicle.prototype);\nCar.prototype.constructor = Car;\n\nCar.prototype.describe = function() {\n  return `${this.toString()} (${this.doors} doors)`;\n};\n\nconst civic = new Car('Honda', 'Civic', 4);\nconsole.log(civic.describe());       // 'Honda Civic (4 doors)'\nconsole.log(civic instanceof Car);   // true\nconsole.log(civic instanceof Vehicle); // true\n```\n\n### ES6 Classes\n\n```javascript\nclass Vehicle {\n  #vin; // private field (ES2022)\n\n  constructor(make, model) {\n    this.make = make;\n    this.model = model;\n    this.#vin = Math.random().toString(36).slice(2).toUpperCase();\n  }\n\n  toString() { return `${this.make} ${this.model}`; }\n  getVin() { return this.#vin; }\n\n  static compare(a, b) { return a.make.localeCompare(b.make); }\n}\n\nclass Car extends Vehicle {\n  constructor(make, model, doors) {\n    super(make, model); // must call before using 'this'\n    this.doors = doors;\n  }\n\n  describe() { return `${super.toString()} (${this.doors} doors)`; }\n}\n\nconst tesla = new Car('Tesla', 'Model 3', 4);\nconsole.log(tesla.describe());     // 'Tesla Model 3 (4 doors)'\nconsole.log(tesla.getVin());       // private field accessible via method\n// tesla.#vin — SyntaxError outside the class\n```\n\n```typescript\n// TypeScript class with access modifiers and generics\nabstract class Repository<T extends { id: string }> {\n  protected items: Map<string, T> = new Map();\n\n  add(item: T): void { this.items.set(item.id, item); }\n  findById(id: string): T | undefined { return this.items.get(id); }\n  abstract findAll(): T[];\n}\n\ninterface User { id: string; name: string; email: string; }\n\nclass UserRepository extends Repository<User> {\n  findAll(): User[] { return Array.from(this.items.values()); }\n  findByEmail(email: string): User | undefined {\n    return this.findAll().find(u => u.email === email);\n  }\n}\n```\n\n### The this Keyword — Four Binding Rules\n\n1. **Default**: `this` is `undefined` in strict mode, `globalThis` in sloppy mode.\n2. **Implicit**: when called as a method, `this` is the object before the dot.\n3. **Explicit**: `call(thisArg, ...args)`, `apply(thisArg, argsArray)`, `bind(thisArg)` set `this`.\n4. **new**: when used with `new`, `this` is the newly created object.\n\n```javascript\nconst user = {\n  name: 'Alice',\n  greet() { return `Hello, I am ${this.name}`; },\n  greetArrow: () => `Hello, I am ${this.name}` // arrow: no own 'this'\n};\n\nconsole.log(user.greet());        // 'Hello, I am Alice' — implicit\n\nconst fn = user.greet;\n// console.log(fn()); // undefined (strict) or global.name (sloppy)\n\nconsole.log(fn.call({ name: 'Bob' })); // 'Hello, I am Bob' — explicit\n\nconsole.log(user.greetArrow());   // 'Hello, I am undefined' — arrow uses outer this\n\nclass Timer {\n  count = 0;\n  start() {\n    // Arrow function: 'this' is lexically bound to the Timer instance\n    setInterval(() => { this.count++; console.log(this.count); }, 1000);\n  }\n}\n```\n\n### Interview Insight\n\n\"What does the `new` keyword do step by step?\" — (1) Creates a plain new object. (2) Sets its `[[Prototype]]` to the constructor's `.prototype`. (3) Executes the constructor with `this` bound to the new object. (4) Returns the new object (unless the constructor explicitly returns a different object).",
+          "content": "## Session 2: Prototypes & Classes\n\n\n```mermaid\ngraph BT\n    obj[myObj] -->|__proto__| P[Person.prototype<br/>greet, toString]\n    P -->|__proto__| OP[Object.prototype<br/>hasOwnProperty, valueOf]\n    OP -->|__proto__| N[null]\n    C[Person Constructor] -->|.prototype| P\n```\n\n\nJavaScript's object system is prototype-based. ES6 classes are syntactic sugar over this system — understanding both layers is essential for interviews and debugging.\n\n### The Prototype Chain\n\nEvery JavaScript object has an internal `[[Prototype]]` link to another object (or null). When you access a property, JS looks for it on the object itself first, then walks up the chain.\n\n```javascript\nconst animal = {\n  breathe() { return `${this.name} breathes`; }\n};\n\nconst dog = Object.create(animal);\ndog.name = 'Rex';\ndog.bark = function() { return 'Woof!'; };\n\nconsole.log(dog.bark());     // 'Woof!' — own property\nconsole.log(dog.breathe());  // 'Rex breathes' — found on prototype\nconsole.log(Object.getPrototypeOf(dog) === animal); // true\n\n// Check own vs inherited\nconsole.log(dog.hasOwnProperty('bark'));    // true\nconsole.log(dog.hasOwnProperty('breathe')); // false\n```\n\n### Constructor Functions (pre-ES6)\n\n```javascript\nfunction Vehicle(make, model) {\n  this.make = make;\n  this.model = model;\n}\n\nVehicle.prototype.toString = function() {\n  return `${this.make} ${this.model}`;\n};\n\nfunction Car(make, model, doors) {\n  Vehicle.call(this, make, model); // borrow constructor\n  this.doors = doors;\n}\n\nCar.prototype = Object.create(Vehicle.prototype);\nCar.prototype.constructor = Car;\n\nCar.prototype.describe = function() {\n  return `${this.toString()} (${this.doors} doors)`;\n};\n\nconst civic = new Car('Honda', 'Civic', 4);\nconsole.log(civic.describe());       // 'Honda Civic (4 doors)'\nconsole.log(civic instanceof Car);   // true\nconsole.log(civic instanceof Vehicle); // true\n```\n\n### ES6 Classes\n\n```javascript\nclass Vehicle {\n  #vin; // private field (ES2022)\n\n  constructor(make, model) {\n    this.make = make;\n    this.model = model;\n    this.#vin = Math.random().toString(36).slice(2).toUpperCase();\n  }\n\n  toString() { return `${this.make} ${this.model}`; }\n  getVin() { return this.#vin; }\n\n  static compare(a, b) { return a.make.localeCompare(b.make); }\n}\n\nclass Car extends Vehicle {\n  constructor(make, model, doors) {\n    super(make, model); // must call before using 'this'\n    this.doors = doors;\n  }\n\n  describe() { return `${super.toString()} (${this.doors} doors)`; }\n}\n\nconst tesla = new Car('Tesla', 'Model 3', 4);\nconsole.log(tesla.describe());     // 'Tesla Model 3 (4 doors)'\nconsole.log(tesla.getVin());       // private field accessible via method\n// tesla.#vin — SyntaxError outside the class\n```\n\n```typescript\n// TypeScript class with access modifiers and generics\nabstract class Repository<T extends { id: string }> {\n  protected items: Map<string, T> = new Map();\n\n  add(item: T): void { this.items.set(item.id, item); }\n  findById(id: string): T | undefined { return this.items.get(id); }\n  abstract findAll(): T[];\n}\n\ninterface User { id: string; name: string; email: string; }\n\nclass UserRepository extends Repository<User> {\n  findAll(): User[] { return Array.from(this.items.values()); }\n  findByEmail(email: string): User | undefined {\n    return this.findAll().find(u => u.email === email);\n  }\n}\n```\n\n### The this Keyword — Four Binding Rules\n\n1. **Default**: `this` is `undefined` in strict mode, `globalThis` in sloppy mode.\n2. **Implicit**: when called as a method, `this` is the object before the dot.\n3. **Explicit**: `call(thisArg, ...args)`, `apply(thisArg, argsArray)`, `bind(thisArg)` set `this`.\n4. **new**: when used with `new`, `this` is the newly created object.\n\n```javascript\nconst user = {\n  name: 'Alice',\n  greet() { return `Hello, I am ${this.name}`; },\n  greetArrow: () => `Hello, I am ${this.name}` // arrow: no own 'this'\n};\n\nconsole.log(user.greet());        // 'Hello, I am Alice' — implicit\n\nconst fn = user.greet;\n// console.log(fn()); // undefined (strict) or global.name (sloppy)\n\nconsole.log(fn.call({ name: 'Bob' })); // 'Hello, I am Bob' — explicit\n\nconsole.log(user.greetArrow());   // 'Hello, I am undefined' — arrow uses outer this\n\nclass Timer {\n  count = 0;\n  start() {\n    // Arrow function: 'this' is lexically bound to the Timer instance\n    setInterval(() => { this.count++; console.log(this.count); }, 1000);\n  }\n}\n```\n\n### Interview Insight\n\n\"What does the `new` keyword do step by step?\" — (1) Creates a plain new object. (2) Sets its `[[Prototype]]` to the constructor's `.prototype`. (3) Executes the constructor with `this` bound to the new object. (4) Returns the new object (unless the constructor explicitly returns a different object).",
           "objectives": [
             "Explain the prototype chain and how property lookup works",
             "Implement inheritance using both constructor functions and ES6 classes",
@@ -183,8 +191,16 @@
             }
           ],
           "resources": [
-            { "title": "YDKJS: this & Object Prototypes", "type": "book", "url": "https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/this%20%26%20object%20prototypes/README.md" },
-            { "title": "MDN: Inheritance and the prototype chain", "type": "article", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain" }
+            {
+              "title": "YDKJS: this & Object Prototypes",
+              "type": "book",
+              "url": "https://github.com/getify/You-Dont-Know-JS/blob/1st-ed/this%20%26%20object%20prototypes/README.md"
+            },
+            {
+              "title": "MDN: Inheritance and the prototype chain",
+              "type": "article",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain"
+            }
           ],
           "reviewQuestions": [
             "How does property lookup work via the prototype chain?:::When you access a property on an object, JavaScript first checks the object's own properties. If not found, it follows the internal [[Prototype]] link to the next object and checks there. This continues up the chain until the property is found or null is reached (end of chain), at which point undefined is returned. Methods like hasOwnProperty check only own properties, while the in operator checks the entire chain.",
@@ -198,7 +214,7 @@
           "sessionNumber": 3,
           "title": "Async JavaScript — Callbacks, Promises, async/await, Event Loop",
           "paretoJustification": "Async JS is tested in nearly every frontend/fullstack interview. The event loop question appears constantly at senior levels.",
-          "content": "## Session 3: Async JavaScript\n\nJavaScript is single-threaded. Asynchronous operations rely on the event loop, Web APIs, and a queue system to avoid blocking the main thread.\n\n### The Event Loop Architecture\n\n```\n┌─────────────────────────────────────────────────┐\n│                  Call Stack                     │\n│  main() → fetchData() → processResponse() ...  │\n└──────────────────┬──────────────────────────────┘\n                   │ (when empty, event loop picks next)\n┌──────────────────▼──────────────────────────────┐\n│            Microtask Queue                      │\n│  Promise.then, queueMicrotask, MutationObserver │\n│  (ALL drained before next macrotask)            │\n└──────────────────┬──────────────────────────────┘\n┌──────────────────▼──────────────────────────────┐\n│             Task Queue (Macrotasks)             │\n│  setTimeout, setInterval, I/O, UI events        │\n└─────────────────────────────────────────────────┘\n```\n\n```javascript\n// Classic event loop question — predict the output order\nconsole.log('1');                          // sync\n\nsetTimeout(() => console.log('2'), 0);    // macrotask\n\nPromise.resolve().then(() => {\n  console.log('3');                        // microtask\n  Promise.resolve().then(() => console.log('4')); // nested microtask\n});\n\nconsole.log('5');                          // sync\n\n// Output: 1, 5, 3, 4, 2\n// Explanation: sync first (1, 5), then ALL microtasks (3, 4), then macrotask (2)\n```\n\n### Callbacks and Callback Hell\n\n```javascript\n// Callback pattern — leads to pyramid of doom\ngetUser(userId, (err, user) => {\n  if (err) return handleError(err);\n  getOrders(user.id, (err, orders) => {\n    if (err) return handleError(err);\n    getOrderDetails(orders[0].id, (err, details) => {\n      if (err) return handleError(err);\n      render(user, orders, details); // deeply nested\n    });\n  });\n});\n```\n\n### Promises\n\n```javascript\n// Promise creation\nfunction delay(ms) {\n  return new Promise((resolve, reject) => {\n    if (ms < 0) reject(new Error('Negative delay'));\n    setTimeout(resolve, ms);\n  });\n}\n\n// Chaining — flat, readable\nfetchUser(userId)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchDetails(orders[0].id))\n  .then(details => render(details))\n  .catch(err => console.error('Pipeline failed:', err))\n  .finally(() => hideSpinner());\n\n// Promise combinators\nPromise.all([fetchA(), fetchB(), fetchC()])  // all succeed or first failure\n  .then(([a, b, c]) => process(a, b, c));\n\nPromise.allSettled([fetchA(), fetchB()])     // wait for all, get all outcomes\n  .then(results => results.forEach(r => {\n    if (r.status === 'fulfilled') use(r.value);\n    else logError(r.reason);\n  }));\n\nPromise.race([fetchPrimary(), fetchFallback()]) // first to settle wins\n  .then(result => display(result));\n\nPromise.any([fetchA(), fetchB(), fetchC()])  // first success (ignores failures)\n  .then(first => display(first));\n```\n\n### async/await\n\n```javascript\n// Sequential vs parallel execution\nasync function sequential() {\n  const a = await fetchA(); // wait for A\n  const b = await fetchB(); // wait for B after A completes\n  return [a, b]; // total time: timeA + timeB\n}\n\nasync function parallel() {\n  const [a, b] = await Promise.all([fetchA(), fetchB()]);\n  return [a, b]; // total time: max(timeA, timeB)\n}\n\n// Error handling with async/await\nasync function loadUserData(userId: string) {\n  try {\n    const user = await fetchUser(userId);\n    const [profile, settings] = await Promise.all([\n      fetchProfile(user.id),\n      fetchSettings(user.id)\n    ]);\n    return { user, profile, settings };\n  } catch (error) {\n    if (error instanceof NetworkError) {\n      return loadFromCache(userId); // fallback\n    }\n    throw error; // re-throw unknown errors\n  }\n}\n```\n\n```typescript\n// TypeScript: typed async with AbortController\nasync function fetchWithTimeout<T>(\n  url: string,\n  options: RequestInit = {},\n  timeoutMs = 5000\n): Promise<T> {\n  const controller = new AbortController();\n  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);\n\n  try {\n    const response = await fetch(url, {\n      ...options,\n      signal: controller.signal\n    });\n    if (!response.ok) {\n      throw new Error(`HTTP ${response.status}: ${response.statusText}`);\n    }\n    return response.json() as Promise<T>;\n  } finally {\n    clearTimeout(timeoutId);\n  }\n}\n\n// Usage\ninterface UserData { id: string; name: string; }\nconst user = await fetchWithTimeout<UserData>('/api/user/1', {}, 3000);\n```\n\n### Interview Insight\n\nThe most common async interview question: \"What is the output of this code?\" followed by a mix of sync code, setTimeout, and Promise.resolve(). Always trace: (1) run all synchronous code first, (2) drain all microtasks (Promises), (3) run next macrotask (setTimeout), repeat.",
+          "content": "## Session 3: Async JavaScript\n\n\n```mermaid\ngraph TB\n    CS[Call Stack<br/>LIFO] -->|empty?| EL[Event Loop]\n    EL -->|check| MQ[Microtask Queue<br/>Promise.then, queueMicrotask]\n    EL -->|then check| TQ[Task Queue<br/>setTimeout, I/O, DOM events]\n    MQ -->|dequeue| CS\n    TQ -->|dequeue| CS\n    WA[Web APIs<br/>setTimeout, fetch, DOM] -->|callback ready| TQ\n    WA -->|promise resolved| MQ\n```\n\n\nJavaScript is single-threaded. Asynchronous operations rely on the event loop, Web APIs, and a queue system to avoid blocking the main thread.\n\n### The Event Loop Architecture\n\n```\n┌─────────────────────────────────────────────────┐\n│                  Call Stack                     │\n│  main() → fetchData() → processResponse() ...  │\n└──────────────────┬──────────────────────────────┘\n                   │ (when empty, event loop picks next)\n┌──────────────────▼──────────────────────────────┐\n│            Microtask Queue                      │\n│  Promise.then, queueMicrotask, MutationObserver │\n│  (ALL drained before next macrotask)            │\n└──────────────────┬──────────────────────────────┘\n┌──────────────────▼──────────────────────────────┐\n│             Task Queue (Macrotasks)             │\n│  setTimeout, setInterval, I/O, UI events        │\n└─────────────────────────────────────────────────┘\n```\n\n```javascript\n// Classic event loop question — predict the output order\nconsole.log('1');                          // sync\n\nsetTimeout(() => console.log('2'), 0);    // macrotask\n\nPromise.resolve().then(() => {\n  console.log('3');                        // microtask\n  Promise.resolve().then(() => console.log('4')); // nested microtask\n});\n\nconsole.log('5');                          // sync\n\n// Output: 1, 5, 3, 4, 2\n// Explanation: sync first (1, 5), then ALL microtasks (3, 4), then macrotask (2)\n```\n\n### Callbacks and Callback Hell\n\n```javascript\n// Callback pattern — leads to pyramid of doom\ngetUser(userId, (err, user) => {\n  if (err) return handleError(err);\n  getOrders(user.id, (err, orders) => {\n    if (err) return handleError(err);\n    getOrderDetails(orders[0].id, (err, details) => {\n      if (err) return handleError(err);\n      render(user, orders, details); // deeply nested\n    });\n  });\n});\n```\n\n### Promises\n\n```javascript\n// Promise creation\nfunction delay(ms) {\n  return new Promise((resolve, reject) => {\n    if (ms < 0) reject(new Error('Negative delay'));\n    setTimeout(resolve, ms);\n  });\n}\n\n// Chaining — flat, readable\nfetchUser(userId)\n  .then(user => fetchOrders(user.id))\n  .then(orders => fetchDetails(orders[0].id))\n  .then(details => render(details))\n  .catch(err => console.error('Pipeline failed:', err))\n  .finally(() => hideSpinner());\n\n// Promise combinators\nPromise.all([fetchA(), fetchB(), fetchC()])  // all succeed or first failure\n  .then(([a, b, c]) => process(a, b, c));\n\nPromise.allSettled([fetchA(), fetchB()])     // wait for all, get all outcomes\n  .then(results => results.forEach(r => {\n    if (r.status === 'fulfilled') use(r.value);\n    else logError(r.reason);\n  }));\n\nPromise.race([fetchPrimary(), fetchFallback()]) // first to settle wins\n  .then(result => display(result));\n\nPromise.any([fetchA(), fetchB(), fetchC()])  // first success (ignores failures)\n  .then(first => display(first));\n```\n\n### async/await\n\n```javascript\n// Sequential vs parallel execution\nasync function sequential() {\n  const a = await fetchA(); // wait for A\n  const b = await fetchB(); // wait for B after A completes\n  return [a, b]; // total time: timeA + timeB\n}\n\nasync function parallel() {\n  const [a, b] = await Promise.all([fetchA(), fetchB()]);\n  return [a, b]; // total time: max(timeA, timeB)\n}\n\n// Error handling with async/await\nasync function loadUserData(userId: string) {\n  try {\n    const user = await fetchUser(userId);\n    const [profile, settings] = await Promise.all([\n      fetchProfile(user.id),\n      fetchSettings(user.id)\n    ]);\n    return { user, profile, settings };\n  } catch (error) {\n    if (error instanceof NetworkError) {\n      return loadFromCache(userId); // fallback\n    }\n    throw error; // re-throw unknown errors\n  }\n}\n```\n\n```typescript\n// TypeScript: typed async with AbortController\nasync function fetchWithTimeout<T>(\n  url: string,\n  options: RequestInit = {},\n  timeoutMs = 5000\n): Promise<T> {\n  const controller = new AbortController();\n  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);\n\n  try {\n    const response = await fetch(url, {\n      ...options,\n      signal: controller.signal\n    });\n    if (!response.ok) {\n      throw new Error(`HTTP ${response.status}: ${response.statusText}`);\n    }\n    return response.json() as Promise<T>;\n  } finally {\n    clearTimeout(timeoutId);\n  }\n}\n\n// Usage\ninterface UserData { id: string; name: string; }\nconst user = await fetchWithTimeout<UserData>('/api/user/1', {}, 3000);\n```\n\n### Interview Insight\n\nThe most common async interview question: \"What is the output of this code?\" followed by a mix of sync code, setTimeout, and Promise.resolve(). Always trace: (1) run all synchronous code first, (2) drain all microtasks (Promises), (3) run next macrotask (setTimeout), repeat.",
           "objectives": [
             "Trace the execution order of sync code, microtasks, and macrotasks",
             "Convert callback-based code to Promises and then to async/await",
@@ -216,8 +232,16 @@
             }
           ],
           "resources": [
-            { "title": "MDN: Using Promises", "type": "article", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises" },
-            { "title": "Jake Archibald: Tasks, Microtasks, Queues and Schedules", "type": "article", "url": "https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/" }
+            {
+              "title": "MDN: Using Promises",
+              "type": "article",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises"
+            },
+            {
+              "title": "Jake Archibald: Tasks, Microtasks, Queues and Schedules",
+              "type": "article",
+              "url": "https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/"
+            }
           ],
           "reviewQuestions": [
             "What is the difference between a microtask and a macrotask? Give examples of each.:::Macrotasks (tasks) are scheduled by: setTimeout, setInterval, setImmediate, I/O callbacks, UI rendering, and script loading. Only ONE macrotask runs per event loop iteration. Microtasks are scheduled by: Promise.then/catch/finally, queueMicrotask, MutationObserver, and async/await (which desugars to Promise chains). After each macrotask, the engine drains the ENTIRE microtask queue before picking the next macrotask. This means nested microtasks (a .then inside a .then) all run before any setTimeout callback.",
@@ -249,8 +273,16 @@
             }
           ],
           "resources": [
-            { "title": "TypeScript Handbook", "type": "documentation", "url": "https://www.typescriptlang.org/docs/handbook/intro.html" },
-            { "title": "TypeScript Deep Dive", "type": "book", "url": "https://basarat.gitbook.io/typescript/" }
+            {
+              "title": "TypeScript Handbook",
+              "type": "documentation",
+              "url": "https://www.typescriptlang.org/docs/handbook/intro.html"
+            },
+            {
+              "title": "TypeScript Deep Dive",
+              "type": "book",
+              "url": "https://basarat.gitbook.io/typescript/"
+            }
           ],
           "reviewQuestions": [
             "What is the difference between type and interface in TypeScript? When would you choose one over the other?:::Both define shapes for objects, but they differ in capability: interfaces support declaration merging (you can re-declare the same interface to add properties — useful for extending library types), while type aliases do not. Type aliases support unions, intersections, tuple types, conditional types, and mapped types — things interfaces cannot express. Convention: use interface for public API shapes and class contracts; use type for unions, tuples, utility compositions, and anything that isn't an object literal type.",
@@ -282,8 +314,16 @@
             }
           ],
           "resources": [
-            { "title": "MDN: Event reference", "type": "documentation", "url": "https://developer.mozilla.org/en-US/docs/Web/Events" },
-            { "title": "MDN: Using Web Workers", "type": "article", "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers" }
+            {
+              "title": "MDN: Event reference",
+              "type": "documentation",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/Events"
+            },
+            {
+              "title": "MDN: Using Web Workers",
+              "type": "article",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers"
+            }
           ],
           "reviewQuestions": [
             "What is event delegation and why is it preferred over attaching listeners to each element?:::Event delegation uses bubbling to attach one listener on a parent element instead of individual listeners on each child. When a child is clicked, the event bubbles up to the parent handler, which uses event.target to determine which child was clicked. Benefits: (1) fewer listeners means less memory, (2) dynamically added children are automatically handled without re-attaching listeners, (3) simpler cleanup — remove one listener instead of many.",
@@ -315,8 +355,16 @@
             }
           ],
           "resources": [
-            { "title": "MDN: Proxy", "type": "documentation", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy" },
-            { "title": "MDN: Map", "type": "documentation", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" }
+            {
+              "title": "MDN: Proxy",
+              "type": "documentation",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy"
+            },
+            {
+              "title": "MDN: Map",
+              "type": "documentation",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map"
+            }
           ],
           "reviewQuestions": [
             "When should you use a Map instead of a plain object?:::Use Map when: (1) keys are not strings/symbols — Map accepts any value as a key including objects, functions, and numbers; (2) you need insertion-order iteration guaranteed; (3) you need O(1) size via .size (object requires Object.keys(obj).length); (4) keys are dynamically generated and might conflict with Object prototype properties (e.g., 'constructor', 'toString'). Use plain objects for: static, string-keyed configurations and when JSON serialization is needed (Map does not serialize to JSON by default).",
@@ -348,8 +396,16 @@
             }
           ],
           "resources": [
-            { "title": "MDN: Error", "type": "documentation", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" },
-            { "title": "Chrome DevTools Documentation", "type": "documentation", "url": "https://developer.chrome.com/docs/devtools/" }
+            {
+              "title": "MDN: Error",
+              "type": "documentation",
+              "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error"
+            },
+            {
+              "title": "Chrome DevTools Documentation",
+              "type": "documentation",
+              "url": "https://developer.chrome.com/docs/devtools/"
+            }
           ],
           "reviewQuestions": [
             "What is the difference between throw, re-throw, and wrapping an error?:::throw creates and raises a new error, starting a new error chain. Re-throw (catch(e) { throw e; }) propagates the original error unchanged — the original stack trace is preserved. Wrapping creates a new error that includes the original as a cause: throw new AppError('context', { cause: originalError }). Re-throw when you cannot handle the error at this level. Wrap when you need to add context (HTTP status, error code) but preserve the original for debugging. Never swallow errors silently in catch blocks.",
@@ -381,8 +437,16 @@
             }
           ],
           "resources": [
-            { "title": "Node.js ESM documentation", "type": "documentation", "url": "https://nodejs.org/api/esm.html" },
-            { "title": "Vite Guide", "type": "documentation", "url": "https://vitejs.dev/guide/" }
+            {
+              "title": "Node.js ESM documentation",
+              "type": "documentation",
+              "url": "https://nodejs.org/api/esm.html"
+            },
+            {
+              "title": "Vite Guide",
+              "type": "documentation",
+              "url": "https://vitejs.dev/guide/"
+            }
           ],
           "reviewQuestions": [
             "Why does tree shaking require ESM and not CommonJS?:::Tree shaking statically analyzes which exports are imported and eliminates unused ones from the bundle. This is only possible with ESM because imports and exports are statically declared — the bundler knows at parse time exactly what is imported and from where. CommonJS uses require() which is a runtime function call that can be inside if statements, loops, or dynamic expressions — the bundler cannot safely determine which exports are actually used without executing the code.",
@@ -414,8 +478,16 @@
             }
           ],
           "resources": [
-            { "title": "Jest Documentation", "type": "documentation", "url": "https://jestjs.io/docs/getting-started" },
-            { "title": "Testing Library Docs", "type": "documentation", "url": "https://testing-library.com/docs/" }
+            {
+              "title": "Jest Documentation",
+              "type": "documentation",
+              "url": "https://jestjs.io/docs/getting-started"
+            },
+            {
+              "title": "Testing Library Docs",
+              "type": "documentation",
+              "url": "https://testing-library.com/docs/"
+            }
           ],
           "reviewQuestions": [
             "What is the difference between jest.fn(), jest.mock(), and jest.spyOn()?:::jest.fn() creates a standalone mock function with no implementation — you define behavior via .mockReturnValue(), .mockResolvedValue(), etc. jest.mock('module') replaces an entire module with auto-mocked or factory-defined versions — affects all imports of that module in the test file. jest.spyOn(object, 'method') wraps an existing method with a spy while preserving (or optionally replacing) the original implementation — useful for verifying calls to real objects. Always restore spies with .mockRestore() in afterEach.",
@@ -447,8 +519,16 @@
             }
           ],
           "resources": [
-            { "title": "web.dev: Core Web Vitals", "type": "article", "url": "https://web.dev/vitals/" },
-            { "title": "Chrome DevTools: Memory", "type": "documentation", "url": "https://developer.chrome.com/docs/devtools/memory-problems/" }
+            {
+              "title": "web.dev: Core Web Vitals",
+              "type": "article",
+              "url": "https://web.dev/vitals/"
+            },
+            {
+              "title": "Chrome DevTools: Memory",
+              "type": "documentation",
+              "url": "https://developer.chrome.com/docs/devtools/memory-problems/"
+            }
           ],
           "reviewQuestions": [
             "What is the difference between debounce and throttle? When would you use each?:::Debounce delays execution until N milliseconds have passed since the LAST call — it resets the timer on every call. Use it when you only care about the final state after activity stops: search input (wait for typing to pause), window resize (update layout after resizing ends), form validation (validate after user finishes typing). Throttle ensures a function runs at most once per N milliseconds regardless of call rate. Use it when you want regular updates during continuous activity: scroll position tracking, mousemove, progress reporting, rate-limiting API calls.",
@@ -466,7 +546,12 @@
         "format": "multiple_choice",
         "difficulty": 1,
         "bloomLabel": "Remember",
-        "options": ["'null'", "'undefined'", "'object'", "'boolean'"],
+        "options": [
+          "'null'",
+          "'undefined'",
+          "'object'",
+          "'boolean'"
+        ],
         "correctAnswer": "'object'",
         "explanation": "typeof null returns 'object' — this is a well-known JavaScript bug that has been preserved for backwards compatibility since JS 1.0. null is a primitive value, but typeof reports it as 'object'. Always use === null to check for null, never typeof."
       },
@@ -475,7 +560,12 @@
         "format": "multiple_choice",
         "difficulty": 2,
         "bloomLabel": "Understand",
-        "options": ["true", "false", "NaN", "TypeError"],
+        "options": [
+          "true",
+          "false",
+          "NaN",
+          "TypeError"
+        ],
         "correctAnswer": "false",
         "explanation": "JavaScript uses IEEE 754 floating-point arithmetic. 0.1 + 0.2 evaluates to 0.30000000000000004, not exactly 0.3. Use Math.abs(a - b) < Number.EPSILON for floating-point comparisons, or multiply to integers before comparing."
       },
@@ -526,7 +616,12 @@
         "format": "multiple_choice",
         "difficulty": 3,
         "bloomLabel": "Analyze",
-        "options": ["A, B, C, D", "A, D, B, C", "A, D, C, B", "A, C, D, B"],
+        "options": [
+          "A, B, C, D",
+          "A, D, B, C",
+          "A, D, C, B",
+          "A, C, D, B"
+        ],
         "correctAnswer": "A, D, C, B",
         "explanation": "Execution order: (1) Synchronous code runs first: A, D. (2) Microtask queue drains: C (Promise.resolve().then is a microtask). (3) Macrotask queue: B (setTimeout, even with 0ms delay, is a macrotask). The microtask queue is always fully drained before the next macrotask."
       },
@@ -535,7 +630,12 @@
         "format": "multiple_choice",
         "difficulty": 2,
         "bloomLabel": "Remember",
-        "options": ["undefined", "null", "0", "TypeError"],
+        "options": [
+          "undefined",
+          "null",
+          "0",
+          "TypeError"
+        ],
         "correctAnswer": "TypeError",
         "explanation": "Calling reduce() on an empty array without an initial value throws TypeError: Reduce of empty array with no initial value. Always provide an initial value when the input array might be empty: arr.reduce((acc, val) => ..., initialValue)."
       },
@@ -553,7 +653,12 @@
         "format": "multiple_choice",
         "difficulty": 1,
         "bloomLabel": "Remember",
-        "options": ["Required<T>", "Partial<T>", "Readonly<T>", "Pick<T, K>"],
+        "options": [
+          "Required<T>",
+          "Partial<T>",
+          "Readonly<T>",
+          "Pick<T, K>"
+        ],
         "correctAnswer": "Partial<T>",
         "explanation": "Partial<T> constructs a type with all properties of T set to optional. It is equivalent to { [K in keyof T]?: T[K] }. Required<T> does the opposite. Readonly<T> makes all properties readonly. Pick<T, K> selects a subset of properties."
       },

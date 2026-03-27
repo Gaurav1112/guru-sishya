@@ -407,6 +407,230 @@
       "Start with brute force, then optimize using the right pattern",
       "Know the time/space complexity of every pattern you use",
       "Practice until patterns become instinctive — you should recognize them in under 30 seconds"
-    ]
+    ],
+    "quiz": {
+      "questions": [
+        {
+          "question": "When should you use the Two Pointers pattern?",
+          "options": [
+            "When searching in a rotated array",
+            "When working with sorted arrays or linked lists to find pairs",
+            "When you need to process elements in FIFO order",
+            "When finding the shortest path in a graph"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Two Pointers is ideal for sorted arrays/linked lists where you need to find pairs or subarrays meeting certain conditions. By moving pointers inward from both ends (or using slow/fast), you avoid O(n^2) brute force."
+        },
+        {
+          "question": "What is the key difference between Sliding Window and Two Pointers?",
+          "options": [
+            "Sliding Window works on graphs, Two Pointers on arrays",
+            "Sliding Window maintains a contiguous subarray/substring, Two Pointers can skip elements",
+            "They are exactly the same pattern",
+            "Two Pointers is always faster"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Sliding Window specifically maintains a contiguous window (subarray or substring) and expands/shrinks it. Two Pointers is more general and can skip elements, often used with sorted data."
+        },
+        {
+          "question": "In Binary Search, when should you search the LEFT half?",
+          "options": [
+            "When the target is greater than mid",
+            "When the target is less than mid",
+            "When the array is unsorted",
+            "When you need the maximum element"
+          ],
+          "correctAnswer": 1,
+          "explanation": "In standard binary search on a sorted array, if target < arr[mid], the target must be in the left half [low, mid-1]. This halves the search space each iteration for O(log n)."
+        },
+        {
+          "question": "BFS guarantees the shortest path in which type of graph?",
+          "options": [
+            "Weighted directed graphs",
+            "Unweighted graphs",
+            "Negative-weight graphs",
+            "All types of graphs"
+          ],
+          "correctAnswer": 1,
+          "explanation": "BFS explores nodes level by level, so the first time it reaches a node is via the shortest path (fewest edges). This only holds for unweighted graphs. For weighted graphs, use Dijkstra's."
+        },
+        {
+          "question": "What data structure does DFS primarily use?",
+          "options": [
+            "Queue",
+            "Stack (or recursion call stack)",
+            "Heap",
+            "Hash Map"
+          ],
+          "correctAnswer": 1,
+          "explanation": "DFS uses a stack — either explicitly or via the recursion call stack. It goes as deep as possible before backtracking, making it ideal for exploring all paths, detecting cycles, and topological sorting."
+        },
+        {
+          "question": "What are the two properties required for Dynamic Programming to apply?",
+          "options": [
+            "Greedy choice and sorting",
+            "Optimal substructure and overlapping subproblems",
+            "Divide and conquer and merge",
+            "Binary search and two pointers"
+          ],
+          "correctAnswer": 1,
+          "explanation": "DP requires: (1) Optimal Substructure — optimal solution is built from optimal sub-solutions, and (2) Overlapping Subproblems — same subproblems are solved multiple times. Memoization or tabulation avoids redundant computation."
+        },
+        {
+          "question": "When does a Greedy algorithm fail to find the optimal solution?",
+          "options": [
+            "Never — greedy always finds the optimal solution",
+            "When the problem has the greedy choice property",
+            "When locally optimal choices don't lead to globally optimal solution",
+            "When the input is sorted"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Greedy fails when local optima don't compose into a global optimum. Classic example: coin change with denominations [1, 3, 4] and target 6 — greedy picks 4+1+1=3 coins, but optimal is 3+3=2 coins."
+        },
+        {
+          "question": "What is the time complexity of building a heap from an array?",
+          "options": [
+            "O(n log n)",
+            "O(n)",
+            "O(n^2)",
+            "O(log n)"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Building a heap via bottom-up heapify is O(n), not O(n log n). While each sift-down is O(log n), most nodes are near the bottom and sift down very little. The mathematical sum converges to O(n)."
+        },
+        {
+          "question": "What is the primary use case for Union-Find (Disjoint Set Union)?",
+          "options": [
+            "Finding shortest paths",
+            "Detecting connected components and cycles in undirected graphs",
+            "Sorting elements",
+            "Binary search on graphs"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Union-Find efficiently tracks connected components. Union merges two sets, Find determines which set an element belongs to. With path compression and union by rank, both operations are nearly O(1) amortized."
+        },
+        {
+          "question": "A Trie is most efficient for which operation?",
+          "options": [
+            "Finding the median element",
+            "Prefix-based string searching and autocomplete",
+            "Sorting integers",
+            "Finding shortest paths"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A Trie (prefix tree) stores strings character by character, making prefix searches O(m) where m is prefix length — independent of the number of stored strings. Ideal for autocomplete, spell check, and IP routing."
+        },
+        {
+          "question": "Topological Sort is only valid for which type of graph?",
+          "options": [
+            "Undirected cyclic graphs",
+            "Directed Acyclic Graphs (DAGs)",
+            "Weighted undirected graphs",
+            "Any graph with cycles"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Topological sort produces a linear ordering where for every edge u->v, u comes before v. This is only possible in DAGs — a cycle means no valid ordering exists. Used for task scheduling, build systems, and course prerequisites."
+        },
+        {
+          "question": "What does n & (n-1) do in bit manipulation?",
+          "options": [
+            "Doubles n",
+            "Clears the lowest set bit of n",
+            "Sets all bits to 1",
+            "Reverses all bits"
+          ],
+          "correctAnswer": 1,
+          "explanation": "n & (n-1) removes the rightmost set bit. For example, 12 (1100) & 11 (1011) = 8 (1000). This is used to count set bits (Brian Kernighan's algorithm) and check if n is a power of 2 (result is 0)."
+        },
+        {
+          "question": "What is the Prefix Sum pattern used for?",
+          "options": [
+            "Sorting arrays efficiently",
+            "Answering range sum queries in O(1) after O(n) preprocessing",
+            "Finding the maximum element",
+            "Binary search on unsorted arrays"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Prefix sum builds an array where prefix[i] = sum of elements from index 0 to i. Then sum(i,j) = prefix[j] - prefix[i-1] in O(1). Essential for range queries, subarray sums, and 2D matrix region sums."
+        },
+        {
+          "question": "How do you detect a cycle in a linked list?",
+          "options": [
+            "Sort the list and check for duplicates",
+            "Use Floyd's slow/fast pointer — fast moves 2 steps, slow moves 1",
+            "Convert to array and binary search",
+            "Use BFS from the head"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Floyd's Cycle Detection: slow pointer moves 1 step, fast moves 2 steps. If there's a cycle, they will meet. To find the cycle start, reset one pointer to head and move both at speed 1 — they meet at the cycle entry."
+        },
+        {
+          "question": "What is the time complexity of finding the Lowest Common Ancestor (LCA) in a BST?",
+          "options": [
+            "O(n^2)",
+            "O(n) worst case, O(log n) if balanced",
+            "O(1)",
+            "O(n log n)"
+          ],
+          "correctAnswer": 1,
+          "explanation": "In a BST, LCA of nodes p and q: if both < current, go left; if both > current, go right; otherwise current is the LCA. This is O(h) where h is height — O(log n) for balanced BST, O(n) worst case for skewed."
+        },
+        {
+          "question": "Dijkstra's algorithm fails when the graph has:",
+          "options": [
+            "Positive weights",
+            "Unweighted edges",
+            "Negative edge weights",
+            "Self-loops"
+          ],
+          "correctAnswer": 2,
+          "explanation": "Dijkstra's assumes relaxing a node finalizes its shortest distance. Negative edges violate this — a longer path through a negative edge could be shorter. Use Bellman-Ford for graphs with negative weights."
+        },
+        {
+          "question": "In the Interval pattern, how do you detect if two intervals [a,b] and [c,d] overlap?",
+          "options": [
+            "a == c",
+            "a < d AND c < b",
+            "b < c",
+            "a > d"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Two intervals overlap when a < d AND c < b (or equivalently, NOT (b <= c OR d <= a)). This condition covers all overlap cases: partial overlap, one containing the other, and identical intervals."
+        },
+        {
+          "question": "What is the optimal approach for searching in a sorted matrix where each row and column is sorted?",
+          "options": [
+            "Binary search on every row — O(n log m)",
+            "Start from top-right corner, go left if too large, down if too small — O(n+m)",
+            "BFS from top-left",
+            "Sort the entire matrix first"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Starting from the top-right (or bottom-left) corner, you can eliminate one row or column per comparison. Going left decreases value, going down increases it. This gives O(n+m) time for an n x m matrix."
+        },
+        {
+          "question": "What is the Monotonic Stack pattern primarily used for?",
+          "options": [
+            "Sorting elements in O(n)",
+            "Finding the next greater/smaller element for each position",
+            "Implementing a queue with two stacks",
+            "Counting inversions"
+          ],
+          "correctAnswer": 1,
+          "explanation": "A Monotonic Stack maintains elements in increasing or decreasing order. As you process each element, you pop elements that violate the monotonic property, finding the next greater/smaller element in O(n) total time."
+        },
+        {
+          "question": "In Backtracking, what is the key difference from brute force?",
+          "options": [
+            "Backtracking is always slower",
+            "Backtracking prunes invalid paths early instead of exploring all possibilities",
+            "Backtracking only works on sorted data",
+            "There is no difference"
+          ],
+          "correctAnswer": 1,
+          "explanation": "Backtracking explores candidates incrementally and abandons ('backtracks') a path as soon as it determines it cannot lead to a valid solution. This pruning can dramatically reduce the search space compared to brute force."
+        }
+      ]
+    }
   }
 ]
