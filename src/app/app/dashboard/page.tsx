@@ -390,10 +390,10 @@ export default function DashboardPage() {
 
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <span>
-            <strong className="text-foreground">56</strong> topics ready
+            <strong className="text-foreground">53</strong> topics ready
           </span>
           <span>
-            <strong className="text-foreground">710+</strong> quiz questions
+            <strong className="text-foreground">1290+</strong> quiz questions
           </span>
           <span>
             <strong className="text-foreground">{topicCount ?? 0}</strong>{" "}
@@ -496,7 +496,7 @@ export default function DashboardPage() {
             href="/app/topics"
             className="text-sm text-saffron hover:underline"
           >
-            Browse all 56 topics →
+            Browse all 53 topics →
           </Link>
         </div>
         <p className="text-sm text-muted-foreground mb-4">

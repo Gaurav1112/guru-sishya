@@ -27,7 +27,7 @@ const features = [
   {
     title: "Quiz Me Till I Break",
     description:
-      "1400+ pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
+      "1290+ pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
     icon: "🧠",
   },
   {
@@ -127,7 +127,7 @@ export function Features() {
     <>
       <section id="features" className="px-6 py-20">
         <h2 className="mb-4 text-center font-heading text-3xl font-bold">
-          53 Interview Topics &amp; 1290+ Curated Questions
+          65 Interview Topics &amp; 1400+ Curated Questions
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
           Everything you need to go from beginner to interview-ready. All content
