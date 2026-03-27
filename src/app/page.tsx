@@ -9,6 +9,8 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { Pricing } from "@/components/landing/pricing";
 import { Testimonials } from "@/components/landing/testimonials";
 import { FAQ } from "@/components/landing/faq";
+import { EmailCapture } from "@/components/landing/email-capture";
+import { ExitIntent } from "@/components/landing/exit-intent";
 import { Button } from "@/components/ui/button";
 
 // ── ScrollReveal — fade-in + slide-up when section enters viewport ─────────────
@@ -244,6 +246,7 @@ export default function LandingPage() {
         <FinalCTA />
       </ScrollReveal>
       </main>
+      <ExitIntent />
       <footer className="border-t border-border/50 py-12 px-6">
         <div className="mx-auto max-w-5xl">
           {/* Footer grid with organized link sections */}

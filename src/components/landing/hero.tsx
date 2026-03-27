@@ -3,6 +3,7 @@ import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { EmailCapture } from "./email-capture";
 
 const TRUST_BADGES = [
   "No credit card required",
@@ -181,6 +182,19 @@ export function Hero() {
               View Roadmap
             </Button>
           </Link>
+        </motion.div>
+
+        {/* Email capture — below main CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.15, duration: 0.5 }}
+          className="mt-6 flex flex-col items-center gap-1.5"
+        >
+          <p className="text-xs text-muted-foreground/70 mb-1">
+            Or get our free DSA Cheatsheet PDF &mdash; no signup needed
+          </p>
+          <EmailCapture />
         </motion.div>
 
         {/* FAANG company badges — staggered slide from bottom */}
