@@ -1027,9 +1027,16 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
   const currentRound = hasRounds ? rounds[currentRoundIndex] : null;
   const isBossRound = currentRound?.isBoss ?? false;
 
-  // Auto-scroll
+  // Auto-scroll within chat container only (not the whole page)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messagesEndRef.current;
+    if (!el) return;
+    const container = el.closest("[data-chat-scroll]");
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    } else {
+      el.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
   }, [messages, isThinking]);
 
   // Timer
@@ -1397,7 +1404,7 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
       : 0;
 
   return (
-    <div className="flex flex-col min-h-0 h-[calc(100dvh-7rem)] sm:h-[calc(100dvh-8rem)] max-h-[800px]">
+    <div className="flex flex-col min-h-0 h-[calc(100dvh-7rem)] sm:h-[calc(100dvh-8rem)]">
       {/* Interview header */}
       <div className="shrink-0 flex items-center gap-4 rounded-t-xl border border-b-0 border-border/50 bg-surface px-4 py-3">
         {/* Interviewer avatar */}
@@ -1477,7 +1484,7 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
       </AnimatePresence>
 
       {/* Chat area */}
-      <div className={`flex-1 overflow-y-auto border border-t-0 border-b-0 border-border/50 bg-background/50 p-4 space-y-4 transition-all duration-500 ${
+      <div data-chat-scroll className={`flex-1 overflow-y-auto overscroll-contain border border-t-0 border-b-0 border-border/50 bg-background/50 p-4 space-y-4 transition-all duration-500 ${
         isBossRound ? "ring-2 ring-red-500/30 shadow-lg shadow-red-500/10" : ""
       }`}>
         <AnimatePresence mode="popLayout">
