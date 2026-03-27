@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
-import { motion, useMotionValue, animate, PanInfo } from "framer-motion";
+import { useRef, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 interface DrumItem {
@@ -18,188 +17,141 @@ interface DrumPickerProps {
   className?: string;
 }
 
-const ITEM_HEIGHT = 44;
-const VISIBLE_COUNT = 7;
-const HALF = Math.floor(VISIBLE_COUNT / 2);
-
-const STATUS_COLORS = {
-  unseen: { bg: "bg-muted/30", text: "text-muted-foreground" },
-  known: { bg: "bg-teal/15", text: "text-teal" },
-  review: { bg: "bg-gold/15", text: "text-gold" },
-};
+const ITEM_HEIGHT = 48;
+const VISIBLE_COUNT = 9;
 
 export function DrumPicker({ items, selectedIndex, onSelect, className }: DrumPickerProps) {
-  const scrollY = useMotionValue(-selectedIndex * ITEM_HEIGHT);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [internalIndex, setInternalIndex] = useState(selectedIndex);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isScrollingRef = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sync external selectedIndex
+  // Stats
+  const knownCount = useMemo(() => items.filter(i => i.status === "known").length, [items]);
+  const reviewCount = useMemo(() => items.filter(i => i.status === "review").length, [items]);
+
+  // Scroll to selected index when it changes externally
   useEffect(() => {
-    animate(scrollY, -selectedIndex * ITEM_HEIGHT, {
-      type: "spring",
-      stiffness: 300,
-      damping: 30,
-    });
-    setInternalIndex(selectedIndex);
-  }, [selectedIndex, scrollY]);
+    if (isScrollingRef.current) return;
+    const container = scrollRef.current;
+    if (!container) return;
 
-  // Get the currently "snapped" index from a y value
-  const getSnappedIndex = useCallback((y: number) => {
-    const idx = Math.round(-y / ITEM_HEIGHT);
-    return Math.max(0, Math.min(items.length - 1, idx));
-  }, [items.length]);
+    const targetScroll = selectedIndex * ITEM_HEIGHT;
+    container.scrollTo({ top: targetScroll, behavior: "smooth" });
+  }, [selectedIndex]);
 
-  // Handle drag (pan)
-  const handlePan = useCallback((_: PointerEvent, info: PanInfo) => {
-    const current = scrollY.get();
-    scrollY.set(current + info.delta.y);
-  }, [scrollY]);
+  // Handle scroll — detect which item is centered and select it
+  const handleScroll = () => {
+    isScrollingRef.current = true;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-  const handlePanEnd = useCallback((_: PointerEvent, info: PanInfo) => {
-    const current = scrollY.get();
-    const velocity = info.velocity.y;
+    timeoutRef.current = setTimeout(() => {
+      isScrollingRef.current = false;
+      const container = scrollRef.current;
+      if (!container) return;
 
-    // Project where the scroll will land given velocity
-    const projected = current + velocity * 0.3;
-    const targetIndex = getSnappedIndex(projected);
-    const targetY = -targetIndex * ITEM_HEIGHT;
+      const newIndex = Math.round(container.scrollTop / ITEM_HEIGHT);
+      const clamped = Math.max(0, Math.min(items.length - 1, newIndex));
 
-    animate(scrollY, targetY, {
-      type: "spring",
-      stiffness: 400,
-      damping: 35,
-      velocity: velocity,
-      onComplete: () => {
-        setInternalIndex(targetIndex);
-        onSelect(targetIndex);
-      },
-    });
-  }, [scrollY, getSnappedIndex, onSelect]);
-
-  // Handle wheel scroll
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const current = scrollY.get();
-    const delta = e.deltaY > 0 ? -ITEM_HEIGHT : ITEM_HEIGHT;
-    const newY = current + delta;
-    const targetIndex = getSnappedIndex(newY);
-
-    animate(scrollY, -targetIndex * ITEM_HEIGHT, {
-      type: "spring",
-      stiffness: 400,
-      damping: 35,
-      onComplete: () => {
-        setInternalIndex(targetIndex);
-        onSelect(targetIndex);
-      },
-    });
-  }, [scrollY, getSnappedIndex, onSelect]);
-
-  // Click to select
-  const handleItemClick = useCallback((index: number) => {
-    animate(scrollY, -index * ITEM_HEIGHT, {
-      type: "spring",
-      stiffness: 300,
-      damping: 30,
-      onComplete: () => {
-        setInternalIndex(index);
-        onSelect(index);
-      },
-    });
-  }, [scrollY, onSelect]);
-
-  // Render visible items around the current position
-  const visibleItems = [];
-  const startIdx = Math.max(0, internalIndex - HALF - 2);
-  const endIdx = Math.min(items.length - 1, internalIndex + HALF + 2);
-
-  for (let i = startIdx; i <= endIdx; i++) {
-    const item = items[i];
-    const offset = i - internalIndex;
-    const absOffset = Math.abs(offset);
-
-    // 3D transforms based on distance from center
-    const rotateX = offset * -18; // degrees — curves items away
-    const scale = absOffset === 0 ? 1.0 : absOffset === 1 ? 0.88 : absOffset === 2 ? 0.75 : 0.6;
-    const opacity = absOffset === 0 ? 1.0 : absOffset === 1 ? 0.7 : absOffset === 2 ? 0.4 : 0.2;
-    const isCurrent = i === internalIndex;
-    const colors = STATUS_COLORS[item.status];
-
-    visibleItems.push(
-      <motion.button
-        key={item.index}
-        onClick={() => handleItemClick(i)}
-        className={cn(
-          "absolute left-0 right-0 flex items-center justify-center rounded-xl transition-colors",
-          isCurrent ? "ring-2 ring-saffron shadow-lg shadow-saffron/20" : "",
-          isCurrent ? "bg-saffron/20 text-saffron" : colors.bg + " " + colors.text,
-          item.bookmarked && !isCurrent ? "ring-1 ring-indigo/40" : "",
-        )}
-        style={{
-          height: ITEM_HEIGHT,
-          top: `calc(50% + ${offset * ITEM_HEIGHT}px - ${ITEM_HEIGHT / 2}px)`,
-          transform: `perspective(800px) rotateX(${rotateX}deg) scale(${scale})`,
-          opacity,
-          zIndex: 10 - absOffset,
-        }}
-      >
-        <span className={cn("font-bold", isCurrent ? "text-lg" : "text-sm")}>
-          Q{item.label}
-        </span>
-        {isCurrent && (
-          <span className="ml-2 text-xs text-muted-foreground">
-            {item.status === "known" ? "✓" : item.status === "review" ? "⟳" : ""}
-          </span>
-        )}
-      </motion.button>
-    );
-  }
+      if (clamped !== selectedIndex) {
+        onSelect(clamped);
+      }
+    }, 100);
+  };
 
   return (
-    <div className={cn("relative select-none", className)}>
+    <div className={cn("select-none", className)}>
       {/* Header */}
-      <div className="text-center mb-2">
-        <span className="text-xs text-muted-foreground">
-          {items.filter(i => i.status === "known").length}/{items.length} mastered
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border/30">
+        <span className="text-xs font-semibold text-saffron">
+          Q{selectedIndex + 1} <span className="text-muted-foreground font-normal">of {items.length}</span>
         </span>
+        <div className="flex gap-2 text-[10px]">
+          <span className="text-teal">{knownCount} ✓</span>
+          <span className="text-gold">{reviewCount} ⟳</span>
+        </div>
       </div>
 
-      {/* Drum container with ornamental border */}
-      <div
-        className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-b from-surface/90 via-background to-surface/90"
-        style={{ height: VISIBLE_COUNT * ITEM_HEIGHT, perspective: "800px" }}
-      >
-        {/* Gradient fades at top and bottom */}
-        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-background to-transparent z-20 pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent z-20 pointer-events-none" />
-
-        {/* Center highlight slot */}
+      {/* Scroll container */}
+      <div className="relative">
         <div
-          className="absolute inset-x-2 z-10 pointer-events-none"
-          style={{ top: `calc(50% - ${ITEM_HEIGHT / 2}px)`, height: ITEM_HEIGHT }}
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="overflow-y-auto overscroll-contain"
+          style={{
+            height: VISIBLE_COUNT * ITEM_HEIGHT,
+            scrollSnapType: "y mandatory",
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
         >
-          <div className="h-full rounded-xl border border-saffron/30 bg-saffron/5" />
+          {/* Top padding so first item can be centered */}
+          <div style={{ height: Math.floor(VISIBLE_COUNT / 2) * ITEM_HEIGHT }} />
+
+          {items.map((item) => {
+            const isCurrent = item.index === selectedIndex;
+            return (
+              <button
+                key={item.index}
+                onClick={() => {
+                  onSelect(item.index);
+                  scrollRef.current?.scrollTo({ top: item.index * ITEM_HEIGHT, behavior: "smooth" });
+                }}
+                className={cn(
+                  "w-full flex items-center justify-center gap-2 transition-all duration-150",
+                  isCurrent && "bg-saffron/15 text-saffron font-bold text-base",
+                  !isCurrent && item.status === "unseen" && "text-muted-foreground hover:bg-muted/30 text-sm",
+                  !isCurrent && item.status === "known" && "text-teal hover:bg-teal/10 text-sm",
+                  !isCurrent && item.status === "review" && "text-gold hover:bg-gold/10 text-sm",
+                  item.bookmarked && !isCurrent && "ring-1 ring-inset ring-indigo/30",
+                )}
+                style={{
+                  height: ITEM_HEIGHT,
+                  scrollSnapAlign: "center",
+                }}
+              >
+                <span className={cn(
+                  "inline-flex items-center justify-center rounded-lg",
+                  isCurrent ? "size-9 bg-saffron/20 ring-2 ring-saffron" : "size-7",
+                )}>
+                  {item.index + 1}
+                </span>
+                {isCurrent && item.status !== "unseen" && (
+                  <span className="text-xs opacity-70">
+                    {item.status === "known" ? "✓ Known" : "⟳ Review"}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+
+          {/* Bottom padding so last item can be centered */}
+          <div style={{ height: Math.floor(VISIBLE_COUNT / 2) * ITEM_HEIGHT }} />
         </div>
 
-        {/* Scrollable drum area */}
-        <motion.div
-          ref={containerRef}
-          className="relative h-full cursor-grab active:cursor-grabbing px-2"
-          onPan={handlePan}
-          onPanEnd={handlePanEnd}
-          onWheel={handleWheel}
-        >
-          {visibleItems}
-        </motion.div>
+        {/* Center indicator line */}
+        <div
+          className="pointer-events-none absolute left-2 right-2 border-y border-saffron/20 z-10"
+          style={{
+            top: Math.floor(VISIBLE_COUNT / 2) * ITEM_HEIGHT,
+            height: ITEM_HEIGHT,
+          }}
+        />
+
+        {/* Gradient fades */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-surface to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-surface to-transparent z-10" />
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center gap-3 mt-2">
+      <div className="flex justify-center gap-3 px-3 py-2 border-t border-border/30">
         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <span className="size-2 rounded-sm bg-teal/30" /> Known
         </span>
         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <span className="size-2 rounded-sm bg-gold/30" /> Review
+        </span>
+        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <span className="size-2 rounded-sm bg-indigo/30" /> Saved
         </span>
       </div>
     </div>

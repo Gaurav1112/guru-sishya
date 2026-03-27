@@ -1418,7 +1418,7 @@ export default function QuestionsPage() {
 
           {/* Drum picker — right side, hidden on mobile */}
           <div className="hidden md:block w-52 shrink-0">
-            <div className="sticky top-20">
+            <div className="sticky top-20 relative bg-surface/80 backdrop-blur-sm border border-border/30 rounded-2xl shadow-xl overflow-hidden">
               <DrumPicker
                 items={galleryQuestions.map(q => ({
                   index: q.index,
