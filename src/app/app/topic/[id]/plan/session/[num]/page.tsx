@@ -323,14 +323,19 @@ export default function SessionViewPage({
 
   // ── Extract ALL fenced code blocks from session content ─────────────────────
 
-  const SUPPORTED_LANGS = new Set(["python", "java", "javascript", "typescript", "py", "js", "ts"]);
+  const SUPPORTED_LANGS = new Set([
+    "python", "java", "javascript", "typescript",
+    "py", "js", "ts",
+    "c", "cpp", "c++",
+  ]);
 
-  function normalizeLang(raw: string): "python" | "java" | "javascript" | "typescript" {
+  function normalizeLang(raw: string): PlaygroundLanguage {
     const l = raw.toLowerCase();
     if (l === "py") return "python";
     if (l === "js") return "javascript";
     if (l === "ts") return "typescript";
-    if (l === "python" || l === "java" || l === "javascript" || l === "typescript") return l;
+    if (l === "c++") return "cpp";
+    if (l === "python" || l === "java" || l === "javascript" || l === "typescript" || l === "c" || l === "cpp") return l as PlaygroundLanguage;
     return "javascript";
   }
 

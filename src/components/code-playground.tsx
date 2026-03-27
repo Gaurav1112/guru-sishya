@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2, Clock, Copy, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -161,6 +161,13 @@ export function CodePlayground({
   const [outputVisible, setOutputVisible] = useState(false);
   const [copied, setCopied] = useState(false);
   const editorRef = useRef<unknown>(null);
+
+  // When language changes, sync the editor to the language-specific code
+  useEffect(() => {
+    if (codeByLanguage && codeByLanguage[language]) {
+      setCode(codeByLanguage[language]!);
+    }
+  }, [language, codeByLanguage]);
 
   const handleRun = useCallback(async () => {
     setRunning(true);

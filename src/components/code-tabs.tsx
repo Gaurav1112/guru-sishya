@@ -63,9 +63,19 @@ const LANG_META: Record<
     monacoId: "typescript",
     badgeClass: "bg-sky-500/10 text-sky-400 border-sky-500/20",
   },
+  c: {
+    label: "C",
+    monacoId: "c",
+    badgeClass: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+  },
+  cpp: {
+    label: "C++",
+    monacoId: "cpp",
+    badgeClass: "bg-pink-500/10 text-pink-400 border-pink-500/20",
+  },
 };
 
-const LANG_ORDER = ["python", "java", "javascript", "typescript"];
+const LANG_ORDER = ["python", "java", "javascript", "typescript", "c", "cpp"];
 const STORAGE_KEY = "guru-preferred-lang";
 
 function normalizeLang(raw: string): string {
@@ -73,6 +83,7 @@ function normalizeLang(raw: string): string {
   if (lower === "py") return "python";
   if (lower === "js") return "javascript";
   if (lower === "ts") return "typescript";
+  if (lower === "c++") return "cpp";
   return lower;
 }
 
