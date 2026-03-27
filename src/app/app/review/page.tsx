@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CalendarDays, Flame, BookOpen, ChevronRight, Clock, CalendarCheck, CalendarRange, Trophy, Lock } from "lucide-react";
+import { CalendarDays, Flame, BookOpen, ChevronRight, Clock, CalendarCheck, CalendarRange, Trophy, Lock, Bookmark, AlertCircle, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
@@ -300,6 +300,127 @@ function TimedTestCards() {
   );
 }
 
+// ── Review Bookmarks widget ───────────────────────────────────────────────────
+
+function ReviewBookmarks() {
+  const reviewBookmarks = useLiveQuery(
+    () => db.questionBookmarks.where("status").equals("review").toArray()
+  );
+
+  const count = reviewBookmarks?.length ?? 0;
+
+  return (
+    <div className="rounded-xl border border-border/50 bg-surface p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Bookmark className="size-4 text-indigo-400" />
+        <h3 className="text-sm font-semibold">Marked for Review</h3>
+        {count > 0 && (
+          <span className="ml-auto text-xs font-semibold rounded-full bg-indigo-500/15 text-indigo-400 px-2 py-0.5">
+            {count}
+          </span>
+        )}
+      </div>
+      {count === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          No questions marked for review yet. Use the Important Questions feature to flag ones you want to revisit.
+        </p>
+      ) : (
+        <div className="space-y-1">
+          {reviewBookmarks!.slice(0, 5).map((bm) => (
+            <div
+              key={bm.id}
+              className="flex items-center justify-between rounded-md bg-muted/20 px-3 py-1.5 text-xs"
+            >
+              <span className="text-muted-foreground">Question #{bm.questionId}</span>
+              <span className="text-[10px] text-indigo-400 font-medium">review</span>
+            </div>
+          ))}
+          {count > 5 && (
+            <p className="text-xs text-muted-foreground pt-1">+{count - 5} more</p>
+          )}
+          <Link
+            href="/app/questions"
+            className="mt-2 inline-flex items-center gap-1 text-xs text-indigo-400 hover:underline"
+          >
+            Go to Important Questions <ChevronRight className="size-3" />
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Interview Misses widget ───────────────────────────────────────────────────
+
+function InterviewMisses() {
+  const [misses, setMisses] = useState<{ question: string; score: number; topic?: string }[]>([]);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const history = JSON.parse(localStorage.getItem("gs-interview-history") || "[]");
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const recent = history
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((session: any) => new Date(session.completedAt || session.date || 0).getTime() >= sevenDaysAgo)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .flatMap((session: any) => (session.questions || []).map((q: any) => ({ ...q, topic: session.topic })))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((q: any) => typeof q.score === "number" && q.score < 7)
+        .slice(0, 10);
+      setMisses(recent);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  return (
+    <div className="rounded-xl border border-border/50 bg-surface p-4">
+      <button
+        type="button"
+        className="flex items-center gap-2 w-full text-left"
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <AlertCircle className="size-4 text-destructive/70" />
+        <h3 className="text-sm font-semibold flex-1">Recent Interview Misses</h3>
+        {misses.length > 0 && (
+          <span className="text-xs font-semibold rounded-full bg-destructive/10 text-destructive px-2 py-0.5">
+            {misses.length}
+          </span>
+        )}
+        <ChevronDown className={`size-3.5 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+      </button>
+      {expanded && (
+        <div className="mt-3 space-y-1">
+          {misses.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              No recent misses in the last 7 days. Great job!
+            </p>
+          ) : (
+            misses.map((m, i) => (
+              <div key={i} className="flex items-start gap-2 rounded-md bg-muted/20 px-3 py-2 text-xs">
+                <span className="shrink-0 font-semibold text-destructive/80">{m.score}/10</span>
+                <span className="text-muted-foreground line-clamp-2 flex-1">{m.question || `Question ${i + 1}`}</span>
+              </div>
+            ))
+          )}
+          {misses.length === 0 && (
+            <Link
+              href="/app/interview"
+              className="mt-1 inline-flex items-center gap-1 text-xs text-saffron hover:underline"
+            >
+              Practice interview questions <ChevronRight className="size-3" />
+            </Link>
+          )}
+        </div>
+      )}
+      {!expanded && misses.length === 0 && (
+        <p className="mt-2 text-xs text-muted-foreground">No misses in the last 7 days.</p>
+      )}
+    </div>
+  );
+}
+
 // ── Hub view (not in active review) ──────────────────────────────────────────
 
 interface HubViewProps {
@@ -314,6 +435,29 @@ function HubView({ dueCards, totalDueCount, isActivePremium, history, onStartRev
   const dueCount = dueCards.length;
   const hour = new Date().getHours();
 
+  const [interviewMissCount, setInterviewMissCount] = useState(0);
+  const reviewBookmarks = useLiveQuery(
+    () => db.questionBookmarks.where("status").equals("review").toArray()
+  );
+
+  useEffect(() => {
+    try {
+      const hist = JSON.parse(localStorage.getItem("gs-interview-history") || "[]");
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const count = hist
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((s: any) => new Date(s.completedAt || s.date || 0).getTime() >= sevenDaysAgo)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .flatMap((s: any) => s.questions || [])
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((q: any) => typeof q.score === "number" && q.score < 7)
+        .length;
+      setInterviewMissCount(Math.min(count, 10));
+    } catch {
+      // ignore
+    }
+  }, []);
+
   let greetingMessage: string;
   if (dueCount === 0) {
     greetingMessage = "All caught up! Next review tomorrow.";
@@ -326,35 +470,43 @@ function HubView({ dueCards, totalDueCount, isActivePremium, history, onStartRev
   const isLimited = !isActivePremium && totalDueCount > FREE_FLASHCARD_LIMIT;
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      {/* Hero */}
-      <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-teal/5 p-6">
-        <p className="text-xs font-medium tracking-widest text-saffron uppercase mb-1">
-          Daily Review
-        </p>
-        <h1 className="font-heading text-2xl font-bold mb-2">
-          {dueCount > 0 ? `${dueCount} card${dueCount !== 1 ? "s" : ""} due today` : "You're all caught up!"}
-        </h1>
-        <p className="text-sm text-muted-foreground mb-4">{greetingMessage}</p>
-
+    <div className="space-y-4 max-w-4xl mx-auto">
+      {/* Hero — compact */}
+      <div className="rounded-xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-teal/5 p-4 flex items-center gap-4 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium tracking-widest text-saffron uppercase mb-0.5">
+            Daily Review
+          </p>
+          <h1 className="font-heading text-xl font-bold">
+            {dueCount > 0 ? `${dueCount} card${dueCount !== 1 ? "s" : ""} due today` : "You're all caught up!"}
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{greetingMessage}</p>
+        </div>
         {dueCount > 0 ? (
-          <Button onClick={onStartReview} size="lg" className="gap-2">
+          <Button onClick={onStartReview} size="sm" className="gap-2 shrink-0">
             <BookOpen className="size-4" />
-            Start Daily Review
+            Start Review
             <ChevronRight className="size-4" />
           </Button>
         ) : (
-          <div className="flex gap-3">
-            <Link href="/app/topics">
-              <Button variant="outline" size="sm">Browse Topics</Button>
-            </Link>
-          </div>
+          <Link href="/app/topics">
+            <Button variant="outline" size="sm" className="shrink-0">Browse Topics</Button>
+          </Link>
         )}
+      </div>
+
+      {/* Summary stat bar */}
+      <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+        <span className="font-medium text-foreground">{dueCount}</span> cards due
+        <span className="text-border">·</span>
+        <span className="font-medium text-foreground">{reviewBookmarks?.length ?? 0}</span> marked for review
+        <span className="text-border">·</span>
+        <span className="font-medium text-foreground">{interviewMissCount}</span> interview misses (7d)
       </div>
 
       {/* Free user flashcard limit banner */}
       {!isActivePremium && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-saffron/30 bg-saffron/5 px-4 py-3">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-saffron/30 bg-saffron/5 px-4 py-2.5">
           <div className="flex items-center gap-2 min-w-0">
             <Lock className="size-4 text-saffron shrink-0" />
             <p className="text-sm text-muted-foreground">
@@ -366,19 +518,28 @@ function HubView({ dueCards, totalDueCount, isActivePremium, history, onStartRev
             href="/app/pricing"
             className="shrink-0 text-xs font-semibold text-saffron underline whitespace-nowrap"
           >
-            Upgrade for full deck
+            Upgrade
           </Link>
         </div>
       )}
 
-      {/* Streak Calendar */}
-      <StreakCalendar history={history} />
+      {/* 2-column grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Streak Calendar */}
+        <StreakCalendar history={history} />
 
-      {/* Timed tests */}
+        {/* Review Bookmarks */}
+        <ReviewBookmarks />
+
+        {/* Interview Misses */}
+        <InterviewMisses />
+
+        {/* Upcoming */}
+        <UpcomingReviews />
+      </div>
+
+      {/* Timed tests — full width */}
       <TimedTestCards />
-
-      {/* Upcoming */}
-      <UpcomingReviews />
 
       {/* Flashcard gate for free users with large decks */}
       {isLimited && (
@@ -456,7 +617,7 @@ export default function ReviewPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto animate-pulse">
+      <div className="space-y-4 max-w-4xl mx-auto animate-pulse">
         {/* Hero skeleton */}
         <div className="rounded-2xl border border-border/30 bg-surface p-6 space-y-3">
           <div className="h-3 w-24 bg-muted/40 rounded" />
