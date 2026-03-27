@@ -145,6 +145,14 @@ const TOPIC_MAP: Record<string, string> = {
   typescript:        "Core CS & Languages",
   js:                "Core CS & Languages",
   ts:                "Core CS & Languages",
+  css:               "Core CS & Languages",
+  html:              "Core CS & Languages",
+  dom:               "Core CS & Languages",
+  closure:           "Core CS & Languages",
+  promise:           "Core CS & Languages",
+  async:             "Core CS & Languages",
+  await:             "Core CS & Languages",
+  "event loop":      "Core CS & Languages",
   // DSA
   "binary search":   "Data Structures & Algorithms",
   "binary tree":     "Data Structures & Algorithms",
@@ -171,6 +179,32 @@ const TOPIC_MAP: Record<string, string> = {
   sorting:           "Data Structures & Algorithms",
   stack:             "Data Structures & Algorithms",
   tree:              "Data Structures & Algorithms",
+  trie:              "Data Structures & Algorithms",
+  "segment tree":    "Data Structures & Algorithms",
+  "topological sort": "Data Structures & Algorithms",
+  dijkstra:          "Data Structures & Algorithms",
+  bellman:           "Data Structures & Algorithms",
+  floyd:             "Data Structures & Algorithms",
+  kruskal:           "Data Structures & Algorithms",
+  prim:              "Data Structures & Algorithms",
+  knapsack:          "Data Structures & Algorithms",
+  backtracking:      "Data Structures & Algorithms",
+  greedy:            "Data Structures & Algorithms",
+  "bit manipulation": "Data Structures & Algorithms",
+  // More System Design
+  websocket:         "System Design",
+  oauth:             "System Design",
+  jwt:               "System Design",
+  "circuit breaker": "System Design",
+  "saga pattern":    "System Design",
+  "event sourcing":  "System Design",
+  cqrs:              "System Design",
+  // Database
+  index:             "System Design",
+  "b-tree":          "System Design",
+  acid:              "System Design",
+  transaction:       "System Design",
+  normalization:     "System Design",
 };
 
 // Synonym expansion — bidirectional: user alias expands to canonical terms
@@ -304,12 +338,12 @@ async function loadKnowledge(): Promise<QAItem[]> {
       .catch(() => {})
   );
 
-  // Sample daily-questions — huge file, cap at 500 for responsiveness
+  // Load all daily questions
   const dailyFetch = fetch("/content/daily-questions.json")
     .then((r) => (r.ok ? r.json() : []))
     .then((data: unknown) => {
       if (Array.isArray(data)) {
-        const sample = data.slice(0, 500) as DailyQuestion[];
+        const sample = (Array.isArray(data) ? data : []) as DailyQuestion[];
         for (const item of sample) {
           if (!item) continue;
           const q = item.question;
@@ -355,8 +389,8 @@ async function loadKnowledge(): Promise<QAItem[]> {
               localItems.push({
                 question: `Explain ${session.title}`,
                 answer: typeof session.content === "string"
-                  ? session.content.substring(0, 500)
-                  : JSON.stringify(session.content).substring(0, 500),
+                  ? session.content.substring(0, 1500)
+                  : JSON.stringify(session.content).substring(0, 1500),
                 category,
               });
             }
@@ -376,6 +410,15 @@ async function loadKnowledge(): Promise<QAItem[]> {
 
   // Filter out items with empty or trivially short answers
   items = items.filter(item => item.answer && item.answer.trim().length > 10);
+
+  // Deduplicate by question text to prevent stale/duplicate matches
+  const seen = new Set<string>();
+  items = items.filter(item => {
+    const key = item.question.trim().toLowerCase().substring(0, 80);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 
   knowledgeCache = { items, loaded: true };
   return items;
@@ -546,7 +589,9 @@ function buildRelatedLinks(topicLabel: string | null, category?: string): Relate
 
   links.push({
     label: topicLabel ? `${topicLabel} questions` : "Practice questions",
-    href: "/app/questions",
+    href: topicLabel
+      ? `/app/questions?category=${encodeURIComponent(topicLabel)}`
+      : "/app/questions",
     icon: "quiz",
   });
 
@@ -604,18 +649,25 @@ function buildMitraResponse(
   const { answer, confidence, question, category } = result;
   const topicLabel = detectTopicLabel(enrichedQuery) ?? (category || null);
 
-  if (confidence < 0.25 || !answer) {
-    // Try to at least point the user to relevant topics
-    const helpfulFallback = topicLabel
-      ? `I'm not sure about that specific question, but I can help you explore ${topicLabel}. Try asking about a specific concept like "What is..." or "How does... work?"`
-      : `I'm not sure about that. Try asking about a specific CS concept like "Explain HashMap internals" or "What is CAP theorem?" I know hundreds of interview topics!`;
+  if (confidence < 0.30 || !answer) {
+    // Get 3 closest matching questions regardless of threshold
+    const queryWords = tokenize(enrichedQuery);
+    const expandedWords = expandQuery(queryWords);
+    const topMatches = knowledge
+      .map(item => ({ item, score: scoreItem(queryWords, expandedWords, item) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
 
-    const followUps = topicLabel ? getSuggestedQuestions(topicLabel, knowledge) : undefined;
+    const relatedQuestions = topMatches
+      .filter(m => m.score > 0.1)
+      .map(m => m.item.question);
 
     return {
-      text: helpfulFallback,
+      text: topicLabel
+        ? `I found some related content in ${topicLabel}. Here are questions I can help with:`
+        : `I'm not sure about that exact question, but here are some related topics I can help with:`,
       relatedLinks: buildRelatedLinks(topicLabel),
-      followUps: followUps && followUps.length > 0 ? followUps : undefined,
+      followUps: relatedQuestions.length > 0 ? relatedQuestions : getSuggestedQuestions(topicLabel || "", knowledge),
     };
   }
 
