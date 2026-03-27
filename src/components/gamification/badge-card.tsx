@@ -33,17 +33,27 @@ function getBadgeProgress(badge: BadgeDefinition, stats: UserStats): ProgressInf
     case "akhand_sadhana":
       return { current: stats.longestStreak, target: 365, label: "day streak" };
 
+    // First session
+    case "prathama_jyoti":
+      return { current: Math.max(stats.sessionsCompleted, stats.totalQuizzes), target: 1, label: "sessions" };
+
     // Perfect rounds
     case "shuddh_gyan":
       return { current: stats.perfectRounds, target: 1, label: "perfect rounds" };
     case "pancha_siddhi":
       return { current: stats.perfectRounds, target: 5, label: "perfect rounds" };
 
+    // High score quizzes
+    case "dwandva_vijay":
+      return { current: stats.highScoreQuizzes, target: 5, label: "quizzes 80%+" };
+    case "score_90":
+      return { current: stats.excellentQuizzes, target: 3, label: "quizzes 90%+" };
+
     // Topics explored
     case "jigyasu":
+      return { current: stats.topicsExplored, target: 5, label: "topics explored" };
+    case "sangam":
       return { current: stats.topicsExplored, target: 10, label: "topics explored" };
-    case "prathama_jyoti":
-      return { current: Math.max(stats.totalQuizzes, stats.topicsExplored), target: 1, label: "sessions" };
 
     // Categories
     case "vishwa_vidya":
@@ -76,16 +86,38 @@ function getBadgeProgress(badge: BadgeDefinition, stats: UserStats): ProgressInf
       return { current: stats.level, target: 10, label: "level" };
 
     // Quizzes
+    case "pratham":
+      return { current: stats.totalQuizzes, target: 1, label: "quizzes" };
+    case "smriti_rakshak":
+      return { current: stats.totalQuizzes, target: 10, label: "quizzes" };
     case "quiz_samrat":
       return { current: stats.totalQuizzes, target: 50, label: "quizzes" };
 
-    // Decayed topics reviewed
-    case "smriti_rakshak":
-      return { current: stats.decayedTopicsReviewed, target: 10, label: "reviews" };
+    // Daily challenges
+    case "dainik_sadhak":
+      return { current: stats.dailyChallengesCompleted, target: 5, label: "daily challenges" };
+
+    // Timed tests
+    case "vidyut_gati":
+      return { current: stats.timedTestsCompleted, target: 1, label: "timed tests" };
+    case "ekagra":
+      return { current: stats.timedTestsCompleted, target: 3, label: "timed tests" };
+
+    // Speed — quizzes in one day
+    case "agni_pareeksha":
+      return { current: stats.quizzesInOneDay, target: 3, label: "quizzes in a day" };
 
     // Badges
     case "param_parakrami":
-      return { current: stats.badgeCount, target: 25, label: "badges" };
+      return { current: stats.badgeCount, target: 15, label: "badges" };
+
+    // Interview badges
+    case "interview_first":
+      return { current: stats.interviewsCompleted, target: 1, label: "interviews" };
+    case "interview_ace":
+      return { current: stats.interviewHighScore, target: 80, label: "% high score" };
+    case "interview_veteran":
+      return { current: stats.interviewsCompleted, target: 10, label: "interviews" };
 
     default:
       return null;
@@ -121,8 +153,8 @@ export function BadgeCard({ badge, unlocked, unlockedAt, userStats }: BadgeCardP
     <div className="flex flex-col items-center gap-2 rounded-xl border border-border/40 bg-surface/50 p-4 opacity-60">
       <span className="text-3xl grayscale">{badge.icon}</span>
       <div className="text-center w-full">
-        <p className="font-heading text-sm font-bold text-muted-foreground leading-tight">???</p>
-        <p className="text-xs text-muted-foreground/70 mt-1 line-clamp-2 italic">{badge.hint}</p>
+        <p className="font-heading text-sm font-bold text-muted-foreground leading-tight">{badge.name}</p>
+        <p className="text-xs text-muted-foreground/70 mt-1 line-clamp-2">{badge.description}</p>
 
         {progress && pct !== null && (
           <div className="mt-2 w-full">

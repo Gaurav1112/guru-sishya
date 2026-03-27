@@ -371,6 +371,23 @@ export default function ProfilePage() {
   const levelInfo = getLevelInfo(level);
   const progress = xpProgressInLevel(totalXP);
 
+  // Auto-check badges on profile page load
+  useEffect(() => {
+    const storeState = useStore.getState();
+    getUserStats({
+      currentStreak: storeState.currentStreak,
+      longestStreak: storeState.longestStreak,
+      totalXP: storeState.totalXP,
+      level: storeState.level,
+    }).then((stats) =>
+      checkAndUnlockBadges(stats).then((newBadges) => {
+        if (newBadges.length > 0) {
+          toast(`${newBadges.length} badge${newBadges.length > 1 ? "s" : ""} unlocked!`);
+        }
+      })
+    ).catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Resolve the user's actual name: Google session > store displayName
   const userName =
     session?.user?.name ??
