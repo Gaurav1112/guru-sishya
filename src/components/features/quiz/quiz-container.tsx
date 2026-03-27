@@ -16,6 +16,9 @@ import { GradeResult } from "./grade-result";
 import { QuizResultScreen } from "./quiz-result";
 import { CalibrationIntro } from "./calibration-intro";
 import { DifficultyIndicator } from "./difficulty-indicator";
+import { QuestionNavigator } from "./question-navigator";
+import { BookmarkButton } from "./bookmark-button";
+import type { QuizSessionState as QSState } from "@/lib/db";
 import { OneMoreRound } from "@/components/gamification/one-more-round";
 import { TreasureChest } from "@/components/gamification/treasure-chest";
 import { calibrationPrompt } from "@/lib/prompts/quiz-calibration";
@@ -343,6 +346,18 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     }
   }, [isStatic, topicName]);
 
+  // ── Check for saved session on mount ────────────────────────────────────────
+  useEffect(() => {
+    if (topicId) {
+      db.quizSessionState.where({ topicId }).first().then((s) => {
+        if (s && s.status !== "complete") {
+          setSavedSession(s);
+          setShowResume(true);
+        }
+      }).catch(() => {});
+    }
+  }, [topicId]);
+
   // Dexie live query to detect existing calibration
   const existingCalibration = useLiveQuery(
     async () => (await db.quizAttempts.where({ topicId }).first()) ?? null,
@@ -376,6 +391,10 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const [activeChestId, setActiveChestId] = useState<number | null>(null);
   const [roundsCompleted, setRoundsCompleted] = useState(0);
   const [lastChestRound, setLastChestRound] = useState(0);
+
+  // ── Resume state ───────────────────────────────────────────────────────────
+  const [showResume, setShowResume] = useState(false);
+  const [savedSession, setSavedSession] = useState<QSState | null>(null);
 
   // ── Timer state ────────────────────────────────────────────────────────────
   const [timerRemaining, setTimerRemaining] = useState<number>(0);
@@ -434,6 +453,29 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
 
   // Clear timer on unmount
   useEffect(() => () => clearTimer(), [clearTimer]);
+
+  // ── Session persistence ──────────────────────────────────────────────────────
+
+  const saveSessionState = useCallback(
+    async (answers: AnsweredQuestion[], questionIndex: number, level: BloomLevel, isCalib: boolean, status: string) => {
+      const existing = await db.quizSessionState.where({ topicId }).first();
+      const data = {
+        topicId,
+        lastQuestionIndex: questionIndex,
+        answers: JSON.stringify(answers),
+        currentLevel: level,
+        isCalibration: isCalib,
+        status,
+        updatedAt: new Date(),
+      };
+      if (existing) {
+        await db.quizSessionState.update(existing.id!, data);
+      } else {
+        await db.quizSessionState.add(data);
+      }
+    },
+    [topicId]
+  );
 
   // ── Calibration: generate questions ─────────────────────────────────────────
 
@@ -676,6 +718,9 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setAdaptiveAnswers(newAnswers);
         allAnswers.current = newAnswers;
 
+        // Persist session state so it can be resumed
+        saveSessionState(newAnswers, newAnswers.length - 1, currentLevel, false, "in_progress").catch(() => {});
+
         const isLow = graded.score < 7;
         const newConsecutiveLow = isLow ? consecutiveLow + 1 : 0;
         setConsecutiveLow(newConsecutiveLow);
@@ -699,7 +744,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setPhase("adaptive_answering");
       }
     },
-    [ai, adaptiveAnswers, consecutiveLow, currentLevel, isStatic, quizBank, clearTimer]
+    [ai, adaptiveAnswers, consecutiveLow, currentLevel, isStatic, quizBank, clearTimer, saveSessionState]
   );
 
   // ── Skip question ─────────────────────────────────────────────────────────────
@@ -768,6 +813,9 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         })),
         completedAt: new Date(),
       });
+
+      // Clear saved session on completion
+      db.quizSessionState.where({ topicId }).delete().catch(() => {});
 
       await updateFlashcardsFromQuiz(topicId, answers);
 
@@ -981,6 +1029,31 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       <div className="flex flex-col gap-4 max-w-xl mx-auto">
         {errorBanner}
 
+        {/* Resume dialog */}
+        {showResume && savedSession && (
+          <div className="rounded-xl border border-border bg-surface p-6 text-center space-y-4">
+            <p className="text-lg font-semibold">Resume Quiz?</p>
+            <p className="text-muted-foreground">You left off at question {savedSession.lastQuestionIndex + 1}</p>
+            <div className="flex gap-3 justify-center">
+              <button
+                className="px-4 py-2 rounded-lg bg-saffron text-background font-medium"
+                onClick={() => setShowResume(false)}
+              >
+                Resume
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg bg-muted text-foreground font-medium"
+                onClick={() => {
+                  db.quizSessionState.where({ topicId }).delete().catch(() => {});
+                  setShowResume(false);
+                }}
+              >
+                Start Fresh
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Free user banner */}
         {!isActivePremium && (
           <div className="flex items-center gap-2 rounded-lg border border-saffron/30 bg-saffron/5 px-4 py-2.5 text-xs text-muted-foreground">
@@ -1124,6 +1197,13 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   // ── Adaptive answering ───────────────────────────────────────────────────────
   if (phase === "adaptive_answering" && currentQuestion) {
     const qNum = adaptiveAnswers.length + 1;
+    // Build navigator statuses: answered questions + current (unanswered) + future placeholders
+    const navigatorStatuses = Array.from({ length: SESSION_CAP }, (_, i) => ({
+      index: i,
+      answered: i < adaptiveAnswers.length,
+      correct: i < adaptiveAnswers.length ? (adaptiveAnswers[i].score >= 5 ? true : false) : null,
+      bookmarked: false,
+    }));
     return (
       <div className="flex flex-col gap-4 max-w-xl mx-auto">
         {errorBanner}
@@ -1143,12 +1223,18 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
           )}
         </div>
 
-        {/* Difficulty indicator */}
+        {/* Difficulty indicator + bookmark */}
         <div className="flex items-center justify-between px-1">
           <DifficultyIndicator currentLevel={currentLevel} />
-          <span className="text-xs text-muted-foreground">
-            {adaptiveAnswers.length} / {SESSION_CAP}
-          </span>
+          <div className="flex items-center gap-2">
+            <BookmarkButton
+              questionId={qNum}
+              questionText={currentQuestion.question}
+            />
+            <span className="text-xs text-muted-foreground">
+              {adaptiveAnswers.length} / {SESSION_CAP}
+            </span>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
@@ -1163,6 +1249,16 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
           question={currentQuestion}
           onSubmit={handleAdaptiveAnswer}
           onSkip={handleSkip}
+        />
+
+        {/* Question navigator strip */}
+        <QuestionNavigator
+          questions={navigatorStatuses}
+          currentIndex={adaptiveAnswers.length}
+          onJump={() => {
+            // Navigation in adaptive quiz jumps to answered questions only (read-only context)
+            // Interaction is intentionally a no-op for future questions
+          }}
         />
       </div>
     );
