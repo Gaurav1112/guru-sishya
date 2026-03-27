@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { auth } from "@/lib/auth";
 
 // ── POST /api/admin/setup-db ───────────────────────────────────────────────────
 // Admin-only route that creates required Supabase tables.
-// Protected by x-admin-email header check.
+// Protected by server-side session check (not spoofable headers).
 
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
 
@@ -45,8 +46,10 @@ CREATE TABLE IF NOT EXISTS premium_allowlist (
 
 export async function POST(req: NextRequest) {
   try {
-    const adminEmail = req.headers.get("x-admin-email") ?? "";
-    if (adminEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    // SECURITY: Authenticate via server-side session, not client-supplied headers
+    const session = await auth();
+    const sessionEmail = session?.user?.email?.toLowerCase() ?? "";
+    if (sessionEmail !== ADMIN_EMAIL.toLowerCase()) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
@@ -96,11 +99,11 @@ export async function POST(req: NextRequest) {
 
 // GET — return the SQL so the admin can copy-paste it into Supabase SQL Editor
 export async function GET(req: NextRequest) {
-  const adminEmail = req.headers.get("x-admin-email") ?? "";
-  if (adminEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-    // Still return the SQL but without the admin check for convenience;
-    // the SQL is not sensitive.
-    return NextResponse.json({ sql: SETUP_SQL });
+  // SECURITY: Authenticate via server-side session
+  const session = await auth();
+  const sessionEmail = session?.user?.email?.toLowerCase() ?? "";
+  if (sessionEmail !== ADMIN_EMAIL.toLowerCase()) {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
   return NextResponse.json({ sql: SETUP_SQL });
 }

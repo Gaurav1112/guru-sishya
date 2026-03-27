@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "redis";
+import { auth } from "@/lib/auth";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const ADMIN_EMAIL = "kgauravis016@gmail.com";
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
 const REDIS_KEY = "app_config";
 
 // ── Default config ─────────────────────────────────────────────────────────────
@@ -73,8 +74,10 @@ export async function GET() {
 // ── POST /api/admin/config ─────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const callerEmail = req.headers.get("x-admin-email");
-  if (!callerEmail || callerEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+  // SECURITY: Authenticate via server-side session, not client-supplied headers
+  const session = await auth();
+  const callerEmail = session?.user?.email?.toLowerCase() ?? "";
+  if (callerEmail !== ADMIN_EMAIL.toLowerCase()) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

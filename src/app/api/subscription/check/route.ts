@@ -1,20 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { auth } from "@/lib/auth";
 
 // ── GET /api/subscription/check?email=user@example.com ───────────────────────
 // Server-side premium check that cannot be bypassed from the client.
 // Returns: { isPremium, premiumUntil, planType }
+// SECURITY: Authenticated — users can only check their own subscription.
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get("email")?.trim().toLowerCase();
-
-    if (!email) {
+    const session = await auth();
+    if (!session?.user?.email) {
       return NextResponse.json(
-        { error: "email query parameter is required." },
-        { status: 400 }
+        { error: "Unauthorized" },
+        { status: 401 }
       );
+    }
+
+    // SECURITY: Only allow users to query their own subscription (prevents IDOR)
+    const email = session.user.email.trim().toLowerCase();
+    const requestedEmail = new URL(req.url).searchParams.get("email")?.trim().toLowerCase();
+    if (requestedEmail && requestedEmail !== email) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const supabase = getSupabaseAdmin();

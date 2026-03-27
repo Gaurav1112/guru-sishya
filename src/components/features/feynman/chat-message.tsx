@@ -52,7 +52,14 @@ function MermaidDiagram({ code }: MermaidDiagramProps) {
         }
       } catch {
         if (ref.current && !cancelled) {
-          ref.current.innerHTML = `<pre class="text-xs text-muted-foreground whitespace-pre-wrap p-2">${code}</pre>`;
+          // SECURITY: Escape HTML entities to prevent XSS from malicious
+          // mermaid code blocks that fail to parse
+          const escaped = code
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+          ref.current.innerHTML = `<pre class="text-xs text-muted-foreground whitespace-pre-wrap p-2">${escaped}</pre>`;
         }
       }
     }

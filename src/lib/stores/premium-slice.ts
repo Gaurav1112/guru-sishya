@@ -153,13 +153,36 @@ export const createPremiumSlice: StateCreator<
   },
 
   activateFreeTrial: () => {
-    // One-time only guard
+    // One-time only guard (client-side convenience — server is authoritative)
     const TRIAL_USED_KEY = "gs-trial-used";
     if (typeof window !== "undefined") {
       if (localStorage.getItem(TRIAL_USED_KEY) === "true") {
         return { success: false, reason: "Trial already used. Subscribe to continue." };
       }
     }
+
+    // SECURITY: Set the trial-used flag BEFORE granting premium, so that even
+    // if the user kills the tab mid-flow, the flag is already stored.
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(TRIAL_USED_KEY, "true");
+      } catch {
+        // ignore
+      }
+    }
+
+    // Record trial on the server FIRST to prevent incognito abuse.
+    // We don't await this — if it fails, the local guard is the fallback.
+    // The server check in /api/trial/start will reject if a record already
+    // exists in Supabase for this authenticated email.
+    try {
+      fetch("/api/trial/start", { method: "POST" }).catch(() => {
+        // Server tracking failed — local tracking still works
+      });
+    } catch {
+      // ignore
+    }
+
     set((state) => {
       const trialEnd = new Date();
       trialEnd.setDate(trialEnd.getDate() + 7);
@@ -168,21 +191,7 @@ export const createPremiumSlice: StateCreator<
       state.paymentId = "free_trial";
       state.planType = "free_trial";
     });
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(TRIAL_USED_KEY, "true");
-      } catch {
-        // ignore
-      }
-    }
-    // Also record trial on the server to prevent incognito abuse
-    try {
-      fetch("/api/trial/start", { method: "POST" }).catch(() => {
-        // Server tracking failed — local tracking still works
-      });
-    } catch {
-      // ignore
-    }
+
     return { success: true };
   },
 
@@ -245,10 +254,10 @@ export const createPremiumSlice: StateCreator<
 
     const normalised = email.trim().toLowerCase();
 
-    // Admin and allowlist/lifetime users are already handled by checkAllowlistPremium;
-    // avoid overriding their permanent grants.
-    const { paymentId, planType } = get();
-    if (isNeverExpire(paymentId, planType)) return;
+    // Admin email is the only user that can skip server sync — verified by
+    // comparing against the env-provided admin email (not client state).
+    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com").toLowerCase();
+    if (normalised === adminEmail) return;
 
     try {
       const res = await fetch(
@@ -274,17 +283,15 @@ export const createPremiumSlice: StateCreator<
           }
         });
       } else if (!data.isPremium) {
-        // Server says not premium — clear local state if it was set by a
-        // payment flow (not admin/allowlist/lifetime — those are already
-        // guarded above).
+        // Server says not premium — clear ALL local premium state.
+        // SECURITY: Previously this skipped clearing for certain paymentId values
+        // (admin_free, allowlist_free, free_trial, lifetime), which meant a user
+        // could set those values in localStorage to bypass server enforcement.
+        // Now the only skip is for the actual admin email (checked above by email,
+        // not by client-supplied paymentId). Allowlist users will be re-granted
+        // by checkAllowlistPremium on next load if they are truly on the list.
         const current = get();
-        if (
-          current.isPremium &&
-          current.paymentId !== "admin_free" &&
-          current.paymentId !== "allowlist_free" &&
-          current.paymentId !== "free_trial" &&
-          current.planType !== "lifetime"
-        ) {
+        if (current.isPremium) {
           set((state) => {
             state.isPremium = false;
             state.premiumUntil = null;

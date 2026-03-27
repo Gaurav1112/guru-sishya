@@ -22,7 +22,7 @@ import { useStore } from "@/lib/store";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const ADMIN_EMAIL = "kgauravis016@gmail.com";
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 

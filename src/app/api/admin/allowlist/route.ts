@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "redis";
+import { auth } from "@/lib/auth";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const ADMIN_EMAIL = "kgauravis016@gmail.com";
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
 const REDIS_KEY = "premium_allowlist";
 
 // ── Redis client ───────────────────────────────────────────────────────────────
@@ -44,17 +45,39 @@ async function writeAllowlist(emails: string[]): Promise<void> {
 }
 
 // ── GET /api/admin/allowlist ───────────────────────────────────────────────────
+// SECURITY: This endpoint now checks if the caller is authenticated and only
+// confirms whether THEIR email is on the list (not the full list).
+// The full list is only returned to the admin.
 
 export async function GET() {
-  const emails = await readAllowlist();
-  return NextResponse.json({ allowedEmails: emails });
+  const session = await auth();
+  const callerEmail = session?.user?.email?.toLowerCase() ?? "";
+
+  // Admin gets the full list (for the admin console)
+  if (callerEmail === ADMIN_EMAIL.toLowerCase()) {
+    const emails = await readAllowlist();
+    return NextResponse.json({ allowedEmails: emails });
+  }
+
+  // Non-admin authenticated users: check only their own email
+  if (callerEmail) {
+    const emails = await readAllowlist();
+    const isAllowed = emails.map((e) => e.toLowerCase()).includes(callerEmail);
+    // Return only whether the caller is allowed — don't leak other emails
+    return NextResponse.json({ allowedEmails: isAllowed ? [callerEmail] : [] });
+  }
+
+  // Unauthenticated: return empty list
+  return NextResponse.json({ allowedEmails: [] });
 }
 
 // ── POST /api/admin/allowlist ─────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const callerEmail = req.headers.get("x-admin-email");
-  if (!callerEmail || callerEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+  // SECURITY: Authenticate via server-side session, not client-supplied headers
+  const session = await auth();
+  const callerEmail = session?.user?.email?.toLowerCase() ?? "";
+  if (callerEmail !== ADMIN_EMAIL.toLowerCase()) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

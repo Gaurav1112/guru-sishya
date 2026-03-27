@@ -16,10 +16,9 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { provider, apiKey, endpoint, ...payload } = body as {
+  const { provider, apiKey, ...payload } = body as {
     provider: string;
     apiKey: string;
-    endpoint?: string;
     [key: string]: unknown;
   };
 
@@ -28,9 +27,15 @@ export async function POST(request: NextRequest) {
     openrouter: "https://openrouter.ai/api/v1/chat/completions",
   };
 
-  const upstream = endpoint || urlMap[provider];
+  // SECURITY: Only allow known upstream URLs — never accept arbitrary endpoints
+  // from the client. Accepting user-supplied URLs enables SSRF attacks
+  // (e.g., fetching http://169.254.169.254/ cloud metadata or internal services).
+  const upstream = urlMap[provider];
   if (!upstream) {
-    return Response.json({ error: "Unknown provider" }, { status: 400 });
+    return Response.json(
+      { error: "Unknown provider. Supported: groq, openrouter." },
+      { status: 400 }
+    );
   }
 
   const headers: Record<string, string> = {
