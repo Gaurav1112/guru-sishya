@@ -1,119 +1,59 @@
 // ── Code runner — execution strategy per language ─────────────────────────────
 //
-// JavaScript/TypeScript → in-browser via new Function() (code-playground.tsx)
+// JavaScript/TypeScript → in-browser sandboxed iframe (runJavaScriptSandboxed)
 // Python               → Pyodide (in-browser WASM, ~5 MB first load, cached)
-//                        Fallback: Wandbox API (https://wandbox.org/api/compile.json)
-// Java                 → Wandbox API via /api/run-code proxy (server-side, no CORS)
+// Java/C/C++/Go/Rust   → Piston API via /api/run-code proxy (server-side, no CORS)
 //
-// Piston (emkc.org) was removed: it became whitelist-only in Feb 2026.
+// Piston (emkc.org/api/v2/piston) is free, no API key required, supports 30+ languages.
 
 export type RunResult = {
   output: string;
   error: string | null;
   isError: boolean;
   /** How the code was run — shown in the playground UI */
-  runner?: "pyodide" | "wandbox" | "local" | "iframe";
+  runner?: "pyodide" | "piston" | "local" | "iframe";
   /** Wall-clock execution time in milliseconds */
   durationMs?: number;
 };
 
-// ── Wandbox API ────────────────────────────────────────────────────────────────
-// Docs: https://github.com/melpon/wandbox/blob/master/kennel2/API.rst
-// Free, no API key. Supports Python 3, Java (openjdk-head), Node.js, etc.
-// Java compilation is slow (~10–20 s); we use a 45 s timeout.
+// ── Piston API proxy ───────────────────────────────────────────────────────────
+// All compiled languages (Java, C, C++, Go, Rust) are executed server-side via
+// /api/run-code, which proxies to the Piston API (https://emkc.org/api/v2/piston).
+// Server-side fetch avoids CORS issues and hides slow compile waits.
 
-interface WandboxRequest {
-  compiler: string; // e.g. "cpython-3.12.0", "openjdk-head"
-  code: string;
-  stdin?: string;
-  "compiler-option-raw"?: string;
-  "runtime-option-raw"?: string;
-}
-
-interface WandboxResponse {
-  status?: string;
-  signal?: string;
-  compiler_output?: string;
-  compiler_error?: string;
-  program_output?: string;
-  program_error?: string;
-}
-
-async function runWithWandbox(
-  compiler: string,
-  code: string,
-  stdin = "",
-  timeoutMs = 30_000
-): Promise<RunResult> {
-  const body: WandboxRequest = { compiler, code };
-  if (stdin) body.stdin = stdin;
-
+async function runRemote(language: string, code: string): Promise<RunResult> {
   const t0 = Date.now();
-  let response: Response;
   try {
-    response = await fetch("https://wandbox.org/api/compile.json", {
+    const response = await fetch("/api/run-code", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(timeoutMs),
+      body: JSON.stringify({ language, code }),
+      signal: AbortSignal.timeout(50_000), // 50 s client-side safety net
     });
-  } catch (err) {
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      return {
+        output: "",
+        error: `Code execution service returned HTTP ${response.status}. ${text}`.trim(),
+        isError: true,
+        runner: "piston",
+        durationMs: Date.now() - t0,
+      };
+    }
+
+    const data = (await response.json()) as RunResult;
+    return { ...data, runner: "piston", durationMs: data.durationMs ?? Date.now() - t0 };
+  } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     return {
       output: "",
-      error: `Could not reach Wandbox API: ${msg}`,
+      error: `Runner error: ${msg}`,
       isError: true,
-      runner: "wandbox",
+      runner: "piston",
       durationMs: Date.now() - t0,
     };
   }
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    return {
-      output: "",
-      error: `Wandbox API returned HTTP ${response.status}. ${text}`.trim(),
-      isError: true,
-      runner: "wandbox",
-      durationMs: Date.now() - t0,
-    };
-  }
-
-  let result: WandboxResponse;
-  try {
-    result = (await response.json()) as WandboxResponse;
-  } catch {
-    return {
-      output: "",
-      error: "Wandbox returned an unexpected response.",
-      isError: true,
-      runner: "wandbox",
-      durationMs: Date.now() - t0,
-    };
-  }
-
-  const durationMs = Date.now() - t0;
-  const compileErr = result.compiler_error ?? "";
-  const programOut = result.program_output ?? "";
-  const programErr = result.program_error ?? "";
-  const exitCode = Number(result.status ?? "0");
-
-  if (compileErr) {
-    return {
-      output: result.compiler_output ?? "",
-      error: compileErr,
-      isError: true,
-      runner: "wandbox",
-      durationMs,
-    };
-  }
-
-  if (exitCode !== 0 && programErr) {
-    return { output: programOut, error: programErr, isError: true, runner: "wandbox", durationMs };
-  }
-
-  const combined = [programOut, programErr].filter(Boolean).join("\n");
-  return { output: combined || "(no output)", error: null, isError: false, runner: "wandbox", durationMs };
 }
 
 // ── Pyodide — in-browser Python via Web Worker ────────────────────────────────
@@ -339,66 +279,47 @@ export async function runJavaScriptSandboxed(
 
 /** Run Python 3 code.
  *  Primary:  Pyodide (in-browser WebAssembly — fast, offline-capable, free).
- *  Fallback: Wandbox API (if Pyodide fails to load, e.g. CSP blocks CDN). */
+ *  Fallback: Piston API via /api/run-code proxy (if Pyodide fails to load). */
 export async function runPython(code: string): Promise<RunResult> {
-  // Try Pyodide first.
   const pyResult = await runPythonPyodide(code);
 
-  // Fall back to Wandbox only if Pyodide itself failed to initialise
+  // Fall back to Piston only if Pyodide itself failed to initialise
   // (not if the user's Python code threw an error — that is a legitimate result).
   if (pyResult.isError && pyResult.error?.startsWith("Pyodide initialisation failed")) {
-    const wandboxResult = await runWithWandbox("cpython-3.12.0", code);
-    // If the primary Wandbox slug errors with HTTP, try an older one.
-    if (wandboxResult.isError && wandboxResult.error?.startsWith("Wandbox API returned HTTP")) {
-      return runWithWandbox("cpython-3.10.0", code);
-    }
-    return wandboxResult;
+    return runRemote("python", code);
   }
 
   return pyResult;
 }
 
-/** Run Java code via the /api/run-code server-side proxy.
- *  The proxy calls Wandbox (openjdk-head) with a 45 s timeout.
- *  Server-side fetch avoids CORS issues and lets us hide the slow compile wait. */
+/** Run Java code via the /api/run-code → Piston proxy. */
 export async function runJava(code: string): Promise<RunResult> {
-  const t0 = Date.now();
-  try {
-    const response = await fetch("/api/run-code", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ language: "java", code }),
-      signal: AbortSignal.timeout(50_000), // 50 s client-side safety net
-    });
-
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      return {
-        output: "",
-        error: `Code execution service returned HTTP ${response.status}. ${text}`.trim(),
-        isError: true,
-        runner: "wandbox",
-        durationMs: Date.now() - t0,
-      };
-    }
-
-    const data = (await response.json()) as RunResult;
-    return { ...data, durationMs: data.durationMs ?? Date.now() - t0 };
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return {
-      output: "",
-      error: `Java runner error: ${msg}`,
-      isError: true,
-      runner: "wandbox",
-      durationMs: Date.now() - t0,
-    };
-  }
+  return runRemote("java", code);
 }
 
-/** Run JavaScript (Node.js) code via Wandbox.
- *  Note: the in-browser executor in code-playground.tsx is preferred for JS/TS.
- *  This export exists for cases where a remote Node.js execution is needed. */
+/** Run C code via the /api/run-code → Piston proxy. */
+export async function runC(code: string): Promise<RunResult> {
+  return runRemote("c", code);
+}
+
+/** Run C++ code via the /api/run-code → Piston proxy. */
+export async function runCpp(code: string): Promise<RunResult> {
+  return runRemote("cpp", code);
+}
+
+/** Run Go code via the /api/run-code → Piston proxy. */
+export async function runGo(code: string): Promise<RunResult> {
+  return runRemote("go", code);
+}
+
+/** Run Rust code via the /api/run-code → Piston proxy. */
+export async function runRust(code: string): Promise<RunResult> {
+  return runRemote("rust", code);
+}
+
+/** Run JavaScript (Node.js) code via Piston.
+ *  Note: the in-browser sandboxed iframe is preferred for JS/TS in the playground.
+ *  This export exists for cases where remote Node.js execution is needed. */
 export async function runJavaScriptRemote(code: string): Promise<RunResult> {
-  return runWithWandbox("nodejs-20.11.0", code);
+  return runRemote("javascript", code);
 }

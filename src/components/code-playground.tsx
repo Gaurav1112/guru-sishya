@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2, Clock, Copy, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { runJava, runPython, runJavaScriptSandboxed, type RunResult } from "@/lib/code-runner";
+import { runJava, runC, runCpp, runGo, runRust, runPython, runJavaScriptSandboxed, type RunResult } from "@/lib/code-runner";
 
 // Monaco must be dynamically imported with ssr: false
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -16,7 +16,7 @@ export interface TestCase {
   description?: string;
 }
 
-export type PlaygroundLanguage = "javascript" | "typescript" | "python" | "java";
+export type PlaygroundLanguage = "javascript" | "typescript" | "python" | "java" | "c" | "cpp" | "go" | "rust";
 
 interface CodePlaygroundProps {
   defaultCode?: string;
@@ -75,7 +75,7 @@ print(greet("World"))
 print("2 + 2 =", 2 + 2)
 `,
   java: `// Java Playground
-// Compiled and run via Wandbox cloud (OpenJDK) — may take 10–20 s
+// Compiled and run via Piston cloud (OpenJDK)
 
 public class Main {
     public static void main(String[] args) {
@@ -88,6 +88,49 @@ public class Main {
     }
 }
 `,
+  c: `// C Playground
+// Compiled and run via Piston cloud (GCC)
+
+#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\\n");
+    printf("2 + 2 = %d\\n", 2 + 2);
+    return 0;
+}
+`,
+  cpp: `// C++ Playground
+// Compiled and run via Piston cloud (G++)
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!" << endl;
+    cout << "2 + 2 = " << (2 + 2) << endl;
+    return 0;
+}
+`,
+  go: `// Go Playground
+// Compiled and run via Piston cloud
+
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, World!")
+    fmt.Println("2 + 2 =", 2+2)
+}
+`,
+  rust: `// Rust Playground
+// Compiled and run via Piston cloud
+
+fn main() {
+    println!("Hello, World!");
+    println!("2 + 2 = {}", 2 + 2);
+}
+`,
 };
 
 // ── Language selector ─────────────────────────────────────────────────────────
@@ -95,8 +138,12 @@ public class Main {
 const LANGUAGES: { value: PlaygroundLanguage; label: string; monacoLang: string; remote?: boolean }[] = [
   { value: "javascript", label: "JavaScript", monacoLang: "javascript" },
   { value: "typescript", label: "TypeScript", monacoLang: "typescript" },
-  { value: "python", label: "Python", monacoLang: "python", remote: true },
+  { value: "python", label: "Python", monacoLang: "python" },
   { value: "java", label: "Java", monacoLang: "java", remote: true },
+  { value: "c", label: "C", monacoLang: "c", remote: true },
+  { value: "cpp", label: "C++", monacoLang: "cpp", remote: true },
+  { value: "go", label: "Go", monacoLang: "go", remote: true },
+  { value: "rust", label: "Rust", monacoLang: "rust", remote: true },
 ];
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -146,12 +193,44 @@ export function CodePlayground({
 
     try {
       if (language === "java") {
-        setRunStatus("Compiling via cloud (Wandbox / OpenJDK)...");
+        setRunStatus("Compiling via cloud (Piston / OpenJDK)...");
         const result: RunResult = await runJava(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel("cloud compiler (Wandbox)");
+        setRunnerLabel("Piston API (Java)");
+        setExecMs(result.durationMs ?? null);
+      } else if (language === "c") {
+        setRunStatus("Compiling via cloud (Piston / GCC)...");
+        const result: RunResult = await runC(code);
+        const combined = [result.output, result.error].filter(Boolean).join("\n");
+        setOutput(combined || "(no output)");
+        setOutputError(result.isError);
+        setRunnerLabel("Piston API (C/GCC)");
+        setExecMs(result.durationMs ?? null);
+      } else if (language === "cpp") {
+        setRunStatus("Compiling via cloud (Piston / G++)...");
+        const result: RunResult = await runCpp(code);
+        const combined = [result.output, result.error].filter(Boolean).join("\n");
+        setOutput(combined || "(no output)");
+        setOutputError(result.isError);
+        setRunnerLabel("Piston API (C++/G++)");
+        setExecMs(result.durationMs ?? null);
+      } else if (language === "go") {
+        setRunStatus("Compiling via cloud (Piston / Go)...");
+        const result: RunResult = await runGo(code);
+        const combined = [result.output, result.error].filter(Boolean).join("\n");
+        setOutput(combined || "(no output)");
+        setOutputError(result.isError);
+        setRunnerLabel("Piston API (Go)");
+        setExecMs(result.durationMs ?? null);
+      } else if (language === "rust") {
+        setRunStatus("Compiling via cloud (Piston / Rust)...");
+        const result: RunResult = await runRust(code);
+        const combined = [result.output, result.error].filter(Boolean).join("\n");
+        setOutput(combined || "(no output)");
+        setOutputError(result.isError);
+        setRunnerLabel("Piston API (Rust)");
         setExecMs(result.durationMs ?? null);
       } else if (language === "python") {
         setRunStatus("Loading Python runtime...");
@@ -356,9 +435,9 @@ export function CodePlayground({
               runs in-browser (Pyodide)
             </span>
           )}
-          {!running && !runStatus && language === "java" && (
+          {!running && !runStatus && (language === "java" || language === "c" || language === "cpp" || language === "go" || language === "rust") && (
             <span className="text-[10px] text-muted-foreground/60 italic">
-              compiles via cloud (Wandbox / OpenJDK)
+              compiles via cloud (Piston API)
             </span>
           )}
 
