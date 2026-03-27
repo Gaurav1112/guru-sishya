@@ -1404,7 +1404,7 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
       : 0;
 
   return (
-    <div className="flex flex-col min-h-0 h-[calc(100dvh-7rem)] sm:h-[calc(100dvh-8rem)]">
+    <div className="flex flex-col min-h-0 flex-1">
       {/* Interview header */}
       <div className="shrink-0 flex items-center gap-4 rounded-t-xl border border-b-0 border-border/50 bg-surface px-4 py-3">
         {/* Interviewer avatar */}
@@ -2017,7 +2017,7 @@ export default function InterviewPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-[calc(100dvh-4rem)] overflow-hidden">
       {/* Back link when active */}
       {phase !== "setup" && (
         <button
