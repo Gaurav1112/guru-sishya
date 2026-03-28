@@ -15,7 +15,7 @@ const features = [
   {
     title: "20-Hour Pareto Plan",
     description:
-      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 65 built-in topics.",
+      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 138 built-in topics.",
     icon: "📋",
   },
   {
@@ -27,7 +27,7 @@ const features = [
   {
     title: "Quiz Me Till I Break",
     description:
-      "1400+ pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
+      "1933 pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
     icon: "🧠",
   },
   {
@@ -61,7 +61,7 @@ const COMPARISON = [
   },
   {
     feature: "Interview Questions",
-    gs: "1400+ with answers",
+    gs: "1933 with answers",
     lc: "2800+ (no answers)",
     ae: "160",
     nc: "150",
@@ -127,7 +127,7 @@ export function Features() {
     <>
       <section id="features" className="px-6 py-20">
         <h2 className="mb-4 text-center font-heading text-3xl font-bold">
-          65 Interview Topics &amp; 1400+ Curated Questions
+          138 Interview Topics &amp; 1933 Curated Questions
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
           Everything you need to go from beginner to interview-ready. All content

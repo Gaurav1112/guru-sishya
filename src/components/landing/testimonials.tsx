@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const WHAT_YOU_GET = [
   {
-    number: "56",
+    number: "138",
     title: "Expert-Curated Topics",
     description: "System Design, DS&A, Core CS — every domain you'll face in a top-tier interview.",
     badges: ["System Design", "DS&A", "Core CS"],
@@ -14,7 +14,7 @@ const WHAT_YOU_GET = [
     span: "md:col-span-2",
   },
   {
-    number: "828",
+    number: "1933",
     title: "Interview Questions",
     description: "Detailed answers, not just hints. Every question comes with a full explanation so you actually learn.",
     badges: ["Detailed Answers"],
@@ -58,7 +58,7 @@ const WHAT_YOU_GET = [
     span: "",
   },
   {
-    number: "670+",
+    number: "671",
     title: "Full Lessons",
     description: "Complete teaching content — not just activity lists. Each lesson covers theory, examples, and code.",
     badges: ["Python", "TypeScript"],

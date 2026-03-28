@@ -12,9 +12,9 @@ const TRUST_BADGES = [
 ];
 
 const STATS = [
-  { value: 65, display: "65", label: "Topics", color: "text-saffron" },
-  { value: 1400, display: "1400+", label: "Questions", color: "text-teal" },
-  { value: 670, display: "670+", label: "Lessons", color: "text-gold" },
+  { value: 138, display: "138", label: "Topics", color: "text-saffron" },
+  { value: 1933, display: "1933", label: "Questions", color: "text-teal" },
+  { value: 671, display: "671", label: "Sessions", color: "text-gold" },
   { value: 6, display: "6", label: "FAANG Companies", color: "text-indigo", suffix: "" },
 ];
 
@@ -99,15 +99,17 @@ function StaggeredHeadline({ text }: { text: string }) {
   return (
     <h1 className="font-heading text-3xl font-bold leading-tight sm:text-4xl md:text-6xl text-saffron bg-gradient-to-r from-saffron via-gold to-teal bg-clip-text text-transparent">
       {words.map((word, i) => (
-        <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 + i * 0.08, duration: 0.4, ease: "easeOut" }}
-          className="inline-block mr-[0.25em]"
-        >
-          {word}
-        </motion.span>
+        <span key={i}>
+          {i > 0 && " "}
+          <motion.span
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 + i * 0.08, duration: 0.4, ease: "easeOut" }}
+            className="inline-block"
+          >
+            {word}
+          </motion.span>
+        </span>
       ))}
     </h1>
   );
@@ -145,8 +147,8 @@ export function Hero() {
           transition={{ delay: 0.7, duration: 0.5 }}
           className="mx-auto mt-5 max-w-xl text-base text-muted-foreground leading-relaxed"
         >
-          <span className="text-foreground font-semibold">65 topics</span>,{" "}
-          <span className="text-foreground font-semibold">1400+ curated questions</span>,{" "}
+          <span className="text-foreground font-semibold">138 topics</span>,{" "}
+          <span className="text-foreground font-semibold">1933 curated questions</span>,{" "}
           <span className="text-foreground font-semibold">STAR behavioral prep</span> for Google, Amazon, Microsoft, Meta &mdash; trusted by engineers
         </motion.p>
 

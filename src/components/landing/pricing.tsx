@@ -9,9 +9,9 @@ interface PlanFeature {
 }
 
 const FREE_FEATURES: PlanFeature[] = [
-  { text: "65 topics with full lessons" },
-  { text: "1400+ quiz questions with answers" },
-  { text: "670+ complete lessons" },
+  { text: "138 topics with full lessons" },
+  { text: "1933 quiz questions with answers" },
+  { text: "671 complete sessions" },
   { text: "Progress tracking & gamification" },
   { text: "Learning ladder (5 levels per topic)" },
   { text: "Visual cheat sheets" },
