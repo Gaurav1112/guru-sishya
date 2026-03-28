@@ -4,18 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { EmailCapture } from "./email-capture";
+import type { ContentStats } from "@/app/page";
 
 const TRUST_BADGES = [
   "No credit card required",
   "No API key needed",
   "Works offline",
-];
-
-const STATS = [
-  { value: 138, display: "138", label: "Topics", color: "text-saffron" },
-  { value: 1933, display: "1933", label: "Questions", color: "text-teal" },
-  { value: 671, display: "671", label: "Sessions", color: "text-gold" },
-  { value: 6, display: "6", label: "FAANG Companies", color: "text-indigo", suffix: "" },
 ];
 
 const FAANG_COMPANIES = [
@@ -117,7 +111,14 @@ function StaggeredHeadline({ text }: { text: string }) {
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 
-export function Hero() {
+export function Hero({ stats }: { stats: ContentStats }) {
+  const STATS = [
+    { value: stats.topicCount, display: String(stats.topicCount), label: "Topics", color: "text-saffron" },
+    { value: stats.questionCount, display: String(stats.questionCount), label: "Questions", color: "text-teal" },
+    { value: stats.sessionCount, display: String(stats.sessionCount), label: "Sessions", color: "text-gold" },
+    { value: 6, display: "6", label: "FAANG Companies", color: "text-indigo", suffix: "" },
+  ];
+
   return (
     <section className="relative flex min-h-[88vh] flex-col items-center justify-center px-6 text-center">
       {/* Radial gradient glow */}
@@ -147,8 +148,8 @@ export function Hero() {
           transition={{ delay: 0.7, duration: 0.5 }}
           className="mx-auto mt-5 max-w-xl text-base text-muted-foreground leading-relaxed"
         >
-          <span className="text-foreground font-semibold">138 topics</span>,{" "}
-          <span className="text-foreground font-semibold">1933 curated questions</span>,{" "}
+          <span className="text-foreground font-semibold">{stats.topicCount} topics</span>,{" "}
+          <span className="text-foreground font-semibold">{stats.questionCount.toLocaleString()} curated questions</span>,{" "}
           <span className="text-foreground font-semibold">STAR behavioral prep</span> for Google, Amazon, Microsoft, Meta &mdash; trusted by engineers
         </motion.p>
 

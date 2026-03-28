@@ -329,9 +329,16 @@ export default function DashboardPage() {
 
   const { data: session } = useSession();
   const [featuredContent, setFeaturedContent] = useState<TopicContent[]>([]);
+  const [contentStats, setContentStats] = useState<{ topicCount: number; questionCount: number }>({ topicCount: 0, questionCount: 0 });
 
   useEffect(() => {
     loadAllContent().then((all) => {
+      // Compute dynamic stats from actual content
+      setContentStats({
+        topicCount: all.length,
+        questionCount: all.reduce((sum, t) => sum + (t.quizBank?.length ?? 0), 0),
+      });
+
       const featured = FEATURED_TOPICS.flatMap((name) => {
         const match = all.find(
           (t) => t.topic.toLowerCase() === name.toLowerCase()
@@ -390,10 +397,10 @@ export default function DashboardPage() {
 
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <span>
-            <strong className="text-foreground">65</strong> topics ready
+            <strong className="text-foreground">{contentStats.topicCount || "..."}</strong> topics ready
           </span>
           <span>
-            <strong className="text-foreground">1400+</strong> quiz questions
+            <strong className="text-foreground">{contentStats.questionCount ? contentStats.questionCount.toLocaleString() : "..."}</strong> quiz questions
           </span>
           <span>
             <strong className="text-foreground">{topicCount ?? 0}</strong>{" "}
@@ -505,7 +512,7 @@ export default function DashboardPage() {
             href="/app/topics"
             className="text-sm text-saffron hover:underline"
           >
-            Browse all 65 topics →
+            Browse all {contentStats.topicCount || ""} topics →
           </Link>
         </div>
         <p className="text-sm text-muted-foreground mb-4">

@@ -10,6 +10,7 @@ import { useStore } from "@/lib/store";
 import { PageTransition } from "@/components/page-transition";
 import { CountdownTimer } from "@/components/pricing/countdown-timer";
 import { trackEvent } from "@/lib/analytics";
+import { loadAllContent } from "@/lib/content/loader";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -156,7 +157,7 @@ function CompetitorCell({ value }: { value: string }) {
 // ── Feature comparison data ───────────────────────────────────────────────────
 
 const FEATURES = [
-  { label: "All 65 topics + quiz banks", free: true, pro: true },
+  { label: "All topics + quiz banks", free: true, pro: true },
   { label: "First 5 interview Q&A answers per topic", free: true, pro: true },
   { label: "First 2 learning sessions per topic", free: true, pro: true },
   { label: "First 3 STAR method answers", free: true, pro: true },
@@ -215,6 +216,7 @@ export default function PricingPage() {
   const [trialLoading, setTrialLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trialUsed, setTrialUsed] = useState(false);
+  const [contentStats, setContentStats] = useState({ topicCount: 0, questionCount: 0, sessionCount: 0 });
 
   // Re-check expiry on mount and check trial-used flag
   useEffect(() => {
@@ -225,6 +227,17 @@ export default function PricingPage() {
       // ignore
     }
   }, [checkPremiumExpiry]);
+
+  // Load dynamic content stats
+  useEffect(() => {
+    loadAllContent().then((all) => {
+      setContentStats({
+        topicCount: all.length,
+        questionCount: all.reduce((sum, t) => sum + (t.quizBank?.length ?? 0), 0),
+        sessionCount: all.reduce((sum, t) => sum + (t.plan?.sessions?.length ?? 0), 0),
+      });
+    }).catch(() => {});
+  }, []);
 
   const isActive =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
@@ -359,7 +372,7 @@ export default function PricingPage() {
           Stop Guessing. Start Acing Interviews.
         </h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          828 answers, 1,400+ quiz questions, and 670+ lessons across 65 topics — everything you need to ace your software engineering interviews.
+          828 answers, {contentStats.questionCount ? contentStats.questionCount.toLocaleString() : "1,400+"} quiz questions, and {contentStats.sessionCount || "670+"}  lessons across {contentStats.topicCount || "65"} topics — everything you need to ace your software engineering interviews.
         </p>
 
         {isActive && (
@@ -578,7 +591,11 @@ export default function PricingPage() {
                     i % 2 === 0 ? "bg-transparent" : "bg-surface/40"
                   }`}
                 >
-                  <td className="px-3 sm:px-4 py-3 text-foreground/80">{feat.label}</td>
+                  <td className="px-3 sm:px-4 py-3 text-foreground/80">
+                    {feat.label === "All topics + quiz banks" && contentStats.topicCount
+                      ? `All ${contentStats.topicCount} topics + quiz banks`
+                      : feat.label}
+                  </td>
                   <td className="px-3 sm:px-4 py-3 text-center">
                     {feat.free ? (
                       <Check className="mx-auto size-3.5 sm:size-4 text-teal" />

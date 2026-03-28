@@ -13,6 +13,13 @@ import { FAQ } from "@/components/landing/faq";
 import { EmailCapture } from "@/components/landing/email-capture";
 import { ExitIntent } from "@/components/landing/exit-intent";
 import { Button } from "@/components/ui/button";
+import { loadAllContent } from "@/lib/content/loader";
+
+export interface ContentStats {
+  topicCount: number;
+  questionCount: number;
+  sessionCount: number;
+}
 
 // ── ScrollReveal — fade-in + slide-up when section enters viewport ─────────────
 
@@ -189,7 +196,7 @@ function CompanyLogoStrip() {
   );
 }
 
-function FinalCTA() {
+function FinalCTA({ stats }: { stats: ContentStats }) {
   return (
     <section className="px-6 py-20 text-center">
       <div className="mx-auto max-w-2xl rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-surface to-teal/5 p-12">
@@ -197,7 +204,7 @@ function FinalCTA() {
           Ready to Crack Your Interview?
         </h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          138 topics, 1933 questions, 58 STAR behavioral answers — all free. No signup, no credit card.
+          {stats.topicCount} topics, {stats.questionCount.toLocaleString()} questions, 58 STAR behavioral answers — all free. No signup, no credit card.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/app/topics">
@@ -220,6 +227,18 @@ function FinalCTA() {
 }
 
 export default function LandingPage() {
+  const [stats, setStats] = useState<ContentStats>({ topicCount: 138, questionCount: 1933, sessionCount: 671 });
+
+  useEffect(() => {
+    loadAllContent().then((all) => {
+      setStats({
+        topicCount: all.length,
+        questionCount: all.reduce((sum, t) => sum + (t.quizBank?.length ?? 0), 0),
+        sessionCount: all.reduce((sum, t) => sum + (t.plan?.sessions?.length ?? 0), 0),
+      });
+    }).catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:rounded-lg focus:bg-saffron focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-background">
@@ -229,7 +248,7 @@ export default function LandingPage() {
         <LandingNavbar />
       </header>
       <main id="main-content">
-      <Hero />
+      <Hero stats={stats} />
       <ScrollReveal delay={0}>
         <CompanyLogoStrip />
       </ScrollReveal>
@@ -246,13 +265,13 @@ export default function LandingPage() {
         <Testimonials />
       </ScrollReveal>
       <ScrollReveal delay={0}>
-        <Pricing />
+        <Pricing stats={stats} />
       </ScrollReveal>
       <ScrollReveal delay={0}>
         <FAQ />
       </ScrollReveal>
       <ScrollReveal delay={0}>
-        <FinalCTA />
+        <FinalCTA stats={stats} />
       </ScrollReveal>
       </main>
       <ExitIntent />
@@ -268,7 +287,7 @@ export default function LandingPage() {
                 <span className="font-heading text-base font-semibold text-saffron">GURU SISHYA</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Free software engineering interview preparation platform. 138 topics, 1933 questions, works offline.
+                Free software engineering interview preparation platform. {stats.topicCount} topics, {stats.questionCount.toLocaleString()} questions, works offline.
               </p>
             </div>
 

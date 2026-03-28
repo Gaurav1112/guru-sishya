@@ -1,23 +1,27 @@
 "use client";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import type { ContentStats } from "@/app/page";
 
 interface PlanFeature {
   text: string;
   highlight?: boolean;
 }
 
-const FREE_FEATURES: PlanFeature[] = [
-  { text: "138 topics with full lessons" },
-  { text: "1933 quiz questions with answers" },
-  { text: "671 complete sessions" },
-  { text: "Progress tracking & gamification" },
-  { text: "Learning ladder (5 levels per topic)" },
-  { text: "Visual cheat sheets" },
-  { text: "Curated resource library" },
-  { text: "Works offline — no setup" },
-];
+function getFreeFeatures(stats: ContentStats): PlanFeature[] {
+  return [
+    { text: `${stats.topicCount} topics with full lessons` },
+    { text: `${stats.questionCount.toLocaleString()} quiz questions with answers` },
+    { text: `${stats.sessionCount} complete sessions` },
+    { text: "Progress tracking & gamification" },
+    { text: "Learning ladder (5 levels per topic)" },
+    { text: "Visual cheat sheets" },
+    { text: "Curated resource library" },
+    { text: "Works offline — no setup" },
+  ];
+}
 
 const PRO_MONTHLY_FEATURES: PlanFeature[] = [
   { text: "Everything in Free" },
@@ -66,7 +70,9 @@ function CheckIcon({ highlight }: { highlight?: boolean }) {
   );
 }
 
-export function Pricing() {
+export function Pricing({ stats }: { stats: ContentStats }) {
+  const FREE_FEATURES = useMemo(() => getFreeFeatures(stats), [stats]);
+
   return (
     <section id="pricing" className="px-6 py-20">
       <motion.div
