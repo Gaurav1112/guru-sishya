@@ -8,7 +8,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
  */
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-  if (!checkRateLimit(`ai:${ip}`, 20, 60000)) {
+  if (!(await checkRateLimit(`ai:${ip}`, 20, 60000))) {
     return Response.json(
       { error: "Rate limit exceeded. Try again in a minute." },
       { status: 429 }

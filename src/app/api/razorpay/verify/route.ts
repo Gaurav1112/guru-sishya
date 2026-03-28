@@ -27,7 +27,7 @@ const PLAN_AMOUNTS: Record<string, number> = {
 export async function POST(req: NextRequest) {
   // SECURITY: Rate limit to prevent brute-force signature guessing
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  if (!checkRateLimit(`razorpay-verify:${ip}`, 10, 60000)) {
+  if (!(await checkRateLimit(`razorpay-verify:${ip}`, 10, 60000))) {
     return NextResponse.json(
       { error: "Too many verification attempts. Try again later." },
       { status: 429 }
