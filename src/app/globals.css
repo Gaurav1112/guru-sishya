@@ -119,6 +119,30 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Global thin scrollbars — prevents fat Windows scrollbars from breaking layouts */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(240 15% 25%) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(240 15% 25%);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(240 15% 35%);
+}
+
 /* Safe-area bottom padding for mobile keyboard / home indicator */
 .pb-safe {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
