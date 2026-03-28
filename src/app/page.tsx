@@ -197,7 +197,7 @@ function FinalCTA() {
           Ready to Crack Your Interview?
         </h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          65 topics, 1400+ questions, 58 STAR behavioral answers — all free. No signup, no credit card.
+          138 topics, 1933 questions, 58 STAR behavioral answers — all free. No signup, no credit card.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/app/topics">
@@ -268,7 +268,7 @@ export default function LandingPage() {
                 <span className="font-heading text-base font-semibold text-saffron">GURU SISHYA</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Free software engineering interview preparation platform. 65 topics, 1400+ questions, works offline.
+                Free software engineering interview preparation platform. 138 topics, 1933 questions, works offline.
               </p>
             </div>
 
