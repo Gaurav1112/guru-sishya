@@ -5,6 +5,7 @@ import { CelebrationOverlay } from "@/components/gamification/celebration-overla
 import { SubscriptionBanner } from "@/components/subscription-banner";
 import { ExpiryChecker } from "@/components/expiry-checker";
 import { MitraChat } from "@/components/mitra-chat";
+import { FeedbackWidget } from "@/components/feedback/feedback-widget";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -29,6 +30,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
       <CelebrationOverlay />
       <MitraChat />
+      <FeedbackWidget />
     </AppProviders>
   );
 }
