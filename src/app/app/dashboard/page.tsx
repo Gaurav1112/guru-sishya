@@ -24,6 +24,7 @@ import { DailyQuests } from "@/components/gamification/daily-quests";
 import { ShareButton } from "@/components/share-button";
 import { StreakFreezeModal } from "@/components/gamification/streak-freeze-modal";
 import { InterviewCountdown } from "@/components/gamification/interview-countdown";
+import { PushNotificationPrompt } from "@/components/gamification/push-notification-prompt";
 
 // ── Stagger item wrapper ──────────────────────────────────────────────────────
 
@@ -482,6 +483,9 @@ export default function DashboardPage() {
       )}
 
       <FadeIn index={idx++}><ComebackBanner /></FadeIn>
+
+      {/* Push notification prompt — shows after 3rd visit */}
+      <FadeIn index={idx++}><PushNotificationPrompt /></FadeIn>
 
       {/* ── Above Fold: always visible ────────────────────────────────── */}
 

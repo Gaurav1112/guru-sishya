@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { db } from "@/lib/db";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
+import { startNotificationScheduler, stopNotificationScheduler, getPreferredHour, setPreferredHour } from "@/lib/gamification/notification-scheduler";
+import { useState } from "react";
 
 export default function SettingsPage() {
   const {
@@ -16,6 +19,8 @@ export default function SettingsPage() {
     interviewDate, interviewCompany, setInterviewDate, setInterviewCompany,
     weeklyDigestEnabled, setWeeklyDigestEnabled,
   } = useStore();
+  const { supported: pushSupported, permission: pushPermission, subscribed: pushSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications();
+  const [notifHour, setNotifHour] = useState(() => getPreferredHour());
   async function handleExport() {
     const data = {
       version: 1, exportedAt: new Date().toISOString(),
@@ -95,6 +100,78 @@ export default function SettingsPage() {
           <Separator />
           <div className="flex items-center justify-between"><div><Label>Weekly Digest</Label><p className="text-xs text-muted-foreground">Receive a weekly summary of your progress</p></div><Button variant="outline" size="sm" onClick={() => setWeeklyDigestEnabled(!weeklyDigestEnabled)} className={weeklyDigestEnabled ? "border-saffron/50 text-saffron" : ""}>{weeklyDigestEnabled ? "On" : "Off"}</Button></div>
         </CardContent></Card>
+
+        {/* Push Notifications */}
+        <Card className="bg-surface border-border/50">
+          <CardHeader><CardTitle className="text-lg">Push Notifications</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            {!pushSupported ? (
+              <p className="text-sm text-muted-foreground">
+                Push notifications are not supported in this browser.
+              </p>
+            ) : pushPermission === "denied" ? (
+              <p className="text-sm text-muted-foreground">
+                Notifications are blocked. Please enable them in your browser settings to receive streak reminders and daily challenge alerts.
+              </p>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Streak &amp; Challenge Reminders</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Get reminders to protect your streak and complete daily challenges
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={pushSubscribed ? "border-teal/50 text-teal" : ""}
+                    onClick={async () => {
+                      if (pushSubscribed) {
+                        await pushUnsubscribe();
+                        stopNotificationScheduler();
+                      } else {
+                        const ok = await pushSubscribe();
+                        if (ok) startNotificationScheduler();
+                      }
+                    }}
+                  >
+                    {pushSubscribed ? "On" : "Off"}
+                  </Button>
+                </div>
+                {pushSubscribed && (
+                  <>
+                    <Separator />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>Reminder Time</Label>
+                        <p className="text-xs text-muted-foreground">
+                          When should we send daily reminders?
+                        </p>
+                      </div>
+                      <select
+                        value={notifHour}
+                        onChange={(e) => {
+                          const h = parseInt(e.target.value, 10);
+                          setNotifHour(h);
+                          setPreferredHour(h);
+                        }}
+                        className="rounded-md border border-border/50 bg-background px-3 py-1.5 text-sm"
+                      >
+                        {Array.from({ length: 24 }, (_, i) => (
+                          <option key={i} value={i}>
+                            {i === 0 ? "12:00 AM" : i < 12 ? `${i}:00 AM` : i === 12 ? "12:00 PM" : `${i - 12}:00 PM`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="bg-surface border-border/50"><CardHeader><CardTitle className="text-lg">Data</CardTitle></CardHeader><CardContent className="space-y-3">
           <Button variant="outline" onClick={handleExport}>Export All Data</Button>
           <p className="text-xs text-muted-foreground">Download all your data as a JSON file.</p>
