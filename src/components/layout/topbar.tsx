@@ -195,7 +195,7 @@ export function Topbar() {
           className="flex items-center gap-2 shrink-0"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-mark.svg" alt="Guru Sishya" className="size-8 rounded-lg" />
+          <img src="/logo-mark.png" alt="Guru Sishya" className="size-8 rounded-lg" />
           <span className="font-heading text-lg font-bold text-saffron tracking-wider hidden sm:inline">GURU SISHYA</span>
         </Link>
       </div>

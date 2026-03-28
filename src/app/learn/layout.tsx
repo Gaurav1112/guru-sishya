@@ -26,7 +26,7 @@ function LearnNavbar() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo-mark.svg"
+              src="/logo-mark.png"
               alt="Guru Sishya"
               className="size-8 rounded-lg"
               width={32}
@@ -86,7 +86,7 @@ function LearnFooter() {
           <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo-mark.svg"
+              src="/logo-mark.png"
               alt="Guru Sishya"
               className="size-6 rounded"
               width={24}

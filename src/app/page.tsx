@@ -85,7 +85,7 @@ function LandingNavbar() {
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.svg" alt="Guru Sishya" className="size-8 rounded-lg" />
+            <img src="/logo-mark.png" alt="Guru Sishya" className="size-8 rounded-lg" />
             <span className="font-heading text-lg font-bold text-saffron tracking-wider">GURU SISHYA</span>
           </Link>
           <div className="hidden sm:flex items-center gap-4">
@@ -283,7 +283,7 @@ export default function LandingPage() {
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-mark.svg" alt="Guru Sishya" className="size-6 rounded" />
+                <img src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" />
                 <span className="font-heading text-base font-semibold text-saffron">GURU SISHYA</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
