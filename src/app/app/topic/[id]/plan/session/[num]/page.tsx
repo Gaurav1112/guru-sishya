@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import { PremiumGate } from "@/components/premium-gate";
+import { CodeLanguageToggle } from "@/components/code-language-toggle";
 import type { GeneratedPlan } from "@/lib/plan/types";
 import type { LangCode } from "@/components/code-tabs";
 import type { PlaygroundLanguage } from "@/components/code-playground";
@@ -140,6 +141,8 @@ export default function SessionViewPage({
   const hydrated = useHydrated();
   const addXP = useStore((s) => s.addXP);
   const addCoins = useStore((s) => s.addCoins);
+  const preferredLanguage = useStore((s) => s.preferredLanguage);
+  const setPreferredLanguage = useStore((s) => s.setPreferredLanguage);
   const queueCelebration = useStore((s) => s.queueCelebration);
   const isPremium = useStore((s) => s.isPremium);
   const premiumUntil = useStore((s) => s.premiumUntil);
@@ -453,6 +456,31 @@ export default function SessionViewPage({
         </div>
       )}
 
+      {/* ── Activities (Study Plan — shown first) ───────────────────────── */}
+      {session.activities?.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Clock className="size-4 text-teal" />
+            <h2 className="text-sm font-semibold text-teal uppercase tracking-wide">
+              Study Plan
+            </h2>
+          </div>
+          <div className="space-y-2">
+            {session.activities.map((act, i) => (
+              <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-teal/10 text-teal text-xs font-bold">{i + 1}</span>
+                <div className="flex-1">
+                  <p className="text-sm text-foreground leading-relaxed">{act.description}</p>
+                  {act.durationMinutes > 0 && (
+                    <span className="text-[10px] text-muted-foreground mt-1 inline-block">~{act.durationMinutes} minutes</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Objectives ───────────────────────────────────────────────────── */}
       {session.objectives?.length > 0 && (
         <div className="space-y-2.5">
@@ -510,7 +538,10 @@ export default function SessionViewPage({
               "[&_hr]:border-border [&_hr]:my-6",
             )}
           >
-            <MarkdownRenderer content={session.content} />
+            <div className="mb-4">
+              <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} />
+            </div>
+            <MarkdownRenderer content={session.content} languageFilter={preferredLanguage} />
           </div>
         </div>
       )}
@@ -587,39 +618,7 @@ export default function SessionViewPage({
         </div>
       )}
 
-      {/* ── Activities ────────────────────────────────────────────────────── */}
-      {session.activities?.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Clock className="size-4 text-teal" />
-            <h2 className="text-sm font-semibold text-teal uppercase tracking-wide">
-              Activities
-            </h2>
-          </div>
-          <div className="space-y-2">
-            {session.activities.map((act, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3"
-              >
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-teal/10 text-teal text-xs font-bold">
-                  {i + 1}
-                </span>
-                <div className="flex-1">
-                  <p className="text-sm text-foreground leading-relaxed">
-                    {act.description}
-                  </p>
-                  {act.durationMinutes > 0 && (
-                    <span className="text-[10px] text-muted-foreground mt-1 inline-block">
-                      ~{act.durationMinutes} minutes
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Activities section moved to top as "Study Plan" */}
 
       {/* ── Floating sticky notes panel (right side, sticky on scroll) ── */}
       <FloatingStickyNotes topicId={topicId} sessionNum={sessionNum} />
