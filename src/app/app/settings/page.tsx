@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { db } from "@/lib/db";
 
 export default function SettingsPage() {
-  const { soundEnabled, setSoundEnabled, dailyGoal, setDailyGoal, showOnLeaderboard, setShowOnLeaderboard } = useStore();
+  const { soundEnabled, setSoundEnabled, dailyGoal, setDailyGoal, showOnLeaderboard, setShowOnLeaderboard, weeklyDigestEnabled, setWeeklyDigestEnabled } = useStore();
   async function handleExport() {
     const data = {
       version: 1, exportedAt: new Date().toISOString(),
@@ -43,6 +43,8 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between"><div><Label>Daily Goal</Label><p className="text-xs text-muted-foreground">Minutes per day</p></div>
             <div className="flex gap-2">{[5, 10, 15, 20, 30].map((m) => (<Button key={m} variant={dailyGoal === m ? "default" : "outline"} size="sm" onClick={() => setDailyGoal(m)} className={dailyGoal === m ? "bg-saffron" : ""}>{m}</Button>))}</div>
           </div>
+          <Separator />
+          <div className="flex items-center justify-between"><div><Label>Weekly Digest</Label><p className="text-xs text-muted-foreground">Receive a weekly summary of your progress</p></div><Button variant="outline" size="sm" onClick={() => setWeeklyDigestEnabled(!weeklyDigestEnabled)} className={weeklyDigestEnabled ? "border-saffron/50 text-saffron" : ""}>{weeklyDigestEnabled ? "On" : "Off"}</Button></div>
         </CardContent></Card>
         <Card className="bg-surface border-border/50"><CardHeader><CardTitle className="text-lg">Data</CardTitle></CardHeader><CardContent className="space-y-3">
           <Button variant="outline" onClick={handleExport}>Export All Data</Button>

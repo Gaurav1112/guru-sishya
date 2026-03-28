@@ -51,6 +51,11 @@ type PersistedState = Pick<
   | "premiumUntil"
   | "paymentId"
   | "planType"
+  // Weekly digest
+  | "weeklyDigestEnabled"
+  // Interview countdown
+  | "interviewDate"
+  | "interviewCompany"
 >;
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -107,6 +112,9 @@ export const useStore = create<StoreState>()(
         premiumUntil: state.premiumUntil,
         paymentId: state.paymentId,
         planType: state.planType,
+        weeklyDigestEnabled: state.weeklyDigestEnabled,
+        interviewDate: state.interviewDate,
+        interviewCompany: state.interviewCompany,
       }),
     }
   )
