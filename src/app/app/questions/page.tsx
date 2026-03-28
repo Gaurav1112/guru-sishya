@@ -678,6 +678,7 @@ export default function QuestionsPage() {
       filteredQuestions.map((q, i) => ({
         index: i,
         questionId: q.id,
+        questionText: q.question.length > 60 ? q.question.substring(0, 57) + "..." : q.question,
         status: bookmarkMap.get(q.id)?.status ?? ("unseen" as const),
         bookmarked: bookmarkMap.get(q.id)?.bookmarked ?? false,
       })),
