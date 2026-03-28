@@ -30,9 +30,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
-  title: "Guru Sishya — DSA + System Design Interview Prep Platform | Free",
+  title: "DSA, System Design & Behavioral Interview Prep | Guru Sishya",
   description:
-    "Master FAANG interviews with 1988 questions, 141 topics, system design case studies, mock interviews & STAR behavioral prep. Free platform with Java + Python code. Works offline, no signup needed.",
+    "Practice 1988 DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free platform with Java + Python code.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
