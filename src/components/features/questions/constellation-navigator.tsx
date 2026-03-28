@@ -12,6 +12,7 @@ interface ConstellationNavigatorProps {
   activeCategory: string;
   questions: {
     index: number;
+    questionText?: string;
     status: "unseen" | "known" | "review";
     bookmarked: boolean;
   }[];
@@ -42,7 +43,7 @@ function completionRatio(
 
 // Window size for question nodes (max DOM nodes)
 const WINDOW_SIZE = 50;
-const NODE_HEIGHT = 40; // height of each question row
+const NODE_HEIGHT = 44; // height of each question row (fits number + truncated text)
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -261,14 +262,26 @@ export function ConstellationNavigator({
                       {globalIndex + 1}
                     </span>
 
-                    {/* Status label for current */}
-                    {isCurrent && q.status !== "unseen" && (
-                      <span className="text-[10px] text-muted-foreground">
-                        {q.status === "known" ? "Known" : "Review"}
+                    {/* Question text */}
+                    <span className={cn(
+                      "flex-1 text-[11px] leading-tight truncate",
+                      isCurrent ? "text-saffron font-medium" : "text-muted-foreground"
+                    )}>
+                      {q.questionText || `Question ${globalIndex + 1}`}
+                    </span>
+
+                    {/* Status badge */}
+                    {q.status !== "unseen" && (
+                      <span className={cn(
+                        "shrink-0 text-[9px] px-1.5 py-0.5 rounded-full",
+                        q.status === "known" && "bg-teal/10 text-teal",
+                        q.status === "review" && "bg-gold/10 text-gold",
+                      )}>
+                        {q.status === "known" ? "✓" : "⟳"}
                       </span>
                     )}
-                    {isCurrent && q.bookmarked && (
-                      <span className="text-[10px] text-indigo">Saved</span>
+                    {q.bookmarked && q.status === "unseen" && (
+                      <span className="shrink-0 text-[9px] text-indigo">★</span>
                     )}
                   </motion.button>
                 );
