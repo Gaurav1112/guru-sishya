@@ -15,6 +15,9 @@ export interface SettingsState {
   onboardingCompleted: boolean;
   visitCount: number;
   preferredLanguage: "java" | "python" | "typescript" | "all";
+  interviewDate: string | null;
+  interviewCompany: string;
+  weeklyDigestEnabled: boolean;
 }
 
 export interface SettingsActions {
@@ -29,6 +32,9 @@ export interface SettingsActions {
   setOnboardingCompleted: (done: boolean) => void;
   incrementVisitCount: () => void;
   setPreferredLanguage: (lang: "java" | "python" | "typescript" | "all") => void;
+  setInterviewDate: (date: string | null) => void;
+  setInterviewCompany: (company: string) => void;
+  setWeeklyDigestEnabled: (enabled: boolean) => void;
 }
 
 export type SettingsSlice = SettingsState & SettingsActions;
@@ -52,6 +58,9 @@ export const createSettingsSlice: StateCreator<
   onboardingCompleted: false,
   visitCount: 0,
   preferredLanguage: "all",
+  interviewDate: null,
+  interviewCompany: "",
+  weeklyDigestEnabled: false,
 
   // Actions
   setApiKey: (key) =>
@@ -92,4 +101,10 @@ export const createSettingsSlice: StateCreator<
     set((state) => { state.visitCount += 1; }),
   setPreferredLanguage: (lang) =>
     set((state) => { state.preferredLanguage = lang; }),
+  setInterviewDate: (date) =>
+    set((state) => { state.interviewDate = date; }),
+  setInterviewCompany: (company) =>
+    set((state) => { state.interviewCompany = company.trim(); }),
+  setWeeklyDigestEnabled: (enabled) =>
+    set((state) => { state.weeklyDigestEnabled = enabled; }),
 });
