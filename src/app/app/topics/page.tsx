@@ -333,8 +333,19 @@ export default function TopicsPage() {
   const [allContent, setAllContent] = useState<TopicContent[]>([]);
   const [contentLoading, setContentLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [showFirstRun, setShowFirstRun] = useState(false);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [autocompleteIndex, setAutocompleteIndex] = useState(-1);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<HTMLDivElement>(null);
+
+  // Debounce search input (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Show first-run modal if not yet completed
   useEffect(() => {
@@ -347,7 +358,11 @@ export default function TopicsPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const q = params.get("search");
-    if (q) setSearch(decodeURIComponent(q));
+    if (q) {
+      const decoded = decodeURIComponent(q);
+      setSearch(decoded);
+      setDebouncedSearch(decoded);
+    }
   }, []);
 
   useEffect(() => {
@@ -371,16 +386,98 @@ export default function TopicsPage() {
     return out;
   }, [allContent]);
 
-  // Apply search filter
+  // All topic names for fuzzy search
+  const allTopicNames = useMemo(
+    () => dedupedContent.map((t) => t.topic),
+    [dedupedContent]
+  );
+
+  // Autocomplete suggestions (fuzzy, top 5)
+  const autocompleteSuggestions = useMemo(() => {
+    if (!search.trim() || search.trim().length < 2) return [];
+    return fuzzyMatch(search, allTopicNames, 5);
+  }, [search, allTopicNames]);
+
+  // Apply search filter with fuzzy matching
   const filtered = useMemo(() => {
-    const q = search.toLowerCase().trim();
+    const q = debouncedSearch.toLowerCase().trim();
     if (!q) return dedupedContent;
-    return dedupedContent.filter(
+    // First try exact substring match
+    const exact = dedupedContent.filter(
       (t) =>
         t.topic.toLowerCase().includes(q) ||
         t.category.toLowerCase().includes(q)
     );
-  }, [dedupedContent, search]);
+    if (exact.length > 0) return exact;
+    // Fall back to fuzzy match
+    const fuzzyTopics = fuzzyMatch(debouncedSearch, allTopicNames, 50);
+    const fuzzySet = new Set(fuzzyTopics.map((t) => t.toLowerCase()));
+    return dedupedContent.filter((t) => fuzzySet.has(t.topic.toLowerCase()));
+  }, [dedupedContent, debouncedSearch, allTopicNames]);
+
+  // "Did you mean" suggestion when no results
+  const suggestion = useMemo(() => {
+    if (filtered.length > 0 || !debouncedSearch.trim()) return null;
+    return didYouMean(debouncedSearch, allTopicNames);
+  }, [filtered, debouncedSearch, allTopicNames]);
+
+  // Close autocomplete on click outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        autocompleteRef.current &&
+        !autocompleteRef.current.contains(e.target as Node) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(e.target as Node)
+      ) {
+        setShowAutocomplete(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle autocomplete keyboard navigation
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (!showAutocomplete || autocompleteSuggestions.length === 0) {
+        if (e.key === "ArrowDown" && autocompleteSuggestions.length > 0) {
+          setShowAutocomplete(true);
+          setAutocompleteIndex(0);
+          e.preventDefault();
+        }
+        return;
+      }
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setAutocompleteIndex((i) =>
+            i < autocompleteSuggestions.length - 1 ? i + 1 : 0
+          );
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setAutocompleteIndex((i) =>
+            i > 0 ? i - 1 : autocompleteSuggestions.length - 1
+          );
+          break;
+        case "Enter":
+          if (autocompleteIndex >= 0 && autocompleteIndex < autocompleteSuggestions.length) {
+            e.preventDefault();
+            setSearch(autocompleteSuggestions[autocompleteIndex]);
+            setDebouncedSearch(autocompleteSuggestions[autocompleteIndex]);
+            setShowAutocomplete(false);
+            setAutocompleteIndex(-1);
+          }
+          break;
+        case "Escape":
+          setShowAutocomplete(false);
+          setAutocompleteIndex(-1);
+          break;
+      }
+    },
+    [showAutocomplete, autocompleteSuggestions, autocompleteIndex]
+  );
 
   // Apply tab filter
   const tabFiltered = useMemo(() => {
