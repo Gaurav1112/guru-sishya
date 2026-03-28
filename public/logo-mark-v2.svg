@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="flameGrad" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#E85D26"/>
+      <stop offset="70%" stop-color="#FDB813"/>
+    </linearGradient>
+    <linearGradient id="leftArc" x1="0" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#E85D26" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#E85D26"/>
+    </linearGradient>
+    <linearGradient id="rightArc" x1="1" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#FDB813" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FDB813"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="#0C0A15"/>
+
+  <!--
+    Concept: Two sweeping arcs (Guru + Sishya) cradle a central flame
+    of knowledge. The flame is a filled geometric shape — bold and iconic.
+    The arcs represent the teacher-student relationship converging on
+    shared understanding. Teal accent = the spark of insight.
+  -->
+
+  <!-- Left arc — Guru (saffron) -->
+  <path
+    d="M18 48 C18 38 20 30 26 24 C30 20 32 17 32 13"
+    stroke="url(#leftArc)"
+    stroke-width="3"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <!-- Right arc — Sishya (gold) -->
+  <path
+    d="M46 48 C46 38 44 30 38 24 C34 20 32 17 32 13"
+    stroke="url(#rightArc)"
+    stroke-width="3"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <!-- Central flame — filled, bold, the hero shape -->
+  <path
+    d="M32 18 C28.5 24 26 28 26 32 C26 35.3 28.7 38 32 38 C35.3 38 38 35.3 38 32 C38 28 35.5 24 32 18Z"
+    fill="url(#flameGrad)"
+  />
+
+  <!-- Inner flame core — bright highlight -->
+  <path
+    d="M32 25 C30 28.5 29 30.5 29 32.5 C29 34.2 30.3 35.5 32 35.5 C33.7 35.5 35 34.2 35 32.5 C35 30.5 34 28.5 32 25Z"
+    fill="#FDB813"
+    opacity="0.9"
+  />
+
+  <!-- White hot center -->
+  <ellipse cx="32" cy="32.5" rx="1.8" ry="2.2" fill="white" opacity="0.7"/>
+
+  <!-- Teal spark — the ignition point -->
+  <circle cx="32" cy="14" r="2" fill="#1DD1A1"/>
+
+  <!-- Base platform — subtle, grounding the mark -->
+  <path
+    d="M24 43 Q28 40 32 40 Q36 40 40 43"
+    stroke="#E85D26"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.4"
+  />
+</svg>

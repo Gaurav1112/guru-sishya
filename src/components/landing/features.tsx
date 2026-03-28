@@ -13,39 +13,39 @@ const BORDER_COLORS = [
 
 const features = [
   {
-    title: "20-Hour Pareto Plan",
+    title: "Guru's Path",
     description:
-      "A focused plan targeting the 20% that drives 80% of results. Ready instantly for all 138 built-in topics.",
+      "Structured sessions targeting the 20% that drives 80% of results. Ready instantly for all 138 built-in topics.",
     icon: "📋",
   },
   {
-    title: "Cheat Sheet",
+    title: "Quick Saar",
     description:
-      "Visual 1-2 page summary with diagrams and code examples. Review an entire topic in 5 minutes.",
+      "Visual 1-2 page essence with diagrams and code examples. Revise an entire topic in 5 minutes.",
     icon: "📄",
   },
   {
-    title: "Quiz Me Till I Break",
+    title: "Pariksha",
     description:
       "1933 pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
     icon: "🧠",
   },
   {
-    title: "Learning Ladder",
+    title: "Vidya Levels",
     description:
       "5-level progression from Novice to Expert with clear milestones for every topic.",
     icon: "🪜",
   },
   {
-    title: "Resource Finder",
+    title: "Gyan Kosh",
     description:
-      "Curated list of the best books, courses, and videos for each topic.",
+      "Best books, courses, and videos hand-picked for each topic.",
     icon: "🔍",
   },
   {
-    title: "Feynman Technique",
+    title: "Guru Mode",
     description:
-      "Interactive Socratic chat. Explain back until you truly understand.",
+      "Become the teacher — explain concepts back to truly understand them.",
     icon: "💬",
   },
 ];

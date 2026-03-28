@@ -32,7 +32,7 @@ const STEPS = [
     step: "03",
     title: "Practice & Master",
     description:
-      "Reinforce with quiz questions, test code in the playground, and use the Feynman Technique to confirm deep understanding — not just memorization.",
+      "Reinforce with quiz questions, test code in the playground, and use the Guru Mode to confirm deep understanding — not just memorization.",
     color: "border-gold/50 bg-gold/5",
     numberColor: "text-gold",
     icon: (
@@ -54,7 +54,7 @@ export function HowItWorks() {
         className="text-center mb-12"
       >
         <h2 className="font-heading text-3xl font-bold mb-3">
-          How It Works — Topics, Questions &amp; Feynman Technique
+          How It Works — Topics, Questions &amp; Guru Mode
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
           Start learning in 3 simple steps

@@ -76,7 +76,7 @@ export default function CheatsheetPage({
         <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
         <div>
           <h1 className="font-heading text-xl font-bold">{topic.name}</h1>
-          <p className="text-xs text-muted-foreground mt-1">Cheat Sheet</p>
+          <p className="text-xs text-muted-foreground mt-1">Quick Saar</p>
         </div>
         <PremiumGate feature="full-cheatsheets" overlay={false}>
           <CheatsheetContainer topicId={topic.id!} topicName={topic.name} languageFilter={preferredLanguage} />

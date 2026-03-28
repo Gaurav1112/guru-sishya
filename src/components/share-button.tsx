@@ -67,7 +67,7 @@ function buildShareText(
     case "badge":
       return `Just unlocked the "${name}" badge on Guru Sishya! One step closer to interview-ready. `;
     case "mastery":
-      return `Just mastered "${name}" using the Feynman Technique on Guru Sishya. Deep understanding, not just memorisation!`;
+      return `Just mastered "${name}" using Guru Mode on Guru Sishya. Deep understanding, not just memorisation!`;
     case "stats":
       return `I've explored ${value} topics on Guru Sishya and I'm building real software engineering interview mastery!`;
     case "quiz":

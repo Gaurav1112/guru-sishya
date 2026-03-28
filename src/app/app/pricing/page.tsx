@@ -167,8 +167,8 @@ const FEATURES = [
   { label: "All learning sessions (unlimited)", free: false, pro: true },
   { label: "All STAR method answers", free: false, pro: true },
   { label: "Hard difficulty + timed quiz mode", free: false, pro: true },
-  { label: "Full Learning Ladder (levels 2–5)", free: false, pro: true },
-  { label: "Feynman Technique sessions", free: false, pro: true },
+  { label: "Full Vidya Levels (levels 2–5)", free: false, pro: true },
+  { label: "Guru Mode sessions", free: false, pro: true },
   { label: "Unlimited flashcards", free: false, pro: true },
 ];
 

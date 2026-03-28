@@ -21,7 +21,7 @@ const FREE_FEATURES: PlanFeature[] = [
 
 const PRO_MONTHLY_FEATURES: PlanFeature[] = [
   { text: "Everything in Free" },
-  { text: "AI-powered Feynman Technique", highlight: true },
+  { text: "AI-powered Guru Mode", highlight: true },
   { text: "Custom topic generation", highlight: true },
   { text: "Priority support", highlight: true },
   { text: "Certificate of completion", highlight: true },

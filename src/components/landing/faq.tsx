@@ -34,7 +34,7 @@ const FAQS: FAQItem[] = [
   },
   {
     q: "What does the Pro plan include?",
-    a: "Pro (₹149/month, ₹699/semester, ₹1,199/year, or ₹2,999 lifetime) unlocks: all lesson sessions, unlimited Q&A answers, AI Mock Interviewer with voice input, Mitra AI chatbot, hard quiz difficulty with timer, full Learning Ladder, Feynman Technique, unlimited flashcards, all cheat sheets, and the Revision section.",
+    a: "Pro (₹149/month, ₹699/semester, ₹1,199/year, or ₹2,999 lifetime) unlocks: all lesson sessions, unlimited Q&A answers, AI Mock Interviewer with voice input, Mitra AI chatbot, hard quiz difficulty with timer, full Learning Ladder, Guru Mode, unlimited flashcards, all cheat sheets, and the Revision section.",
   },
 ];
 

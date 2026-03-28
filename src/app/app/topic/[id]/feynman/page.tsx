@@ -16,10 +16,10 @@ function FeynmanPreview() {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Brain className="size-5 text-saffron" />
-          <h2 className="font-heading text-lg font-bold">The Feynman Technique</h2>
+          <h2 className="font-heading text-lg font-bold">Guru Mode</h2>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          The Feynman Technique helps you truly understand concepts by teaching them in your own words.
+          Guru Mode helps you truly understand concepts by teaching them in your own words.
           If you can&apos;t explain it simply, you don&apos;t understand it yet.
         </p>
       </div>
