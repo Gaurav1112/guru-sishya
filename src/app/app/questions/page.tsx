@@ -324,7 +324,7 @@ function QuestionCard({
             {/* Book spine decoration */}
             <div className="absolute inset-y-0 left-0 w-3 rounded-l-2xl bg-gradient-to-r from-teal/20 via-teal/10 to-transparent" />
 
-            <div className="p-6 sm:p-8 pl-7 sm:pl-10 flex flex-col h-full overflow-y-auto max-h-[500px]">
+            <div className="p-6 sm:p-8 pl-7 sm:pl-10 flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center gap-2 mb-4">
                 <span className="inline-flex items-center rounded-full bg-teal/15 border border-teal/30 px-2.5 py-0.5 text-[10px] font-semibold text-teal uppercase tracking-wider">
@@ -340,13 +340,13 @@ function QuestionCard({
                 </div>
               ) : (
                 <>
-                  {/* Answer content */}
-                  <div className="flex-1 text-sm">
+                  {/* Answer content — scrollable */}
+                  <div className="flex-1 overflow-y-auto overscroll-contain text-sm mb-3" style={{ scrollbarWidth: "thin" }}>
                     <MarkdownRenderer content={question.answer} languageFilter={languageFilter} />
                   </div>
 
-                  {/* Status buttons */}
-                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/30">
+                  {/* Status buttons — sticky at bottom, always visible */}
+                  <div className="shrink-0 flex items-center gap-2 pt-3 border-t border-border/30">
                     <button
                       type="button"
                       onClick={(e) => {

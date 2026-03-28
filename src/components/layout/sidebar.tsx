@@ -140,7 +140,7 @@ export function Sidebar() {
 
   return (
     <aside className="hidden md:flex w-56 flex-col border-r border-border/50 bg-background">
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="flex-1 space-y-1 p-3 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
         {primaryNavItems.map(renderNavLink)}
 
         {/* Collapsible "More" section */}
