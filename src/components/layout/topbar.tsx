@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Crown, Menu, ShieldCheck } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 import { ADMIN_EMAIL } from "@/lib/stores/premium-slice";
-import { StreakFlame } from "@/components/gamification/streak-flame";
+import { StreakFlame, type StreakStatus } from "@/components/gamification/streak-flame";
 import { XPBar } from "@/components/gamification/xp-bar";
 import { CoinDisplay } from "@/components/gamification/coin-display";
 import { LevelBadge } from "@/components/gamification/level-badge";
@@ -165,10 +165,21 @@ function MobileNav() {
 }
 
 export function Topbar() {
-  const { totalXP, level, coins, currentStreak, activeXPBoost, displayName } = useStore();
+  const { totalXP, level, coins, currentStreak, streakFreezes, activeXPBoost, displayName } = useStore();
   const { data: session } = useSession();
   const xpBoostActive =
     !!activeXPBoost && new Date(activeXPBoost) > new Date();
+
+  // Determine streak status: active today, at-risk with freeze, or at-risk no freeze
+  const streakStatus: StreakStatus | undefined = useMemo(() => {
+    if (typeof window === "undefined") return undefined;
+    const lastDate = localStorage.getItem("lastStreakDate") ?? "";
+    const today = new Date().toISOString().slice(0, 10);
+    if (lastDate === today) return "active";
+    if (streakFreezes > 0) return "at-risk";
+    if (currentStreak > 0) return "no-freeze";
+    return undefined;
+  }, [streakFreezes, currentStreak]);
 
   // Resolve display name: Google session name takes priority, then store displayName
   const firstName =
@@ -189,8 +200,8 @@ export function Topbar() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4">
-        <StreakFlame streak={currentStreak} size="sm" />
+      <div className="flex items-center gap-2 sm:gap-4" data-tour="topbar-stats">
+        <StreakFlame streak={currentStreak} size="sm" freezeCount={streakFreezes} status={streakStatus} />
         {xpBoostActive && (
           <span
             title="XP Boost active — 1.5x XP for the next hour"

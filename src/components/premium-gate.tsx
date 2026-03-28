@@ -17,7 +17,8 @@ export type PremiumFeature =
   | "feynman"
   | "full-flashcards"
   | "full-cheatsheets"
-  | "mock-interview";
+  | "mock-interview"
+  | "certificates";
 
 const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: string }> = {
   "full-answers": {
@@ -55,6 +56,10 @@ const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: strin
   "mock-interview": {
     title: "Practice Like It's Real",
     description: "AI-powered mock interviews with company-specific questions, voice input, and instant scoring.",
+  },
+  certificates: {
+    title: "Earn Completion Certificates",
+    description: "Unlock shareable certificates for every topic you master. Download as image or share directly on LinkedIn.",
   },
 };
 

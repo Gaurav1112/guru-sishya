@@ -63,17 +63,17 @@ function buildShareText(
   if (custom) return custom;
   switch (type) {
     case "streak":
-      return `I'm on a ${value}-day learning streak on Guru Sishya! Consistent practice is how I'm mastering software engineering interviews. Join me!`;
+      return `${value}-day learning streak on Guru Sishya! #ConsistencyIsKey #InterviewPrep #GuruSishya`;
     case "badge":
-      return `Just unlocked the "${name}" badge on Guru Sishya! One step closer to interview-ready. `;
+      return `I just earned the ${name} badge on Guru Sishya! #InterviewPrep #GuruSishya`;
     case "mastery":
-      return `Just mastered "${name}" using Guru Mode on Guru Sishya. Deep understanding, not just memorisation!`;
+      return `Just mastered "${name}" on Guru Sishya. Deep understanding, not just memorisation! #CodingInterview #GuruSishya`;
     case "stats":
-      return `I've explored ${value} topics on Guru Sishya and I'm building real software engineering interview mastery!`;
+      return `I've explored ${value} topics on Guru Sishya! #InterviewPrep #GuruSishya`;
     case "quiz":
-      return `Scored ${value}/10 on "${name}" quiz on Guru Sishya. Testing myself until I truly know this stuff!`;
+      return `Scored ${value}% on ${name} Pariksha on Guru Sishya! #CodingInterview #GuruSishya`;
     default:
-      return "Check out my progress on Guru Sishya — the AI-powered SWE interview prep app!";
+      return "Check out my progress on Guru Sishya - the AI-powered SWE interview prep app! #InterviewPrep #GuruSishya";
   }
 }
 
