@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sendEmail } from "@/lib/email";
+import {
+  buildWeeklyDigestHtml,
+  WeeklyDigestData,
+} from "@/lib/email-templates/weekly-digest";
 
 /**
  * POST /api/digest
  *
- * Receives weekly digest data and a user email.
- * For now this logs the request -- actual email sending will use SendGrid later.
+ * Receives weekly digest data and a user email, then sends
+ * the digest email via Resend (or logs if no API key configured).
  *
- * Body: { email: string; digest: WeeklyDigest }
+ * Body: { email: string; digest: WeeklyDigestData }
  */
 export async function POST(req: NextRequest) {
   // SECURITY: Rate limit -- max 3 digest requests per IP per hour
@@ -39,25 +44,45 @@ export async function POST(req: NextRequest) {
     // Sanitize email
     const sanitizedEmail = email.toLowerCase().trim().slice(0, 320);
 
-    // Log for now -- replace with SendGrid integration later
-    console.log(
-      `[Weekly Digest] Request for ${sanitizedEmail}`,
-      JSON.stringify({
-        weekStart: digest.weekStart,
-        weekEnd: digest.weekEnd,
-        questionsAnswered: digest.questionsAnswered,
-        averageAccuracy: digest.averageAccuracy,
-        currentStreak: digest.currentStreak,
-        topicsStudied: digest.topicsStudied?.length ?? 0,
-        badgesEarned: digest.badgesEarned?.length ?? 0,
-        weakAreas: digest.weakAreas?.length ?? 0,
-      })
-    );
+    // Build the digest data with safe defaults
+    const digestData: WeeklyDigestData = {
+      weekStart: String(digest.weekStart ?? ""),
+      weekEnd: String(digest.weekEnd ?? ""),
+      questionsAnswered: Number(digest.questionsAnswered) || 0,
+      averageAccuracy: Number(digest.averageAccuracy) || 0,
+      currentStreak: Number(digest.currentStreak) || 0,
+      topicsStudied: Array.isArray(digest.topicsStudied)
+        ? digest.topicsStudied.map(String)
+        : [],
+      badgesEarned: Array.isArray(digest.badgesEarned)
+        ? digest.badgesEarned.map(String)
+        : [],
+      weakAreas: Array.isArray(digest.weakAreas)
+        ? digest.weakAreas.map(String)
+        : [],
+    };
 
-    // TODO: Store email preference in Supabase when configured
-    // TODO: Queue email via SendGrid when configured
+    // Generate the HTML and send
+    const html = buildWeeklyDigestHtml(digestData);
+    const result = await sendEmail({
+      to: sanitizedEmail,
+      subject: `Your Weekly Learning Digest (${digestData.weekStart} - ${digestData.weekEnd})`,
+      html,
+    });
 
-    return NextResponse.json({ success: true, message: "Digest queued" });
+    if (!result.success) {
+      console.error(`[Digest] Failed to send to ${sanitizedEmail}:`, result.error);
+      return NextResponse.json(
+        { error: "Failed to send digest email" },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Digest sent",
+      id: result.id,
+    });
   } catch {
     return NextResponse.json(
       { error: "Failed to process digest request" },
