@@ -548,7 +548,7 @@ export default function SessionViewPage({
             Modify and run the code below. Your changes stay local — experiment freely.
             {playgroundLang === "python" && (
               <span className="ml-1 text-muted-foreground/60 italic">
-                (runs via Wandbox API — may take 2–5 s)
+                (runs in-browser via Pyodide)
               </span>
             )}
             {playgroundLang === "java" && (

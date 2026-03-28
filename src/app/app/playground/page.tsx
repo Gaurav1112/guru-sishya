@@ -586,7 +586,7 @@ export default function PlaygroundPage() {
           <h1 className="font-heading text-2xl font-bold">Code Playground</h1>
         </div>
         <p className="text-sm text-muted-foreground max-w-xl">
-          Write and run JavaScript, TypeScript, Python, or Java. JS/TS run in-browser; Python runs via Wandbox API; Java shows local run instructions.
+          Write and run JavaScript, TypeScript, Python, or Java. JS/TS run in-browser; Python runs via Pyodide (in-browser); Java shows local run instructions.
         </p>
       </div>
 
@@ -653,7 +653,7 @@ export default function PlaygroundPage() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Tips</p>
         <ul className="text-xs text-muted-foreground space-y-1">
           <li>• <strong className="text-foreground">JS/TS</strong>: run instantly in-browser via <code className="text-saffron bg-muted px-1 rounded">console.log()</code> — no server needed</li>
-          <li>• <strong className="text-foreground">Python</strong>: runs via Wandbox API (free, no key) — requires internet, may take 2–5 seconds</li>
+          <li>• <strong className="text-foreground">Python</strong>: runs via Pyodide (in-browser) (WebAssembly, instant) — first load ~5MB, then instant</li>
           <li>• <strong className="text-foreground">Java</strong>: no free cloud compiler available — click Run for local run instructions (<code className="text-saffron bg-muted px-1 rounded">javac</code>)</li>
           <li>• For Java: wrap your code in a <code className="text-saffron bg-muted px-1 rounded">public class Main</code> with a <code className="text-saffron bg-muted px-1 rounded">main</code> method</li>
           <li>• Scripts time out after 5 seconds to prevent infinite loops</li>
