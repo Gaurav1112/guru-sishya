@@ -30,9 +30,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
-  title: "Guru Sishya — Crack Software Engineering Interviews",
+  title: "Guru Sishya — DSA + System Design Interview Prep Platform | Free",
   description:
-    "Ace software engineering interviews with 138 topics, 1933 questions with answers, STAR behavioral prep, and adaptive quizzes. Works offline, no signup needed.",
+    "Master FAANG interviews with 1988 questions, 141 topics, system design case studies, mock interviews & STAR behavioral prep. Free platform with Java + Python code. Works offline, no signup needed.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -58,6 +58,14 @@ export const metadata: Metadata = {
     "mock interview practice",
     "interview questions with answers",
     "spring boot interview questions",
+    "DSA preparation platform",
+    "system design interview prep",
+    "FAANG interview practice",
+    "leetcode alternative free",
+    "best free interview prep platform",
+    "system design questions with answers",
+    "coding interview preparation free",
+    "guru sishya",
   ],
   icons: {
     icon: [
@@ -83,9 +91,9 @@ export const metadata: Metadata = {
     canonical: "https://www.guru-sishya.in",
   },
   openGraph: {
-    title: "Guru Sishya — Crack Software Engineering Interviews",
+    title: "Guru Sishya — DSA + System Design Interview Prep Platform | Free",
     description:
-      "Ace software engineering interviews with 138 topics, 1933 questions with answers, STAR behavioral prep, and adaptive quizzes. Works offline, no signup needed.",
+      "Master FAANG interviews with 1988 questions, 141 topics, system design case studies, mock interviews & STAR behavioral prep. Free, offline-ready.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -95,7 +103,7 @@ export const metadata: Metadata = {
         url: "https://www.guru-sishya.in/api/og",
         width: 1200,
         height: 630,
-        alt: "Guru Sishya — Crack Software Engineering Interviews",
+        alt: "Guru Sishya — DSA + System Design Interview Prep Platform",
       },
     ],
   },
