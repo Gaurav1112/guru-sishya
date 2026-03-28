@@ -8,6 +8,8 @@ import { findTopicContent, loadAllContent, type TopicContent } from "@/lib/conte
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { BackButton } from "@/components/back-button";
+import { YouTubeVideos } from "@/components/youtube-embed";
+import { getVideosForTopic } from "@/lib/content/youtube-videos";
 
 const featureCards = [
   { key: "plan", title: "20-Hour Pareto Plan", description: "Focused plan targeting the 20% that drives 80%", href: "plan", icon: "📋", color: "border-saffron/30" },
@@ -158,8 +160,11 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
         </p>
       </div>
 
+      {/* YouTube Videos */}
+      {topic.name && <YouTubeVideos videos={getVideosForTopic(topic.name)} />}
+
       {/* Feature cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
         {featureCards.map((f, i) => {
           const hasContent = builtIn ? CONTENT_KEYS[f.key]?.(builtIn) ?? false : false;
           return (
