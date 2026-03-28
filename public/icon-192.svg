@@ -1,1 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192"><rect width="192" height="192" rx="32" fill="#E85D26"/><text x="96" y="120" text-anchor="middle" fill="white" font-size="80" font-weight="bold" font-family="sans-serif">GS</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Guru gradient: saffron to gold -->
+    <linearGradient id="guru" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="100%" stop-color="#E85D26"/>
+    </linearGradient>
+    <!-- Sishya gradient: bright teal to deep teal -->
+    <linearGradient id="sishya" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#0EA88A"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <!-- Center bridge gradient -->
+    <linearGradient id="bridge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="50%" stop-color="#E85D26"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <!-- Outer glow -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Soft shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#E85D26" flood-opacity="0.25"/>
+    </filter>
+    <!-- Inner glow for center diamond -->
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background circle (optional, for dark contexts) -->
+  <circle cx="256" cy="256" r="240" fill="#0C0A15" opacity="0"/>
+
+  <!-- Guru chevron (pointing down = knowledge flowing to student) -->
+  <!-- Refined proportions with slight rounding via stroke -->
+  <g filter="url(#shadow)">
+    <path
+      d="M142 128 L256 240 L370 128 L370 184 L256 298 L142 184 Z"
+      fill="url(#guru)"
+      stroke="url(#guru)"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+  </g>
+
+  <!-- Sishya chevron (pointing up = growth rising) -->
+  <g filter="url(#shadow)">
+    <path
+      d="M142 384 L256 272 L370 384 L370 328 L256 214 L142 328 Z"
+      fill="url(#sishya)"
+      stroke="url(#sishya)"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+  </g>
+
+  <!-- Center diamond — the bridge of knowledge transfer -->
+  <path
+    d="M210 256 L256 210 L302 256 L256 302 Z"
+    fill="url(#bridge)"
+    stroke="url(#bridge)"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+  <!-- Inner glow on diamond -->
+  <path
+    d="M224 256 L256 224 L288 256 L256 288 Z"
+    fill="url(#centerGlow)"
+  />
+
+  <!-- Subtle code bracket accents -->
+  <path d="M108 200 L88 256 L108 312" fill="none" stroke="#E85D26" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+  <path d="M404 200 L424 256 L404 312" fill="none" stroke="#1DD1A1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+
+  <!-- Tiny spark dots at the tips (knowledge particles) -->
+  <circle cx="256" cy="116" r="4" fill="#FDB813" opacity="0.6"/>
+  <circle cx="256" cy="396" r="4" fill="#1DD1A1" opacity="0.6"/>
+</svg>
