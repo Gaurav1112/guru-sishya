@@ -10,14 +10,17 @@ import { Flashcard, type DifficultyRating } from "./flashcard";
 import { Button } from "@/components/ui/button";
 import type { Flashcard as FlashcardType } from "@/lib/types";
 
-// ── Rating → SM-2 quality mapping ─────────────────────────────────────────────
+// ── Rating -> SM-2 quality mapping ─────────────────────────────────────────────
+// Maps the 5 UI buttons to SM-2 quality ratings (0-5).
+// The scheduleReview wrapper delegates to the canonical sm2() function.
 
 function ratingToQuality(rating: DifficultyRating): number {
   switch (rating) {
-    case "easy":  return 5; // perfect recall
-    case "good":  return 4; // correct with hesitation
-    case "hard":  return 3; // correct with difficulty
-    case "again": return 1; // incorrect
+    case "perfect": return 5; // effortless perfect recall
+    case "easy":    return 4; // correct with slight hesitation
+    case "good":    return 3; // correct with difficulty
+    case "hard":    return 2; // incorrect, but answer felt familiar
+    case "again":   return 0; // complete blackout
   }
 }
 
@@ -40,11 +43,12 @@ function DeckSummary({
   nextReviewDate,
   onDone,
 }: SummaryProps) {
+  const perfect = ratings.filter((r) => r === "perfect").length;
   const easy  = ratings.filter((r) => r === "easy").length;
   const good  = ratings.filter((r) => r === "good").length;
   const hard  = ratings.filter((r) => r === "hard").length;
   const again = ratings.filter((r) => r === "again").length;
-  const pctCorrect = total > 0 ? Math.round(((easy + good) / total) * 100) : 0;
+  const pctCorrect = total > 0 ? Math.round(((perfect + easy + good) / total) * 100) : 0;
 
   const nextStr = nextReviewDate
     ? nextReviewDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })
@@ -68,16 +72,17 @@ function DeckSummary({
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
+      <div className="grid grid-cols-5 gap-2 w-full">
         {[
-          { label: "Easy",  count: easy,  color: "text-teal" },
-          { label: "Good",  count: good,  color: "text-saffron" },
-          { label: "Hard",  count: hard,  color: "text-orange-400" },
-          { label: "Again", count: again, color: "text-destructive" },
+          { label: "Perfect", count: perfect, color: "text-emerald-400" },
+          { label: "Easy",    count: easy,    color: "text-teal" },
+          { label: "Good",    count: good,    color: "text-saffron" },
+          { label: "Hard",    count: hard,    color: "text-orange-400" },
+          { label: "Again",   count: again,   color: "text-destructive" },
         ].map(({ label, count, color }) => (
-          <div key={label} className="rounded-xl border border-border bg-surface p-3">
-            <p className={`font-heading text-xl font-bold ${color}`}>{count}</p>
-            <p className="text-xs text-muted-foreground">{label}</p>
+          <div key={label} className="rounded-xl border border-border bg-surface p-2.5">
+            <p className={`font-heading text-lg font-bold ${color}`}>{count}</p>
+            <p className="text-[10px] text-muted-foreground">{label}</p>
           </div>
         ))}
       </div>
@@ -143,8 +148,8 @@ function ProgressBar({
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Card {current} of {total}</span>
         <div className="flex gap-2">
-          <span className="text-teal">{ratings.filter((r) => r === "easy" || r === "good").length} correct</span>
-          <span className="text-destructive">{ratings.filter((r) => r === "again").length} missed</span>
+          <span className="text-teal">{ratings.filter((r) => r === "perfect" || r === "easy" || r === "good").length} correct</span>
+          <span className="text-destructive">{ratings.filter((r) => r === "again" || r === "hard").length} missed</span>
         </div>
       </div>
       <div className="h-1.5 w-full rounded-full bg-muted/40 overflow-hidden">
@@ -200,12 +205,11 @@ export function FlashcardDeck({ cards, onComplete }: FlashcardDeckProps) {
             interval: updated.interval,
             repetitions: updated.repetitions,
             nextReviewAt: updated.nextReviewAt,
+            lastReviewedAt: new Date(),
           });
 
           // Track next review date for summary
-          if (rating === "again" || rating === "hard") {
-            setNextReviewDate(updated.nextReviewAt);
-          }
+          setNextReviewDate(updated.nextReviewAt);
         } catch {
           // Non-critical
         }

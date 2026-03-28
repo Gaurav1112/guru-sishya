@@ -54,7 +54,7 @@ const OPEN_PLACEHOLDERS: Record<string, string> = {
   fill_blank: "Type the word or phrase that fills the blank...",
 };
 
-// Letter badge colors — each option gets a distinct accent
+// Letter badge colors - each option gets a distinct accent
 const LETTER_BADGE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   A: { bg: "bg-indigo-500/20", text: "text-indigo-400", border: "border-indigo-500/50" },
   B: { bg: "bg-violet-500/20", text: "text-violet-400", border: "border-violet-500/50" },
@@ -95,7 +95,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
     setSelected("");
   };
 
-  // ── Keyboard shortcuts ────────────────────────────────────────────────────
+  // -- Keyboard shortcuts --
 
   useEffect(() => {
     if (disabled) return;
@@ -106,7 +106,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
         e.target instanceof HTMLTextAreaElement ||
         e.target instanceof HTMLInputElement
       ) {
-        // Enter in textarea → submit
+        // Enter in textarea -> submit
         if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
           e.preventDefault();
           handleSubmit();
@@ -115,26 +115,33 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
       }
 
       if (question.format === "mcq" && question.options) {
+        const mcqLetters = question.options.map((o) => o.charAt(0));
         const keyMap: Record<string, string> = {
-          "1": "A",
-          a: "A",
-          "2": "B",
-          b: "B",
-          "3": "C",
-          c: "C",
-          "4": "D",
-          d: "D",
-          "5": "E",
-          e: "E",
+          "1": "A", a: "A",
+          "2": "B", b: "B",
+          "3": "C", c: "C",
+          "4": "D", d: "D",
+          "5": "E", e: "E",
         };
         const letter = keyMap[e.key.toLowerCase()];
-        if (letter) {
-          const validLetters = question.options.map((o) => o.charAt(0));
-          if (validLetters.includes(letter)) {
-            e.preventDefault();
-            setSelected(letter);
-            return;
-          }
+        if (letter && mcqLetters.includes(letter)) {
+          e.preventDefault();
+          setSelected(letter);
+          return;
+        }
+
+        // Arrow key navigation for MCQ options
+        if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+          e.preventDefault();
+          const curIdx = selected ? mcqLetters.indexOf(selected) : -1;
+          setSelected(mcqLetters[curIdx < mcqLetters.length - 1 ? curIdx + 1 : 0]);
+          return;
+        }
+        if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+          e.preventDefault();
+          const curIdx = selected ? mcqLetters.indexOf(selected) : 0;
+          setSelected(mcqLetters[curIdx > 0 ? curIdx - 1 : mcqLetters.length - 1]);
+          return;
         }
       }
 
@@ -147,6 +154,13 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
         if (e.key.toLowerCase() === "f" || e.key === "2") {
           e.preventDefault();
           setSelected("False");
+          return;
+        }
+
+        // Arrow key navigation for True/False
+        if (["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft"].includes(e.key)) {
+          e.preventDefault();
+          setSelected(selected === "True" ? "False" : "True");
           return;
         }
       }
@@ -163,20 +177,21 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, question, selected]);
 
-  // ── Skip button helper ────────────────────────────────────────────────────
+  // -- Skip button helper --
 
   const skipButton = onSkip && (
     <button
       type="button"
       onClick={onSkip}
       disabled={disabled}
+      aria-label="Skip this question"
       className="mt-1 w-full rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/30 disabled:pointer-events-none disabled:opacity-40"
     >
       Skip this question
     </button>
   );
 
-  // ── MCQ ──────────────────────────────────────────────────────────────────
+  // -- MCQ --
 
   if (question.format === "mcq" && question.options) {
     const keyHints: Record<string, string> = { A: "1", B: "2", C: "3", D: "4", E: "5" };
@@ -184,9 +199,9 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
       hintTokens > 0 && !!question.correctAnswer && !eliminatedOption && !disabled;
     return (
       <div className="flex flex-col gap-3">
-        <div className="grid gap-2.5">
+        <div className="grid gap-2.5" role="radiogroup" aria-label="Answer options">
           {question.options.map((option, idx) => {
-            const letter = option.charAt(0); // "A", "B", etc.
+            const letter = option.charAt(0);
             const isSelected = selected === letter;
             const isEliminated = eliminatedOption === letter;
             const badge = LETTER_BADGE_COLORS[letter] ?? LETTER_BADGE_COLORS["A"];
@@ -195,6 +210,9 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
               <motion.button
                 key={option}
                 type="button"
+                role="radio"
+                aria-checked={isSelected}
+                aria-label={`Option ${letter}: ${option.substring(3)}`}
                 disabled={disabled || isEliminated}
                 onClick={() => !isEliminated && setSelected(letter)}
                 initial={{ opacity: 0, x: -8 }}
@@ -207,23 +225,17 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
                 }
                 whileTap={!disabled && !isEliminated ? { scale: 0.985 } : {}}
                 className={cn(
-                  // base
                   "group relative flex items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition-all duration-150",
-                  // equal height
                   "min-h-[56px]",
-                  // eliminated
                   isEliminated && "line-through cursor-not-allowed",
-                  // selected state — saffron border + bg glow
                   isSelected
                     ? "border-saffron bg-saffron/10 shadow-[0_0_0_1px_hsl(var(--saffron)/0.4)] text-foreground"
                     : "border-border bg-card text-foreground",
-                  // hover glow (only when not selected/eliminated/disabled)
                   !isSelected && !isEliminated && !disabled &&
                     "hover:border-saffron/40 hover:bg-saffron/5 hover:shadow-[0_0_0_1px_hsl(var(--saffron)/0.2)]",
                   "disabled:pointer-events-none"
                 )}
               >
-                {/* Letter badge */}
                 <span
                   className={cn(
                     "flex size-7 shrink-0 items-center justify-center rounded-lg border text-xs font-bold transition-colors duration-150",
@@ -234,18 +246,12 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
                 >
                   {letter}
                 </span>
-
-                {/* Option text */}
                 <span className="flex-1 leading-snug">{option.substring(3)}</span>
-
-                {/* Keyboard hint */}
                 {keyHints[letter] && !isEliminated && (
                   <span className="shrink-0 self-center rounded border border-border/60 bg-muted/40 px-1 py-0.5 text-[10px] text-muted-foreground tabular-nums opacity-60 group-hover:opacity-100 transition-opacity">
                     {keyHints[letter]}
                   </span>
                 )}
-
-                {/* Selected check indicator */}
                 {isSelected && (
                   <motion.span
                     initial={{ scale: 0 }}
@@ -261,7 +267,6 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
           })}
         </div>
 
-        {/* Hint token button */}
         {(canUseHint || eliminatedOption) && (
           <button
             type="button"
@@ -284,6 +289,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
         <Button
           onClick={handleSubmit}
           disabled={!selected || disabled}
+          aria-label="Submit answer"
           className="mt-2 w-full sticky bottom-4 md:static md:bottom-auto"
           size="lg"
         >
@@ -294,17 +300,20 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
     );
   }
 
-  // ── True / False ──────────────────────────────────────────────────────────
+  // -- True / False --
 
   if (question.format === "true_false") {
     const tfHints: Record<string, string> = { True: "T", False: "F" };
     return (
       <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="True or False">
           {["True", "False"].map((value) => (
             <motion.button
               key={value}
               type="button"
+              role="radio"
+              aria-checked={selected === value}
+              aria-label={value}
               disabled={disabled}
               onClick={() => setSelected(value)}
               whileHover={!disabled ? { scale: 1.02 } : {}}
@@ -327,6 +336,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
         <Button
           onClick={handleSubmit}
           disabled={!selected || disabled}
+          aria-label="Submit answer"
           className="w-full sticky bottom-4 md:static md:bottom-auto"
           size="lg"
         >
@@ -337,7 +347,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
     );
   }
 
-  // ── Textarea-based formats ────────────────────────────────────────────────
+  // -- Textarea-based formats --
 
   const placeholder =
     OPEN_PLACEHOLDERS[question.format] ?? "Write your answer here...";
@@ -348,14 +358,12 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
       ? 6
       : 3;
 
-  // For code-centric formats, extract and show a syntax-highlighted code viewer
   const isCodeFormat =
     question.format === "code_review" || question.format === "predict_output";
   const codeSnippet = isCodeFormat ? extractCodeBlock(question.question) : null;
 
   return (
     <div className="flex flex-col gap-3">
-      {/* ── Code snippet viewer (for code_review & predict_output) ─────────── */}
       {codeSnippet && (
         <CodeViewer
           code={codeSnippet.code}
@@ -376,6 +384,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
         placeholder={placeholder}
         disabled={disabled}
         rows={minRows}
+        aria-label="Your answer"
         className={cn(
           "w-full resize-y rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground",
           "focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring",
@@ -386,6 +395,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
       <Button
         onClick={handleSubmit}
         disabled={!selected.trim() || disabled}
+        aria-label="Submit answer"
         className="w-full sticky bottom-4 md:static md:bottom-auto"
         size="lg"
       >

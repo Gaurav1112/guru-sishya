@@ -45,7 +45,7 @@ function newCardDefaults(): Pick<
 > {
   return {
     easeFactor: 2.5,
-    interval: 0,
+    interval: 1,
     repetitions: 0,
     nextReviewAt: new Date(), // due immediately
     createdAt: new Date(),
@@ -182,7 +182,7 @@ export async function generateFlashcardsFromSession(
 
 /**
  * Convert a takeaway statement into a question.
- * Uses simple heuristics — no AI required.
+ * Uses simple heuristics -- no AI required.
  */
 function takeawayToQuestion(takeaway: string, sessionTitle: string): string {
   // Remove leading bullets, dashes, numbers
@@ -265,10 +265,10 @@ interface ExtractedConcept {
  * Extract Q&A pairs from markdown cheat sheet content.
  *
  * Strategy:
- * 1. Find ## and ### headings — each becomes a "What is X?" card
- * 2. Find bold terms (**term**) followed by a colon or dash — definition cards
- * 3. Find bullet points that look like "Term: definition" — definition cards
- * 4. Find code blocks with preceding context — "What does this code do?" cards
+ * 1. Find ## and ### headings -- each becomes a "What is X?" card
+ * 2. Find bold terms (**term**) followed by a colon or dash -- definition cards
+ * 3. Find bullet points that look like "Term: definition" -- definition cards
+ * 4. Find code blocks with preceding context -- "What does this code do?" cards
  */
 function extractConceptsFromMarkdown(
   markdown: string,
@@ -303,9 +303,9 @@ function extractConceptsFromMarkdown(
       continue;
     }
 
-    // 2. Bold terms with definitions: **Term** — definition OR **Term**: definition
+    // 2. Bold terms with definitions: **Term** -- definition OR **Term**: definition
     const boldDefMatch = line.match(
-      /\*\*(.+?)\*\*\s*[\-\—:]\s*(.+)/
+      /\*\*(.+?)\*\*\s*[\-\u2014:]\s*(.+)/
     );
     if (boldDefMatch) {
       const term = boldDefMatch[1].trim();

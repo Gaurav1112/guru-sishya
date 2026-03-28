@@ -20,7 +20,7 @@ function RatingButton({ label, sublabel, onClick, colorClass }: RatingButtonProp
       type="button"
       onClick={onClick}
       className={cn(
-        "flex-1 rounded-xl border px-3 py-3 text-center transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]",
+        "flex-1 rounded-xl border px-2 py-3 text-center transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]",
         colorClass
       )}
     >
@@ -58,7 +58,7 @@ function CardFace({ content, label, labelColor }: CardFaceProps) {
 
 // ── Main flashcard ────────────────────────────────────────────────────────────
 
-export type DifficultyRating = "easy" | "good" | "hard" | "again";
+export type DifficultyRating = "perfect" | "easy" | "good" | "hard" | "again";
 
 interface FlashcardProps {
   card: FlashcardType;
@@ -99,7 +99,7 @@ export function Flashcard({ card, onRate }: FlashcardProps) {
           if (e.key === "Enter" || e.key === " ") handleFlip();
         }}
       >
-        {/* Inner wrapper — rotates */}
+        {/* Inner wrapper -- rotates */}
         <motion.div
           className="relative w-full h-full"
           style={{ transformStyle: "preserve-3d" }}
@@ -138,7 +138,7 @@ export function Flashcard({ card, onRate }: FlashcardProps) {
         </motion.div>
       </div>
 
-      {/* Rating buttons — slide up after flip */}
+      {/* Rating buttons -- slide up after flip */}
       <AnimatePresence>
         {showRatings && (
           <motion.div
@@ -151,7 +151,7 @@ export function Flashcard({ card, onRate }: FlashcardProps) {
             <p className="text-xs text-center text-muted-foreground uppercase tracking-wider">
               How well did you know this?
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <RatingButton
                 label="Again"
                 sublabel="Didn't know"
@@ -172,9 +172,15 @@ export function Flashcard({ card, onRate }: FlashcardProps) {
               />
               <RatingButton
                 label="Easy"
-                sublabel="Perfect"
+                sublabel="Quick"
                 onClick={() => handleRate("easy")}
                 colorClass="border-teal/40 bg-teal/10 text-teal hover:bg-teal/20"
+              />
+              <RatingButton
+                label="Perfect"
+                sublabel="Instant"
+                onClick={() => handleRate("perfect")}
+                colorClass="border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
               />
             </div>
           </motion.div>
@@ -184,7 +190,7 @@ export function Flashcard({ card, onRate }: FlashcardProps) {
       {/* Hint when not yet flipped */}
       {!isFlipped && (
         <p className="text-xs text-center text-muted-foreground">
-          Swipe left = Again &middot; Swipe right = Easy
+          Swipe left = Again &middot; Swipe right = Perfect
         </p>
       )}
     </div>

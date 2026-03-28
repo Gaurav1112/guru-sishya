@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { loadAllContent, type TopicContent } from "@/lib/content/loader";
@@ -10,6 +10,7 @@ import { TopicInput } from "@/components/topic-input";
 import { Input } from "@/components/ui/input";
 import { PageTransition } from "@/components/page-transition";
 import { FirstRunModal } from "@/components/onboarding/first-run-modal";
+import { fuzzyMatch, didYouMean } from "@/lib/fuzzy-search";
 
 // ── Category metadata ────────────────────────────────────────────────────────
 

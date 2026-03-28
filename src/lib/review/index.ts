@@ -16,6 +16,16 @@ export type {
   FlashcardReviewAction,
 } from "./types";
 
+// SM-2 Algorithm (canonical implementation)
+export {
+  sm2,
+  selfAssessmentToQuality as sm2SelfAssessmentToQuality,
+  quizScoreToQuality,
+  DEFAULT_EASE_FACTOR,
+  SM2_DEFAULTS,
+} from "./sm2";
+export type { SM2Result, SM2Quality, SelfAssessmentLabel } from "./sm2";
+
 // Scheduler
 export {
   getCardsDueToday,

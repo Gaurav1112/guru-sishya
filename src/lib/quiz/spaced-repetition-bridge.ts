@@ -8,16 +8,18 @@ import type { AnsweredQuestion } from "./types";
 
 /**
  * Maps a 0-10 quiz score to an SM-2 quality rating (0-5).
- *   score >= 9  → quality 5 (perfect recall)
- *   score >= 7  → quality 4 (correct with hesitation)
- *   score >= 4  → quality 3 (correct with difficulty)
- *   score < 4   → quality 1 (incorrect; answer felt familiar)
+ *   score >= 9  -> quality 5 (perfect recall)
+ *   score >= 7  -> quality 4 (correct with hesitation)
+ *   score >= 4  -> quality 3 (correct with difficulty)
+ *   score >= 2  -> quality 1 (incorrect; answer felt familiar)
+ *   score < 2   -> quality 0 (complete blackout)
  */
 function scoreToSM2Quality(score: number): number {
   if (score >= 9) return 5;
   if (score >= 7) return 4;
   if (score >= 4) return 3;
-  return 1;
+  if (score >= 2) return 1;
+  return 0;
 }
 
 /**
@@ -49,16 +51,18 @@ export async function updateFlashcardsFromQuiz(
           interval: updated.interval,
           repetitions: updated.repetitions,
           nextReviewAt: updated.nextReviewAt,
+          lastReviewedAt: new Date(),
         });
       } else if (answer.score < 7) {
         // Only create cards for concepts the student struggled with
+        // Initial SM-2 values: interval=1, easeFactor=2.5, repetitions=0
         await db.flashcards.add({
           topicId,
           concept,
           front: answer.question,
           back: answer.perfectAnswer,
           easeFactor: 2.5,
-          interval: 0,
+          interval: 1,
           repetitions: 0,
           nextReviewAt: new Date(),
         });
@@ -88,9 +92,10 @@ export async function processSkippedQuestion(
       const updated = scheduleReview(existing, 0);
       await db.flashcards.update(existing.id!, {
         easeFactor: updated.easeFactor,
-        interval: 0,
-        repetitions: 0,
-        nextReviewAt: new Date(),
+        interval: updated.interval,
+        repetitions: updated.repetitions,
+        nextReviewAt: updated.nextReviewAt,
+        lastReviewedAt: new Date(),
       });
     } else {
       await db.flashcards.add({
@@ -99,7 +104,7 @@ export async function processSkippedQuestion(
         front: questionText,
         back: explanation || "Review this question",
         easeFactor: 2.5,
-        interval: 0,
+        interval: 1,
         repetitions: 0,
         nextReviewAt: new Date(),
       });

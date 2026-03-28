@@ -1,9 +1,35 @@
 // ────────────────────────────────────────────────────────────────────────────
 // SM-2 Spaced Repetition Algorithm
 // ────────────────────────────────────────────────────────────────────────────
+//
+// This module re-exports the canonical SM-2 implementation from
+// src/lib/review/sm2.ts and provides backward-compatible wrappers
+// for existing call-sites that use the FlashcardSchedule interface.
+// ────────────────────────────────────────────────────────────────────────────
+
+import {
+  sm2,
+  type SM2Result,
+  type SM2Quality,
+  type SelfAssessmentLabel,
+  DEFAULT_EASE_FACTOR,
+  SM2_DEFAULTS,
+} from "@/lib/review/sm2";
+
+// Re-export core types and functions
+export {
+  sm2,
+  type SM2Result,
+  type SM2Quality,
+  type SelfAssessmentLabel,
+  DEFAULT_EASE_FACTOR,
+  SM2_DEFAULTS,
+};
+
+// ── Backward-compatible wrapper ─────────────────────────────────────────────
 
 export interface FlashcardSchedule {
-  /** Modified ease factor — starts at 2.5, minimum 1.3 */
+  /** Modified ease factor -- starts at 2.5, minimum 1.3 */
   easeFactor: number;
   /** Days until the next review */
   interval: number;
@@ -16,8 +42,11 @@ export interface FlashcardSchedule {
 /**
  * SM-2 algorithm: compute the next schedule for a flashcard after a review.
  *
+ * This is a backward-compatible wrapper around the canonical sm2() function.
+ * New code should use sm2() directly from @/lib/review/sm2.
+ *
  * @param card    Current schedule for the card
- * @param quality Rating 0–5:
+ * @param quality Rating 0-5:
  *                  0 = complete blackout
  *                  1 = incorrect; correct answer seemed easy
  *                  2 = incorrect; correct answer felt familiar
@@ -29,32 +58,13 @@ export function scheduleReview(
   card: FlashcardSchedule,
   quality: number
 ): FlashcardSchedule {
-  let { easeFactor, interval, repetitions } = card;
-
-  if (quality < 3) {
-    // Failed — reset streak and review again tomorrow
-    repetitions = 0;
-    interval = 1;
-  } else {
-    repetitions += 1;
-    if (repetitions === 1) {
-      interval = 1;
-    } else if (repetitions === 2) {
-      interval = 6;
-    } else {
-      interval = Math.round(interval * easeFactor);
-    }
-  }
-
-  // Update ease factor (SM-2 formula)
-  easeFactor = Math.max(
-    1.3,
-    easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
-  );
-
-  const nextReviewAt = new Date(Date.now() + interval * 86_400_000);
-
-  return { easeFactor, interval, repetitions, nextReviewAt };
+  const result = sm2(quality, card.easeFactor, card.interval, card.repetitions);
+  return {
+    easeFactor: result.easeFactor,
+    interval: result.interval,
+    repetitions: result.repetitions,
+    nextReviewAt: result.nextReviewAt,
+  };
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -63,7 +73,7 @@ export function scheduleReview(
 
 /**
  * Estimate the probability that a card is still retained.
- * Uses exponential forgetting curve: R = e^(-t / (I × EF))
+ * Uses exponential forgetting curve: R = e^(-t / (I x EF))
  *
  * @param daysSinceReview Days elapsed since last review
  * @param interval        Scheduled interval in days
