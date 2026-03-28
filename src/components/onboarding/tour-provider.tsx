@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useStore } from "@/lib/store";
 import { usePathname } from "next/navigation";
 import { TOUR_STEPS } from "./tour-steps";
 import { TourStep } from "./tour-step";
 
 export function TourProvider({ children }: { children: React.ReactNode }) {
-  const { onboardingCompleted, setOnboardingCompleted, visitCount, incrementVisitCount } = useStore();
+  const { onboardingCompleted, setOnboardingCompleted, incrementVisitCount } =
+    useStore();
   const pathname = usePathname();
   const [currentStep, setCurrentStep] = useState(-1);
   const hasIncremented = useRef(false);
@@ -23,29 +24,40 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
         : Infinity;
 
       if (!onboardingCompleted && daysSinceLastShown >= 3.5) {
-        setCurrentStep(0);
-        localStorage.setItem("gs-tour-last-shown", String(Date.now()));
+        // Small delay so the dashboard renders before the tour starts
+        const timer = setTimeout(() => {
+          setCurrentStep(0);
+          localStorage.setItem("gs-tour-last-shown", String(Date.now()));
+        }, 800);
+        return () => clearTimeout(timer);
       }
       incrementVisitCount();
     }
   }, [pathname, incrementVisitCount, onboardingCompleted]);
 
-  function handleNext() {
+  const handleNext = useCallback(() => {
     if (currentStep >= TOUR_STEPS.length - 1) {
       setOnboardingCompleted(true);
       setCurrentStep(-1);
     } else {
       setCurrentStep((s) => s + 1);
     }
-  }
+  }, [currentStep, setOnboardingCompleted]);
 
-  function handleSkip() {
+  const handlePrev = useCallback(() => {
+    setCurrentStep((s) => Math.max(0, s - 1));
+  }, []);
+
+  const handleSkip = useCallback(() => {
     setOnboardingCompleted(true);
     setCurrentStep(-1);
-  }
+  }, [setOnboardingCompleted]);
 
+  // Allow replaying the tour from settings or elsewhere
   useEffect(() => {
-    function handleReplay() { setCurrentStep(0); }
+    function handleReplay() {
+      setCurrentStep(0);
+    }
     window.addEventListener("replay-tour", handleReplay);
     return () => window.removeEventListener("replay-tour", handleReplay);
   }, []);
@@ -54,10 +66,14 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     <>
       {children}
       {currentStep >= 0 && (
-        <>
-          <div className="fixed inset-0 bg-black/50 z-[9998]" />
-          <TourStep step={TOUR_STEPS[currentStep]} stepNumber={currentStep + 1} totalSteps={TOUR_STEPS.length} onNext={handleNext} onSkip={handleSkip} />
-        </>
+        <TourStep
+          step={TOUR_STEPS[currentStep]}
+          stepNumber={currentStep + 1}
+          totalSteps={TOUR_STEPS.length}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onSkip={handleSkip}
+        />
       )}
     </>
   );
