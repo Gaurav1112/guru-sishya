@@ -40,7 +40,7 @@ export default function ReferralLandingPage({
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
       <Link href="/" className="mb-8">
         <Image
-          src="/logo-mark.svg"
+          src="/logo-mark.png"
           alt="Guru Sishya"
           width={48}
           height={48}

@@ -135,7 +135,7 @@ function showNotification(type: NotificationType): void {
   try {
     const notification = new Notification(template.title, {
       body: template.body,
-      icon: "/logo-mark.svg",
+      icon: "/logo-mark.png",
       tag: template.tag,
       requireInteraction: false,
     });
@@ -154,7 +154,7 @@ function showNotification(type: NotificationType): void {
         if (reg) {
           reg.showNotification(template.title, {
             body: template.body,
-            icon: "/logo-mark.svg",
+            icon: "/logo-mark.png",
             tag: template.tag,
             data: { url: template.url },
           });
