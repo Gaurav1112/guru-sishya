@@ -292,12 +292,10 @@ export function getIndexableQuestions(): IndexableQuestion[] {
     const t = topicMap.get(name.toLowerCase().trim());
     if (!t || !t.quizBank?.length) continue;
 
-    // Pick up to 12 questions per topic, spread across difficulty levels
+    // Include ALL questions for programmatic SEO (1988 pages)
     const sorted = [...t.quizBank].sort((a, b) => a.difficulty - b.difficulty);
-    const pick = Math.min(12, sorted.length);
-    const step = Math.max(1, Math.floor(sorted.length / pick));
 
-    for (let i = 0; i < sorted.length && questions.length < 220; i += step) {
+    for (let i = 0; i < sorted.length; i++) {
       const q = sorted[i];
       let slug = questionSlug(q.question, t.topic);
 
@@ -322,10 +320,35 @@ export function getIndexableQuestions(): IndexableQuestion[] {
       });
     }
 
-    if (questions.length >= 200) break;
   }
 
-  return questions.slice(0, 220);
+  // Also add questions from non-priority topics
+  for (const t of all) {
+    if (PRIORITY_TOPICS.some((p) => p.toLowerCase() === t.topic.toLowerCase())) continue;
+    if (!t.quizBank?.length) continue;
+
+    for (const q of t.quizBank) {
+      let slug = questionSlug(q.question, t.topic);
+      if (seenSlugs.has(slug)) slug = `${slug}-${questions.length}`;
+      if (seenSlugs.has(slug)) continue;
+      seenSlugs.add(slug);
+
+      questions.push({
+        slug,
+        question: q.question,
+        format: q.format,
+        difficulty: q.difficulty,
+        bloomLabel: q.bloomLabel,
+        options: q.options,
+        explanation: q.explanation,
+        topicName: t.topic,
+        topicSlug: slugify(t.topic),
+        category: t.category,
+      });
+    }
+  }
+
+  return questions;
 }
 
 /**
