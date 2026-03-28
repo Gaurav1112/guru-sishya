@@ -742,12 +742,12 @@ function ResultsScreen({
     <PageTransition>
       <div className="mx-auto max-w-2xl space-y-6">
         {/* Score card */}
-        <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-indigo/5 p-8 text-center">
+        <div className="rounded-2xl border border-saffron/20 bg-gradient-to-br from-saffron/5 via-gold/5 to-indigo/5 p-8 text-center" role="status" aria-live="polite">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Trophy className="size-6 text-gold" />
             <h2 className="font-heading text-2xl font-bold">Interview Complete!</h2>
           </div>
-          <div className={`font-heading text-6xl font-bold mb-2 ${gradeColor}`}>
+          <div className={`font-heading text-6xl font-bold mb-2 ${gradeColor}`} aria-label={`Score: ${avg} percent, ${grade}`}>
             {avg}%
           </div>
           <p className={`text-lg font-semibold mb-1 ${gradeColor}`}>{grade}</p>
@@ -1435,7 +1435,7 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
                 ? `Q${Math.min(currentQuestionIndex + 1, maxQuestions)} of ${maxQuestions}`
                 : `0 of ${maxQuestions}`}
             </p>
-            <div className="mt-1 h-1.5 w-16 sm:w-24 rounded-full bg-muted/40 overflow-hidden">
+            <div className="mt-1 h-1.5 w-16 sm:w-24 rounded-full bg-muted/40 overflow-hidden" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Interview progress">
               <div
                 className="h-full rounded-full bg-saffron transition-all duration-500"
                 style={{ width: `${progress}%` }}
@@ -2089,6 +2089,6 @@ export default function InterviewPage() {
           skipsUsed={finalSkipsUsed}
         />
       )}
-    </div>
+    </main>
   );
 }

@@ -221,6 +221,9 @@ export function GradeResult({ answer, xpEarned, onNext, isLast }: GradeResultPro
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="flex flex-col gap-4"
+      role="status"
+      aria-live="polite"
+      aria-label={`Score: ${answer.score} out of 10. ${getScoreLabel(answer.score)}`}
     >
       {/* ── MCQ motivational banner ─────────────────────────────────────────── */}
       {motivation && (

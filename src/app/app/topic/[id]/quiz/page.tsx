@@ -59,10 +59,10 @@ export default function QuizPage({
   }
 
   return (
-    <div>
+    <main role="main" aria-label={`Quiz for ${topic.name}`}>
       <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
       <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} className="mb-4" />
       <QuizContainer topicId={topic.id!} topicName={topic.name} />
-    </div>
+    </main>
   );
 }
