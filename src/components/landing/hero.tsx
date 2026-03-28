@@ -260,7 +260,7 @@ export function Hero() {
           transition={{ delay: 1.8, duration: 0.5 }}
           className="mt-5 text-xs text-muted-foreground/60"
         >
-          Powered by Pareto Principle &bull; Feynman Technique &bull; Bloom&apos;s Taxonomy &bull; Spaced Repetition
+          Powered by Pareto Principle &bull; Guru Mode &bull; Bloom&apos;s Taxonomy &bull; Spaced Repetition
         </motion.p>
       </div>
     </section>

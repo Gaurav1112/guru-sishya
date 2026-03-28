@@ -42,7 +42,7 @@ const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: strin
   },
   "feynman": {
     title: "Teach It to Learn It",
-    description: "The Feynman Technique helps you truly understand by explaining concepts back. Unlock interactive teaching sessions.",
+    description: "Guru Mode helps you truly understand by explaining concepts back. Unlock interactive teaching sessions.",
   },
   "full-flashcards": {
     title: "2000+ Flashcards for Deep Retention",

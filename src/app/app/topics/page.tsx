@@ -278,13 +278,13 @@ function TopicCard({ content, index }: { content: TopicContent; index: number })
           <span title="Learning Plan" className="text-xs opacity-70">📋</span>
         )}
         {hasCheatSheet && (
-          <span title="Cheat Sheet" className="text-xs opacity-70">📄</span>
+          <span title="Quick Saar" className="text-xs opacity-70">📄</span>
         )}
         {quizCount > 0 && (
           <span title="Quiz Bank" className="text-xs opacity-70">🧠</span>
         )}
         {hasLadder && (
-          <span title="Learning Ladder" className="text-xs opacity-70">🪜</span>
+          <span title="Vidya Levels" className="text-xs opacity-70">🪜</span>
         )}
         {hasResources && (
           <span title="Resources" className="text-xs opacity-70">🔍</span>

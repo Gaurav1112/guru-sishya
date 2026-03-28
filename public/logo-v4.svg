@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 512" width="1200" height="512">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="100%" stop-color="#E85D26"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0EA88A"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E85D26"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E85D26"/>
+      <stop offset="40%" stop-color="#FDB813"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- === ICON (centered in left 512x512 area) === -->
+
+  <!-- Guru: downward chevron (saffron/gold) -->
+  <path d="M148 120 L256 228 L364 120 L364 188 L256 296 L148 188 Z" fill="url(#g1)"/>
+
+  <!-- Sishya: upward chevron (teal) -->
+  <path d="M148 392 L256 284 L364 392 L364 324 L256 216 L148 324 Z" fill="url(#g2)"/>
+
+  <!-- Center diamond overlap -->
+  <path d="M216 256 L256 216 L296 256 L256 296 Z" fill="url(#g3)" opacity="0.9"/>
+
+  <!-- === WORDMARK === -->
+
+  <!-- "GURU" - bold, tracked out -->
+  <text x="460" y="232"
+        font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif"
+        font-size="120"
+        font-weight="800"
+        letter-spacing="16"
+        fill="#FFFFFF">GURU</text>
+
+  <!-- "SISHYA" - lighter weight, teal accent -->
+  <text x="460" y="360"
+        font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif"
+        font-size="120"
+        font-weight="300"
+        letter-spacing="16"
+        fill="url(#textGrad)">SISHYA</text>
+
+  <!-- Thin separator line between words -->
+  <line x1="460" y1="258" x2="780" y2="258" stroke="#E85D26" stroke-width="2" opacity="0.4"/>
+</svg>

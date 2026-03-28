@@ -198,7 +198,7 @@ export default function RootLayout({
                   name: "Is Guru Sishya really free? What's the catch?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes - 138 topics, 1400+ quiz questions with answers, 670+ full lessons, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 129/month or Rs 999/year) for AI-powered features like the Feynman Technique and custom topic generation, but the core prep content will always be free.",
+                    text: "Yes - 138 topics, 1400+ quiz questions with answers, 670+ full lessons, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 129/month or Rs 999/year) for AI-powered features like the Guru Mode and custom topic generation, but the core prep content will always be free.",
                   },
                 },
                 {
@@ -206,7 +206,7 @@ export default function RootLayout({
                   name: "Do I need an API key or AI subscription?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "No. All lesson content, quiz questions, cheat sheets, STAR behavioral answers, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Only the optional AI features (Feynman Technique, custom topics) require a Pro plan.",
+                    text: "No. All lesson content, quiz questions, quick saar notes, STAR behavioral answers, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Only the optional AI features (Guru Mode, custom topics) require a Pro plan.",
                   },
                 },
                 {
@@ -246,7 +246,7 @@ export default function RootLayout({
                   name: "What is the Pro plan and what does it include?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Pro (Rs 129/month or Rs 999/year) unlocks AI-powered features: the Feynman Technique interactive chat for deep understanding, custom topic generation, priority support, and a certificate of completion. All core prep content remains free forever.",
+                    text: "Pro (Rs 129/month or Rs 999/year) unlocks AI-powered features: the Guru Mode interactive chat for deep understanding, custom topic generation, priority support, and a certificate of completion. All core prep content remains free forever.",
                   },
                 },
               ],
