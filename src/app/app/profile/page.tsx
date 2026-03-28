@@ -14,6 +14,7 @@ import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import { ShareButton } from "@/components/share-button";
 import { ShareCard } from "@/components/profile/share-card";
 import { CertificatesSection } from "@/components/profile/certificates-section";
+import { ReferFriendsCard } from "@/components/profile/refer-friends-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -540,34 +541,7 @@ export default function ProfilePage() {
 
       {/* ── Refer a Friend ──────────────────────────────────────────────── */}
       <section>
-        <Card className="bg-surface border-border/50">
-          <CardHeader>
-            <CardTitle className="text-lg">Refer a Friend</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Share Guru Sishya with friends preparing for interviews.
-            </p>
-            <div className="flex items-center gap-2">
-              <input
-                readOnly
-                value="https://guru-sishya.in/"
-                className="flex-1 px-3 py-2 rounded-lg bg-muted border border-border/50 text-sm text-foreground"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  navigator.clipboard.writeText("https://guru-sishya.in/");
-                  toast("Link copied!");
-                }}
-              >
-                Copy
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">Referral rewards coming soon</p>
-          </CardContent>
-        </Card>
+        <ReferFriendsCard />
       </section>
     </div>
   );
