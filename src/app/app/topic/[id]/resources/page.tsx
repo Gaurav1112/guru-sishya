@@ -7,6 +7,8 @@ import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { ResourceContainer } from "@/components/features/resources/resource-container";
 import { BackButton } from "@/components/back-button";
+import { YouTubeVideos } from "@/components/youtube-embed";
+import { getVideosForTopic } from "@/lib/content/youtube-videos";
 
 export default function ResourcesPage({
   params,
@@ -58,7 +60,10 @@ export default function ResourcesPage({
   return (
     <div>
       <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
-      <ResourceContainer topicId={topic.id!} topicName={topic.name} />
+      <YouTubeVideos videos={getVideosForTopic(topic.name)} />
+      <div className="mt-6">
+        <ResourceContainer topicId={topic.id!} topicName={topic.name} />
+      </div>
     </div>
   );
 }
