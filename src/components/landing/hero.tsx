@@ -139,7 +139,7 @@ export function Hero({ stats }: { stats: ContentStats }) {
         </motion.div>
 
         {/* Headline — word-by-word stagger */}
-        <StaggeredHeadline text="Crack Your Software Engineering Interview With Confidence" />
+        <StaggeredHeadline text="Ace Your FAANG Interview in 8 Weeks" />
 
         {/* Subheadline */}
         <motion.p
@@ -148,9 +148,9 @@ export function Hero({ stats }: { stats: ContentStats }) {
           transition={{ delay: 0.7, duration: 0.5 }}
           className="mx-auto mt-5 max-w-xl text-base text-muted-foreground leading-relaxed"
         >
-          <span className="text-foreground font-semibold">{stats.topicCount} topics</span>,{" "}
-          <span className="text-foreground font-semibold">{stats.questionCount.toLocaleString()} curated questions</span>,{" "}
-          <span className="text-foreground font-semibold">STAR behavioral prep</span> for Google, Amazon, Microsoft, Meta &mdash; trusted by engineers
+          Structured prep paths, <span className="text-foreground font-semibold">{stats.questionCount.toLocaleString()} practice questions</span>,{" "}
+          <span className="text-foreground font-semibold">mock interviews with boss rounds</span>, and{" "}
+          <span className="text-foreground font-semibold">STAR behavioral prep</span> &mdash; all free to start
         </motion.p>
 
         {/* Stats grid — counter animation */}

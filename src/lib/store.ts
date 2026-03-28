@@ -43,6 +43,9 @@ type PersistedState = Pick<
   | "activeXPBoost"
   | "hintTokens"
   | "streakRepairAvailable"
+  // Onboarding
+  | "onboardingCompleted"
+  | "visitCount"
   // Premium
   | "isPremium"
   | "premiumUntil"
@@ -98,6 +101,8 @@ export const useStore = create<StoreState>()(
         streakRepairAvailable: state.streakRepairAvailable,
         quizTimerEnabled: state.quizTimerEnabled,
         displayName: state.displayName,
+        onboardingCompleted: state.onboardingCompleted,
+        visitCount: state.visitCount,
         isPremium: state.isPremium,
         premiumUntil: state.premiumUntil,
         paymentId: state.paymentId,

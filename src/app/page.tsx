@@ -201,7 +201,7 @@ function FinalCTA({ stats }: { stats: ContentStats }) {
     <section className="px-6 py-20 text-center">
       <div className="mx-auto max-w-2xl rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-surface to-teal/5 p-12">
         <h2 className="font-heading text-3xl font-bold mb-3">
-          Ready to Crack Your Interview?
+          Ready to Get the Offer?
         </h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
           {stats.topicCount} topics, {stats.questionCount.toLocaleString()} questions, 58 STAR behavioral answers — all free. No signup, no credit card.

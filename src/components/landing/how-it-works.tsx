@@ -6,7 +6,7 @@ const STEPS = [
     step: "01",
     title: "Pick a Topic",
     description:
-      "Browse 138 interview topics across System Design, DS&A, and Core CS. Search, filter by category, or follow the visual roadmap.",
+      "Choose from 138 interview topics across System Design, DS&A, and Core CS. Follow the visual roadmap or let us build your 8-week prep plan.",
     color: "border-saffron/50 bg-saffron/5",
     numberColor: "text-saffron",
     icon: (
@@ -19,7 +19,7 @@ const STEPS = [
     step: "02",
     title: "Follow the Plan",
     description:
-      "Each topic has a structured 20-hour plan built on the Pareto Principle — targeting the 20% of concepts that appear in 80% of interviews.",
+      "Each topic has a structured plan built on the Pareto Principle — targeting the 20% of concepts that appear in 80% of interviews. Practice with 1933 questions and mock interviews.",
     color: "border-teal/50 bg-teal/5",
     numberColor: "text-teal",
     icon: (
@@ -32,7 +32,7 @@ const STEPS = [
     step: "03",
     title: "Practice & Master",
     description:
-      "Reinforce with quiz questions, test code in the playground, and use the Guru Mode to confirm deep understanding — not just memorization.",
+      "Crush the boss round in mock interviews, nail behavioral questions with STAR prep, and walk into your interview knowing you've covered every angle.",
     color: "border-gold/50 bg-gold/5",
     numberColor: "text-gold",
     icon: (
@@ -54,10 +54,10 @@ export function HowItWorks() {
         className="text-center mb-12"
       >
         <h2 className="font-heading text-3xl font-bold mb-3">
-          How It Works — Topics, Questions &amp; Guru Mode
+          How It Works — Pick, Practice, Master
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Start learning in 3 simple steps
+          Go from zero to interview-ready in 3 steps
         </p>
       </motion.div>
 

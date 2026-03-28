@@ -585,6 +585,9 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         const newScores = [...calibScores, graded.score];
         setCalibScores(newScores);
 
+        // Persist calibration progress for resume
+        saveSessionState([answered], calibIndex, 1, true, "calibration").catch(() => {});
+
         if (calibIndex + 1 >= calibQuestions.length) {
           await db.quizAttempts.add({
             topicId,
@@ -609,7 +612,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         setPhase("calibration_answering");
       }
     },
-    [ai, calibIndex, calibQuestions, calibScores, topicId, isStatic, quizBank, clearTimer]
+    [ai, calibIndex, calibQuestions, calibScores, topicId, isStatic, quizBank, clearTimer, saveSessionState]
   );
 
   const advanceCalibration = useCallback(() => {
@@ -1057,7 +1060,19 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
             <div className="flex gap-3 justify-center">
               <button
                 className="px-4 py-2 rounded-lg bg-saffron text-background font-medium"
-                onClick={() => setShowResume(false)}
+                onClick={() => {
+                  // Restore saved session state
+                  const s = savedSession!;
+                  const restored: AnsweredQuestion[] = JSON.parse(s.answers || "[]");
+                  setAdaptiveAnswers(restored);
+                  allAnswers.current = restored;
+                  setCurrentLevel(s.currentLevel as BloomLevel);
+                  setConsecutiveLow(0);
+                  setShowResume(false);
+                  setSavedSession(null);
+                  // Skip calibration and go straight to generating next question
+                  setPhase("adaptive_loading");
+                }}
               >
                 Resume
               </button>

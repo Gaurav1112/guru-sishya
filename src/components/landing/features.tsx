@@ -9,6 +9,8 @@ const BORDER_COLORS = [
   "border-t-gold",
   "border-t-saffron",
   "border-t-teal",
+  "border-t-indigo",
+  "border-t-gold",
 ];
 
 const features = [
@@ -47,6 +49,18 @@ const features = [
     description:
       "Become the teacher — explain concepts back to truly understand them.",
     icon: "💬",
+  },
+  {
+    title: "Mock Interview",
+    description:
+      "3-round simulated interviews with Easy, Medium, and Boss rounds. Timer, power-ups, and immediate revision for wrong answers.",
+    icon: "🎯",
+  },
+  {
+    title: "STAR Behavioral Prep",
+    description:
+      "58 curated behavioral questions with structured STAR-format answers. Nail the soft-skills round that eliminates 40% of candidates.",
+    icon: "⭐",
   },
 ];
 
@@ -127,7 +141,7 @@ export function Features() {
     <>
       <section id="features" className="px-6 py-20">
         <h2 className="mb-4 text-center font-heading text-3xl font-bold">
-          138 Interview Topics &amp; 1933 Curated Questions
+          Everything You Need to Get the Offer
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
           Everything you need to go from beginner to interview-ready. All content
