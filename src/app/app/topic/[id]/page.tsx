@@ -182,6 +182,7 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
           return (
             <motion.div
               key={f.key}
+              data-testid="feature-card"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, duration: 0.3, ease: "easeOut" }}
