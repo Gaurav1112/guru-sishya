@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { PageTransition } from "@/components/page-transition";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import type { Flashcard } from "@/lib/types";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -174,10 +175,8 @@ function RevisionCard({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="rounded-b-lg border border-t-0 border-gold/20 bg-gold/5 px-3 py-2">
-                <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                  {item.modelAnswer}
-                </p>
+              <div className="rounded-b-lg border border-t-0 border-gold/20 bg-gold/5 px-3 py-3">
+                <MarkdownRenderer content={item.modelAnswer} className="prose-xs" />
               </div>
             </motion.div>
           )}
