@@ -31,6 +31,15 @@ interface ContentItem {
   category?: string;
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
 /**
  * Read all content JSON files from disk and extract unique topic names.
  * Runs at build time (server-side only).
@@ -162,10 +171,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // ── Topic pages (one entry per topic, linked via search param) ─────────
-  // Topics use /app/topics?search=<topic> so search engines can discover
-  // each topic as a distinct, deep-linkable URL.
+  // ── Learn pages (public, SEO-friendly) ────────────────────────────────
   const topicNames = getAllTopicNames();
+
+  const learnEntries: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/learn`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    ...topicNames.map((name) => ({
+      url: `${baseUrl}/learn/${slugify(name)}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+  ];
+
+  // ── Topic pages (one entry per topic, linked via search param) ────────
   const topicEntries: MetadataRoute.Sitemap = topicNames.map((name) => ({
     url: `${baseUrl}/app/topics?search=${encodeURIComponent(name)}`,
     lastModified: now,
@@ -173,5 +197,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...appPages, ...topicEntries];
+  return [...staticEntries, ...learnEntries, ...appPages, ...topicEntries];
 }

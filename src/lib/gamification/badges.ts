@@ -353,6 +353,27 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     hint: "Practice makes perfect — keep interviewing",
     check: (stats) => stats.interviewsCompleted >= 10,
   },
+
+  // ── Referral (1) ──────────────────────────────────────────────────────
+  {
+    id: "guru_ambassador",
+    name: "Guru Ambassador",
+    description: "Refer 5 friends to Guru Sishya",
+    category: "social",
+    icon: "🤝",
+    hint: "Share your referral link with 5 friends who join",
+    check: () => {
+      if (typeof window === "undefined") return false;
+      try {
+        const raw = localStorage.getItem("gs-referral");
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        return data.referredCount >= 5;
+      } catch {
+        return false;
+      }
+    },
+  },
 ];
 
 // ────────────────────────────────────────────────────────────────────────────
