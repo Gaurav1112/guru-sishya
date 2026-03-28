@@ -249,7 +249,7 @@ function QuestionCard({
         {/* Inner wrapper - rotates */}
         <motion.div
           className="preserve-3d relative w-full"
-          style={{ minHeight: "380px" }}
+          style={{ height: "min(70vh, 600px)" }}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >
