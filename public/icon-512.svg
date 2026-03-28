@@ -1,82 +1,103 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <!-- Guru gradient: saffron to gold -->
-    <linearGradient id="guru" x1="0.5" y1="0" x2="0.5" y2="1">
-      <stop offset="0%" stop-color="#FDB813"/>
-      <stop offset="100%" stop-color="#E85D26"/>
+    <linearGradient id="flameOuter" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#E85D26"/>
+      <stop offset="100%" stop-color="#FDB813"/>
     </linearGradient>
-    <!-- Sishya gradient: bright teal to deep teal -->
-    <linearGradient id="sishya" x1="0.5" y1="1" x2="0.5" y2="0">
-      <stop offset="0%" stop-color="#0EA88A"/>
+    <linearGradient id="flameInner" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="bowlGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E85D26"/>
+      <stop offset="100%" stop-color="#C14A1E"/>
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1DD1A1"/>
+      <stop offset="100%" stop-color="#0EA88A"/>
+    </linearGradient>
+    <linearGradient id="bookGrad" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#1DD1A1" stop-opacity="0.8"/>
       <stop offset="100%" stop-color="#1DD1A1"/>
     </linearGradient>
-    <!-- Center bridge gradient -->
-    <linearGradient id="bridge" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FDB813"/>
-      <stop offset="50%" stop-color="#E85D26"/>
-      <stop offset="100%" stop-color="#1DD1A1"/>
-    </linearGradient>
-    <!-- Outer glow -->
     <filter id="glow">
-      <feGaussianBlur stdDeviation="8" result="blur"/>
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
     </filter>
-    <!-- Soft shadow -->
-    <filter id="shadow">
-      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#E85D26" flood-opacity="0.25"/>
+    <filter id="softShadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="8" flood-color="#E85D26" flood-opacity="0.3"/>
     </filter>
-    <!-- Inner glow for center diamond -->
-    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
-    </radialGradient>
   </defs>
 
-  <!-- Background circle (optional, for dark contexts) -->
-  <circle cx="256" cy="256" r="240" fill="#0C0A15" opacity="0"/>
+  <!--
+    Concept: An open book (Vidya/knowledge) with a rising flame (Jyoti/light).
+    The book represents the Guru's teaching.
+    The flame represents the Sishya's awakened understanding.
+    Together: knowledge ignites wisdom.
+  -->
 
-  <!-- Guru chevron (pointing down = knowledge flowing to student) -->
-  <!-- Refined proportions with slight rounding via stroke -->
-  <g filter="url(#shadow)">
+  <!-- Open Book — teal, forming a base/cradle -->
+  <g filter="url(#softShadow)">
+    <!-- Left page -->
     <path
-      d="M142 128 L256 240 L370 128 L370 184 L256 298 L142 184 Z"
-      fill="url(#guru)"
-      stroke="url(#guru)"
-      stroke-width="4"
-      stroke-linejoin="round"
+      d="M144 340 C144 310 180 290 256 280 L256 380 C180 370 144 360 144 340 Z"
+      fill="url(#bookGrad)"
+      opacity="0.9"
     />
+    <!-- Right page -->
+    <path
+      d="M368 340 C368 310 332 290 256 280 L256 380 C332 370 368 360 368 340 Z"
+      fill="url(#tealGrad)"
+      opacity="0.85"
+    />
+    <!-- Book spine highlight -->
+    <line x1="256" y1="275" x2="256" y2="385" stroke="#1DD1A1" stroke-width="2.5" opacity="0.5"/>
   </g>
 
-  <!-- Sishya chevron (pointing up = growth rising) -->
-  <g filter="url(#shadow)">
+  <!-- Flame — saffron/gold, the light of knowledge -->
+  <g filter="url(#glow)">
+    <!-- Outer flame -->
     <path
-      d="M142 384 L256 272 L370 384 L370 328 L256 214 L142 328 Z"
-      fill="url(#sishya)"
-      stroke="url(#sishya)"
-      stroke-width="4"
-      stroke-linejoin="round"
+      d="M256 100
+         C230 150 190 195 200 240
+         C208 275 230 280 240 278
+         C235 268 230 250 238 235
+         C242 225 250 230 256 245
+         C262 230 270 225 274 235
+         C282 250 277 268 272 278
+         C282 280 304 275 312 240
+         C322 195 282 150 256 100 Z"
+      fill="url(#flameOuter)"
     />
+    <!-- Inner flame (brighter core) -->
+    <path
+      d="M256 160
+         C242 190 222 215 228 240
+         C232 258 244 262 250 258
+         C248 250 250 240 256 248
+         C262 240 264 250 262 258
+         C268 262 280 258 284 240
+         C290 215 270 190 256 160 Z"
+      fill="url(#flameInner)"
+      opacity="0.85"
+    />
+    <!-- White-hot center -->
+    <ellipse cx="256" cy="238" rx="10" ry="16" fill="white" opacity="0.5"/>
   </g>
 
-  <!-- Center diamond — the bridge of knowledge transfer -->
-  <path
-    d="M210 256 L256 210 L302 256 L256 302 Z"
-    fill="url(#bridge)"
-    stroke="url(#bridge)"
-    stroke-width="2"
-    stroke-linejoin="round"
-  />
-  <!-- Inner glow on diamond -->
-  <path
-    d="M224 256 L256 224 L288 256 L256 288 Z"
-    fill="url(#centerGlow)"
-  />
+  <!-- Subtle knowledge particles rising -->
+  <circle cx="236" cy="120" r="3" fill="#FDB813" opacity="0.4"/>
+  <circle cx="276" cy="108" r="2.5" fill="#FDB813" opacity="0.3"/>
+  <circle cx="250" cy="95" r="2" fill="#FDB813" opacity="0.25"/>
 
-  <!-- Subtle code bracket accents -->
-  <path d="M108 200 L88 256 L108 312" fill="none" stroke="#E85D26" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
-  <path d="M404 200 L424 256 L404 312" fill="none" stroke="#1DD1A1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+  <!-- Code bracket accents on the book edges -->
+  <path d="M130 320 L118 340 L130 360" fill="none" stroke="#1DD1A1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+  <path d="M382 320 L394 340 L382 360" fill="none" stroke="#1DD1A1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
 
-  <!-- Tiny spark dots at the tips (knowledge particles) -->
-  <circle cx="256" cy="116" r="4" fill="#FDB813" opacity="0.6"/>
-  <circle cx="256" cy="396" r="4" fill="#1DD1A1" opacity="0.6"/>
+  <!-- Gold rim on book -->
+  <path d="M148 345 C148 365 190 378 256 383" fill="none" stroke="#FDB813" stroke-width="1.5" opacity="0.3"/>
+  <path d="M364 345 C364 365 322 378 256 383" fill="none" stroke="#FDB813" stroke-width="1.5" opacity="0.3"/>
 </svg>
