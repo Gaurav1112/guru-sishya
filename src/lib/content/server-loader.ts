@@ -157,6 +157,52 @@ export function getAllTopicsWithSlugs(): Array<{
   }));
 }
 
+// ── Related Topics ─────────────────────────────────────────────────────────
+
+/**
+ * Get related topics for internal linking.
+ * Returns topics in the same category first, then nearby categories.
+ */
+export function getRelatedTopics(
+  currentTopic: string,
+  limit = 3,
+): Array<{ topic: string; slug: string; category: string }> {
+  const all = loadAllContentFromDisk();
+  const current = all.find(
+    (t) => t.topic.toLowerCase().trim() === currentTopic.toLowerCase().trim(),
+  );
+  if (!current) return [];
+
+  const currentKey = current.topic.toLowerCase().trim();
+
+  // Same category first (excluding current), then other categories
+  const sameCategory = all.filter(
+    (t) =>
+      t.category === current.category &&
+      t.topic.toLowerCase().trim() !== currentKey,
+  );
+  const otherCategory = all.filter(
+    (t) =>
+      t.category !== current.category &&
+      t.topic.toLowerCase().trim() !== currentKey,
+  );
+
+  // Shuffle same-category deterministically based on topic name
+  const hash = currentTopic.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const shuffled = [...sameCategory].sort(
+    (a, b) =>
+      ((a.topic.charCodeAt(0) + hash) % 97) -
+      ((b.topic.charCodeAt(0) + hash) % 97),
+  );
+
+  const candidates = [...shuffled, ...otherCategory].slice(0, limit);
+  return candidates.map((t) => ({
+    topic: t.topic,
+    slug: slugify(t.topic),
+    category: t.category,
+  }));
+}
+
 // ── Question Bank helpers ──────────────────────────────────────────────────
 
 export interface IndexableQuestion {

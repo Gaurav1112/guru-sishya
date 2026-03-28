@@ -85,7 +85,7 @@ function CoinBalanceSection() {
       <div className="flex items-center gap-2 mb-4">
         <span className="text-2xl">🪙</span>
         <div>
-          <h3 className="font-heading font-bold">Coin Balance</h3>
+          <h2 className="font-heading font-bold">Coin Balance</h2>
           <p className="text-sm text-muted-foreground">{coins.toLocaleString()} coins</p>
         </div>
       </div>
@@ -301,9 +301,9 @@ function SignInCTA() {
   return (
     <div className="rounded-xl border border-saffron/30 bg-saffron/5 p-6 text-center">
       <p className="text-2xl mb-3">🔒</p>
-      <h2 className="font-heading text-lg font-bold mb-2">
+      <p className="font-heading text-lg font-bold mb-2">
         Sign in to save your progress across devices
-      </h2>
+      </p>
       <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
         Your progress is stored locally in this browser. Sign in with Google to
         export and sync it across your devices for free.

@@ -145,7 +145,7 @@ function ShopItemCard({ item, coins }: { item: ShopItem; coins: number }) {
         <span className="text-4xl">{item.icon}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-heading font-bold text-foreground leading-tight">{item.name}</h3>
+            <h2 className="font-heading font-bold text-foreground leading-tight">{item.name}</h2>
             {ownedBadge && (
               <span className="rounded-full border border-saffron/40 bg-saffron/10 px-2 py-0.5 text-[10px] font-semibold text-saffron">
                 {ownedBadge}

@@ -51,7 +51,7 @@ function StreakCalendar({
     <div className="rounded-xl border border-border/50 bg-surface p-4">
       <div className="flex items-center gap-2 mb-3">
         <Flame className="size-4 text-saffron" />
-        <h3 className="text-sm font-semibold">Review Streak</h3>
+        <h2 className="text-sm font-semibold">Review Streak</h2>
       </div>
       <div className="flex gap-1.5 flex-wrap">
         {days.map(({ dateStr, dayLabel, hasReview }) => (
@@ -117,7 +117,7 @@ function UpcomingReviews() {
     <div className="rounded-xl border border-border/50 bg-surface p-4 space-y-3">
       <div className="flex items-center gap-2">
         <Clock className="size-4 text-teal" />
-        <h3 className="text-sm font-semibold">Upcoming</h3>
+        <h2 className="text-sm font-semibold">Upcoming</h2>
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
@@ -314,7 +314,7 @@ function ReviewBookmarks() {
     <div className="rounded-xl border border-border/50 bg-surface p-4">
       <div className="flex items-center gap-2 mb-3">
         <Bookmark className="size-4 text-indigo-400" />
-        <h3 className="text-sm font-semibold">Marked for Review</h3>
+        <h2 className="text-sm font-semibold">Marked for Review</h2>
         {count > 0 && (
           <span className="ml-auto text-xs font-semibold rounded-full bg-indigo-500/15 text-indigo-400 px-2 py-0.5">
             {count}
@@ -383,7 +383,7 @@ function InterviewMisses() {
         onClick={() => setExpanded((v) => !v)}
       >
         <AlertCircle className="size-4 text-destructive/70" />
-        <h3 className="text-sm font-semibold flex-1">Recent Interview Misses</h3>
+        <h2 className="text-sm font-semibold flex-1">Recent Interview Misses</h2>
         {misses.length > 0 && (
           <span className="text-xs font-semibold rounded-full bg-destructive/10 text-destructive px-2 py-0.5">
             {misses.length}

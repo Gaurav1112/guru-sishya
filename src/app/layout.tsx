@@ -132,6 +132,11 @@ export default function RootLayout({
       lang="en"
       className={`${jakarta.variable} ${inter.variable} ${jetbrains.variable} dark`}
     >
+      <head>
+        {/* Preconnect to external origins for faster resource loading */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+      </head>
       <body className="font-body min-h-screen bg-background">
         {/* JSON-LD: SoftwareApplication */}
         <script

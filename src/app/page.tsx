@@ -283,7 +283,7 @@ export default function LandingPage() {
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" />
+                <img src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" loading="lazy" />
                 <span className="font-heading text-base font-semibold text-saffron">GURU SISHYA</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">

@@ -5,6 +5,7 @@ import {
   loadAllContentFromDisk,
   findTopicBySlug,
   slugify,
+  getRelatedTopics,
 } from "@/lib/content/server-loader";
 
 // ── Static generation ───────────────────────────────────────────────────────
@@ -133,6 +134,9 @@ export default async function LearnTopicPage({ params }: PageProps) {
   // Quiz count
   const quizCount = topic.quizBank?.length ?? 0;
 
+  // Related topics for internal linking
+  const relatedTopics = getRelatedTopics(topic.topic, 3);
+
   // JSON-LD Course schema
   const courseSchema = {
     "@context": "https://schema.org",
@@ -169,10 +173,19 @@ export default async function LearnTopicPage({ params }: PageProps) {
         <ol className="flex items-center gap-2 text-sm text-muted-foreground">
           <li>
             <Link
+              href="/"
+              className="hover:text-foreground transition-colors"
+            >
+              Home
+            </Link>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li>
+            <Link
               href="/learn"
               className="hover:text-foreground transition-colors"
             >
-              Topics
+              Learn
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -286,6 +299,31 @@ export default async function LearnTopicPage({ params }: PageProps) {
         </section>
       )}
 
+      {/* Related topics — internal linking */}
+      {relatedTopics.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-heading font-semibold text-foreground mb-3">
+            Related Topics
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {relatedTopics.map((rt) => (
+              <Link
+                key={rt.slug}
+                href={`/learn/${rt.slug}`}
+                className="group block rounded-xl border border-border/30 bg-card/50 p-4 transition-all hover:bg-card/80 hover:border-saffron/30 hover:shadow-md"
+              >
+                <p className="font-semibold text-foreground group-hover:text-saffron transition-colors text-sm">
+                  {rt.topic}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {rt.category}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* CTA section */}
       <section className="py-8 border-t border-border/30">
         <div className="text-center">
@@ -330,12 +368,18 @@ export default async function LearnTopicPage({ params }: PageProps) {
               {
                 "@type": "ListItem",
                 position: 1,
+                name: "Home",
+                item: "https://www.guru-sishya.in",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
                 name: "Learn",
                 item: "https://www.guru-sishya.in/learn",
               },
               {
                 "@type": "ListItem",
-                position: 2,
+                position: 3,
                 name: topic.topic,
                 item: `https://www.guru-sishya.in/learn/${slug}`,
               },

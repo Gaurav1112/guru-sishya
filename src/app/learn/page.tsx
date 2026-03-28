@@ -148,6 +148,22 @@ export default function LearnIndexPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      {/* Breadcrumb */}
+      <nav aria-label="Breadcrumb" className="mb-6">
+        <ol className="flex items-center gap-2 text-sm text-muted-foreground">
+          <li>
+            <Link
+              href="/"
+              className="hover:text-foreground transition-colors"
+            >
+              Home
+            </Link>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li className="text-foreground font-medium">Learn</li>
+        </ol>
+      </nav>
+
       {/* Hero section */}
       <div className="text-center mb-12">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4">
@@ -220,6 +236,31 @@ export default function LearnIndexPage() {
           Start Learning Free &rarr;
         </Link>
       </div>
+
+      {/* JSON-LD: BreadcrumbList */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: "https://www.guru-sishya.in",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Learn",
+                item: "https://www.guru-sishya.in/learn",
+              },
+            ],
+          }),
+        }}
+      />
 
       {/* JSON-LD: ItemList for SEO */}
       <script

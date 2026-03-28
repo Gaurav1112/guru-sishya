@@ -65,7 +65,7 @@ export function ReferFriendsCard() {
             <Users className="size-5 text-saffron" />
           </div>
           <div>
-            <h3 className="font-heading font-bold">Refer Friends</h3>
+            <h2 className="font-heading font-bold">Refer Friends</h2>
             <p className="text-sm text-muted-foreground">
               Earn XP, coins, and Pro access by inviting friends.
               {data.referredCount > 0 && (
