@@ -47,7 +47,7 @@ function getRazorpayInstance() {
 export async function POST(req: NextRequest) {
   // SECURITY: Rate limit order creation to prevent abuse
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  if (!checkRateLimit(`razorpay-order:${ip}`, 5, 60000)) {
+  if (!(await checkRateLimit(`razorpay-order:${ip}`, 5, 60000))) {
     return NextResponse.json(
       { error: "Too many requests. Try again later." },
       { status: 429 }
