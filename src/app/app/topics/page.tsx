@@ -501,11 +501,70 @@ export default function TopicsPage() {
             🔍
           </span>
           <Input
+            ref={searchInputRef}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setShowAutocomplete(true);
+              setAutocompleteIndex(-1);
+            }}
+            onFocus={() => {
+              if (autocompleteSuggestions.length > 0) setShowAutocomplete(true);
+            }}
+            onKeyDown={handleSearchKeyDown}
             placeholder="Search topics..."
             className="pl-8 bg-surface"
+            role="combobox"
+            aria-expanded={showAutocomplete && autocompleteSuggestions.length > 0}
+            aria-controls="search-autocomplete-list"
+            aria-activedescendant={
+              autocompleteIndex >= 0
+                ? `autocomplete-option-${autocompleteIndex}`
+                : undefined
+            }
+            aria-autocomplete="list"
+            aria-label="Search topics"
+            autoComplete="off"
           />
+          {/* Autocomplete dropdown */}
+          <AnimatePresence>
+            {showAutocomplete && autocompleteSuggestions.length > 0 && search.trim().length >= 2 && (
+              <motion.div
+                ref={autocompleteRef}
+                id="search-autocomplete-list"
+                role="listbox"
+                aria-label="Topic suggestions"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+                className="absolute z-50 mt-1 w-full rounded-lg border border-border bg-surface shadow-lg overflow-hidden"
+              >
+                {autocompleteSuggestions.map((item, idx) => (
+                  <button
+                    key={item}
+                    id={`autocomplete-option-${idx}`}
+                    role="option"
+                    aria-selected={idx === autocompleteIndex}
+                    type="button"
+                    onClick={() => {
+                      setSearch(item);
+                      setDebouncedSearch(item);
+                      setShowAutocomplete(false);
+                      setAutocompleteIndex(-1);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                      idx === autocompleteIndex
+                        ? "bg-saffron/10 text-foreground"
+                        : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+                    }`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <div className="flex items-center gap-1 flex-wrap">
           {TABS.map((tab) => (
@@ -545,8 +604,24 @@ export default function TopicsPage() {
           ))}
         </div>
       ) : tabFiltered.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground">
-          No topics match &quot;{search}&quot;
+        <div className="py-12 text-center text-muted-foreground space-y-3">
+          <p>No topics match &quot;{search}&quot;</p>
+          {suggestion && (
+            <p>
+              Did you mean:{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch(suggestion);
+                  setDebouncedSearch(suggestion);
+                }}
+                className="text-saffron underline hover:text-saffron/80 font-medium"
+              >
+                {suggestion}
+              </button>
+              ?
+            </p>
+          )}
         </div>
       ) : (
         <div className="space-y-10">

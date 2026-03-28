@@ -2017,7 +2017,7 @@ export default function InterviewPage() {
   }
 
   return (
-    <div className={phase === "active" ? "flex flex-col h-[calc(100dvh-4rem)]" : "space-y-4"}>
+    <main role="main" aria-label="Mock Interview Simulator" className={phase === "active" ? "flex flex-col h-[calc(100dvh-4rem)]" : "space-y-4"}>
       {/* Back link when active */}
       {phase !== "setup" && (
         <button

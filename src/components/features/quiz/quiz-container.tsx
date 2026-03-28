@@ -1102,7 +1102,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   // ── Calibration intro ────────────────────────────────────────────────────────
   if (phase === "calibration_intro") {
     return (
-      <div className="flex flex-col gap-4 max-w-xl mx-auto">
+      <div data-testid="quiz-start" className="flex flex-col gap-4 max-w-xl mx-auto">
         {errorBanner}
 
         {/* Resume dialog */}
