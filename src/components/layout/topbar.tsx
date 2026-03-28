@@ -181,9 +181,11 @@ export function Topbar() {
         <MobileNav />
         <Link
           href="/app/dashboard"
-          className="font-heading text-lg font-bold text-saffron tracking-wider shrink-0"
+          className="flex items-center gap-2 shrink-0"
         >
-          GURU SISHYA
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mark.svg" alt="Guru Sishya" className="size-8 rounded-lg" />
+          <span className="font-heading text-lg font-bold text-saffron tracking-wider hidden sm:inline">GURU SISHYA</span>
         </Link>
       </div>
 

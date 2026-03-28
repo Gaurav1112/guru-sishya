@@ -76,8 +76,10 @@ function LandingNavbar() {
     <nav aria-label="Main navigation" className="sticky top-0 z-50 bg-background/60 backdrop-blur-md border-b border-border/30">
       <div className="flex h-14 items-center justify-between px-6">
         <div className="flex items-center gap-6">
-          <Link href="/" className="font-heading text-lg font-bold text-saffron tracking-wider hover:opacity-80 transition-opacity">
-            GURU SISHYA
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-mark.svg" alt="Guru Sishya" className="size-8 rounded-lg" />
+            <span className="font-heading text-lg font-bold text-saffron tracking-wider">GURU SISHYA</span>
           </Link>
           <div className="hidden sm:flex items-center gap-4">
             {NAV_LINKS.map((link) => (
@@ -260,9 +262,11 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
-              <p className="font-heading text-base font-semibold text-saffron mb-2">
-                GURU SISHYA
-              </p>
+              <div className="flex items-center gap-2 mb-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo-mark.svg" alt="Guru Sishya" className="size-6 rounded" />
+                <span className="font-heading text-base font-semibold text-saffron">GURU SISHYA</span>
+              </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Free software engineering interview preparation platform. 65 topics, 1400+ questions, works offline.
               </p>
