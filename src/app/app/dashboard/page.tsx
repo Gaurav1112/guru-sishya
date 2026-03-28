@@ -23,6 +23,7 @@ import { PageTransition } from "@/components/page-transition";
 import { DailyQuests } from "@/components/gamification/daily-quests";
 import { ShareButton } from "@/components/share-button";
 import { StreakFreezeModal } from "@/components/gamification/streak-freeze-modal";
+import { InterviewCountdown } from "@/components/gamification/interview-countdown";
 
 // ── Stagger item wrapper ──────────────────────────────────────────────────────
 
@@ -534,6 +535,9 @@ export default function DashboardPage() {
         </div>
       </Link>
       </FadeIn>
+
+      {/* Interview Countdown */}
+      <FadeIn index={idx++}><InterviewCountdown /></FadeIn>
 
       {/* Your Progress */}
       <FadeIn index={idx++}>

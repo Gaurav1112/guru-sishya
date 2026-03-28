@@ -2,13 +2,20 @@
 import { useStore } from "@/lib/store";
 import { ApiKeyInput } from "@/components/api-key-input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { db } from "@/lib/db";
 
 export default function SettingsPage() {
-  const { soundEnabled, setSoundEnabled, dailyGoal, setDailyGoal, showOnLeaderboard, setShowOnLeaderboard, weeklyDigestEnabled, setWeeklyDigestEnabled } = useStore();
+  const {
+    soundEnabled, setSoundEnabled,
+    dailyGoal, setDailyGoal,
+    showOnLeaderboard, setShowOnLeaderboard,
+    interviewDate, interviewCompany, setInterviewDate, setInterviewCompany,
+    weeklyDigestEnabled, setWeeklyDigestEnabled,
+  } = useStore();
   async function handleExport() {
     const data = {
       version: 1, exportedAt: new Date().toISOString(),
@@ -30,6 +37,48 @@ export default function SettingsPage() {
       <h1 className="font-heading text-2xl font-bold mb-6">Settings</h1>
       <div className="space-y-6">
         <Card className="bg-surface border-border/50"><CardHeader><CardTitle className="text-lg">API Key</CardTitle></CardHeader><CardContent><ApiKeyInput /></CardContent></Card>
+        {/* Interview Date */}
+        <Card className="bg-surface border-border/50">
+          <CardHeader><CardTitle className="text-lg">Interview Date</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="interview-company">Company Name (optional)</Label>
+              <Input
+                id="interview-company"
+                type="text"
+                placeholder="e.g. Google, Amazon, Meta"
+                value={interviewCompany}
+                onChange={(e) => setInterviewCompany(e.target.value)}
+                className="bg-background border-border/50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="interview-date">Interview Date</Label>
+              <Input
+                id="interview-date"
+                type="date"
+                value={interviewDate ?? ""}
+                onChange={(e) => setInterviewDate(e.target.value || null)}
+                min={new Date().toISOString().split("T")[0]}
+                className="bg-background border-border/50"
+              />
+              <p className="text-xs text-muted-foreground">
+                Set your target interview date to see a countdown on your dashboard.
+              </p>
+            </div>
+            {interviewDate && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-red-400 border-red-500/30 hover:bg-red-500/10"
+                onClick={() => { setInterviewDate(null); setInterviewCompany(""); }}
+              >
+                Clear Date
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="bg-surface border-border/50"><CardHeader><CardTitle className="text-lg">Preferences</CardTitle></CardHeader><CardContent className="space-y-4">
           <div className="flex items-center justify-between"><Label>Sound Effects</Label><Button variant="outline" size="sm" onClick={() => setSoundEnabled(!soundEnabled)}>{soundEnabled ? "On" : "Off"}</Button></div>
           <Separator />

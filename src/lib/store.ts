@@ -46,6 +46,9 @@ type PersistedState = Pick<
   // Onboarding
   | "onboardingCompleted"
   | "visitCount"
+  // Interview countdown
+  | "interviewDate"
+  | "interviewCompany"
   // Premium
   | "isPremium"
   | "premiumUntil"
@@ -108,13 +111,13 @@ export const useStore = create<StoreState>()(
         displayName: state.displayName,
         onboardingCompleted: state.onboardingCompleted,
         visitCount: state.visitCount,
+        interviewDate: state.interviewDate,
+        interviewCompany: state.interviewCompany,
         isPremium: state.isPremium,
         premiumUntil: state.premiumUntil,
         paymentId: state.paymentId,
         planType: state.planType,
         weeklyDigestEnabled: state.weeklyDigestEnabled,
-        interviewDate: state.interviewDate,
-        interviewCompany: state.interviewCompany,
       }),
     }
   )

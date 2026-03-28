@@ -106,5 +106,5 @@ export const createSettingsSlice: StateCreator<
   setInterviewDate: (date) =>
     set((state) => { state.interviewDate = date; }),
   setInterviewCompany: (company) =>
-    set((state) => { state.interviewCompany = company; }),
+    set((state) => { state.interviewCompany = company.trim(); }),
 });
