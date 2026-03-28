@@ -91,9 +91,9 @@ export const metadata: Metadata = {
     canonical: "https://www.guru-sishya.in",
   },
   openGraph: {
-    title: "Guru Sishya — DSA + System Design Interview Prep Platform | Free",
+    title: "DSA, System Design & Behavioral Interview Prep | Guru Sishya",
     description:
-      "Master FAANG interviews with 1988 questions, 141 topics, system design case studies, mock interviews & STAR behavioral prep. Free, offline-ready.",
+      "Practice 1988 DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free with Java + Python code.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -109,9 +109,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Guru Sishya — Crack Software Engineering Interviews",
+    title: "DSA, System Design & Behavioral Interview Prep | Guru Sishya",
     description:
-      "Ace software engineering interviews with 138 topics, 1933 questions with answers, STAR behavioral prep, and adaptive quizzes. Works offline, no signup needed.",
+      "Practice 1988 DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free with Java + Python code.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   category: "education",
@@ -211,7 +211,7 @@ export default function RootLayout({
                   name: "Is Guru Sishya really free? What's the catch?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes - 138 topics, 1400+ quiz questions with answers, 670+ full lessons, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 129/month or Rs 999/year) for AI-powered features like the Guru Mode and custom topic generation, but the core prep content will always be free.",
+                    text: "Yes - 141 topics, 1988 quiz questions with answers, 693 full sessions, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 149/month or Rs 1199/year) for AI-powered features like the Guru Mode and custom topic generation, but the core prep content will always be free.",
                   },
                 },
                 {
@@ -259,7 +259,7 @@ export default function RootLayout({
                   name: "What is the Pro plan and what does it include?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Pro (Rs 129/month or Rs 999/year) unlocks AI-powered features: the Guru Mode interactive chat for deep understanding, custom topic generation, priority support, and a certificate of completion. All core prep content remains free forever.",
+                    text: "Pro (Rs 149/month or Rs 1199/year) unlocks AI-powered features: the Guru Mode interactive chat for deep understanding, custom topic generation, priority support, and a certificate of completion. All core prep content remains free forever.",
                   },
                 },
               ],
