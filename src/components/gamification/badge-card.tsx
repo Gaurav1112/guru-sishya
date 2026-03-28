@@ -2,6 +2,7 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BadgeDefinition, UserStats } from "@/lib/gamification/badges";
+import { ShareButton } from "@/components/share-button";
 
 interface BadgeCardProps {
   badge: BadgeDefinition;
@@ -158,9 +159,18 @@ export function BadgeCard({ badge, unlocked, unlockedAt, userStats }: BadgeCardP
         <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{badge.description}</p>
 
         {unlocked ? (
-          <div className="flex items-center justify-center gap-1 mt-2 text-[10px] font-semibold text-teal-400">
-            <Check className="size-3" />
-            Earned!
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            <span className="flex items-center gap-1 text-[10px] font-semibold text-teal-400">
+              <Check className="size-3" />
+              Earned!
+            </span>
+            <ShareButton
+              type="badge"
+              name={badge.name}
+              size="icon"
+              iconOnly
+              className="size-5 [&_button]:size-5 [&_button]:p-0 [&_svg]:size-2.5"
+            />
           </div>
         ) : (
           <div className="mt-2 w-full">

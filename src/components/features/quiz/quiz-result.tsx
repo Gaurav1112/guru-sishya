@@ -239,7 +239,7 @@ export function QuizResultScreen({
         </Button>
         <ShareButton
           type="quiz"
-          value={`${result.averageScore}/10`}
+          value={myPct}
           name={topicName}
           className="flex-1"
           size="default"

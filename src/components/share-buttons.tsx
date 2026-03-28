@@ -34,10 +34,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 // ── Main component ─────────────────────────────────────────────────────────
 
 /**
- * ShareButtons — three inline share buttons for WhatsApp, LinkedIn, and Copy Link.
+ * ShareButtons - inline share buttons for WhatsApp, X, LinkedIn, and Copy Link.
  *
  * Designed to be embedded inside result screens and challenge pages.
- * No dropdown — buttons are always visible and clearly labelled.
+ * No dropdown - buttons are always visible and clearly labelled.
  */
 export function ShareButtons({ shareUrl, shareText, className }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
@@ -45,12 +45,16 @@ export function ShareButtons({ shareUrl, shareText, className }: ShareButtonsPro
   const fullText = `${shareText} ${shareUrl}`;
 
   function handleWhatsApp() {
-    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(fullText)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  function handleTwitter() {
+    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
   function handleLinkedIn() {
-    // Use the LinkedIn feed compose URL so the post text is pre-filled.
     const text = `${shareText} ${shareUrl}`;
     const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
     window.open(url, "_blank", "noopener,noreferrer");
@@ -60,7 +64,6 @@ export function ShareButtons({ shareUrl, shareText, className }: ShareButtonsPro
     try {
       await navigator.clipboard.writeText(shareUrl);
     } catch {
-      // Fallback for browsers that block clipboard without user gesture
       const el = document.createElement("textarea");
       el.value = shareUrl;
       el.style.position = "fixed";
@@ -87,6 +90,19 @@ export function ShareButtons({ shareUrl, shareText, className }: ShareButtonsPro
       >
         <WhatsAppIcon className="size-3.5" />
         <span>WhatsApp</span>
+      </Button>
+
+      {/* X / Twitter */}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={handleTwitter}
+        className="flex items-center gap-1.5 border-foreground/20 bg-foreground/5 text-foreground hover:bg-foreground/10 hover:border-foreground/30"
+        aria-label="Share on X"
+      >
+        <Twitter className="size-3.5" />
+        <span>X</span>
       </Button>
 
       {/* LinkedIn */}
