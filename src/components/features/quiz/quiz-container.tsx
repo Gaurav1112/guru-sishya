@@ -247,15 +247,15 @@ function QuizProgressBar({ current, total, score, maxScore }: QuizProgressBarPro
   const pct = Math.round(fraction * 100);
 
   return (
-    <div className="flex flex-col gap-1.5 w-full">
+    <div className="flex flex-col gap-1.5 w-full" role="group" aria-label="Quiz progress">
       {/* Labels row */}
       <div className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
-        <span className="font-medium text-foreground">
+        <span className="font-medium text-foreground" aria-current="step">
           Question <span className="text-saffron font-bold">{current}</span>
           <span className="text-muted-foreground font-normal"> of {total}</span>
         </span>
         {maxScore > 0 && (
-          <span className="font-medium">
+          <span className="font-medium" aria-live="polite">
             Score:{" "}
             <span className="text-saffron font-bold">{score}</span>
             <span className="text-muted-foreground">/{maxScore}</span>
@@ -263,7 +263,7 @@ function QuizProgressBar({ current, total, score, maxScore }: QuizProgressBarPro
         )}
       </div>
       {/* Bar */}
-      <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
+      <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`Question ${current} of ${total}`}>
         <motion.div
           className="h-full rounded-full bg-saffron"
           initial={{ width: 0 }}
