@@ -44,14 +44,14 @@ function buildOgUrl(
   return `${base}/api/og?${params.toString()}`;
 }
 
+const APP_URL = "https://www.guru-sishya.in";
+
 function buildShareUrl(
   type: ShareType,
   value?: string | number,
   name?: string
 ): string {
-  // The page URL to share (deep-link back to the app)
-  if (typeof window === "undefined") return "";
-  return window.location.href;
+  return APP_URL;
 }
 
 function buildShareText(
