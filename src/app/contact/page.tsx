@@ -3,6 +3,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Contact & Support — Guru Sishya",
   description: "Get help with Guru Sishya. Contact our support team for technical issues, billing questions, or feedback.",
+  alternates: { canonical: "https://www.guru-sishya.in/contact" },
 };
 
 export default function ContactPage() {

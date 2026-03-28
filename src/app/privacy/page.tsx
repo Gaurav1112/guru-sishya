@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy — Guru Sishya",
   description: "Privacy Policy for Guru Sishya — how we collect, use, and protect your data.",
+  alternates: { canonical: "https://www.guru-sishya.in/privacy" },
 };
 
 export default function PrivacyPage() {
