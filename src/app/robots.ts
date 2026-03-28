@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/pricing", "/login", "/privacy", "/terms", "/contact"],
-        disallow: ["/app/", "/api/"],
+        allow: ["/", "/app/pricing", "/login", "/privacy", "/terms", "/contact"],
+        disallow: ["/app/admin", "/app/", "/api/"],
       },
     ],
     sitemap: "https://www.guru-sishya.in/sitemap.xml",

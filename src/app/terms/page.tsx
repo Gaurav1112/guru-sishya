@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms of Service — Guru Sishya",
   description: "Terms of Service for Guru Sishya — rules governing use of the platform.",
+  alternates: { canonical: "https://www.guru-sishya.in/terms" },
 };
 
 export default function TermsPage() {
