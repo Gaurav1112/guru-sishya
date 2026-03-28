@@ -55,6 +55,7 @@ const CONTENT_FILES = [
   "/content/nosql.json",
   "/content/rdbms-sql.json",
   "/content/nodejs.json",
+  "/content/dsa-advanced.json",
 ];
 
 let _contentCache: TopicContent[] | null = null;
