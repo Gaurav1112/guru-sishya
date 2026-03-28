@@ -13,7 +13,7 @@ import { FAQ } from "@/components/landing/faq";
 import { EmailCapture } from "@/components/landing/email-capture";
 import { ExitIntent } from "@/components/landing/exit-intent";
 import { Button } from "@/components/ui/button";
-import { loadAllContent } from "@/lib/content/loader";
+// Content stats are hardcoded on landing page to avoid loading 11MB of JSON
 
 export interface ContentStats {
   topicCount: number;
@@ -227,17 +227,9 @@ function FinalCTA({ stats }: { stats: ContentStats }) {
 }
 
 export default function LandingPage() {
-  const [stats, setStats] = useState<ContentStats>({ topicCount: 138, questionCount: 1933, sessionCount: 671 });
-
-  useEffect(() => {
-    loadAllContent().then((all) => {
-      setStats({
-        topicCount: all.length,
-        questionCount: all.reduce((sum, t) => sum + (t.quizBank?.length ?? 0), 0),
-        sessionCount: all.reduce((sum, t) => sum + (t.plan?.sessions?.length ?? 0), 0),
-      });
-    }).catch(() => {});
-  }, []);
+  // Static stats — avoids loading 11MB of content JSON on the landing page
+  // Update these when content changes significantly
+  const stats: ContentStats = { topicCount: 141, questionCount: 1988, sessionCount: 693 };
 
   return (
     <div className="min-h-screen">

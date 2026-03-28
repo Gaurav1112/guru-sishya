@@ -139,7 +139,7 @@ export function Hero({ stats }: { stats: ContentStats }) {
         </motion.div>
 
         {/* Headline — word-by-word stagger */}
-        <StaggeredHeadline text="Ace Your FAANG Interview in 8 Weeks" />
+        <StaggeredHeadline text="Master DSA System Design and Coding Interviews" />
 
         {/* Subheadline */}
         <motion.p

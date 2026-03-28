@@ -34,25 +34,25 @@ const PRO_MONTHLY_FEATURES: PlanFeature[] = [
 const PRO_SEMESTER_FEATURES: PlanFeature[] = [
   { text: "Everything in Pro Monthly" },
   { text: "Save 22% vs monthly", highlight: true },
-  { text: "6 months of full access", highlight: true },
+  { text: "6 months of DSA + System Design prep", highlight: true },
   { text: "Priority support", highlight: true },
-  { text: "Certificate of completion", highlight: true },
+  { text: "Shareable LinkedIn certificate", highlight: true },
 ];
 
 const PRO_ANNUAL_FEATURES: PlanFeature[] = [
   { text: "Everything in Pro Monthly" },
   { text: "Save ₹589 vs monthly", highlight: true },
-  { text: "Early access to new features", highlight: true },
+  { text: "Full FAANG interview prep access", highlight: true },
+  { text: "Early access to new coding topics", highlight: true },
   { text: "Priority support", highlight: true },
-  { text: "Certificate of completion", highlight: true },
 ];
 
 const PRO_LIFETIME_FEATURES: PlanFeature[] = [
   { text: "Everything in Pro Annual" },
   { text: "Pay once, access forever", highlight: true },
-  { text: "All future features included", highlight: true },
+  { text: "All future DSA & System Design topics", highlight: true },
   { text: "Priority support — forever", highlight: true },
-  { text: "Certificate of completion", highlight: true },
+  { text: "Lifetime interview prep access", highlight: true },
 ];
 
 function CheckIcon({ highlight }: { highlight?: boolean }) {
