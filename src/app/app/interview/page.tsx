@@ -2017,7 +2017,7 @@ export default function InterviewPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-4rem)] overflow-hidden">
+    <div className={phase === "active" ? "flex flex-col h-[calc(100dvh-4rem)]" : "space-y-4"}>
       {/* Back link when active */}
       {phase !== "setup" && (
         <button

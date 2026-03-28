@@ -119,15 +119,17 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Global thin scrollbars — prevents fat Windows scrollbars from breaking layouts */
+/* Global overlay scrollbars — floating, don't take layout space */
 * {
   scrollbar-width: thin;
-  scrollbar-color: hsl(240 15% 25%) transparent;
+  scrollbar-color: hsl(240 15% 30% / 0.5) transparent;
 }
 
+/* Webkit (Chrome, Edge, Safari) — overlay scrollbar */
 *::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
+  background: transparent;
 }
 
 *::-webkit-scrollbar-track {
@@ -135,12 +137,29 @@ html {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: hsl(240 15% 25%);
-  border-radius: 3px;
+  background-color: hsl(240 15% 35% / 0.4);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: hsl(240 15% 35%);
+  background-color: hsl(240 15% 45% / 0.7);
+}
+
+/* Hide scrollbar until hover/scroll */
+*::-webkit-scrollbar-thumb {
+  transition: background-color 0.2s;
+}
+
+/* Make scrollbar overlay (not take space) on supported browsers */
+@supports (overflow: overlay) {
+  .overflow-y-auto, .overflow-auto {
+    overflow-y: overlay !important;
+  }
+  .overflow-x-auto {
+    overflow-x: overlay !important;
+  }
 }
 
 /* Safe-area bottom padding for mobile keyboard / home indicator */
