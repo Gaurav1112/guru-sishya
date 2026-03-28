@@ -511,7 +511,7 @@ function SeoNavbar() {
               className="size-8 rounded-lg"
               width={32}
               height={32}
-             alt="Guru Sishya" />
+            />
             <span className="font-heading text-lg font-bold text-saffron tracking-wider">
               GURU SISHYA
             </span>
