@@ -125,8 +125,8 @@ function ShareMenu({ ogUrl, shareUrl, text, filename, onClose }: ShareMenuProps)
   }
 
   function handleWhatsapp() {
-    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${text}\n${shareUrl}`)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${shareUrl}`)}`;
+    window.open(waUrl, "_blank", "noopener,noreferrer");
     onClose();
   }
 

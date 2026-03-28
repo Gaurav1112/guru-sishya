@@ -21,6 +21,8 @@ import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
 import { CompanyQuestionsSection } from "@/components/features/company-questions/company-questions-section";
 import { PageTransition } from "@/components/page-transition";
 import { DailyQuests } from "@/components/gamification/daily-quests";
+import { ShareButton } from "@/components/share-button";
+import { StreakFreezeModal } from "@/components/gamification/streak-freeze-modal";
 
 // ── Stagger item wrapper ──────────────────────────────────────────────────────
 
@@ -297,7 +299,18 @@ function YourProgress() {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       <div className="rounded-xl border border-border/50 bg-surface p-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Streak</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Streak</p>
+          {currentStreak >= 2 && (
+            <ShareButton
+              type="streak"
+              value={currentStreak}
+              size="icon"
+              iconOnly
+              className="size-7"
+            />
+          )}
+        </div>
         <StreakFlame streak={currentStreak} size="md" />
         <p className="text-xs text-muted-foreground mt-2">days in a row</p>
       </div>
@@ -325,7 +338,7 @@ function YourProgress() {
 // ── Dashboard Page ───────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  useStreak();
+  const { pendingFreeze, confirmFreeze, declineFreeze } = useStreak();
 
   const { data: session } = useSession();
   const [featuredContent, setFeaturedContent] = useState<TopicContent[]>([]);
@@ -363,6 +376,17 @@ export default function DashboardPage() {
 
   return (
     <PageTransition>
+      {/* Streak freeze confirmation modal */}
+      {pendingFreeze && (
+        <StreakFreezeModal
+          open={!!pendingFreeze}
+          streak={pendingFreeze.streak}
+          freezesRemaining={pendingFreeze.freezesAvailable}
+          onUseFreeze={confirmFreeze}
+          onLetBreak={declineFreeze}
+        />
+      )}
+
       <div className="space-y-8">
       {/* Welcome Banner */}
       <FadeIn index={idx++}>
