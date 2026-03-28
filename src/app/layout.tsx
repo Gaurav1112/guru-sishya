@@ -30,6 +30,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.guru-sishya.in"),
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
+  },
   title: "DSA, System Design & Behavioral Interview Prep | Guru Sishya",
   description:
     "Practice 1988 DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free platform with Java + Python code.",
