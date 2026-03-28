@@ -1,54 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <!-- Background circle -->
-  <circle cx="256" cy="256" r="248" fill="#0C0A15" stroke="#E85D26" stroke-width="4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" width="480" height="120">
+  <defs>
+    <linearGradient id="guru" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="100%" stop-color="#E85D26"/>
+    </linearGradient>
+    <linearGradient id="sishya" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#0EA88A"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <linearGradient id="bridge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="50%" stop-color="#E85D26"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <linearGradient id="textGuru" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="100%" stop-color="#E85D26"/>
+    </linearGradient>
+    <linearGradient id="textSishya" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#E85D26"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#E85D26" flood-opacity="0.2"/>
+    </filter>
+  </defs>
 
-  <!-- Inner glow ring -->
-  <circle cx="256" cy="256" r="220" fill="none" stroke="#FDB813" stroke-width="1" opacity="0.3"/>
+  <!-- === ICON (in 100x100 area, centered vertically) === -->
+  <g transform="translate(10, 10) scale(0.195)">
+    <!-- Guru chevron -->
+    <path
+      d="M142 128 L256 240 L370 128 L370 184 L256 298 L142 184 Z"
+      fill="url(#guru)"
+      stroke="url(#guru)"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+    <!-- Sishya chevron -->
+    <path
+      d="M142 384 L256 272 L370 384 L370 328 L256 214 L142 328 Z"
+      fill="url(#sishya)"
+      stroke="url(#sishya)"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+    <!-- Center diamond -->
+    <path
+      d="M210 256 L256 210 L302 256 L256 302 Z"
+      fill="url(#bridge)"
+      stroke="url(#bridge)"
+      stroke-width="2"
+      stroke-linejoin="round"
+    />
+  </g>
 
-  <!-- Guru figure (left, larger, blessing hand raised) -->
-  <!-- Body -->
-  <path d="M160 340 Q160 280 180 240 Q190 220 200 210 L200 380 Q180 380 160 370 Z" fill="#E85D26" opacity="0.9"/>
-  <!-- Head -->
-  <circle cx="190" cy="195" r="28" fill="#FDB813"/>
-  <!-- Halo/aura behind guru -->
-  <circle cx="190" cy="195" r="40" fill="none" stroke="#FDB813" stroke-width="2" opacity="0.4"/>
-  <circle cx="190" cy="195" r="50" fill="none" stroke="#FDB813" stroke-width="1" opacity="0.2"/>
-  <!-- Blessing hand (raised) -->
-  <path d="M215 220 Q230 190 235 170 Q237 162 232 160 Q227 162 225 170 Q222 180 218 195" fill="#FDB813" stroke="#FDB813" stroke-width="2"/>
-  <!-- Guru robe detail -->
-  <path d="M170 260 Q185 250 200 260" fill="none" stroke="#FDB813" stroke-width="2" opacity="0.5"/>
+  <!-- === WORDMARK === -->
 
-  <!-- Blessing rays from guru's hand -->
-  <line x1="235" y1="165" x2="260" y2="145" stroke="#FDB813" stroke-width="1.5" opacity="0.6"/>
-  <line x1="238" y1="170" x2="268" y2="158" stroke="#FDB813" stroke-width="1.5" opacity="0.5"/>
-  <line x1="237" y1="175" x2="270" y2="172" stroke="#FDB813" stroke-width="1.5" opacity="0.4"/>
+  <!-- "GURU" — bold, warm gradient -->
+  <text
+    x="125" y="52"
+    font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif"
+    font-size="36"
+    font-weight="800"
+    letter-spacing="6"
+    fill="url(#textGuru)"
+    filter="url(#shadow)"
+  >GURU</text>
 
-  <!-- Sishya figure (right, smaller, namaste hands) -->
-  <!-- Body -->
-  <path d="M300 360 Q300 310 315 270 Q322 250 330 240 L330 390 Q315 395 300 385 Z" fill="#1DD1A1" opacity="0.8"/>
-  <!-- Head -->
-  <circle cx="322" cy="228" r="22" fill="#1DD1A1"/>
-  <!-- Namaste hands (folded in front) -->
-  <path d="M310 280 Q318 265 322 258 Q326 265 334 280" fill="none" stroke="#1DD1A1" stroke-width="3" stroke-linecap="round"/>
-  <path d="M314 275 L330 275" fill="none" stroke="#1DD1A1" stroke-width="2" opacity="0.6"/>
-  <!-- Slightly bowed head -->
+  <!-- "SISHYA" — medium weight, cool gradient -->
+  <text
+    x="125" y="88"
+    font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif"
+    font-size="32"
+    font-weight="500"
+    letter-spacing="8"
+    fill="url(#textSishya)"
+  >SISHYA</text>
 
-  <!-- Knowledge flow (dots from guru to sishya) -->
-  <circle cx="250" cy="200" r="3" fill="#FDB813" opacity="0.8"/>
-  <circle cx="262" cy="208" r="2.5" fill="#FDB813" opacity="0.6"/>
-  <circle cx="273" cy="216" r="2" fill="#FDB813" opacity="0.5"/>
-  <circle cx="283" cy="224" r="1.5" fill="#FDB813" opacity="0.4"/>
-
-  <!-- Code brackets symbolizing tech education -->
-  <text x="140" y="430" font-family="monospace" font-size="36" fill="#E85D26" opacity="0.7">&lt;</text>
-  <text x="350" y="430" font-family="monospace" font-size="36" fill="#E85D26" opacity="0.7">/&gt;</text>
-
-  <!-- Text: GURU SISHYA -->
-  <text x="256" y="415" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" letter-spacing="4">
-    <tspan fill="#E85D26">GURU</tspan>
-    <tspan fill="#FDB813" dx="8">SISHYA</tspan>
-  </text>
+  <!-- Thin accent line between words -->
+  <line x1="125" y1="60" x2="300" y2="60" stroke="url(#bridge)" stroke-width="1.5" opacity="0.4"/>
 
   <!-- Tagline -->
-  <text x="256" y="445" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#8B8B9E" letter-spacing="3">CRACK YOUR INTERVIEW</text>
+  <text
+    x="125" y="106"
+    font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif"
+    font-size="9"
+    font-weight="400"
+    letter-spacing="4"
+    fill="#888888"
+  >MASTER YOUR INTERVIEWS</text>
 </svg>

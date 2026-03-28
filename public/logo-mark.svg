@@ -1,28 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Compact logo mark — guru blessing sishya -->
-  <rect width="64" height="64" rx="14" fill="#0C0A15"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Guru gradient: saffron to gold -->
+    <linearGradient id="guru" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="100%" stop-color="#E85D26"/>
+    </linearGradient>
+    <!-- Sishya gradient: bright teal to deep teal -->
+    <linearGradient id="sishya" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#0EA88A"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <!-- Center bridge gradient -->
+    <linearGradient id="bridge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDB813"/>
+      <stop offset="50%" stop-color="#E85D26"/>
+      <stop offset="100%" stop-color="#1DD1A1"/>
+    </linearGradient>
+    <!-- Outer glow -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Soft shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#E85D26" flood-opacity="0.25"/>
+    </filter>
+    <!-- Inner glow for center diamond -->
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
 
-  <!-- Guru (saffron) -->
-  <circle cx="22" cy="22" r="6" fill="#E85D26"/>
-  <path d="M16 44 Q16 32 22 26 L28 26 Q28 32 28 44 Z" fill="#E85D26" opacity="0.9"/>
-  <!-- Blessing hand -->
-  <path d="M28 24 Q32 18 33 15" stroke="#FDB813" stroke-width="2" stroke-linecap="round"/>
+  <!-- Background circle (optional, for dark contexts) -->
+  <circle cx="256" cy="256" r="240" fill="#0C0A15" opacity="0"/>
 
-  <!-- Blessing rays -->
-  <line x1="33" y1="15" x2="38" y2="12" stroke="#FDB813" stroke-width="1" opacity="0.6"/>
-  <line x1="34" y1="17" x2="40" y2="15" stroke="#FDB813" stroke-width="1" opacity="0.5"/>
+  <!-- Guru chevron (pointing down = knowledge flowing to student) -->
+  <!-- Refined proportions with slight rounding via stroke -->
+  <g filter="url(#shadow)">
+    <path
+      d="M142 128 L256 240 L370 128 L370 184 L256 298 L142 184 Z"
+      fill="url(#guru)"
+      stroke="url(#guru)"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+  </g>
 
-  <!-- Sishya (teal) -->
-  <circle cx="42" cy="26" r="5" fill="#1DD1A1"/>
-  <path d="M37 48 Q37 36 42 30 L47 30 Q47 36 47 48 Z" fill="#1DD1A1" opacity="0.8"/>
-  <!-- Namaste hands -->
-  <path d="M39 35 Q42 32 45 35" stroke="#1DD1A1" stroke-width="2" stroke-linecap="round"/>
+  <!-- Sishya chevron (pointing up = growth rising) -->
+  <g filter="url(#shadow)">
+    <path
+      d="M142 384 L256 272 L370 384 L370 328 L256 214 L142 328 Z"
+      fill="url(#sishya)"
+      stroke="url(#sishya)"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+  </g>
 
-  <!-- Knowledge dots -->
-  <circle cx="34" cy="22" r="1.5" fill="#FDB813" opacity="0.7"/>
-  <circle cx="37" cy="24" r="1" fill="#FDB813" opacity="0.5"/>
+  <!-- Center diamond — the bridge of knowledge transfer -->
+  <path
+    d="M210 256 L256 210 L302 256 L256 302 Z"
+    fill="url(#bridge)"
+    stroke="url(#bridge)"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+  <!-- Inner glow on diamond -->
+  <path
+    d="M224 256 L256 224 L288 256 L256 288 Z"
+    fill="url(#centerGlow)"
+  />
 
-  <!-- Code brackets -->
-  <text x="8" y="56" font-family="monospace" font-size="10" fill="#E85D26" opacity="0.5">&lt;</text>
-  <text x="50" y="56" font-family="monospace" font-size="10" fill="#E85D26" opacity="0.5">/&gt;</text>
+  <!-- Subtle code bracket accents -->
+  <path d="M108 200 L88 256 L108 312" fill="none" stroke="#E85D26" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+  <path d="M404 200 L424 256 L404 312" fill="none" stroke="#1DD1A1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+
+  <!-- Tiny spark dots at the tips (knowledge particles) -->
+  <circle cx="256" cy="116" r="4" fill="#FDB813" opacity="0.6"/>
+  <circle cx="256" cy="396" r="4" fill="#1DD1A1" opacity="0.6"/>
 </svg>
