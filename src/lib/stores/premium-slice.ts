@@ -256,8 +256,8 @@ export const createPremiumSlice: StateCreator<
 
     // Admin email is the only user that can skip server sync — verified by
     // comparing against the env-provided admin email (not client state).
-    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com").toLowerCase();
-    if (normalised === adminEmail) return;
+    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "").trim().toLowerCase();
+    if (adminEmail && normalised === adminEmail) return;
 
     try {
       const res = await fetch(

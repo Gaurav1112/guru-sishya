@@ -43,8 +43,8 @@ function makeStats(overrides: Partial<UserStats> = {}): UserStats {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("BADGE_DEFINITIONS", () => {
-  it("has exactly 33 badge definitions", () => {
-    expect(BADGE_DEFINITIONS).toHaveLength(33);
+  it("has exactly 34 badge definitions", () => {
+    expect(BADGE_DEFINITIONS).toHaveLength(34);
   });
 
   it("has unique IDs", () => {
