@@ -61,13 +61,13 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: [
-      { url: "/icon-192.svg", type: "image/svg+xml" },
-      { url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/logo-mark.svg", type: "image/svg+xml" },
+      { url: "/logo-mark.svg", sizes: "192x192", type: "image/svg+xml" },
     ],
     apple: [
-      { url: "/icon-192.svg", sizes: "180x180", type: "image/svg+xml" },
+      { url: "/logo-mark.svg", sizes: "180x180", type: "image/svg+xml" },
     ],
-    shortcut: "/icon-192.svg",
+    shortcut: "/logo-mark.svg",
   },
   authors: [{ name: "Guru Sishya", url: "https://www.guru-sishya.in" }],
   creator: "Guru Sishya",
@@ -175,7 +175,7 @@ export default function RootLayout({
               "@type": "Organization",
               name: "Guru Sishya",
               url: "https://www.guru-sishya.in",
-              logo: "https://www.guru-sishya.in/icon-512.svg",
+              logo: "https://www.guru-sishya.in/logo-mark.svg",
               sameAs: ["https://github.com/Gaurav1112/guru-sishya"],
               contactPoint: {
                 "@type": "ContactPoint",
