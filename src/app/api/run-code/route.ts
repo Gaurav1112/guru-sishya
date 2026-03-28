@@ -112,24 +112,36 @@ export async function POST(request: NextRequest): Promise<Response> {
 
         javaCode = `import java.util.*;\nimport java.io.*;\nimport java.util.stream.*;\n\n${helpers}\npublic class Main {\n${code}\n${mainMethod}\n}`;
       } else {
-        // Has a class — rename to Main, and prepend helper types if referenced but not defined
+        // Has a class — rename to Main, add main if missing, prepend helpers
         const publicClassMatch = code.match(/public\s+class\s+(\w+)/);
         const plainClassMatch = code.match(/\bclass\s+(\w+)/);
         const className = publicClassMatch?.[1] || plainClassMatch?.[1];
 
         if (className && className !== "Main") {
-          // Rename the class to Main
           javaCode = code
             .replace(new RegExp(`public\\s+class\\s+${className}`), "public class Main")
             .replace(new RegExp(`\\bclass\\s+${className}(?!\\w)`), "public class Main");
         }
 
-        // Prepend helper types if used but not defined in the code
-        const needsListNode = /\bListNode\b/.test(code) && !/class\s+ListNode\b/.test(code);
-        const needsTreeNode = /\bTreeNode\b/.test(code) && !/class\s+TreeNode\b/.test(code);
+        // Add main method if missing — CRITICAL: without this, Judge0 returns "Main method not found"
+        const hasMainMethod = /public\s+static\s+void\s+main\s*\(/.test(javaCode);
+        if (!hasMainMethod) {
+          // Insert main method before the last closing brace of the class
+          const lastBrace = javaCode.lastIndexOf("}");
+          if (lastBrace !== -1) {
+            javaCode =
+              javaCode.substring(0, lastBrace) +
+              '\n    public static void main(String[] args) {\n        System.out.println("Compiled successfully. Add a main method with test cases to see output.");\n    }\n' +
+              javaCode.substring(lastBrace);
+          }
+        }
+
+        // Prepend helper types if used but not defined
+        const needsListNode = /\bListNode\b/.test(javaCode) && !/class\s+ListNode\b/.test(javaCode);
+        const needsTreeNode = /\bTreeNode\b/.test(javaCode) && !/class\s+TreeNode\b/.test(javaCode);
 
         let prefix = "";
-        if (!code.includes("import java.util")) {
+        if (!javaCode.includes("import java.util")) {
           prefix += "import java.util.*;\nimport java.io.*;\nimport java.util.stream.*;\n\n";
         }
         if (needsListNode) prefix += `class ListNode { int val; ListNode next; ListNode() {} ListNode(int val) { this.val = val; } ListNode(int val, ListNode next) { this.val = val; this.next = next; } }\n`;
