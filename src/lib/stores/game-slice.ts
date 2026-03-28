@@ -2,6 +2,17 @@ import type { StateCreator } from "zustand";
 import { db } from "@/lib/db";
 import { levelFromXP } from "@/lib/gamification/xp";
 
+/** Returns "YYYY-WW" identifier for the current ISO week (resets on Monday). */
+function getCurrentWeekId(): string {
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const dayOfYear = Math.floor(
+    (now.getTime() - startOfYear.getTime()) / 86400000
+  );
+  const week = Math.ceil((dayOfYear + startOfYear.getDay() + 1) / 7);
+  return `${now.getFullYear()}-${String(week).padStart(2, "0")}`;
+}
+
 async function syncProfileToDexie(xp: number, level: number, coins: number) {
   try {
     const existing = await db.userProfile.toCollection().first();
@@ -24,6 +35,10 @@ export interface GameState {
   dailyXP: number;
   /** ISO date (YYYY-MM-DD) when dailyXP was last reset */
   dailyXPDate: string;
+  /** XP earned this week (resets on Monday). Persisted via partialize in store.ts. */
+  weeklyXP: number;
+  /** ISO week identifier "YYYY-WW" when weeklyXP was last reset */
+  weeklyXPWeek: string;
   /** ISO string timestamp when the active XP boost expires, or null if none */
   activeXPBoost: string | null;
   /** Number of hint tokens available for use in quizzes */
@@ -63,6 +78,8 @@ export const createGameSlice: StateCreator<
   streakFreezes: 0,
   dailyXP: 0,
   dailyXPDate: "",
+  weeklyXP: 0,
+  weeklyXPWeek: "",
   activeXPBoost: null,
   hintTokens: 0,
   streakRepairAvailable: false,
@@ -91,6 +108,14 @@ export const createGameSlice: StateCreator<
         state.dailyXPDate = today;
       }
       state.dailyXP += effective;
+
+      // Reset weeklyXP counter if the week has changed
+      const currentWeek = getCurrentWeekId();
+      if (state.weeklyXPWeek !== currentWeek) {
+        state.weeklyXP = 0;
+        state.weeklyXPWeek = currentWeek;
+      }
+      state.weeklyXP += effective;
     });
     // Fire-and-forget Dexie sync
     const { totalXP, level, coins } = get();

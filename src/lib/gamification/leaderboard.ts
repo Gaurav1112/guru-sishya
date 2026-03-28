@@ -1,5 +1,7 @@
 // ────────────────────────────────────────────────────────────────────────────
-// Simulated Leaderboard — seeded RNG so rankings are stable across reloads
+// Leaderboard — AI Practice Partners + Real User
+// AI users are transparently labeled; real user data comes from Zustand store.
+// Optional Supabase sync for real multiplayer (when env vars are present).
 // ────────────────────────────────────────────────────────────────────────────
 
 export type LeagueArchetype =
@@ -9,13 +11,20 @@ export type LeagueArchetype =
   | "casual"
   | "overachiever";
 
-export interface SimulatedUser {
+export interface LeaderboardEntry {
   name: string;
   weeklyXP: number;
   league: string;
   archetype: LeagueArchetype;
   avatarSeed: number;
+  /** Whether this entry is the current (real) user */
+  isMe: boolean;
+  /** Whether this entry is an AI practice partner */
+  isAI: boolean;
 }
+
+/** @deprecated Use LeaderboardEntry instead */
+export type SimulatedUser = Omit<LeaderboardEntry, "isMe" | "isAI">;
 
 // ── Leagues ──────────────────────────────────────────────────────────────────
 
@@ -157,21 +166,21 @@ export function shouldResetLeague(lastResetDate: string, today: string): boolean
   return now.getFullYear() !== last.getFullYear() || nowWeek !== lastWeek;
 }
 
-// ── League generation ─────────────────────────────────────────────────────────
+// ── AI Practice Partner generation ───────────────────────────────────────────
 
 /**
- * Generate 15-20 simulated users calibrated around the real user's weekly XP.
+ * Generate 15-20 AI practice partners calibrated around the real user's weekly XP.
  * Uses a seeded RNG so the league is stable across reloads within the same week.
  */
-export function generateSimulatedLeague(
+export function generateAIPracticePartners(
   userWeeklyXP: number,
   userLevel: number
-): SimulatedUser[] {
+): LeaderboardEntry[] {
   const seed = weekSeed() + userLevel;
   const rand = mulberry32(seed);
 
-  const count = 17; // total simulated users (15-20)
-  const users: SimulatedUser[] = [];
+  const count = 17; // total AI users
+  const users: LeaderboardEntry[] = [];
 
   // Shuffle name pool deterministically
   const shuffledNames = [...INDIAN_NAMES].sort(() => rand() - 0.5);
@@ -227,8 +236,54 @@ export function generateSimulatedLeague(
       league: getLeague(weeklyXP * 10), // approximate total from weekly pace
       archetype,
       avatarSeed: Math.floor(rand() * 10000),
+      isMe: false,
+      isAI: true,
     });
   }
 
   return users;
+}
+
+/** @deprecated Use generateAIPracticePartners instead */
+export const generateSimulatedLeague = generateAIPracticePartners;
+
+// ── Build full leaderboard ───────────────────────────────────────────────────
+
+export interface BuildLeaderboardOptions {
+  userWeeklyXP: number;
+  userLevel: number;
+  userLeague: string;
+  userName: string;
+  showOnLeaderboard: boolean;
+}
+
+/**
+ * Build the complete leaderboard: real user + AI practice partners, sorted by
+ * weeklyXP descending. The user's rank is determined by their actual weekly XP.
+ */
+export function buildLeaderboard(opts: BuildLeaderboardOptions): {
+  entries: LeaderboardEntry[];
+  userRank: number;
+} {
+  const aiPartners = generateAIPracticePartners(opts.userWeeklyXP, opts.userLevel);
+
+  const entries: LeaderboardEntry[] = [...aiPartners];
+
+  if (opts.showOnLeaderboard) {
+    entries.push({
+      name: opts.userName,
+      weeklyXP: opts.userWeeklyXP,
+      league: opts.userLeague,
+      archetype: "grinder",
+      avatarSeed: 0,
+      isMe: true,
+      isAI: false,
+    });
+  }
+
+  entries.sort((a, b) => b.weeklyXP - a.weeklyXP);
+
+  const userRank = entries.findIndex((e) => e.isMe) + 1; // 0 if not on board
+
+  return { entries, userRank };
 }

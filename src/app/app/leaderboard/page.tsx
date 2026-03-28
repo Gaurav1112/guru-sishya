@@ -4,11 +4,12 @@ import { useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 import {
-  generateSimulatedLeague,
+  buildLeaderboard,
   getLeague,
   getLeagueColor,
   shouldResetLeague,
   LEAGUES,
+  type LeaderboardEntry,
 } from "@/lib/gamification/leaderboard";
 
 // ── League tier badge component ───────────────────────────────────────────────
@@ -48,35 +49,28 @@ function LeagueBadge({
 
 function leagueIcon(league: string): string {
   const map: Record<string, string> = {
-    Bronze: "🥉",
-    Silver: "🥈",
-    Gold: "🥇",
-    Sapphire: "💙",
-    Ruby: "❤️",
-    Emerald: "💚",
-    Diamond: "💎",
+    Bronze: "\u{1F949}",
+    Silver: "\u{1F948}",
+    Gold: "\u{1F947}",
+    Sapphire: "\u{1F499}",
+    Ruby: "\u{2764}\uFE0F",
+    Emerald: "\u{1F49A}",
+    Diamond: "\u{1F48E}",
   };
-  return map[league] ?? "🏅";
+  return map[league] ?? "\u{1F3C5}";
 }
 
 // ── Days until next Sunday (weekly reset) ────────────────────────────────────
 
 function daysUntilSunday(): number {
-  const today = new Date().getDay(); // 0=Sun, 1=Mon…
+  const today = new Date().getDay(); // 0=Sun, 1=Mon...
   return today === 0 ? 7 : 7 - today;
-}
-
-// ── Weekly XP estimate (total / weeks since arbitrary epoch) ─────────────────
-
-function estimateWeeklyXP(totalXP: number): number {
-  // Approximate: 1/8 of total XP in the most recent "week"
-  return Math.max(10, Math.round(totalXP / 8));
 }
 
 // ── Leaderboard page ─────────────────────────────────────────────────────────
 
 export default function LeaderboardPage() {
-  const { totalXP, level, showOnLeaderboard, displayName } = useStore();
+  const { totalXP, level, weeklyXP, weeklyXPWeek, showOnLeaderboard, displayName } = useStore();
   const { data: session } = useSession();
 
   // Resolve the user's first name for the leaderboard entry
@@ -85,7 +79,21 @@ export default function LeaderboardPage() {
     (displayName ? displayName.split(" ")[0] : null) ??
     "You";
 
-  const userWeeklyXP = estimateWeeklyXP(totalXP);
+  // Use actual weekly XP from store; fall back to estimate for old users
+  // who don't have weeklyXP tracked yet
+  const currentWeekId = useMemo(() => {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const week = Math.ceil(
+      ((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7
+    );
+    return `${now.getFullYear()}-${String(week).padStart(2, "0")}`;
+  }, []);
+
+  const userWeeklyXP = weeklyXPWeek === currentWeekId && weeklyXP > 0
+    ? weeklyXP
+    : Math.max(10, Math.round(totalXP / 8)); // fallback estimate
+
   const userLeague = getLeague(totalXP);
   const leagueColor = getLeagueColor(userLeague);
 
@@ -97,26 +105,17 @@ export default function LeaderboardPage() {
   const today = new Date().toISOString().slice(0, 10);
   const needsReset = shouldResetLeague(lastReset, today);
 
-  const simUsers = useMemo(
-    () => generateSimulatedLeague(userWeeklyXP, level),
-    [userWeeklyXP, level]
+  const { entries: allUsers, userRank } = useMemo(
+    () =>
+      buildLeaderboard({
+        userWeeklyXP,
+        userLevel: level,
+        userLeague,
+        userName: myName,
+        showOnLeaderboard,
+      }),
+    [userWeeklyXP, level, userLeague, showOnLeaderboard, myName]
   );
-
-  // Combine simulated + real user, sort by weeklyXP descending
-  // If the user has opted out, exclude them from the list
-  const allUsers = useMemo(() => {
-    const others = simUsers.map((u) => ({ ...u, isMe: false }));
-    if (!showOnLeaderboard) return others.sort((a, b) => b.weeklyXP - a.weeklyXP);
-    const me = {
-      name: myName,
-      weeklyXP: userWeeklyXP,
-      league: userLeague,
-      archetype: "grinder" as const,
-      avatarSeed: 0,
-      isMe: true,
-    };
-    return [...others, me].sort((a, b) => b.weeklyXP - a.weeklyXP);
-  }, [simUsers, userWeeklyXP, userLeague, showOnLeaderboard, myName]);
 
   const totalCount = allUsers.length;
 
@@ -142,6 +141,25 @@ export default function LeaderboardPage() {
           </p>
         </div>
       </div>
+
+      {/* AI Practice Partners disclaimer */}
+      <div className="rounded-lg border border-border/50 bg-surface/50 px-4 py-3 text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">AI Practice Partners</span>
+        {" \u2014 "}
+        Compete against AI-generated practice partners calibrated to your skill level.
+        Real multiplayer leaderboard coming soon!
+      </div>
+
+      {/* User rank highlight */}
+      {showOnLeaderboard && userRank > 0 && (
+        <div
+          className="rounded-lg border-2 px-4 py-3 text-center text-sm font-semibold"
+          style={{ borderColor: leagueColor, backgroundColor: `${leagueColor}15` }}
+        >
+          You are <span className="text-lg font-bold" style={{ color: leagueColor }}>#{userRank}</span> this week
+          {" \u2014 "}{userWeeklyXP.toLocaleString()} XP earned
+        </div>
+      )}
 
       {/* League tier badges */}
       <div className="flex gap-2 overflow-x-auto pb-1">
@@ -170,7 +188,7 @@ export default function LeaderboardPage() {
 
       {/* Leaderboard list */}
       <div className="space-y-2">
-        {allUsers.map((user, idx) => {
+        {allUsers.map((user: LeaderboardEntry, idx: number) => {
           const rank = idx + 1;
           const isTop5 = rank <= 5;
           const isBottom5 = rank > totalCount - 5;
@@ -181,7 +199,7 @@ export default function LeaderboardPage() {
               key={isMe ? "me" : `${user.name}-${idx}`}
               className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-all ${
                 isMe
-                  ? "border-saffron/60 bg-saffron/10"
+                  ? "border-saffron/60 bg-saffron/10 ring-1 ring-saffron/30"
                   : "border-border/40 bg-surface"
               }`}
             >
@@ -197,30 +215,40 @@ export default function LeaderboardPage() {
                         : "text-muted-foreground"
                 }`}
               >
-                {rank <= 3 ? ["🥇", "🥈", "🥉"][rank - 1] : rank}
+                {rank <= 3 ? ["\u{1F947}", "\u{1F948}", "\u{1F949}"][rank - 1] : rank}
               </span>
 
               {/* Avatar (simple colored circle with seed) */}
               <div
-                className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 relative"
                 style={{
                   backgroundColor: isMe
                     ? getLeagueColor(userLeague)
                     : archetypeColor(user.archetype),
                 }}
               >
-                {isMe ? "★" : user.name[0]}
+                {isMe ? "\u2605" : user.name[0]}
               </div>
 
-              {/* Name */}
+              {/* Name + label */}
               <div className="flex-1 min-w-0">
-                <p
-                  className={`text-sm font-semibold truncate ${
-                    isMe ? "text-saffron" : "text-foreground"
-                  }`}
-                >
-                  {user.name}
-                </p>
+                <div className="flex items-center gap-1.5">
+                  <p
+                    className={`text-sm font-semibold truncate ${
+                      isMe ? "text-saffron" : "text-foreground"
+                    }`}
+                  >
+                    {isMe ? `${user.name} (You)` : user.name}
+                  </p>
+                  {user.isAI && (
+                    <span
+                      className="inline-flex items-center rounded bg-muted/50 px-1 py-0.5 text-[10px] text-muted-foreground"
+                      title="AI Practice Partner"
+                    >
+                      {"\u{1F916}"} AI
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground capitalize">
                   {user.archetype.replace("_", " ")}
                 </p>
@@ -237,7 +265,7 @@ export default function LeaderboardPage() {
                   className="text-green-400 text-base"
                   title="Top 5 — promotion zone"
                 >
-                  ↑
+                  {"\u2191"}
                 </span>
               )}
               {isBottom5 && !isTop5 && (
@@ -245,7 +273,7 @@ export default function LeaderboardPage() {
                   className="text-red-400 text-base"
                   title="Bottom 5 — demotion zone"
                 >
-                  ↓
+                  {"\u2193"}
                 </span>
               )}
             </div>
@@ -254,13 +282,21 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Legend */}
-      <div className="flex gap-4 text-xs text-muted-foreground">
+      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="text-green-400">↑</span> Promotion zone (top 5)
+          <span className="text-green-400">{"\u2191"}</span> Promotion zone (top 5)
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-red-400">↓</span> Demotion zone (bottom 5)
+          <span className="text-red-400">{"\u2193"}</span> Demotion zone (bottom 5)
         </span>
+        <span className="flex items-center gap-1">
+          {"\u{1F916}"} AI Practice Partner
+        </span>
+      </div>
+
+      {/* Coming soon teaser */}
+      <div className="rounded-lg border border-dashed border-border/40 px-4 py-3 text-center text-xs text-muted-foreground">
+        Coming soon: compete with real users on a global leaderboard
       </div>
     </div>
   );
