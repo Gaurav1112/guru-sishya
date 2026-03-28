@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, Zap, Timer, Lock } from "lucide-react";
+import { Loader2, AlertCircle, Zap, Timer, Lock, Play } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useAI } from "@/hooks/use-ai";
 import { useStore } from "@/lib/store";
@@ -414,6 +414,8 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   useEffect(() => {
     if (phase !== "checking") return;
     if (existingCalibration === undefined) return;
+    // If there's a saved session pending resume, wait for the user to decide
+    if (showResume && savedSession) return;
     if (existingCalibration === null) {
       setPhase("calibration_intro");
     } else {
@@ -424,7 +426,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       setCurrentLevel(startLevel);
       setPhase("adaptive_loading");
     }
-  }, [existingCalibration, phase]);
+  }, [existingCalibration, phase, showResume, savedSession]);
 
   // ── Timer helpers ─────────────────────────────────────────────────────────
 
@@ -787,6 +789,9 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
     allAnswers.current = newAnswers;
     setCurrentAnswer(skippedAnswer);
 
+    // Persist session state after skip
+    saveSessionState(newAnswers, newAnswers.length - 1, currentLevel, false, "in_progress").catch(() => {});
+
     const { nextLevel: rawSkipNextLevel, breakingPoint } = getNextLevel(currentLevel, 5, 0);
     const nextLevel = isActivePremium ? rawSkipNextLevel : Math.min(rawSkipNextLevel, 3) as BloomLevel;
     if (breakingPoint || newAnswers.length >= SESSION_CAP) {
@@ -795,7 +800,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       setCurrentLevel(nextLevel);
     }
     setPhase("adaptive_grading");
-  }, [adaptiveAnswers, currentLevel, currentQuestion, clearTimer]);
+  }, [adaptiveAnswers, currentLevel, currentQuestion, clearTimer, saveSessionState]);
 
   // ── After seeing grade result, decide what to do next ───────────────────────
 
@@ -953,6 +958,8 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
 
   const handleRetry = useCallback(() => {
     clearTimer();
+    // Clear any saved session state (fresh start)
+    db.quizSessionState.where({ topicId }).delete().catch(() => {});
     setAdaptiveQuestions([]);
     setAdaptiveAnswers([]);
     allAnswers.current = [];
@@ -969,7 +976,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       : 1;
     setCurrentLevel(startLevel);
     setPhase("adaptive_loading");
-  }, [existingCalibration, clearTimer]);
+  }, [existingCalibration, clearTimer, topicId]);
 
   // ── One More Round handlers ──────────────────────────────────────────────────
 
@@ -1025,6 +1032,52 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   if (phase === "checking") {
+    // Show resume dialog if a saved session is pending (for users who already calibrated)
+    if (showResume && savedSession) {
+      const answeredCount = (() => {
+        try { return (JSON.parse(savedSession.answers || "[]") as unknown[]).length; } catch { return 0; }
+      })();
+      return (
+        <div className="flex flex-col gap-4 max-w-xl mx-auto py-12">
+          <div className="rounded-xl border border-saffron/30 bg-surface p-6 text-center space-y-4">
+            <Play className="mx-auto size-10 text-saffron" />
+            <p className="text-lg font-semibold">Resume Pariksha?</p>
+            <p className="text-muted-foreground text-sm">
+              You answered <span className="font-semibold text-foreground">{answeredCount}</span> of {SESSION_CAP} questions.
+              Pick up where you left off or start fresh.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <Button
+                onClick={() => {
+                  const s = savedSession;
+                  const restored: AnsweredQuestion[] = JSON.parse(s.answers || "[]");
+                  setAdaptiveAnswers(restored);
+                  allAnswers.current = restored;
+                  setCurrentLevel(s.currentLevel as BloomLevel);
+                  setConsecutiveLow(0);
+                  setShowResume(false);
+                  setSavedSession(null);
+                  setPhase("adaptive_loading");
+                }}
+                className="bg-saffron hover:bg-saffron/90 text-background"
+              >
+                Resume
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  db.quizSessionState.where({ topicId }).delete().catch(() => {});
+                  setShowResume(false);
+                  setSavedSession(null);
+                }}
+              >
+                Start Fresh
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />
