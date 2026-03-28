@@ -16,7 +16,7 @@ import { DailyChallengeWidget } from "@/components/gamification/daily-challenge"
 import { useStreak } from "@/hooks/use-streak";
 import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
 import Link from "next/link";
-import { BookOpen, ChevronRight, Sparkles, Mic } from "lucide-react";
+import { BookOpen, ChevronRight, Sparkles, Mic, BarChart3 } from "lucide-react";
 import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
 import { CompanyQuestionsSection } from "@/components/features/company-questions/company-questions-section";
 import { PageTransition } from "@/components/page-transition";
@@ -476,7 +476,16 @@ export default function DashboardPage() {
       {/* Your Progress */}
       <FadeIn index={9}>
       <section>
-        <h2 className="font-heading text-lg font-semibold mb-3">Your Progress</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-heading text-lg font-semibold">Your Progress</h2>
+          <Link
+            href="/app/dashboard/analytics"
+            className="flex items-center gap-1.5 text-sm text-saffron hover:underline"
+          >
+            <BarChart3 className="size-3.5" />
+            View Analytics
+          </Link>
+        </div>
         <YourProgress />
       </section>
       </FadeIn>
