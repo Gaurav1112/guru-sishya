@@ -2,8 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { ArrowRight, Clock, Target } from "lucide-react";
 import { db } from "@/lib/db";
 import { loadAllContent, type TopicContent } from "@/lib/content/loader";
+import {
+  getAllCompanyPaths,
+  getAccentColor,
+  getAccentBg,
+  getAccentBorder,
+  type CompanyPath,
+} from "@/lib/content/company-paths";
 
 // ── Roadmap Node Definition ───────────────────────────────────────────────────
 
@@ -17,7 +26,6 @@ interface RoadmapNode {
   description: string;
   row: number;
   col: number;
-  // Which nodes this connects to (downstream)
   connects?: string[];
   isRecommended?: boolean;
 }
@@ -25,7 +33,6 @@ interface RoadmapNode {
 // ── Static roadmap graph — System Design Interview path ───────────────────────
 
 const ROADMAP_NODES: RoadmapNode[] = [
-  // Row 0 — Entry point
   {
     id: "interview-framework",
     label: "System Design Interview Framework",
@@ -39,7 +46,6 @@ const ROADMAP_NODES: RoadmapNode[] = [
     connects: ["estimation"],
     isRecommended: true,
   },
-  // Row 1 — Estimation
   {
     id: "estimation",
     label: "Back-of-Envelope Estimation",
@@ -53,7 +59,6 @@ const ROADMAP_NODES: RoadmapNode[] = [
     connects: ["load-balancing", "caching", "database-design", "message-queues"],
     isRecommended: true,
   },
-  // Row 2 — System Design Fundamentals (4 parallel)
   {
     id: "load-balancing",
     label: "Load Balancing",
@@ -106,7 +111,6 @@ const ROADMAP_NODES: RoadmapNode[] = [
     connects: ["microservices"],
     isRecommended: false,
   },
-  // Row 3 — Case studies + Microservices (parallel)
   {
     id: "system-design-cases",
     label: "System Design Cases",
@@ -133,7 +137,6 @@ const ROADMAP_NODES: RoadmapNode[] = [
     connects: ["mock-interviews"],
     isRecommended: false,
   },
-  // Row 4 — Mock Interviews
   {
     id: "mock-interviews",
     label: "Mock Interviews",
@@ -148,7 +151,6 @@ const ROADMAP_NODES: RoadmapNode[] = [
   },
 ];
 
-// Extra nodes displayed in a side panel (DS&A path)
 const DSA_NODES: RoadmapNode[] = [
   {
     id: "arrays-strings",
@@ -248,20 +250,16 @@ function NodeCard({
         node.isRecommended && !completed ? "ring-1 ring-saffron/30" : "",
       ].join(" ")}
     >
-      {/* Recommended badge */}
       {node.isRecommended && !completed && (
         <span className="absolute -top-2 -right-2 rounded-full bg-saffron px-1.5 py-0.5 text-[9px] font-bold text-white leading-none">
           REC
         </span>
       )}
-
-      {/* Completed checkmark */}
       {completed && (
         <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] text-white font-bold">
-          ✓
+          &#10003;
         </span>
       )}
-
       <p className="text-xs font-semibold leading-tight text-foreground">
         {node.label}
       </p>
@@ -284,10 +282,7 @@ function DownArrow({ completed }: { completed?: boolean }) {
     <div className="flex justify-center py-1">
       <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
         <line
-          x1="8"
-          y1="0"
-          x2="8"
-          y2="14"
+          x1="8" y1="0" x2="8" y2="14"
           stroke={completed ? "#22c55e" : "hsl(240 10% 35%)"}
           strokeWidth="2"
           strokeDasharray={completed ? "0" : "4 2"}
@@ -308,18 +303,9 @@ function BranchArrow({ count, completed }: { count: number; completed?: boolean 
 
   return (
     <div className="flex justify-center py-1">
-      <svg
-        width={width}
-        height={28}
-        viewBox={`0 0 ${width} 28`}
-        fill="none"
-        style={{ maxWidth: "100%" }}
-      >
-        {/* Vertical down from center */}
+      <svg width={width} height={28} viewBox={`0 0 ${width} 28`} fill="none" style={{ maxWidth: "100%" }}>
         <line x1={midX} y1="0" x2={midX} y2="8" stroke={color} strokeWidth="2" />
-        {/* Horizontal spread */}
         <line x1="20" y1="8" x2={width - 20} y2="8" stroke={color} strokeWidth="2" strokeDasharray="4 2" />
-        {/* Arrow tips going down to each column */}
         {Array.from({ length: count }).map((_, i) => {
           const x = 20 + i * ((width - 40) / (count - 1));
           return (
@@ -331,6 +317,47 @@ function BranchArrow({ count, completed }: { count: number; completed?: boolean 
         })}
       </svg>
     </div>
+  );
+}
+
+// ── Company Path Card ─────────────────────────────────────────────────────────
+
+function CompanyCard({ path, index }: { path: CompanyPath; index: number }) {
+  const router = useRouter();
+  const textColor = getAccentColor(path);
+  const bgColor = getAccentBg(path);
+  const borderColor = getAccentBorder(path);
+
+  return (
+    <motion.button
+      type="button"
+      onClick={() => router.push(`/app/roadmap/company/${path.slug}`)}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08, duration: 0.35, ease: "easeOut" }}
+      whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.98 }}
+      className={`group text-left rounded-xl border ${borderColor} ${bgColor} p-4 flex flex-col gap-2 hover:shadow-lg transition-shadow duration-200 cursor-pointer`}
+    >
+      <div className="flex items-center gap-3">
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${borderColor} bg-surface text-sm font-bold ${textColor}`}>
+          {path.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-sm group-hover:text-foreground transition-colors">{path.company}</p>
+          <p className="text-xs text-muted-foreground truncate">{path.focus}</p>
+        </div>
+        <ArrowRight className="size-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform shrink-0" />
+      </div>
+      <div className="flex items-center gap-3 mt-auto pt-1">
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Clock className="size-3" /> {path.duration}
+        </span>
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Target className="size-3" /> {path.topics.length} topics
+        </span>
+      </div>
+    </motion.button>
   );
 }
 
@@ -382,7 +409,6 @@ export default function RoadmapPage() {
         router.push(`/app/topic/${id}`);
       }
     } else {
-      // Fallback: go to topics page with search pre-filled
       router.push(`/app/topics`);
     }
   }
@@ -390,8 +416,6 @@ export default function RoadmapPage() {
   const completedCount = ROADMAP_NODES.filter((n) => isNodeCompleted(n.id)).length;
   const totalNodes = ROADMAP_NODES.length;
   const progressPct = Math.round((completedCount / totalNodes) * 100);
-
-  const nodes = activeView === "system-design" ? ROADMAP_NODES : DSA_NODES;
 
   return (
     <div className="space-y-6 pb-10">
@@ -406,8 +430,6 @@ export default function RoadmapPage() {
         <p className="text-sm text-muted-foreground mb-4">
           Follow the recommended path. Click any node to open that topic. Completed topics glow green.
         </p>
-
-        {/* Progress */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
             <div
@@ -418,6 +440,23 @@ export default function RoadmapPage() {
           <span className="text-sm font-medium tabular-nums text-muted-foreground">
             {completedCount}/{totalNodes} nodes
           </span>
+        </div>
+      </div>
+
+      {/* Company Interview Paths */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-lg font-semibold">
+            Company Interview Paths
+          </h2>
+          <span className="text-xs text-muted-foreground">
+            Structured prep for top companies
+          </span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {getAllCompanyPaths().map((cp: CompanyPath, i: number) => (
+            <CompanyCard key={cp.slug} path={cp} index={i} />
+          ))}
         </div>
       </div>
 
@@ -443,7 +482,7 @@ export default function RoadmapPage() {
               : "bg-surface text-muted-foreground hover:text-foreground border border-border/50"
           }`}
         >
-          DS & Algorithms Path
+          DS &amp; Algorithms Path
         </button>
       </div>
 
@@ -465,118 +504,65 @@ export default function RoadmapPage() {
         </div>
       </div>
 
-      {/* Roadmap graph — System Design */}
+      {/* Roadmap graph -- System Design */}
       {activeView === "system-design" && (
         <div className="rounded-2xl border border-border/50 bg-surface/30 p-6">
           <div className="flex flex-col items-center gap-0 max-w-3xl mx-auto">
-
-            {/* Row 0: Interview Framework */}
             <div className="w-64">
-              <NodeCard
-                node={ROADMAP_NODES[0]}
-                completed={isNodeCompleted(ROADMAP_NODES[0].id)}
-                onNavigate={handleNavigate}
-              />
+              <NodeCard node={ROADMAP_NODES[0]} completed={isNodeCompleted(ROADMAP_NODES[0].id)} onNavigate={handleNavigate} />
             </div>
-
             <DownArrow completed={isNodeCompleted(ROADMAP_NODES[0].id)} />
-
-            {/* Row 1: Estimation */}
             <div className="w-64">
-              <NodeCard
-                node={ROADMAP_NODES[1]}
-                completed={isNodeCompleted(ROADMAP_NODES[1].id)}
-                onNavigate={handleNavigate}
-              />
+              <NodeCard node={ROADMAP_NODES[1]} completed={isNodeCompleted(ROADMAP_NODES[1].id)} onNavigate={handleNavigate} />
             </div>
-
             <BranchArrow count={4} completed={isNodeCompleted(ROADMAP_NODES[1].id)} />
-
-            {/* Row 2: 4 Fundamentals in a row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
               {ROADMAP_NODES.slice(2, 6).map((node) => (
-                <NodeCard
-                  key={node.id}
-                  node={node}
-                  completed={isNodeCompleted(node.id)}
-                  onNavigate={handleNavigate}
-                />
+                <NodeCard key={node.id} node={node} completed={isNodeCompleted(node.id)} onNavigate={handleNavigate} />
               ))}
             </div>
-
-            {/* Merge arrows */}
             <div className="w-full flex justify-between px-8 py-1">
               <svg width="100%" height="28" viewBox="0 0 400 28" preserveAspectRatio="none" fill="none">
-                {/* Left 3 columns merge to center */}
                 <line x1="50" y1="0" x2="50" y2="10" stroke="hsl(240 10% 35%)" strokeWidth="2" strokeDasharray="4 2" />
                 <line x1="150" y1="0" x2="150" y2="10" stroke="hsl(240 10% 35%)" strokeWidth="2" strokeDasharray="4 2" />
                 <line x1="250" y1="0" x2="250" y2="10" stroke="hsl(240 10% 35%)" strokeWidth="2" strokeDasharray="4 2" />
                 <line x1="50" y1="10" x2="250" y2="10" stroke="hsl(240 10% 35%)" strokeWidth="2" strokeDasharray="4 2" />
                 <line x1="150" y1="10" x2="150" y2="24" stroke="hsl(240 10% 35%)" strokeWidth="2" strokeDasharray="4 2" />
                 <polygon points="150,28 145,20 155,20" fill="hsl(240 10% 35%)" />
-                {/* Right column — Message Queues arrow to Microservices */}
                 <line x1="350" y1="0" x2="350" y2="24" stroke="hsl(240 10% 35%)" strokeWidth="2" strokeDasharray="4 2" />
                 <polygon points="350,28 345,20 355,20" fill="hsl(240 10% 35%)" />
               </svg>
             </div>
-
-            {/* Row 3: System Design Cases + Microservices */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 w-full">
               <div className="sm:col-start-1 sm:col-span-3">
-                <NodeCard
-                  node={ROADMAP_NODES[6]}
-                  completed={isNodeCompleted(ROADMAP_NODES[6].id)}
-                  onNavigate={handleNavigate}
-                />
+                <NodeCard node={ROADMAP_NODES[6]} completed={isNodeCompleted(ROADMAP_NODES[6].id)} onNavigate={handleNavigate} />
               </div>
               <div className="sm:col-start-4">
-                <NodeCard
-                  node={ROADMAP_NODES[7]}
-                  completed={isNodeCompleted(ROADMAP_NODES[7].id)}
-                  onNavigate={handleNavigate}
-                />
+                <NodeCard node={ROADMAP_NODES[7]} completed={isNodeCompleted(ROADMAP_NODES[7].id)} onNavigate={handleNavigate} />
               </div>
             </div>
-
             <DownArrow completed={isNodeCompleted(ROADMAP_NODES[6].id)} />
-
-            {/* Row 4: Mock Interviews */}
             <div className="w-64">
-              <NodeCard
-                node={ROADMAP_NODES[8]}
-                completed={isNodeCompleted(ROADMAP_NODES[8].id)}
-                onNavigate={handleNavigate}
-              />
+              <NodeCard node={ROADMAP_NODES[8]} completed={isNodeCompleted(ROADMAP_NODES[8].id)} onNavigate={handleNavigate} />
             </div>
           </div>
         </div>
       )}
 
-      {/* Roadmap graph — DS&A */}
+      {/* Roadmap graph -- DS&A */}
       {activeView === "dsa" && (
         <div className="rounded-2xl border border-border/50 bg-surface/30 p-6">
           <div className="flex flex-col items-center gap-0 max-w-xs mx-auto">
             {DSA_NODES.map((node, i) => (
               <div key={node.id} className="w-full">
-                <NodeCard
-                  node={node}
-                  completed={isNodeCompleted(node.id)}
-                  onNavigate={handleNavigate}
-                />
-                {i < DSA_NODES.length - 1 && (
-                  <DownArrow completed={isNodeCompleted(node.id)} />
-                )}
+                <NodeCard node={node} completed={isNodeCompleted(node.id)} onNavigate={handleNavigate} />
+                {i < DSA_NODES.length - 1 && <DownArrow completed={isNodeCompleted(node.id)} />}
               </div>
             ))}
           </div>
-
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            More DS&A topics available in{" "}
-            <button
-              type="button"
-              onClick={() => router.push("/app/topics")}
-              className="text-gold underline underline-offset-2"
-            >
+            More DS&amp;A topics available in{" "}
+            <button type="button" onClick={() => router.push("/app/topics")} className="text-gold underline underline-offset-2">
               Browse All Topics
             </button>
           </p>
@@ -595,13 +581,11 @@ export default function RoadmapPage() {
                 {i + 1}
               </span>
               <div>
-                <span
-                  className={`font-medium ${isNodeCompleted(node.id) ? "text-green-400 line-through" : "text-foreground"}`}
-                >
+                <span className={`font-medium ${isNodeCompleted(node.id) ? "text-green-400 line-through" : "text-foreground"}`}>
                   {node.label}
                 </span>
                 <span className="text-muted-foreground ml-1 text-xs">
-                  — {node.description}
+                  &mdash; {node.description}
                 </span>
               </div>
             </li>
