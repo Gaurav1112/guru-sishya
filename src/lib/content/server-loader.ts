@@ -156,3 +156,138 @@ export function getAllTopicsWithSlugs(): Array<{
     category: t.category,
   }));
 }
+
+// ── Question Bank helpers ──────────────────────────────────────────────────
+
+export interface IndexableQuestion {
+  slug: string;
+  question: string;
+  format: string;
+  difficulty: number;
+  bloomLabel: string;
+  options?: string[];
+  explanation: string;
+  topicName: string;
+  topicSlug: string;
+  category: string;
+}
+
+/**
+ * Generate a URL-safe slug from a question + topic.
+ * Uses first 8 words of question text + topic slug, deduped.
+ */
+function questionSlug(question: string, topicName: string): string {
+  const words = question
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 8)
+    .join("-");
+  const topic = slugify(topicName);
+  return `${words}-${topic}`.replace(/-+/g, "-").replace(/-$/, "");
+}
+
+/**
+ * High-search-volume topics to prioritize for question bank SEO.
+ * Order matters: earlier topics get more questions selected.
+ */
+const PRIORITY_TOPICS = [
+  "Arrays & Strings",
+  "Dynamic Programming",
+  "Trees & BST",
+  "Graphs",
+  "Linked Lists",
+  "System Design Interview Framework",
+  "Load Balancing",
+  "Caching",
+  "Database Design",
+  "Microservices Architecture",
+  "Sorting & Searching",
+  "Stacks & Queues",
+  "Hash Tables",
+  "Heaps & Priority Queues",
+  "Recursion & Backtracking",
+  "API Gateway",
+  "Database Scaling",
+  "Message Queues",
+  "Distributed Systems Fundamentals",
+  "Scalability Patterns",
+  "Design: URL Shortener (TinyURL)",
+  "Design: Chat System (WhatsApp/Slack)",
+  "Design: News Feed (Facebook/Twitter)",
+  "JavaScript Fundamentals",
+  "React",
+  "SQL",
+  "OOP & Design Patterns",
+  "Operating Systems",
+  "Networking",
+  "Java Core",
+  "DSA Coding Patterns",
+];
+
+/**
+ * Get the top ~200 indexable questions from priority topics.
+ * Picks 10-15 questions per topic, deduplicating slugs.
+ */
+export function getIndexableQuestions(): IndexableQuestion[] {
+  const all = loadAllContentFromDisk();
+  const questions: IndexableQuestion[] = [];
+  const seenSlugs = new Set<string>();
+
+  // Map topics by name for fast lookup
+  const topicMap = new Map<string, ServerTopicContent>();
+  for (const t of all) {
+    topicMap.set(t.topic.toLowerCase().trim(), t);
+  }
+
+  // Process priority topics first
+  for (const name of PRIORITY_TOPICS) {
+    const t = topicMap.get(name.toLowerCase().trim());
+    if (!t || !t.quizBank?.length) continue;
+
+    // Pick up to 12 questions per topic, spread across difficulty levels
+    const sorted = [...t.quizBank].sort((a, b) => a.difficulty - b.difficulty);
+    const pick = Math.min(12, sorted.length);
+    const step = Math.max(1, Math.floor(sorted.length / pick));
+
+    for (let i = 0; i < sorted.length && questions.length < 220; i += step) {
+      const q = sorted[i];
+      let slug = questionSlug(q.question, t.topic);
+
+      // Deduplicate
+      if (seenSlugs.has(slug)) {
+        slug = `${slug}-${i}`;
+      }
+      if (seenSlugs.has(slug)) continue;
+      seenSlugs.add(slug);
+
+      questions.push({
+        slug,
+        question: q.question,
+        format: q.format,
+        difficulty: q.difficulty,
+        bloomLabel: q.bloomLabel,
+        options: q.options,
+        explanation: q.explanation,
+        topicName: t.topic,
+        topicSlug: slugify(t.topic),
+        category: t.category,
+      });
+    }
+
+    if (questions.length >= 200) break;
+  }
+
+  return questions.slice(0, 220);
+}
+
+/**
+ * Find an indexable question by its slug.
+ */
+export function findQuestionBySlug(
+  slug: string,
+): IndexableQuestion | null {
+  const questions = getIndexableQuestions();
+  return questions.find((q) => q.slug === slug) ?? null;
+}

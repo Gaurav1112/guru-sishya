@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type { MetadataRoute } from "next";
+import { getIndexableQuestions } from "@/lib/content/server-loader";
 
 // ── Content files that contain topic data (mirrors loader.ts CONTENT_FILES) ──
 const CONTENT_FILES = [
@@ -197,5 +198,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...learnEntries, ...appPages, ...topicEntries];
+  // ── Questions Bank pages ──────────────────────────────────────────────
+  const questions = getIndexableQuestions();
+  const questionEntries: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/questions-bank`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    ...questions.map((q) => ({
+      url: `${baseUrl}/questions-bank/${q.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+  ];
+
+  return [
+    ...staticEntries,
+    ...learnEntries,
+    ...appPages,
+    ...topicEntries,
+    ...questionEntries,
+  ];
 }
