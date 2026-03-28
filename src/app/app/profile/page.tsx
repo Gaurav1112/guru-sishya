@@ -13,6 +13,7 @@ import { BadgeMandir } from "@/components/gamification/badge-mandir";
 import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import { ShareButton } from "@/components/share-button";
 import { ShareCard } from "@/components/profile/share-card";
+import { CertificatesSection } from "@/components/profile/certificates-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -518,6 +519,12 @@ export default function ProfilePage() {
           </Button>
         </div>
         <BadgeMandir />
+      </section>
+
+      {/* ── Certificates ───────────────────────────────────────────────── */}
+      <section>
+        <h2 className="font-heading text-xl font-bold mb-4">Certificates</h2>
+        <CertificatesSection />
       </section>
 
       {/* ── Coin Balance ───────────────────────────────────────────────── */}

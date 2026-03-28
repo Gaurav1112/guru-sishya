@@ -49,6 +49,18 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
   const topicFromDb = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
   const [builtIn, setBuiltIn] = useState<TopicContent | null>(null);
   const [contentChecked, setContentChecked] = useState(false);
+
+  // Check for a saved (in-progress) quiz session for this topic
+  const savedQuizSession = useLiveQuery(
+    async () => {
+      const numId = Number(id);
+      if (!numId) return null;
+      const s = await db.quizSessionState.where({ topicId: numId }).first();
+      return s && s.status !== "complete" ? s : null;
+    },
+    [id]
+  );
+
   // Fallback topic synthesised from static content for direct URL cold loads
   const [fallbackTopic, setFallbackTopic] = useState<{ id: number; name: string; category?: string } | null>(null);
   const [dbChecked, setDbChecked] = useState(false);
@@ -178,7 +190,13 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
                 <Card
                   className={`h-full border ${f.color} bg-surface hover:bg-surface-hover transition-colors cursor-pointer relative`}
                 >
-                  {contentChecked && hasContent && (
+                  {f.key === "quiz" && savedQuizSession && (
+                    <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-saffron/20 border border-saffron/40 px-2 py-0.5 text-[10px] font-semibold text-saffron animate-pulse">
+                      <Play className="size-2.5 fill-current" />
+                      Resume
+                    </span>
+                  )}
+                  {contentChecked && hasContent && !(f.key === "quiz" && savedQuizSession) && (
                     <span className="absolute top-3 right-3 rounded-full bg-teal/20 border border-teal/30 px-1.5 py-0.5 text-[10px] font-medium text-teal">
                       ready
                     </span>

@@ -1,18 +1,80 @@
 export interface TourStepDef {
   id: string;
+  /** CSS selector for the element to highlight. "body" = centered modal (no highlight). */
   targetSelector: string;
   title: string;
   description: string;
-  position: "top" | "bottom" | "left" | "right";
-  mobilePosition?: "top" | "bottom";
+  icon: string;
+  position: "top" | "bottom" | "left" | "right" | "center";
+  mobilePosition?: "top" | "bottom" | "center";
 }
 
 export const TOUR_STEPS: TourStepDef[] = [
-  { id: "welcome", targetSelector: "body", title: "Welcome to Guru Sishya!", description: "Your one-stop platform for software engineering interview prep. Let me show you around!", position: "bottom" },
-  { id: "topics", targetSelector: 'a[href="/app/topics"]', title: "Browse Topics", description: "Start here — pick any of 65+ topics covering DSA, System Design, Java, and more.", position: "right", mobilePosition: "bottom" },
-  { id: "dashboard", targetSelector: 'a[href="/app/dashboard"]', title: "Your Dashboard", description: "Track your streak, XP, daily challenge, and learning progress all in one place.", position: "right", mobilePosition: "bottom" },
-  { id: "review", targetSelector: 'a[href="/app/review"]', title: "Spaced Repetition", description: "Questions you struggle with automatically appear here for review. Science-backed learning!", position: "right", mobilePosition: "bottom" },
-  { id: "quiz-demo", targetSelector: "body", title: "Try a Sample Question", description: "Here's what a quiz question looks like. Each topic has adaptive difficulty that adjusts to your level!", position: "bottom" },
-  { id: "profile", targetSelector: 'a[href="/app/profile"]', title: "Your Profile & Badges", description: "Earn 30 badges, level up from Shishya to Maharishi, and share your achievements.", position: "right", mobilePosition: "bottom" },
-  { id: "cta", targetSelector: "body", title: "Ready to Begin?", description: "Pick your first topic and start learning! Every session earns XP and builds your streak.", position: "bottom" },
+  {
+    id: "welcome",
+    targetSelector: "body",
+    title: "Welcome to Guru Sishya!",
+    description:
+      "Your one-stop interview prep platform. Master System Design, DSA, Java, Python, and more -- all without leaving this app.",
+    icon: "🙏",
+    position: "center",
+  },
+  {
+    id: "topics",
+    targetSelector: 'a[href="/app/topics"]',
+    title: "Browse 138+ Topics",
+    description:
+      "Explore topics organized by category -- System Design, Data Structures, Algorithms, Programming Languages, and more.",
+    icon: "📚",
+    position: "right",
+    mobilePosition: "bottom",
+  },
+  {
+    id: "quiz",
+    targetSelector: 'a[href="/app/questions"]',
+    title: "Take a Pariksha",
+    description:
+      "Test your knowledge with 1900+ curated quiz questions. Get instant feedback, detailed explanations, and track your accuracy.",
+    icon: "📝",
+    position: "right",
+    mobilePosition: "bottom",
+  },
+  {
+    id: "review",
+    targetSelector: 'a[href="/app/review"]',
+    title: "Review Flashcards",
+    description:
+      "Use spaced repetition to lock knowledge into long-term memory. Cards are auto-created from your wrong answers.",
+    icon: "🔁",
+    position: "right",
+    mobilePosition: "bottom",
+  },
+  {
+    id: "stats",
+    targetSelector: "[data-tour='topbar-stats']",
+    title: "Track Your Progress",
+    description:
+      "Earn XP, collect 33 badges, maintain streaks, and climb the leaderboard. Your stats are always visible here.",
+    icon: "🏆",
+    position: "bottom",
+  },
+  {
+    id: "interview",
+    targetSelector: 'a[href="/app/interview"]',
+    title: "Enter Guru Mode",
+    description:
+      "Simulate real interviews with boss rounds, power-ups, and timed questions. Immediate revision for wrong answers helps you truly master concepts.",
+    icon: "🎤",
+    position: "right",
+    mobilePosition: "bottom",
+  },
+  {
+    id: "cta",
+    targetSelector: "body",
+    title: "You're Ready!",
+    description:
+      "Pick a topic and start learning. Consistency is the key -- even 15 minutes a day will make a huge difference.",
+    icon: "🚀",
+    position: "center",
+  },
 ];
