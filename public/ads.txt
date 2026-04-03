@@ -1,1 +1,3 @@
-# Placeholder for future ad monetization
+# Ads.txt - Guru Sishya
+# No advertising partners configured yet
+# Add authorized digital sellers here when ready

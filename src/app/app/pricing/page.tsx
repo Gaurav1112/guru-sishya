@@ -41,9 +41,12 @@ const PLANS: {
     id: "monthly",
     label: "Monthly",
     price: 149,
+    originalPrice: 299,
     period: "per month",
+    savingsPct: 50,
     highlight: false,
     icon: <Zap className="size-5" />,
+    badge: "50% Off",
   },
   {
     id: "semester",
