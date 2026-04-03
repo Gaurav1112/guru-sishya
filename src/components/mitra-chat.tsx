@@ -478,7 +478,8 @@ function expandQuery(words: string[]): string[] {
 function scoreItem(
   queryWords: string[],
   expandedWords: string[],
-  item: QAItem
+  item: QAItem,
+  detectedTopic?: string | null
 ): number {
   const qText = item.question.toLowerCase();
   const aText = item.answer.toLowerCase();
@@ -512,6 +513,17 @@ function scoreItem(
   if (coverage >= 0.8) score += 0.3; // most words matched
   if (coverage >= 0.5) score += 0.1; // half matched
 
+  // Topic relevance boost: when TOPIC_MAP detects a tech topic (e.g. "kafka" →
+  // "Apache Kafka"), strongly prefer items whose category matches that topic.
+  // This prevents generic/literary results from outranking tech content.
+  if (detectedTopic && item.category) {
+    const catLower = item.category.toLowerCase();
+    const topicLower = detectedTopic.toLowerCase();
+    if (catLower.includes(topicLower) || topicLower.includes(catLower)) {
+      score += 0.8; // significant boost for category match
+    }
+  }
+
   // Normalize less aggressively — use sqrt to dampen long query penalty
   return score / Math.max(Math.sqrt(expandedWords.length), 1);
 }
@@ -527,10 +539,12 @@ function findBestAnswer(
   }
 
   const expandedWords = expandQuery(queryWords);
+  // Detect tech topic from TOPIC_MAP so we can boost relevant items
+  const detectedTopic = detectTopicLabel(query);
   let bestMatch = { answer: "", confidence: 0, question: "", category: "" };
 
   for (const item of knowledge) {
-    const confidence = scoreItem(queryWords, expandedWords, item);
+    const confidence = scoreItem(queryWords, expandedWords, item, detectedTopic);
     if (confidence > bestMatch.confidence) {
       bestMatch = {
         answer: item.answer,
@@ -653,8 +667,9 @@ function buildMitraResponse(
     // Get 3 closest matching questions regardless of threshold
     const queryWords = tokenize(enrichedQuery);
     const expandedWords = expandQuery(queryWords);
+    const fallbackTopic = detectTopicLabel(enrichedQuery);
     const topMatches = knowledge
-      .map(item => ({ item, score: scoreItem(queryWords, expandedWords, item) }))
+      .map(item => ({ item, score: scoreItem(queryWords, expandedWords, item, fallbackTopic) }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
 

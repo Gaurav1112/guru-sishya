@@ -23,11 +23,15 @@ export function BadgeMandir() {
   const { currentStreak, longestStreak, totalXP, level } = useStore();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
 
+  // Track Dexie data changes so stats and progress bars stay fresh
+  const quizCount = useLiveQuery(() => db.quizAttempts.count(), []);
+  const sessionCount = useLiveQuery(() => db.planSessions.where("completed").equals(1).count(), []);
+
   useEffect(() => {
     getUserStats({ currentStreak, longestStreak, totalXP, level })
       .then(setUserStats)
       .catch(() => {});
-  }, [currentStreak, longestStreak, totalXP, level]);
+  }, [currentStreak, longestStreak, totalXP, level, quizCount, sessionCount]);
 
   const unlockedMap = new Map(
     (unlockedBadges ?? []).map((b) => [b.type, b])

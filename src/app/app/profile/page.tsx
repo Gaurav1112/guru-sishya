@@ -120,8 +120,6 @@ function StatsGrid() {
     () => db.chatSessions.where("technique").equals("feynman").count(),
     []
   );
-  const learningPlans = useLiveQuery(() => db.learningPlans.toArray(), []);
-
   const questionsAnswered = (quizAttempts ?? []).reduce(
     (acc, q) => acc + (q.questions?.length ?? 0),
     0
@@ -131,12 +129,12 @@ function StatsGrid() {
   const attemptCount = quizAttempts?.length ?? 0;
   const accuracy = attemptCount > 0 ? Math.round(totalScore / attemptCount) : 0;
 
-  const planSessions = (learningPlans ?? []).reduce(
-    (acc, p) => acc + (p.sessions?.length ?? 0),
-    0
-  );
+  const completedSessions = useLiveQuery(
+    () => db.planSessions.where("completed").equals(1).count(),
+    []
+  ) ?? 0;
   const estimatedHours = Math.round(
-    (attemptCount * 5 + planSessions * 120) / 60
+    (attemptCount * 5 + completedSessions * 45) / 60
   );
 
   const stats = [
