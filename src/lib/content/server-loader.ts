@@ -292,10 +292,11 @@ export function getIndexableQuestions(): IndexableQuestion[] {
     const t = topicMap.get(name.toLowerCase().trim());
     if (!t || !t.quizBank?.length) continue;
 
-    // Include ALL questions for programmatic SEO (1988 pages)
+    // Pick top 15 questions per priority topic for SEO (keeps build fast on Vercel)
     const sorted = [...t.quizBank].sort((a, b) => a.difficulty - b.difficulty);
+    const step = Math.max(1, Math.floor(sorted.length / 15));
 
-    for (let i = 0; i < sorted.length; i++) {
+    for (let i = 0; i < sorted.length; i += step) {
       const q = sorted[i];
       let slug = questionSlug(q.question, t.topic);
 
@@ -322,12 +323,15 @@ export function getIndexableQuestions(): IndexableQuestion[] {
 
   }
 
-  // Also add questions from non-priority topics
+  // Also add questions from non-priority topics (cap at 500 total for Vercel build limits)
   for (const t of all) {
+    if (questions.length >= 500) break;
     if (PRIORITY_TOPICS.some((p) => p.toLowerCase() === t.topic.toLowerCase())) continue;
     if (!t.quizBank?.length) continue;
 
-    for (const q of t.quizBank) {
+    const nonPrioStep = Math.max(1, Math.floor(t.quizBank.length / 8));
+    for (let qi = 0; qi < t.quizBank.length && questions.length < 500; qi += nonPrioStep) {
+      const q = t.quizBank[qi];
       let slug = questionSlug(q.question, t.topic);
       if (seenSlugs.has(slug)) slug = `${slug}-${questions.length}`;
       if (seenSlugs.has(slug)) continue;
