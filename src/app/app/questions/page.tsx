@@ -899,22 +899,57 @@ export default function QuestionsPage() {
 
   // ── Persist / restore position ────────────────────────────────────────────
 
-  // Save position whenever it changes
+  // Track whether initial restore has happened
+  const hasRestoredRef = useRef(false);
+  // Track the saved position for the "Resume" button
+  const [savedPosition, setSavedPosition] = useState<{ index: number; category: string; questionText: string } | null>(null);
+
+  // Save position whenever it changes (only after initial restore)
   useEffect(() => {
-    localStorage.setItem("gs-questions-last-index", String(currentIndex));
-  }, [currentIndex]);
+    if (!hasRestoredRef.current) return;
+    try {
+      localStorage.setItem("gs-questions-last-pos", JSON.stringify({
+        index: currentIndex,
+        category: activeCategory,
+        questionId: filteredQuestions[currentIndex]?.id ?? null,
+      }));
+    } catch { /* ignore */ }
+  }, [currentIndex, activeCategory, filteredQuestions]);
 
   // Restore position on mount (once questions are loaded)
   useEffect(() => {
-    if (filteredQuestions.length === 0) return;
-    const saved = localStorage.getItem("gs-questions-last-index");
-    if (saved) {
-      const idx = parseInt(saved, 10);
-      if (idx > 0 && idx < filteredQuestions.length) {
-        setCurrentIndex(idx);
+    if (filteredQuestions.length === 0 || hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    try {
+      const raw = localStorage.getItem("gs-questions-last-pos");
+      if (!raw) return;
+      const saved = JSON.parse(raw) as { index: number; category: string; questionId: number | null };
+
+      // If user is on the same category, restore exact index
+      if (saved.category === activeCategory && saved.index > 0 && saved.index < filteredQuestions.length) {
+        setCurrentIndex(saved.index);
+        return;
       }
-    }
-    // Only run once when the full question list first becomes available
+
+      // If on a different category, try to find the question by ID
+      if (saved.questionId != null) {
+        const matchIdx = filteredQuestions.findIndex(q => q.id === saved.questionId);
+        if (matchIdx > 0) {
+          setCurrentIndex(matchIdx);
+          return;
+        }
+      }
+
+      // Show "Resume" button if we have a saved position in a different category
+      if (saved.index > 0 && saved.category && saved.category !== activeCategory) {
+        const savedQ = allQuestions.find(q => q.id === saved.questionId);
+        setSavedPosition({
+          index: saved.index,
+          category: saved.category,
+          questionText: savedQ ? savedQ.question.substring(0, 60) + (savedQ.question.length > 60 ? "..." : "") : `Question #${saved.index + 1}`,
+        });
+      }
+    } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredQuestions.length]);
 
@@ -1213,6 +1248,58 @@ export default function QuestionsPage() {
         />
       </AnimatePresence>
 
+      {/* Resume where you left off */}
+      {savedPosition && (
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-3 rounded-xl border border-saffron/20 bg-saffron/5 px-4 py-3"
+        >
+          <BookOpen className="size-4 text-saffron shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-muted-foreground">
+              You were last viewing <span className="text-foreground font-medium">{savedPosition.category}</span>
+            </p>
+            <p className="text-xs text-muted-foreground/70 truncate">
+              {savedPosition.questionText}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveCategoryRaw(savedPosition.category as QuestionCategory);
+              setSelectedCompanyRaw("");
+              // The index will be restored via the effect after category change re-filters
+              setTimeout(() => {
+                try {
+                  const raw = localStorage.getItem("gs-questions-last-pos");
+                  if (raw) {
+                    const saved = JSON.parse(raw) as { index: number; questionId: number | null };
+                    if (saved.questionId != null) {
+                      // We need to wait for the questions to re-filter, so just set the index
+                      setCurrentIndex(saved.index);
+                    }
+                  }
+                } catch { /* ignore */ }
+              }, 50);
+              setSavedPosition(null);
+            }}
+            className="shrink-0 flex items-center gap-1.5 rounded-lg bg-saffron px-3 py-1.5 text-xs font-semibold text-background hover:opacity-90 transition-opacity"
+          >
+            Resume
+            <ChevronRight className="size-3" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSavedPosition(null)}
+            className="shrink-0 p-1 rounded hover:bg-surface-hover"
+            aria-label="Dismiss"
+          >
+            <X className="size-3.5 text-muted-foreground" />
+          </button>
+        </motion.div>
+      )}
+
       {/* No results */}
       {totalFiltered === 0 && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -1423,6 +1510,12 @@ export default function QuestionsPage() {
                   R
                 </kbd>{" "}
                 random
+              </span>
+              <span>
+                <kbd className="rounded border border-border/50 px-1 py-0.5 text-[9px] font-mono">
+                  G
+                </kbd>{" "}
+                jump to #
               </span>
             </div>
           </div>

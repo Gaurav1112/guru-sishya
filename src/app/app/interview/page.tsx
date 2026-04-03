@@ -1361,6 +1361,16 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
         speedMultiplier: 1,
       },
     ]);
+
+    // Immediately add skipped question to revision (flashcard) queue
+    generateFlashcardsFromInterview([{
+      question: q.question,
+      modelAnswer: q.answer || "",
+      userAnswer: "(skipped)",
+      score: 0,
+      topic: config?.topic ?? "",
+    }]).catch(() => {});
+
     const nextIndex = currentQuestionIndex + 1;
     if (nextIndex >= maxQuestions) {
       setTimeout(() => {
@@ -1374,7 +1384,7 @@ function InterviewChat({ config, questions, rounds, onComplete }: InterviewChatP
         setTimeout(() => askNextQuestion(nextIndex), 800);
       }, 600);
     }
-  }, [skipsUsed, spendCoins, questions, currentQuestionIndex, phase, addMessage, maxQuestions, askNextQuestion]);
+  }, [skipsUsed, spendCoins, questions, currentQuestionIndex, phase, addMessage, maxQuestions, askNextQuestion, config]);
 
   const handlePhoneAFriend = useCallback(() => {
     const success = spendCoins(30, "Phone a Friend");
