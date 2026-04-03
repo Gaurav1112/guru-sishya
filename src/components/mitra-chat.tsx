@@ -17,11 +17,13 @@ import {
   MicOff,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { useStore } from "@/lib/store";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { useMitraLimit } from "@/hooks/use-mitra-limit";
 import { createAIProvider } from "@/lib/ai";
+import { db } from "@/lib/db";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -30,6 +32,7 @@ interface QAItem {
   answer: string;
   category?: string;
   difficulty?: string;
+  topicId?: number;       // numeric topic ID for source linking
 }
 
 interface DailyQuestion {
@@ -51,6 +54,14 @@ interface RelatedLink {
   icon: "lesson" | "quiz" | "explore";
 }
 
+interface SourceAttribution {
+  category: string;
+  topicId?: number;
+  sessionNumber?: number;
+  label: string;     // e.g. "Java > Core Concepts"
+  href: string;      // link to the relevant topic/session
+}
+
 interface ChatMessage {
   id: string;
   role: "user" | "mitra";
@@ -59,7 +70,40 @@ interface ChatMessage {
   matchedQuestion?: string;  // the Q&A question that matched
   relatedLinks?: RelatedLink[];
   followUps?: string[];      // suggested follow-up questions
+  source?: SourceAttribution; // where the answer came from
   timestamp: number;
+}
+
+// ── Page context types ───────────────────────────────────────────────────────
+
+interface PageContext {
+  topicId: number | null;
+  topicName: string | null;
+  subPage: string | null;   // "quiz", "plan", "cheatsheet", "ladder", etc.
+  sessionNumber: number | null;
+}
+
+/**
+ * Parse the current pathname to extract topic context.
+ * Routes: /app/topic/3, /app/topic/3/quiz, /app/topic/3/plan/session/2
+ */
+function parsePageContext(pathname: string): Omit<PageContext, "topicName"> {
+  const topicMatch = pathname.match(/\/app\/topic\/(\d+)/);
+  if (!topicMatch) {
+    return { topicId: null, subPage: null, sessionNumber: null };
+  }
+
+  const topicId = parseInt(topicMatch[1], 10);
+
+  // Check for session: /app/topic/3/plan/session/2
+  const sessionMatch = pathname.match(/\/plan\/session\/(\d+)/);
+  const sessionNumber = sessionMatch ? parseInt(sessionMatch[1], 10) : null;
+
+  // Sub-page: /app/topic/3/quiz → "quiz"
+  const subPageMatch = pathname.match(/\/app\/topic\/\d+\/(\w+)/);
+  const subPage = subPageMatch ? subPageMatch[1] : null;
+
+  return { topicId, subPage, sessionNumber };
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -480,7 +524,8 @@ function scoreItem(
   queryWords: string[],
   expandedWords: string[],
   item: QAItem,
-  detectedTopic?: string | null
+  detectedTopic?: string | null,
+  currentTopicName?: string | null
 ): number {
   const qText = item.question.toLowerCase();
   const aText = item.answer.toLowerCase();
@@ -526,14 +571,24 @@ function scoreItem(
     }
   }
 
+  // Page context boost: when user is on a specific topic page, prefer items from that topic
+  if (currentTopicName && item.category) {
+    const catLower = item.category.toLowerCase();
+    const ctxLower = currentTopicName.toLowerCase();
+    if (catLower.includes(ctxLower) || ctxLower.includes(catLower)) {
+      score += 0.5; // moderate boost for page-context relevance
+    }
+  }
+
   // Normalize less aggressively — use sqrt to dampen long query penalty
   return score / Math.max(Math.sqrt(expandedWords.length), 1);
 }
 
 function findBestAnswer(
   query: string,
-  knowledge: QAItem[]
-): { answer: string; confidence: number; question: string; category: string } {
+  knowledge: QAItem[],
+  currentTopicName?: string | null
+): { answer: string; confidence: number; question: string; category: string; topicId?: number } {
   const queryWords = tokenize(query);
 
   if (queryWords.length === 0) {
@@ -543,16 +598,17 @@ function findBestAnswer(
   const expandedWords = expandQuery(queryWords);
   // Detect tech topic from TOPIC_MAP so we can boost relevant items
   const detectedTopic = detectTopicLabel(query);
-  let bestMatch = { answer: "", confidence: 0, question: "", category: "" };
+  let bestMatch: { answer: string; confidence: number; question: string; category: string; topicId?: number } = { answer: "", confidence: 0, question: "", category: "" };
 
   for (const item of knowledge) {
-    const confidence = scoreItem(queryWords, expandedWords, item, detectedTopic);
+    const confidence = scoreItem(queryWords, expandedWords, item, detectedTopic, currentTopicName);
     if (confidence > bestMatch.confidence) {
       bestMatch = {
         answer: item.answer,
         confidence,
         question: item.question,
         category: item.category ?? "",
+        topicId: item.topicId,
       };
     }
   }
@@ -641,10 +697,29 @@ function getSuggestedQuestions(topic: string, knowledge: QAItem[], count: number
   return shuffled.slice(0, count).map(item => item.question);
 }
 
+function buildSourceAttribution(
+  category: string,
+  topicId?: number
+): SourceAttribution | undefined {
+  if (!category) return undefined;
+  // Build a link to the topic — use topicId if available, otherwise search
+  const href = topicId
+    ? `/app/topic/${topicId}`
+    : `/app/topics?search=${encodeURIComponent(category.toLowerCase())}`;
+
+  return {
+    category,
+    topicId,
+    label: category,
+    href,
+  };
+}
+
 function buildMitraResponse(
   query: string,
   knowledge: QAItem[],
-  recentMessages?: ChatMessage[]
+  recentMessages?: ChatMessage[],
+  currentTopicName?: string | null
 ): Omit<ChatMessage, "id" | "role" | "timestamp"> {
   // Context enrichment for follow-up questions (pronouns only)
   let enrichedQuery = query;
@@ -662,18 +737,18 @@ function buildMitraResponse(
   }
 
   // Search with enriched query first
-  const enrichedResult = findBestAnswer(enrichedQuery, knowledge);
+  const enrichedResult = findBestAnswer(enrichedQuery, knowledge, currentTopicName);
 
   // If enrichment made it worse, fall back to original query
   let result = enrichedResult;
   if (enrichedQuery !== query) {
-    const originalResult = findBestAnswer(query, knowledge);
+    const originalResult = findBestAnswer(query, knowledge, currentTopicName);
     if (originalResult.confidence > enrichedResult.confidence) {
       result = originalResult;
     }
   }
 
-  const { answer, confidence, question, category } = result;
+  const { answer, confidence, question, category, topicId: matchedTopicId } = result;
   const topicLabel = detectTopicLabel(enrichedQuery) ?? (category || null);
 
   if (confidence < 0.30 || !answer) {
@@ -682,7 +757,7 @@ function buildMitraResponse(
     const expandedWords = expandQuery(queryWords);
     const fallbackTopic = detectTopicLabel(enrichedQuery);
     const topMatches = knowledge
-      .map(item => ({ item, score: scoreItem(queryWords, expandedWords, item, fallbackTopic) }))
+      .map(item => ({ item, score: scoreItem(queryWords, expandedWords, item, fallbackTopic, currentTopicName) }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
 
@@ -706,6 +781,8 @@ function buildMitraResponse(
   const followUps = findRelatedQuestions(category, question, knowledge, 3);
   const relatedLinks = buildRelatedLinks(topicLabel);
 
+  const source = buildSourceAttribution(category, matchedTopicId);
+
   if (confidence >= 0.4) {
     return {
       text: previewText,
@@ -713,6 +790,7 @@ function buildMitraResponse(
       matchedQuestion: question || undefined,
       relatedLinks,
       followUps: followUps.length > 0 ? followUps : undefined,
+      source,
     };
   }
 
@@ -723,6 +801,7 @@ function buildMitraResponse(
     matchedQuestion: question ? `Related: ${question}` : undefined,
     relatedLinks,
     followUps: followUps.length > 0 ? followUps : undefined,
+    source,
   };
 }
 
@@ -815,6 +894,17 @@ function MessageBubble({
               </>
             )}
           </button>
+        )}
+
+        {/* Source attribution */}
+        {!isUser && msg.source && (
+          <Link
+            href={msg.source.href}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-indigo-400 transition-colors px-0.5 mt-0.5"
+          >
+            <BookOpen className="size-3 shrink-0" />
+            <span>Source: {msg.source.label}</span>
+          </Link>
         )}
 
         {/* Related links */}
@@ -935,14 +1025,44 @@ function UpgradeNudge() {
 export function MitraChat() {
   const { isPremium, premiumUntil } = useStore();
   const mitraLimit = useMitraLimit();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING_MESSAGE]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [knowledgeLoaded, setKnowledgeLoaded] = useState(false);
   const [knowledgeItems, setKnowledgeItems] = useState<QAItem[]>([]);
+  const [pageContext, setPageContext] = useState<PageContext>({
+    topicId: null,
+    topicName: null,
+    subPage: null,
+    sessionNumber: null,
+  });
+  const prevPathnameRef = useRef<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Resolve page context from pathname + Dexie topic lookup
+  useEffect(() => {
+    const parsed = parsePageContext(pathname);
+    const newCtx: PageContext = { ...parsed, topicName: null };
+
+    if (parsed.topicId) {
+      db.topics
+        .get(parsed.topicId)
+        .then((topic) => {
+          if (topic) {
+            newCtx.topicName = topic.name;
+          }
+          setPageContext(newCtx);
+        })
+        .catch(() => {
+          setPageContext(newCtx);
+        });
+    } else {
+      setPageContext(newCtx);
+    }
+  }, [pathname]);
 
   // Voice input
   const {
@@ -991,12 +1111,32 @@ export function MitraChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Focus input when chat opens
+  // Focus input when chat opens + show contextual greeting on topic pages
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 150);
+
+      // Show contextual greeting when opening on a topic page (only if chat is fresh)
+      if (
+        pageContext.topicName &&
+        messages.length === 1 &&
+        messages[0].id === "greeting" &&
+        prevPathnameRef.current !== pathname
+      ) {
+        const subLabel = pageContext.subPage
+          ? ` (${pageContext.subPage}${pageContext.sessionNumber ? ` session ${pageContext.sessionNumber}` : ""})`
+          : "";
+        const contextGreeting: ChatMessage = {
+          id: "context-greeting",
+          role: "mitra",
+          text: `I see you're studying **${pageContext.topicName}**${subLabel}. Need help with anything here?`,
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, contextGreeting]);
+        prevPathnameRef.current = pathname;
+      }
     }
-  }, [open]);
+  }, [open, pageContext, pathname, messages]);
 
   // Lazy-load knowledge base on first open
   useEffect(() => {
@@ -1044,7 +1184,7 @@ export function MitraChat() {
 
         // Pass recent conversation context for follow-up resolution
         const recentMessages = messages.slice(-10);
-        let partial = buildMitraResponse(trimmed, knowledgeItems, recentMessages);
+        let partial = buildMitraResponse(trimmed, knowledgeItems, recentMessages, pageContext.topicName);
 
         // If knowledge base couldn't answer, try AI provider fallback
         const isLowConfidence = partial.text.includes("I'm not sure about that") ||
@@ -1108,7 +1248,7 @@ export function MitraChat() {
         setIsTyping(false);
       }
     },
-    [isTyping, knowledgeItems, mitraLimit, messages]
+    [isTyping, knowledgeItems, mitraLimit, messages, pageContext.topicName]
   );
 
   const sendMessage = useCallback(() => {
