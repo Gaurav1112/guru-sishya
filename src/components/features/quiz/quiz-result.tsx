@@ -12,6 +12,8 @@ import type { AnsweredQuestion } from "@/lib/quiz/types";
 import { cn } from "@/lib/utils";
 import { ShareButton } from "@/components/share-button";
 import { ShareButtons } from "@/components/share-buttons";
+import { openMitraWithQuizReview } from "@/components/mitra-chat";
+import { Bot } from "lucide-react";
 
 // ── Challenge URL builder ─────────────────────────────────────────────────
 
@@ -206,6 +208,28 @@ export function QuizResultScreen({
             </ul>
           </CardContent>
         </Card>
+      )}
+
+      {/* Ask Mitra to review wrong answers */}
+      {weakAnswers.length > 0 && (
+        <motion.button
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          onClick={() => {
+            openMitraWithQuizReview(
+              weakAnswers.map((a) => ({
+                question: a.question,
+                userAnswer: a.userAnswer,
+                correctAnswer: a.perfectAnswer || a.feedback,
+              }))
+            );
+          }}
+          className="flex items-center justify-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 text-sm font-medium text-indigo-300 transition-colors hover:bg-indigo-500/20 hover:text-indigo-200"
+        >
+          <Bot className="size-4" />
+          Review your mistakes with Mitra
+        </motion.button>
       )}
 
       {/* Challenge a Friend */}
