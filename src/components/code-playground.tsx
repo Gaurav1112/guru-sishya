@@ -183,28 +183,28 @@ export function CodePlayground({
 
     try {
       if (language === "java") {
-        setRunStatus("Compiling via Judge0...");
+        setRunStatus("Compiling Java... (may take a few seconds)");
         const result: RunResult = await runJava(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel("Judge0 CE (Java 17)");
+        setRunnerLabel(result.isError && result.error?.includes("unavailable") ? "Judge0 CE (offline)" : "Judge0 CE (Java 17)");
         setExecMs(result.durationMs ?? null);
       } else if (language === "c") {
-        setRunStatus("Compiling via Judge0...");
+        setRunStatus("Compiling C... (may take a few seconds)");
         const result: RunResult = await runC(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel("Judge0 CE (GCC 14)");
+        setRunnerLabel(result.isError && result.error?.includes("unavailable") ? "Judge0 CE (offline)" : "Judge0 CE (GCC 14)");
         setExecMs(result.durationMs ?? null);
       } else if (language === "cpp") {
-        setRunStatus("Compiling via Judge0...");
+        setRunStatus("Compiling C++... (may take a few seconds)");
         const result: RunResult = await runCpp(code);
         const combined = [result.output, result.error].filter(Boolean).join("\n");
         setOutput(combined || "(no output)");
         setOutputError(result.isError);
-        setRunnerLabel("Judge0 CE (G++ 14)");
+        setRunnerLabel(result.isError && result.error?.includes("unavailable") ? "Judge0 CE (offline)" : "Judge0 CE (G++ 14)");
         setExecMs(result.durationMs ?? null);
       } else if (language === "python") {
         setRunStatus("Loading Python runtime...");

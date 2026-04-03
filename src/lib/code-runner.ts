@@ -330,9 +330,15 @@ export async function runJavaScriptSandboxed(
 export async function runPython(code: string): Promise<RunResult> {
   const pyResult = await runPythonPyodide(code);
 
-  // Fall back to Judge0 only if Pyodide itself failed to initialise
-  // (not if the user's Python code threw an error — that is a legitimate result).
-  if (pyResult.isError && pyResult.error?.startsWith("Pyodide initialisation failed")) {
+  // Fall back to Judge0 only if Pyodide itself failed to initialise or the
+  // worker crashed (not if the user's Python code threw an error — that is
+  // a legitimate result).
+  if (
+    pyResult.isError &&
+    (pyResult.error?.startsWith("Pyodide initialisation failed") ||
+     pyResult.error?.startsWith("Pyodide worker error") ||
+     pyResult.error?.startsWith("Failed to load Python runtime"))
+  ) {
     return runRemote("python", code);
   }
 
