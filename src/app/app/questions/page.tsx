@@ -12,6 +12,7 @@ import {
 } from "@/lib/content/questions-loader";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { QuestionGrid } from "@/components/features/questions/question-gallery";
@@ -615,7 +616,7 @@ export default function QuestionsPage() {
   );
 
   // Filter questions
-  const filteredQuestions = useMemo(() => {
+  const filteredQuestionsAll = useMemo(() => {
     let qs = allQuestions;
 
     // Category
@@ -670,12 +671,18 @@ export default function QuestionsPage() {
       });
     }
 
-    // Free users: limit to first 10 questions per category (Pro gets all)
-    if (!isActivePremium && qs.length > 10) {
-      return qs.slice(0, 10);
-    }
     return qs;
   }, [allQuestions, activeCategory, search, difficulty, companyFilter, selectedCompany, statusFilter, bookmarkMap]);
+
+  // Free users: limit to first 10 questions per category (Pro gets all)
+  const totalBeforeLimit = filteredQuestionsAll.length;
+  const filteredQuestions = useMemo(() => {
+    if (!isActivePremium && filteredQuestionsAll.length > 10) {
+      return filteredQuestionsAll.slice(0, 10);
+    }
+    return filteredQuestionsAll;
+  }, [filteredQuestionsAll, isActivePremium]);
+  const lockedCount = totalBeforeLimit - filteredQuestions.length;
 
   // Build tile status array for the gallery
   const galleryQuestions = useMemo(
@@ -1553,6 +1560,34 @@ export default function QuestionsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Unlock more questions banner — shown to free users when limited */}
+      {!isActivePremium && lockedCount > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-saffron/30 bg-gradient-to-r from-saffron/10 via-gold/5 to-surface p-6 text-center space-y-3"
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Lock className="size-5 text-saffron" />
+            <h3 className="font-heading text-lg font-bold">
+              You&apos;ve seen 10 questions
+            </h3>
+          </div>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Unlock all <span className="font-semibold text-saffron">{totalBeforeLimit.toLocaleString()}+</span> questions
+            with detailed answers, company tags, and difficulty filters.
+          </p>
+          <Link
+            href="/app/pricing"
+            className="inline-flex items-center gap-2 rounded-lg bg-saffron px-5 py-2.5 text-sm font-semibold text-background hover:opacity-90 transition-opacity"
+          >
+            <Sparkles className="size-4" />
+            Unlock All Questions with Pro
+            <ChevronRight className="size-4" />
+          </Link>
+        </motion.div>
       )}
 
       {/* Mobile gallery trigger — floating button */}

@@ -10,8 +10,6 @@ import { useStore } from "@/lib/store";
 import { PageTransition } from "@/components/page-transition";
 import { CountdownTimer } from "@/components/pricing/countdown-timer";
 import { trackEvent } from "@/lib/analytics";
-import { loadAllContent } from "@/lib/content/loader";
-
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 declare global {
@@ -219,7 +217,8 @@ export default function PricingPage() {
   const [trialLoading, setTrialLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trialUsed, setTrialUsed] = useState(false);
-  const [contentStats, setContentStats] = useState({ topicCount: 0, questionCount: 0, sessionCount: 0 });
+  // Static stats — avoids loading 11MB of content JSON on the pricing page
+  const contentStats = { topicCount: 141, questionCount: 1988, sessionCount: 693 };
 
   // Re-check expiry on mount and check trial-used flag
   useEffect(() => {
@@ -231,16 +230,6 @@ export default function PricingPage() {
     }
   }, [checkPremiumExpiry]);
 
-  // Load dynamic content stats
-  useEffect(() => {
-    loadAllContent().then((all) => {
-      setContentStats({
-        topicCount: all.length,
-        questionCount: all.reduce((sum, t) => sum + (t.quizBank?.length ?? 0), 0),
-        sessionCount: all.reduce((sum, t) => sum + (t.plan?.sessions?.length ?? 0), 0),
-      });
-    }).catch(() => {});
-  }, []);
 
   const isActive =
     isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
@@ -375,7 +364,7 @@ export default function PricingPage() {
           Stop Guessing. Start Acing Interviews.
         </h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          828 answers, {contentStats.questionCount ? contentStats.questionCount.toLocaleString() : "1,400+"} quiz questions, and {contentStats.sessionCount || "670+"}  lessons across {contentStats.topicCount || "65"} topics — everything you need to ace your software engineering interviews.
+          828 answers, {contentStats.questionCount.toLocaleString()} quiz questions, and {contentStats.sessionCount} lessons across {contentStats.topicCount} topics — everything you need to ace your software engineering interviews.
         </p>
 
         {isActive && (
