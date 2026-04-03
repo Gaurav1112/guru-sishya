@@ -18,8 +18,8 @@ export default function ContactPage() {
             <p className="text-muted-foreground mb-2">
               For billing, technical issues, or account help:
             </p>
-            <a href="mailto:support@guru-sishya.in" className="text-saffron hover:underline text-lg">
-              support@guru-sishya.in
+            <a href="mailto:gurusishya.in@gmail.com" className="text-saffron hover:underline text-lg">
+              gurusishya.in@gmail.com
             </a>
             <p className="text-sm text-muted-foreground mt-1">We respond within 24 hours.</p>
           </section>

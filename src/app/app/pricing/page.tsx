@@ -505,8 +505,8 @@ export default function PricingPage() {
         </p>
         <p className="text-xs text-muted-foreground mt-1">
           Email us at{" "}
-          <a href="mailto:support@guru-sishya.in" className="text-saffron hover:underline">
-            support@guru-sishya.in
+          <a href="mailto:gurusishya.in@gmail.com" className="text-saffron hover:underline">
+            gurusishya.in@gmail.com
           </a>{" "}
           with your .edu/.ac.in email for a discount code
         </p>

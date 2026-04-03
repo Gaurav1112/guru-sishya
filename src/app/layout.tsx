@@ -195,7 +195,7 @@ export default function RootLayout({
               sameAs: ["https://github.com/Gaurav1112/guru-sishya"],
               contactPoint: {
                 "@type": "ContactPoint",
-                email: "kgauravis016@gmail.com",
+                email: "gurusishya.in@gmail.com",
                 contactType: "customer support",
               },
             }),

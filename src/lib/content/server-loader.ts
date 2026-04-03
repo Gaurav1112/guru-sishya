@@ -276,7 +276,10 @@ const PRIORITY_TOPICS = [
  * Get the top ~200 indexable questions from priority topics.
  * Picks 10-15 questions per topic, deduplicating slugs.
  */
+let _questionCache: IndexableQuestion[] | null = null;
+
 export function getIndexableQuestions(): IndexableQuestion[] {
+  if (_questionCache !== null) return _questionCache;
   const all = loadAllContentFromDisk();
   const questions: IndexableQuestion[] = [];
   const seenSlugs = new Set<string>();
@@ -292,11 +295,10 @@ export function getIndexableQuestions(): IndexableQuestion[] {
     const t = topicMap.get(name.toLowerCase().trim());
     if (!t || !t.quizBank?.length) continue;
 
-    // Pick top 15 questions per priority topic for SEO (keeps build fast on Vercel)
+    // Include ALL questions for programmatic SEO
     const sorted = [...t.quizBank].sort((a, b) => a.difficulty - b.difficulty);
-    const step = Math.max(1, Math.floor(sorted.length / 15));
 
-    for (let i = 0; i < sorted.length; i += step) {
+    for (let i = 0; i < sorted.length; i++) {
       const q = sorted[i];
       let slug = questionSlug(q.question, t.topic);
 
@@ -323,15 +325,12 @@ export function getIndexableQuestions(): IndexableQuestion[] {
 
   }
 
-  // Also add questions from non-priority topics (cap at 500 total for Vercel build limits)
+  // Also add ALL questions from non-priority topics
   for (const t of all) {
-    if (questions.length >= 500) break;
     if (PRIORITY_TOPICS.some((p) => p.toLowerCase() === t.topic.toLowerCase())) continue;
     if (!t.quizBank?.length) continue;
 
-    const nonPrioStep = Math.max(1, Math.floor(t.quizBank.length / 8));
-    for (let qi = 0; qi < t.quizBank.length && questions.length < 500; qi += nonPrioStep) {
-      const q = t.quizBank[qi];
+    for (const q of t.quizBank) {
       let slug = questionSlug(q.question, t.topic);
       if (seenSlugs.has(slug)) slug = `${slug}-${questions.length}`;
       if (seenSlugs.has(slug)) continue;
@@ -352,6 +351,7 @@ export function getIndexableQuestions(): IndexableQuestion[] {
     }
   }
 
+  _questionCache = questions;
   return questions;
 }
 
