@@ -341,4 +341,17 @@ html {
   .constellation-active {
     animation: constellation-pulse 2s ease-in-out infinite;
   }
+
+  /* Mitra chat bubble — compact markdown styles */
+  .mitra-md p { margin-bottom: 0.35rem; }
+  .mitra-md p:last-child { margin-bottom: 0; }
+  .mitra-md h1, .mitra-md h2, .mitra-md h3 { margin-top: 0.5rem; margin-bottom: 0.25rem; font-size: 0.85rem; }
+  .mitra-md ul, .mitra-md ol { margin-bottom: 0.35rem; margin-left: 1rem; }
+  .mitra-md li { font-size: 0.8125rem; }
+  .mitra-md pre { font-size: 0.75rem; margin: 0.5rem 0; padding: 0.5rem; }
+  .mitra-md code { font-size: 0.75rem; }
+  .mitra-md .my-4 { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+  .mitra-md blockquote { margin: 0.5rem 0; padding-left: 0.75rem; }
+  .mitra-md table { font-size: 0.75rem; }
+  .mitra-md th, .mitra-md td { padding: 0.25rem 0.5rem; }
 }

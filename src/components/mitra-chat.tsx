@@ -17,6 +17,7 @@ import {
   MicOff,
 } from "lucide-react";
 import Link from "next/link";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { useStore } from "@/lib/store";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { useMitraLimit } from "@/hooks/use-mitra-limit";
@@ -444,11 +445,11 @@ function tokenize(text: string): string[] {
 function expandQuery(words: string[]): string[] {
   const expanded = new Set(words);
 
-  // Bidirectional synonym expansion
+  // Bidirectional synonym expansion — use exact word match, not substring
   for (const [canonical, aliases] of Object.entries(SYNONYMS)) {
     const canonWords = canonical.toLowerCase().split(/\s+/);
     const hasCanon = canonWords.every((cw) =>
-      words.some((w) => w.includes(cw) || cw.includes(w))
+      words.some((w) => w === cw)
     );
     if (hasCanon) {
       for (const alias of aliases) {
@@ -456,7 +457,7 @@ function expandQuery(words: string[]): string[] {
       }
     }
     for (const alias of aliases) {
-      if (words.some((w) => w.includes(alias) || alias.includes(w))) {
+      if (words.some((w) => w === alias)) {
         canonWords.forEach((cw) => expanded.add(cw));
       }
     }
@@ -488,20 +489,21 @@ function scoreItem(
 
   // Phrase bonus: consecutive query words in question (stronger weight)
   const queryPhrase = queryWords.join(" ");
-  if (queryPhrase.length > 3 && qText.includes(queryPhrase)) score += 1.0;
+  if (queryPhrase.length > 3 && wordBoundaryMatch(qText, queryPhrase)) score += 1.0;
 
   // Also check if the full query appears in the answer
-  if (queryPhrase.length > 3 && aText.includes(queryPhrase)) score += 0.3;
+  if (queryPhrase.length > 3 && wordBoundaryMatch(aText, queryPhrase)) score += 0.3;
 
   // Per-word scoring: question matches weight more than answer matches
+  // Use word-boundary matching to prevent "java" matching "javascript"
   let questionHits = 0;
   let answerHits = 0;
   for (const word of expandedWords) {
     if (word.length < 3) continue; // skip very short words
-    if (qText.includes(word)) {
+    if (wordBoundaryMatch(qText, word)) {
       score += 0.4;
       questionHits++;
-    } else if (aText.includes(word)) {
+    } else if (wordBoundaryMatch(aText, word)) {
       score += 0.15;
       answerHits++;
     }
@@ -571,12 +573,23 @@ function findRelatedQuestions(
     .map((item) => item.question);
 }
 
+/**
+ * Check if a keyword appears in text as a whole word (word-boundary match).
+ * This prevents "java" from matching "javascript".
+ */
+function wordBoundaryMatch(text: string, keyword: string): boolean {
+  // Escape special regex chars in keyword
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`(?:^|[\\s,.;:!?/"'(\\[])${escaped}(?=$|[\\s,.;:!?/"'\\])})`, "i");
+  return re.test(text);
+}
+
 function detectTopicLabel(query: string): string | null {
   const lower = query.toLowerCase();
   // Sort by length descending so longer phrases match first
   const entries = Object.entries(TOPIC_MAP).sort((a, b) => b[0].length - a[0].length);
   for (const [keyword, label] of entries) {
-    if (lower.includes(keyword)) return label;
+    if (wordBoundaryMatch(lower, keyword)) return label;
   }
   return null;
 }
@@ -762,17 +775,26 @@ function MessageBubble({
 
         {/* Main bubble */}
         <div
-          className={`rounded-2xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
+          className={`rounded-2xl px-3 py-2 text-sm leading-relaxed ${
             isUser
-              ? "rounded-tr-sm bg-saffron/90 text-background font-medium"
-              : "rounded-tl-sm bg-indigo-500/15 border border-indigo-500/20 text-foreground"
+              ? "rounded-tr-sm bg-saffron/90 text-background font-medium whitespace-pre-wrap"
+              : "rounded-tl-sm bg-indigo-500/15 border border-indigo-500/20 text-foreground mitra-bubble"
           }`}
         >
-          {!isUser && hasMore && !expanded
-            ? msg.text
-            : expanded && msg.fullText
-            ? msg.fullText
-            : msg.text}
+          {isUser ? (
+            msg.text
+          ) : (
+            <MarkdownRenderer
+              content={
+                hasMore && !expanded
+                  ? msg.text
+                  : expanded && msg.fullText
+                  ? msg.fullText
+                  : msg.text
+              }
+              className="mitra-md prose-sm [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            />
+          )}
         </div>
 
         {/* Show more / less */}
@@ -1025,7 +1047,9 @@ export function MitraChat() {
         let partial = buildMitraResponse(trimmed, knowledgeItems, recentMessages);
 
         // If knowledge base couldn't answer, try AI provider fallback
-        if (partial.text.includes("I'm not sure about that")) {
+        const isLowConfidence = partial.text.includes("I'm not sure about that") ||
+          partial.text.includes("Here are questions I can help with");
+        if (isLowConfidence) {
           const { apiKey, aiProvider } = useStore.getState();
           if (aiProvider !== "static" && apiKey) {
             try {
