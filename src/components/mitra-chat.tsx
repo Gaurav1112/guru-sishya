@@ -704,7 +704,19 @@ export function MitraChat() {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isTyping]);
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 150); }, [open]);
-  useEffect(() => { if (!open || knowledgeLoaded) return; loadKnowledge().then((items) => { setKnowledgeItems(items); setKnowledgeLoaded(true); }); }, [open, knowledgeLoaded]);
+  useEffect(() => {
+    if (!open || knowledgeLoaded) return;
+    loadKnowledge()
+      .then((items) => {
+        console.log(`[Mitra] Knowledge loaded: ${items.length} items`);
+        setKnowledgeItems(items);
+        setKnowledgeLoaded(true);
+      })
+      .catch((err) => {
+        console.error("[Mitra] Failed to load knowledge:", err);
+        setKnowledgeLoaded(true); // Mark as loaded to avoid infinite retry
+      });
+  }, [open, knowledgeLoaded]);
 
   useEffect(() => {
     if (!open || progressLoadedRef.current) return;
@@ -746,8 +758,12 @@ export function MitraChat() {
       }
 
       setMessages((prev) => [...prev, { id: `mitra-${Date.now()}`, role: "mitra", ...partial, timestamp: Date.now() }]);
-    } catch {
-      setMessages((prev) => [...prev, { id: `mitra-${Date.now()}`, role: "mitra" as const, text: "Sorry, I had trouble processing that. Could you rephrase your question?", timestamp: Date.now() }]);
+    } catch (err) {
+      console.error("[Mitra] Error processing query:", err);
+      const errorMsg = knowledgeItems.length === 0
+        ? "I'm still loading my knowledge base. Please try again in a moment."
+        : "Sorry, I had trouble processing that. Could you rephrase your question?";
+      setMessages((prev) => [...prev, { id: `mitra-${Date.now()}`, role: "mitra" as const, text: errorMsg, timestamp: Date.now() }]);
     } finally { setIsTyping(false); }
   }, [isTyping, knowledgeItems, mitraLimit, messages, mode, userProgress]);
 
