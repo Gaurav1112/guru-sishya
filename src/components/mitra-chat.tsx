@@ -741,9 +741,15 @@ export function MitraChat() {
     try {
       await new Promise((res) => setTimeout(res, Math.max(500, Math.min(1200, trimmed.length * 10))));
       const recentMessages = messages.slice(-10);
-      let partial = buildMitraResponse(trimmed, knowledgeItems, recentMessages, mode, userProgress);
+      let partial: Omit<ChatMessage, "id" | "role" | "timestamp">;
+      try {
+        partial = buildMitraResponse(trimmed, knowledgeItems, recentMessages, mode ?? "reference", userProgress ?? null);
+      } catch (buildErr) {
+        console.error("[Mitra] buildMitraResponse failed:", buildErr);
+        partial = { text: `Let me help you with "${trimmed}". Try browsing our topics at /app/topics or ask a more specific question!`, relatedLinks: [{ label: "Browse Topics", href: "/app/topics", icon: "explore" }] };
+      }
 
-      const isLowConfidence = partial.text.includes("I'm not sure about that") || partial.text.includes("Here are questions I can help with");
+      const isLowConfidence = (partial.text ?? "").includes("I'm not sure about that") || (partial.text ?? "").includes("Here are questions I can help with");
       if (isLowConfidence) {
         const { apiKey, aiProvider } = useStore.getState();
         if (aiProvider !== "static" && apiKey) {
