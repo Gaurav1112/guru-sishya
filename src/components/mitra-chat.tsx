@@ -337,7 +337,18 @@ function expandQuery(words: string[]): string[] {
 
 function wordBoundaryMatch(text: string, keyword: string): boolean {
   const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`(?:^|[\\s,.;:!?/"'(\\[])${escaped}(?=$|[\\s,.;:!?/"'\\])})`, "i").test(text);
+  try {
+    return new RegExp(`\\b${escaped}\\b`, "i").test(text);
+  } catch {
+    // Fallback: simple case-insensitive includes with word check
+    const lower = text.toLowerCase();
+    const kw = keyword.toLowerCase();
+    const idx = lower.indexOf(kw);
+    if (idx === -1) return false;
+    const before = idx === 0 || /\W/.test(lower[idx - 1]);
+    const after = idx + kw.length >= lower.length || /\W/.test(lower[idx + kw.length]);
+    return before && after;
+  }
 }
 
 function scoreItem(queryWords: string[], expandedWords: string[], item: QAItem, detectedTopic?: string | null): number {
