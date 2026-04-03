@@ -21,7 +21,7 @@ import type { GeneratedPlan } from "@/lib/plan/types";
 import type { LangCode } from "@/components/code-tabs";
 import type { PlaygroundLanguage } from "@/components/code-playground";
 
-const FREE_SESSION_LIMIT = 2;
+const FREE_SESSION_LIMIT = 3;
 
 // Dynamic imports — Monaco must never run on the server
 const CodePlayground = dynamic(
@@ -241,26 +241,8 @@ export default function SessionViewPage({
   }
 
   // Gate sessions beyond the free limit for non-premium users
-  if (!isActivePremium && sessionNum > FREE_SESSION_LIMIT) {
-    return (
-      <div className="max-w-3xl mx-auto space-y-6 pb-16">
-        <div>
-          <Link
-            href={`/app/topic/${id}/plan`}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-          >
-            <ArrowLeft className="size-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            Back to Plan
-          </Link>
-        </div>
-        <div className="space-y-1">
-          <p className="font-mono text-sm text-muted-foreground">Session {sessionNum} of {totalSessions}</p>
-          <h1 className="font-heading text-2xl font-bold leading-tight">{session.title}</h1>
-        </div>
-        <PremiumGate feature="full-sessions" overlay={false} />
-      </div>
-    );
-  }
+  // Show a 30% preview of content with an upgrade overlay for the rest
+  const isProGated = !isActivePremium && sessionNum > FREE_SESSION_LIMIT;
 
   const totalMinutes =
     session.estimatedMinutes ??
@@ -403,6 +385,17 @@ export default function SessionViewPage({
           <span className="font-mono text-sm text-muted-foreground">
             Session {sessionNum} of {totalSessions}
           </span>
+          {sessionNum <= FREE_SESSION_LIMIT && (
+            <Badge variant="outline" className="border-teal/40 text-teal bg-teal/10 text-xs">
+              FREE
+            </Badge>
+          )}
+          {isProGated && (
+            <Badge variant="outline" className="border-saffron/40 text-saffron bg-saffron/10 text-xs flex items-center gap-1">
+              <Lock className="size-3" />
+              PRO
+            </Badge>
+          )}
           {isCompleted && (
             <Badge variant="outline" className="border-teal/40 text-teal bg-teal/10 text-xs">
               Completed
@@ -502,236 +495,261 @@ export default function SessionViewPage({
       )}
 
       {/* ── Lesson content (markdown) ─────────────────────────────────────── */}
-      {session.content && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <BookOpen className="size-4 text-foreground" />
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-              Lesson
-            </h2>
-          </div>
-          <div
-            className={cn(
-              "prose prose-invert prose-sm sm:prose-base max-w-none",
-              // headings
-              "[&_h1]:font-heading [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-foreground [&_h1]:mt-6 [&_h1]:mb-3",
-              "[&_h2]:font-heading [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:mt-5 [&_h2]:mb-2",
-              "[&_h3]:font-heading [&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:mt-4 [&_h3]:mb-1.5",
-              // body
-              "[&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:mb-3",
-              "[&_li]:text-muted-foreground [&_li]:leading-relaxed",
-              "[&_strong]:text-foreground [&_strong]:font-semibold",
-              "[&_em]:text-foreground/80",
-              // code
-              "[&_code]:text-saffron [&_code]:bg-muted/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono",
-              "[&_pre]:bg-muted/80 [&_pre]:rounded-xl [&_pre]:p-4 [&_pre]:overflow-x-auto [&_pre]:my-4",
-              "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-foreground/90",
-              // tables
-              "[&_table]:w-full [&_table]:text-sm [&_table]:border-collapse [&_table]:my-4",
-              "[&_th]:text-left [&_th]:p-2.5 [&_th]:border [&_th]:border-border [&_th]:bg-muted/40 [&_th]:text-foreground [&_th]:font-semibold",
-              "[&_td]:p-2.5 [&_td]:border [&_td]:border-border [&_td]:text-muted-foreground",
-              // blockquote
-              "[&_blockquote]:border-l-2 [&_blockquote]:border-saffron/40 [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground [&_blockquote]:italic [&_blockquote]:my-4",
-              // links
-              "[&_a]:text-saffron [&_a]:underline-offset-2 [&_a]:hover:underline",
-              // horizontal rule
-              "[&_hr]:border-border [&_hr]:my-6",
-            )}
-          >
-            <div className="mb-4">
-              <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} />
+      {session.content && (() => {
+        // For gated sessions, show only the first 30% of content with a fade overlay
+        const contentToRender = isProGated
+          ? session.content.slice(0, Math.floor(session.content.length * 0.3))
+          : session.content;
+
+        return (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <BookOpen className="size-4 text-foreground" />
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                Lesson {isProGated && <span className="text-muted-foreground normal-case font-normal">(Preview)</span>}
+              </h2>
             </div>
-            <MarkdownRenderer content={session.content} languageFilter={preferredLanguage} />
-          </div>
-        </div>
-      )}
-
-      {/* ── Multi-language code viewer ────────────────────────────────────── */}
-      {allCodeBlocks.length > 1 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Terminal className="size-4 text-foreground" />
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-              Code Examples
-            </h2>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Toggle between languages to compare implementations.
-          </p>
-          <CodeTabs
-            codes={allCodeBlocks}
-            height={320}
-            title="Language Comparison"
-          />
-        </div>
-      )}
-
-      {/* ── Try it yourself (Code Playground) ────────────────────────────── */}
-      {firstBlock && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Terminal className="size-4 text-saffron" />
-            <h2 className="text-sm font-semibold text-saffron uppercase tracking-wide">
-              Try It Yourself
-            </h2>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Modify and run the code below. Your changes stay local — experiment freely.
-            {playgroundLang === "python" && (
-              <span className="ml-1 text-muted-foreground/60 italic">
-                (runs in-browser via Pyodide)
-              </span>
-            )}
-            {playgroundLang === "java" && (
-              <span className="ml-1 text-muted-foreground/60 italic">
-                (click Run for local javac instructions)
-              </span>
-            )}
-          </p>
-          <CodePlayground
-            defaultCode={firstBlock.code}
-            codeByLanguage={Object.fromEntries(allCodeBlocks.map((b) => [b.language, b.code])) as Partial<Record<PlaygroundLanguage, string>>}
-            language={playgroundLang}
-            height={320}
-            title="Interactive Example"
-          />
-        </div>
-      )}
-
-      {/* ── Key takeaways ─────────────────────────────────────────────────── */}
-      {session.keyTakeaways && session.keyTakeaways.length > 0 && (
-        <div className="rounded-xl border border-gold/30 bg-gold/5 p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Star className="size-4 text-gold fill-gold/30" />
-            <h2 className="text-sm font-semibold text-gold uppercase tracking-wide">
-              Key Takeaways
-            </h2>
-          </div>
-          <ul className="space-y-2">
-            {session.keyTakeaways.map((t, i) => (
-              <li key={i} className="flex gap-3 text-sm text-muted-foreground">
-                <span className="text-gold shrink-0 mt-0.5">★</span>
-                <span className="leading-relaxed">{t}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Activities section moved to top as "Study Plan" */}
-
-      {/* ── Floating sticky notes panel (right side, sticky on scroll) ── */}
-      <FloatingStickyNotes topicId={topicId} sessionNum={sessionNum} />
-
-      {/* ── Review questions ──────────────────────────────────────────────── */}
-      {session.reviewQuestions?.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <HelpCircle className="size-4 text-secondary" />
-            <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: "hsl(var(--secondary))" }}>
-              Review Questions
-            </h2>
-          </div>
-          <div className="space-y-2">
-            {session.reviewQuestions.map((q, i) => (
-              <ReviewQuestion key={i} question={q} index={i} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Success criteria ──────────────────────────────────────────────── */}
-      {session.successCriteria && (
-        <div className="rounded-xl border border-teal/30 bg-teal/5 p-5">
-          <p className="text-xs font-semibold text-teal uppercase tracking-wide mb-2">
-            Success Criteria
-          </p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {session.successCriteria}
-          </p>
-        </div>
-      )}
-
-      {/* ── Resources ─────────────────────────────────────────────────────── */}
-      {session.resources?.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <BookOpen className="size-4 text-gold" />
-            <h2 className="text-sm font-semibold text-gold uppercase tracking-wide">
-              Resources
-            </h2>
-          </div>
-          <div className="space-y-2">
-            {session.resources.map((res, i) => (
-              <div key={i} className="flex items-center gap-3 text-sm">
-                <Badge variant="secondary" className="text-xs shrink-0">
-                  {res.type}
-                </Badge>
-                {res.url ? (
-                  <a
-                    href={res.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-saffron hover:underline underline-offset-2"
-                  >
-                    {res.title}
-                  </a>
-                ) : (
-                  <span className="text-muted-foreground">{res.title}</span>
+            <div className="relative">
+              <div
+                className={cn(
+                  "prose prose-invert prose-sm sm:prose-base max-w-none",
+                  // headings
+                  "[&_h1]:font-heading [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-foreground [&_h1]:mt-6 [&_h1]:mb-3",
+                  "[&_h2]:font-heading [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:mt-5 [&_h2]:mb-2",
+                  "[&_h3]:font-heading [&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:mt-4 [&_h3]:mb-1.5",
+                  // body
+                  "[&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:mb-3",
+                  "[&_li]:text-muted-foreground [&_li]:leading-relaxed",
+                  "[&_strong]:text-foreground [&_strong]:font-semibold",
+                  "[&_em]:text-foreground/80",
+                  // code
+                  "[&_code]:text-saffron [&_code]:bg-muted/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono",
+                  "[&_pre]:bg-muted/80 [&_pre]:rounded-xl [&_pre]:p-4 [&_pre]:overflow-x-auto [&_pre]:my-4",
+                  "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-foreground/90",
+                  // tables
+                  "[&_table]:w-full [&_table]:text-sm [&_table]:border-collapse [&_table]:my-4",
+                  "[&_th]:text-left [&_th]:p-2.5 [&_th]:border [&_th]:border-border [&_th]:bg-muted/40 [&_th]:text-foreground [&_th]:font-semibold",
+                  "[&_td]:p-2.5 [&_td]:border [&_td]:border-border [&_td]:text-muted-foreground",
+                  // blockquote
+                  "[&_blockquote]:border-l-2 [&_blockquote]:border-saffron/40 [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground [&_blockquote]:italic [&_blockquote]:my-4",
+                  // links
+                  "[&_a]:text-saffron [&_a]:underline-offset-2 [&_a]:hover:underline",
+                  // horizontal rule
+                  "[&_hr]:border-border [&_hr]:my-6",
+                  isProGated && "overflow-hidden",
                 )}
+                style={isProGated ? { maxHeight: "500px" } : undefined}
+              >
+                {!isProGated && (
+                  <div className="mb-4">
+                    <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} />
+                  </div>
+                )}
+                <MarkdownRenderer content={contentToRender} languageFilter={preferredLanguage} />
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Mark complete ─────────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-border bg-surface p-5 space-y-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <p className="font-medium text-sm">
-              {isCompleted ? "Session completed!" : "Ready to mark this done?"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {isCompleted
-                ? "You earned +20 XP and +10 coins for this session."
-                : "Complete this session to earn +20 XP and +10 coins."}
-            </p>
-          </div>
-          <Button
-            onClick={handleMarkComplete}
-            disabled={completing}
-            size="sm"
-            className={cn(
-              "shrink-0 gap-1.5",
-              isCompleted
-                ? "bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive border border-border"
-                : "bg-teal/20 text-teal border border-teal/40 hover:bg-teal/30"
-            )}
-            variant="ghost"
-          >
-            {completing ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : isCompleted ? (
-              <CheckCircle2 className="size-3.5" />
-            ) : (
-              <Zap className="size-3.5" />
-            )}
-            {isCompleted ? "Mark Incomplete" : "Mark Complete"}
-          </Button>
-        </div>
-
-        {showConfirmComplete && (
-          <div className="rounded-xl border border-teal/30 bg-teal/5 p-4 space-y-3">
-            <p className="text-sm font-medium">Mark this session complete?</p>
-            <p className="text-xs text-muted-foreground">This will award +20 XP and +10 coins.</p>
-            <div className="flex gap-2">
-              <Button onClick={doMarkComplete} size="sm" className="bg-teal text-white">Yes, Complete</Button>
-              <Button onClick={() => setShowConfirmComplete(false)} size="sm" variant="outline">Cancel</Button>
+              {/* Gradient fade overlay for gated content */}
+              {isProGated && (
+                <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none" />
+              )}
             </div>
+            {isProGated && (
+              <PremiumGate feature="full-sessions" overlay={false} />
+            )}
           </div>
-        )}
-      </div>
+        );
+      })()}
+
+      {/* ── Sections only visible for free/unlocked sessions ─────────────── */}
+      {!isProGated && (
+        <>
+          {/* ── Multi-language code viewer ────────────────────────────────────── */}
+          {allCodeBlocks.length > 1 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Terminal className="size-4 text-foreground" />
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                  Code Examples
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Toggle between languages to compare implementations.
+              </p>
+              <CodeTabs
+                codes={allCodeBlocks}
+                height={320}
+                title="Language Comparison"
+              />
+            </div>
+          )}
+
+          {/* ── Try it yourself (Code Playground) ────────────────────────────── */}
+          {firstBlock && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Terminal className="size-4 text-saffron" />
+                <h2 className="text-sm font-semibold text-saffron uppercase tracking-wide">
+                  Try It Yourself
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Modify and run the code below. Your changes stay local — experiment freely.
+                {playgroundLang === "python" && (
+                  <span className="ml-1 text-muted-foreground/60 italic">
+                    (runs in-browser via Pyodide)
+                  </span>
+                )}
+                {playgroundLang === "java" && (
+                  <span className="ml-1 text-muted-foreground/60 italic">
+                    (click Run for local javac instructions)
+                  </span>
+                )}
+              </p>
+              <CodePlayground
+                defaultCode={firstBlock.code}
+                codeByLanguage={Object.fromEntries(allCodeBlocks.map((b) => [b.language, b.code])) as Partial<Record<PlaygroundLanguage, string>>}
+                language={playgroundLang}
+                height={320}
+                title="Interactive Example"
+              />
+            </div>
+          )}
+
+          {/* ── Key takeaways ─────────────────────────────────────────────────── */}
+          {session.keyTakeaways && session.keyTakeaways.length > 0 && (
+            <div className="rounded-xl border border-gold/30 bg-gold/5 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Star className="size-4 text-gold fill-gold/30" />
+                <h2 className="text-sm font-semibold text-gold uppercase tracking-wide">
+                  Key Takeaways
+                </h2>
+              </div>
+              <ul className="space-y-2">
+                {session.keyTakeaways.map((t, i) => (
+                  <li key={i} className="flex gap-3 text-sm text-muted-foreground">
+                    <span className="text-gold shrink-0 mt-0.5">★</span>
+                    <span className="leading-relaxed">{t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Activities section moved to top as "Study Plan" */}
+
+          {/* ── Floating sticky notes panel (right side, sticky on scroll) ── */}
+          <FloatingStickyNotes topicId={topicId} sessionNum={sessionNum} />
+
+          {/* ── Review questions ──────────────────────────────────────────────── */}
+          {session.reviewQuestions?.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <HelpCircle className="size-4 text-secondary" />
+                <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: "hsl(var(--secondary))" }}>
+                  Review Questions
+                </h2>
+              </div>
+              <div className="space-y-2">
+                {session.reviewQuestions.map((q, i) => (
+                  <ReviewQuestion key={i} question={q} index={i} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Success criteria ──────────────────────────────────────────────── */}
+          {session.successCriteria && (
+            <div className="rounded-xl border border-teal/30 bg-teal/5 p-5">
+              <p className="text-xs font-semibold text-teal uppercase tracking-wide mb-2">
+                Success Criteria
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {session.successCriteria}
+              </p>
+            </div>
+          )}
+
+          {/* ── Resources ─────────────────────────────────────────────────────── */}
+          {session.resources?.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="size-4 text-gold" />
+                <h2 className="text-sm font-semibold text-gold uppercase tracking-wide">
+                  Resources
+                </h2>
+              </div>
+              <div className="space-y-2">
+                {session.resources.map((res, i) => (
+                  <div key={i} className="flex items-center gap-3 text-sm">
+                    <Badge variant="secondary" className="text-xs shrink-0">
+                      {res.type}
+                    </Badge>
+                    {res.url ? (
+                      <a
+                        href={res.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-saffron hover:underline underline-offset-2"
+                      >
+                        {res.title}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">{res.title}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Mark complete ─────────────────────────────────────────────────── */}
+          <div className="rounded-xl border border-border bg-surface p-5 space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <p className="font-medium text-sm">
+                  {isCompleted ? "Session completed!" : "Ready to mark this done?"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {isCompleted
+                    ? "You earned +20 XP and +10 coins for this session."
+                    : "Complete this session to earn +20 XP and +10 coins."}
+                </p>
+              </div>
+              <Button
+                onClick={handleMarkComplete}
+                disabled={completing}
+                size="sm"
+                className={cn(
+                  "shrink-0 gap-1.5",
+                  isCompleted
+                    ? "bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive border border-border"
+                    : "bg-teal/20 text-teal border border-teal/40 hover:bg-teal/30"
+                )}
+                variant="ghost"
+              >
+                {completing ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : isCompleted ? (
+                  <CheckCircle2 className="size-3.5" />
+                ) : (
+                  <Zap className="size-3.5" />
+                )}
+                {isCompleted ? "Mark Incomplete" : "Mark Complete"}
+              </Button>
+            </div>
+
+            {showConfirmComplete && (
+              <div className="rounded-xl border border-teal/30 bg-teal/5 p-4 space-y-3">
+                <p className="text-sm font-medium">Mark this session complete?</p>
+                <p className="text-xs text-muted-foreground">This will award +20 XP and +10 coins.</p>
+                <div className="flex gap-2">
+                  <Button onClick={doMarkComplete} size="sm" className="bg-teal text-white">Yes, Complete</Button>
+                  <Button onClick={() => setShowConfirmComplete(false)} size="sm" variant="outline">Cancel</Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* ── Session navigation ────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-4 pt-2">

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { useStore } from "@/lib/store";
-import { PremiumGate } from "@/components/premium-gate";
 import type { GeneratedSession } from "@/lib/plan/types";
 
 interface SessionWithContent extends GeneratedSession {
@@ -25,7 +24,7 @@ interface SessionCardProps {
   topicId: number;
 }
 
-const FREE_SESSION_LIMIT = 2;
+const FREE_SESSION_LIMIT = 3;
 
 export function SessionCard({ session, completed, onComplete, isLoading, topicId }: SessionCardProps) {
   const [expanded, setExpanded] = useState(false);
@@ -83,14 +82,20 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
               <span className="text-xs font-mono text-muted-foreground">
                 Session {session.sessionNumber}
               </span>
+              {!isLocked && !completed && (
+                <Badge variant="outline" className="text-teal border-teal/40 bg-teal/10 text-xs">
+                  FREE
+                </Badge>
+              )}
               {completed && !isLocked && (
                 <Badge variant="outline" className="text-teal border-teal/40 text-xs">
                   Done
                 </Badge>
               )}
               {isLocked && (
-                <Badge variant="outline" className="text-saffron border-saffron/40 text-xs">
-                  Pro
+                <Badge variant="outline" className="text-saffron border-saffron/40 bg-saffron/10 text-xs flex items-center gap-1">
+                  <Lock className="size-3" />
+                  PRO
                 </Badge>
               )}
             </div>
@@ -113,26 +118,15 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
           </div>
 
           {/* Open full lesson link — hidden when locked */}
-          {!isLocked ? (
-            <Link
-              href={`/app/topic/${topicId}/plan/session/${session.sessionNumber}`}
-              onClick={(e) => e.stopPropagation()}
-              className="shrink-0 flex items-center gap-1 rounded-md border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-medium text-saffron hover:bg-saffron/20 transition-colors"
-              aria-label="Open full lesson"
-            >
-              <ExternalLink className="size-3" />
-              Open
-            </Link>
-          ) : (
-            <Link
-              href="/app/pricing"
-              onClick={(e) => e.stopPropagation()}
-              className="shrink-0 flex items-center gap-1 rounded-md border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-medium text-saffron hover:bg-saffron/20 transition-colors"
-            >
-              <Lock className="size-3" />
-              Unlock
-            </Link>
-          )}
+          <Link
+            href={`/app/topic/${topicId}/plan/session/${session.sessionNumber}`}
+            onClick={(e) => e.stopPropagation()}
+            className="shrink-0 flex items-center gap-1 rounded-md border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-medium text-saffron hover:bg-saffron/20 transition-colors"
+            aria-label={isLocked ? "Preview session" : "Open full lesson"}
+          >
+            <ExternalLink className="size-3" />
+            {isLocked ? "Preview" : "Open"}
+          </Link>
 
           {/* Expand toggle — only for unlocked sessions */}
           {!isLocked && (
@@ -152,15 +146,8 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
         </div>
       </CardHeader>
 
-      {/* Locked session gate — shown inline below header */}
-      {isLocked && (
-        <CardContent className="pt-3">
-          <PremiumGate feature="full-sessions" overlay={false} />
-        </CardContent>
-      )}
-
-      {/* Expanded body — only for unlocked sessions */}
-      {!isLocked && expanded && (
+      {/* Expanded body */}
+      {expanded && !isLocked && (
         <CardContent className="pt-4 space-y-4">
           {/* Lesson Content — the actual teaching material */}
           {session.content && (

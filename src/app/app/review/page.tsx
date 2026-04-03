@@ -16,7 +16,7 @@ import { getUserStats, checkAndUnlockBadges } from "@/lib/gamification/badges";
 import type { Flashcard } from "@/lib/types";
 import type { TimedTestResult } from "@/lib/review/question-selector";
 
-const FREE_FLASHCARD_LIMIT = 50;
+const FREE_FLASHCARD_LIMIT = 20;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

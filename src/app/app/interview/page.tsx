@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronRight, Mic, MicOff, Send, Clock, RotateCcw, Trophy, ChevronDown, ArrowLeft, Lightbulb, SkipForward, BookOpen } from "lucide-react";
+import { ChevronRight, Mic, MicOff, Send, Clock, RotateCcw, Trophy, ChevronDown, ArrowLeft, Lightbulb, SkipForward, BookOpen, Lock } from "lucide-react";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { PageTransition } from "@/components/page-transition";
 import { PremiumGate } from "@/components/premium-gate";
@@ -2040,13 +2040,41 @@ export default function InterviewPage() {
         </button>
       )}
 
-      {/* Pro only gate */}
+      {/* Free user daily limit banner */}
       {phase === "setup" && !isActivePremium && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-saffron/30 bg-saffron/5 px-4 py-2.5">
+          <div className="flex items-center gap-2 min-w-0">
+            <Lock className="size-4 text-saffron shrink-0" />
+            <p className="text-sm text-muted-foreground">
+              {canStartFree ? (
+                <>
+                  <span className="font-semibold text-foreground">{FREE_LIMIT - freeInterviewsUsed} free interview{FREE_LIMIT - freeInterviewsUsed !== 1 ? "s" : ""}</span> remaining today.
+                  Free: {FREE_QUESTIONS} questions per session. Pro: {PRO_QUESTIONS} questions.
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-foreground">Daily limit reached.</span>{" "}
+                  Upgrade to Pro for unlimited interviews with {PRO_QUESTIONS} questions per session.
+                </>
+              )}
+            </p>
+          </div>
+          <Link
+            href="/app/pricing"
+            className="shrink-0 text-xs font-semibold text-saffron underline whitespace-nowrap"
+          >
+            Upgrade
+          </Link>
+        </div>
+      )}
+
+      {/* Free user gate — only when daily limit exhausted */}
+      {phase === "setup" && !isActivePremium && !canStartFree && (
         <PremiumGate feature="mock-interview" overlay={false}>
           <div className="rounded-xl bg-surface p-8 text-center space-y-3">
             <p className="text-sm text-muted-foreground">
-              The AI Mock Interviewer is a Pro-only feature.
-              Practice unlimited interviews with instant feedback.
+              You have used your free interview for today.
+              Upgrade to Pro for unlimited interviews.
             </p>
           </div>
         </PremiumGate>
@@ -2067,8 +2095,8 @@ export default function InterviewPage() {
         </div>
       )}
 
-      {/* Setup — Pro only */}
-      {phase === "setup" && !loading && isActivePremium && (
+      {/* Setup — available for Pro users OR free users with remaining daily quota */}
+      {phase === "setup" && !loading && (isActivePremium || canStartFree) && (
         <SetupScreen onStart={handleStart} />
       )}
 

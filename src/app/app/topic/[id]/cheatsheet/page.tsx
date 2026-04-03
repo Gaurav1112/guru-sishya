@@ -6,12 +6,8 @@ import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { CheatsheetContainer } from "@/components/features/cheatsheet/cheatsheet-container";
-import { PremiumGate } from "@/components/premium-gate";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
 import { BackButton } from "@/components/back-button";
-
-// First 10 topics (by Dexie ID) are free for all users
-const FREE_CHEATSHEET_LIMIT = 10;
 
 export default function CheatsheetPage({
   params,
@@ -67,28 +63,21 @@ export default function CheatsheetPage({
     );
   }
 
-  // Gate cheat sheets for topics beyond the free limit for non-premium users
-  const isGated = !isActivePremium && topicId > FREE_CHEATSHEET_LIMIT;
-
-  if (isGated) {
-    return (
-      <div className="max-w-xl mx-auto py-4 space-y-4">
-        <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
-        <div>
-          <h1 className="font-heading text-xl font-bold">{topic.name}</h1>
-          <p className="text-xs text-muted-foreground mt-1">Quick Saar</p>
-        </div>
-        <PremiumGate feature="full-cheatsheets" overlay={false}>
-          <CheatsheetContainer topicId={topic.id!} topicName={topic.name} languageFilter={preferredLanguage} />
-        </PremiumGate>
-      </div>
-    );
-  }
-
+  // Cheatsheet content is always visible — only export/download is gated for non-premium users
   return (
     <div>
       <BackButton href={`/app/topic/${id}`} label="Back to Topic" />
       <CodeLanguageToggle value={preferredLanguage} onChange={setPreferredLanguage} className="mb-4" />
+      {!isActivePremium && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-saffron/30 bg-saffron/5 px-4 py-2.5 mb-4">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Export & download</span> is a Pro feature. Content is free to read.
+          </p>
+          <a href="/app/pricing" className="shrink-0 text-xs font-semibold text-saffron underline whitespace-nowrap">
+            Upgrade
+          </a>
+        </div>
+      )}
       <CheatsheetContainer topicId={topic.id!} topicName={topic.name} languageFilter={preferredLanguage} />
     </div>
   );

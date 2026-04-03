@@ -9,7 +9,7 @@ import { SessionCard } from "./session-card";
 import { useStore } from "@/lib/store";
 import type { GeneratedPlan } from "@/lib/plan/types";
 
-const FREE_SESSION_LIMIT = 2;
+const FREE_SESSION_LIMIT = 3;
 
 interface SessionCompletion {
   sessionNumber: number;
