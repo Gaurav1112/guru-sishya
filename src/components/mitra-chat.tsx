@@ -356,22 +356,38 @@ function scoreItem(queryWords: string[], expandedWords: string[], item: QAItem, 
   const aText = item.answer.toLowerCase();
   let score = 0;
   const queryPhrase = queryWords.join(" ");
-  if (queryPhrase.length > 3 && wordBoundaryMatch(qText, queryPhrase)) score += 1.0;
-  if (queryPhrase.length > 3 && wordBoundaryMatch(aText, queryPhrase)) score += 0.3;
+
+  // EXACT question match gets massive boost (user asks "what is linkedlist" → Q: "What is a LinkedList?")
+  if (queryPhrase.length > 3 && wordBoundaryMatch(qText, queryPhrase)) score += 2.0;
+
+  // Answer match gets lower score (avoids matching cheatsheets that mention everything)
+  if (queryPhrase.length > 3 && wordBoundaryMatch(aText, queryPhrase)) score += 0.2;
+
+  // Per-word scoring — question matches matter more than answer matches
   let questionHits = 0, answerHits = 0;
   for (const word of expandedWords) {
     if (word.length < 3) continue;
-    if (wordBoundaryMatch(qText, word)) { score += 0.4; questionHits++; }
-    else if (wordBoundaryMatch(aText, word)) { score += 0.15; answerHits++; }
+    if (wordBoundaryMatch(qText, word)) { score += 0.5; questionHits++; }
+    else if (wordBoundaryMatch(aText, word)) { score += 0.08; answerHits++; }
   }
+
+  // Penalize very long answers (cheatsheets/overviews) — prefer focused Q&A
+  const answerLen = item.answer.length;
+  if (answerLen > 3000) score *= 0.5;  // Cheatsheets get halved
+  if (answerLen > 5000) score *= 0.3;  // Very long content gets heavily penalized
+  if (answerLen < 1000) score *= 1.2;  // Short focused answers get boosted
+
+  // Coverage bonus
   const coverage = (questionHits + answerHits) / Math.max(expandedWords.length, 1);
   if (coverage >= 0.8) score += 0.3;
-  if (coverage >= 0.5) score += 0.1;
+
+  // Topic category boost
   if (detectedTopic && item.category) {
     const catLower = item.category.toLowerCase();
     const topicLower = detectedTopic.toLowerCase();
-    if (catLower.includes(topicLower) || topicLower.includes(catLower)) score += 0.8;
+    if (catLower.includes(topicLower) || topicLower.includes(catLower)) score += 0.5;
   }
+
   return score / Math.max(Math.sqrt(expandedWords.length), 1);
 }
 
