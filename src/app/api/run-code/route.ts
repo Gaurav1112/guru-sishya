@@ -11,8 +11,16 @@
 import { type NextRequest } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-const JUDGE0_URL =
-  "https://ce.judge0.com/submissions?base64_encoded=true&wait=true";
+// Multiple Judge0 CE endpoints for redundancy — if one is down, try the next.
+// The primary (ce.judge0.com) is the official free tier.
+// Sulu and Rapid API mirror endpoints provide additional fallback.
+const JUDGE0_ENDPOINTS = [
+  "https://ce.judge0.com/submissions?base64_encoded=true&wait=true",
+  "https://judge0-ce.p.sulu.sh/submissions?base64_encoded=true&wait=true",
+];
+
+// Track which endpoint last succeeded so we try it first next time
+let lastWorkingEndpointIndex = 0;
 
 function toBase64(str: string): string {
   return Buffer.from(str, "utf-8").toString("base64");
@@ -161,12 +169,69 @@ export async function POST(request: NextRequest): Promise<Response> {
       wall_time_limit: 10,
     };
 
-    const judge0Res = await fetch(JUDGE0_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(submissionBody),
-      signal: AbortSignal.timeout(45_000),
-    });
+    const bodyStr = JSON.stringify(submissionBody);
+
+    // Try each Judge0 endpoint in order, starting from the last one that worked.
+    // This provides resilience when the primary endpoint is down.
+    let judge0Res: Response | null = null;
+    let lastError = "";
+
+    for (let attempt = 0; attempt < JUDGE0_ENDPOINTS.length; attempt++) {
+      const idx = (lastWorkingEndpointIndex + attempt) % JUDGE0_ENDPOINTS.length;
+      const endpoint = JUDGE0_ENDPOINTS[idx];
+
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: bodyStr,
+          signal: AbortSignal.timeout(30_000), // 30s per endpoint
+        });
+
+        if (res.ok) {
+          judge0Res = res;
+          lastWorkingEndpointIndex = idx; // remember which worked
+          break;
+        }
+
+        // 4xx errors (bad request) should not be retried — the code is wrong, not the service
+        if (res.status >= 400 && res.status < 500) {
+          judge0Res = res;
+          break;
+        }
+
+        // 5xx — try next endpoint
+        lastError = `HTTP ${res.status} from ${new URL(endpoint).hostname}`;
+      } catch (err: unknown) {
+        lastError = err instanceof Error ? err.message : String(err);
+        // Network error or timeout — try next endpoint
+      }
+    }
+
+    if (!judge0Res) {
+      const langLabel = lang === "java" ? "Java" : lang === "c" ? "C" : lang === "cpp" ? "C++" : lang;
+      const runResult: RunResult = {
+        output: "",
+        error: [
+          `All ${langLabel} execution endpoints are currently unavailable.`,
+          `Last error: ${lastError}`,
+          "",
+          lang === "java"
+            ? "Tip: You can run this code locally with: javac Main.java && java Main"
+            : lang === "c"
+            ? "Tip: You can run this code locally with: gcc -o main main.c && ./main"
+            : lang === "cpp"
+            ? "Tip: You can run this code locally with: g++ -o main main.cpp && ./main"
+            : `Tip: Try running this code on your local machine.`,
+          "",
+          "The free Judge0 CE service may be temporarily overloaded. Please try again in a few minutes.",
+        ].join("\n"),
+        isError: true,
+        runner: "judge0",
+        durationMs: Date.now() - t0,
+      };
+      return Response.json(runResult, { status: 502 });
+    }
 
     if (!judge0Res.ok) {
       const text = await judge0Res.text().catch(() => "");

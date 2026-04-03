@@ -26,37 +26,81 @@ export type RunResult = {
 
 async function runRemote(language: string, code: string): Promise<RunResult> {
   const t0 = Date.now();
-  try {
-    const response = await fetch("/api/run-code", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ language, code }),
-      signal: AbortSignal.timeout(50_000), // 50 s client-side safety net
-    });
+  const MAX_RETRIES = 2;
+  let lastError = "";
 
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      return {
-        output: "",
-        error: `Code execution service returned HTTP ${response.status}. ${text}`.trim(),
-        isError: true,
-        runner: "judge0",
-        durationMs: Date.now() - t0,
-      };
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch("/api/run-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language, code }),
+        signal: AbortSignal.timeout(50_000), // 50 s client-side safety net
+      });
+
+      if (response.ok) {
+        const data = (await response.json()) as RunResult;
+        return { ...data, runner: "judge0", durationMs: data.durationMs ?? Date.now() - t0 };
+      }
+
+      // 4xx — bad request (user's code issue), don't retry
+      if (response.status >= 400 && response.status < 500) {
+        const data = await response.json().catch(() => null);
+        if (data && typeof data === "object" && "error" in data) {
+          return {
+            output: (data as RunResult).output ?? "",
+            error: (data as RunResult).error ?? `HTTP ${response.status}`,
+            isError: true,
+            runner: "judge0",
+            durationMs: Date.now() - t0,
+          };
+        }
+        const text = await response.text().catch(() => "");
+        return {
+          output: "",
+          error: `Code execution service returned HTTP ${response.status}. ${text}`.trim(),
+          isError: true,
+          runner: "judge0",
+          durationMs: Date.now() - t0,
+        };
+      }
+
+      // 5xx — server error, retry
+      lastError = `HTTP ${response.status}`;
+      const errorData = await response.json().catch(() => null);
+      if (errorData && typeof errorData === "object" && "error" in errorData) {
+        lastError = (errorData as RunResult).error ?? lastError;
+      }
+    } catch (err: unknown) {
+      lastError = err instanceof Error ? err.message : String(err);
+      // Network error or timeout — retry
     }
 
-    const data = (await response.json()) as RunResult;
-    return { ...data, runner: "judge0", durationMs: data.durationMs ?? Date.now() - t0 };
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return {
-      output: "",
-      error: `Runner error: ${msg}`,
-      isError: true,
-      runner: "judge0",
-      durationMs: Date.now() - t0,
-    };
+    // Wait briefly before retry (500ms, then 1s)
+    if (attempt < MAX_RETRIES - 1) {
+      await new Promise((r) => setTimeout(r, (attempt + 1) * 500));
+    }
   }
+
+  // All retries exhausted
+  const langLabel =
+    language === "java" ? "Java" : language === "c" ? "C" : language === "cpp" ? "C++" : language;
+
+  return {
+    output: "",
+    error: [
+      `${langLabel} execution service is currently unavailable.`,
+      lastError ? `Error: ${lastError}` : "",
+      "",
+      "The free Judge0 CE service may be temporarily overloaded.",
+      "Please try again in a few minutes, or run the code locally.",
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    isError: true,
+    runner: "judge0",
+    durationMs: Date.now() - t0,
+  };
 }
 
 // ── Pyodide — in-browser Python via Web Worker ────────────────────────────────

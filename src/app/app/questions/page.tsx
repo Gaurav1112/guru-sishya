@@ -140,7 +140,8 @@ function CategoryTabs({
   return (
     <div
       ref={scrollRef}
-      className="category-tabs flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin"
+      className="category-tabs flex gap-1.5 overflow-x-auto pb-2 scrollbar-thin max-w-full"
+      style={{ WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory" }}
     >
       {categories.map((cat) => (
         <button
@@ -1148,7 +1149,9 @@ export default function QuestionsPage() {
         </div>
       </div>
 
-      {/* Category tabs — hide tabs with 0 questions loaded */}
+      {/* Category tabs — scrollable with fade indicators */}
+      <div className="relative">
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
       <CategoryTabs
         categories={getCategories().filter(
           (cat) => cat === "All Questions" || (categoryCounts[cat] ?? 0) > 0
@@ -1157,6 +1160,7 @@ export default function QuestionsPage() {
         onChange={setActiveCategory}
         counts={categoryCounts}
       />
+      </div>
 
       {/* Company sub-filter — shown only for Company-Specific / Behavioral (STAR) */}
       <AnimatePresence>

@@ -55,14 +55,32 @@ export function MarkdownRenderer({ content, className, languageFilter = "all" }:
 
           if (isBlock) {
             return (
-              <pre className="overflow-x-auto rounded-lg border border-border bg-muted p-4 my-4">
-                <code
-                  className={`text-sm font-mono text-foreground ${codeClassName ?? ""}`}
-                  {...props}
+              <div className="relative group my-4">
+                <button
+                  type="button"
+                  className="absolute top-2 right-2 z-10 rounded-md border border-border/50 bg-surface/80 px-2 py-1 text-[10px] font-medium text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:text-foreground"
+                  onClick={() => {
+                    navigator.clipboard.writeText(codeString);
+                    const btn = document.activeElement as HTMLButtonElement;
+                    if (btn) { btn.textContent = "Copied!"; setTimeout(() => { btn.textContent = "Copy"; }, 1500); }
+                  }}
                 >
-                  {codeString}
-                </code>
-              </pre>
+                  Copy
+                </button>
+                {language && (
+                  <span className="absolute top-2 left-3 text-[10px] font-medium text-muted-foreground/50 uppercase">
+                    {language}
+                  </span>
+                )}
+                <pre className="overflow-x-auto rounded-lg border border-border bg-muted p-4 pt-8">
+                  <code
+                    className={`text-sm font-mono text-foreground ${codeClassName ?? ""}`}
+                    {...props}
+                  >
+                    {codeString}
+                  </code>
+                </pre>
+              </div>
             );
           }
 
