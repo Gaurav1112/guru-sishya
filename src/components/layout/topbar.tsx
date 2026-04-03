@@ -28,6 +28,7 @@ const navItems = [
   { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
   { href: "/app/playground", label: "Playground", icon: "⚡" },
   { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
+  { href: "/app/notes", label: "My Notes", icon: "📓" },
   { href: "/app/shop", label: "Shop", icon: "🛒" },
   { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/app/profile", label: "Profile", icon: "👤" },
@@ -50,6 +51,14 @@ function MobileNav() {
     const today = new Date();
     today.setHours(23, 59, 59, 999);
     return db.flashcards.where("nextReviewAt").belowOrEqual(today).count();
+  }, []);
+
+  // Live count of pending revision items (interview wrong answers not yet mastered)
+  const revisionCount = useLiveQuery(async () => {
+    const cards = await db.flashcards
+      .filter((f) => f.concept.startsWith("interview_wrong::") && f.interval < 30)
+      .count();
+    return cards;
   }, []);
 
   return (
@@ -82,6 +91,11 @@ function MobileNav() {
               {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
                 <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
                   {dueCount > 99 ? "99+" : dueCount}
+                </span>
+              )}
+              {item.href === "/app/revision" && revisionCount !== undefined && revisionCount > 0 && (
+                <span className="flex items-center justify-center rounded-full bg-amber-500 text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+                  {revisionCount > 99 ? "99+" : revisionCount}
                 </span>
               )}
             </Link>
@@ -200,23 +214,24 @@ export function Topbar() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4" data-tour="topbar-stats">
+      <div className="flex items-center gap-1.5 sm:gap-4" data-tour="topbar-stats">
         <StreakFlame streak={currentStreak} size="sm" freezeCount={streakFreezes} status={streakStatus} />
         {xpBoostActive && (
           <span
             title="XP Boost active — 1.5x XP for the next hour"
-            className="hidden sm:inline-flex items-center gap-1 rounded-full bg-saffron/20 px-2 py-0.5 text-xs font-semibold text-saffron"
+            className="inline-flex items-center gap-1 rounded-full bg-saffron/20 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-saffron"
           >
-            ⚡ 1.5x XP
+            <span className="hidden sm:inline">⚡ 1.5x XP</span>
+            <span className="sm:hidden">⚡1.5x</span>
           </span>
         )}
         <div className="hidden sm:block">
           <XPBar totalXP={totalXP} level={level} />
         </div>
-        {/* Coin display: icon+count on sm+, icon only on mobile */}
+        {/* Coin display: icon+count always visible */}
         <div className="flex items-center gap-1 text-sm">
           <span className="inline-block text-gold">🪙</span>
-          <span className="hidden sm:inline font-medium tabular-nums">{coins.toLocaleString()}</span>
+          <span className="font-medium tabular-nums text-xs sm:text-sm">{coins.toLocaleString()}</span>
         </div>
         <LevelBadge level={level} size="sm" className="hidden sm:inline-flex" />
         <UserMenu />

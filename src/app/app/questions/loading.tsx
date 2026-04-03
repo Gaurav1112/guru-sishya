@@ -7,10 +7,10 @@ export default function QuestionsLoading() {
           <div className="h-7 w-56 bg-muted/40 rounded" />
           <div className="h-4 w-72 bg-muted/30 rounded" />
         </div>
-        <div className="hidden sm:flex items-center gap-3">
-          <div className="h-4 w-16 bg-muted/30 rounded" />
-          <div className="h-4 w-16 bg-muted/30 rounded" />
-          <div className="h-4 w-16 bg-muted/30 rounded" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="h-4 w-10 sm:w-16 bg-muted/30 rounded" />
+          <div className="h-4 w-10 sm:w-16 bg-muted/30 rounded" />
+          <div className="h-4 w-10 sm:w-16 bg-muted/30 rounded" />
         </div>
       </div>
 

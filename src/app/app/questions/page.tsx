@@ -669,6 +669,10 @@ export default function QuestionsPage() {
       });
     }
 
+    // Free users: limit to first 10 questions per category (Pro gets all)
+    if (!isActivePremium && qs.length > 10) {
+      return qs.slice(0, 10);
+    }
     return qs;
   }, [allQuestions, activeCategory, search, difficulty, companyFilter, selectedCompany, statusFilter, bookmarkMap]);
 
@@ -1005,10 +1009,10 @@ export default function QuestionsPage() {
             <div className="h-7 w-56 bg-muted/40 rounded" />
             <div className="h-4 w-72 bg-muted/30 rounded" />
           </div>
-          <div className="hidden sm:flex items-center gap-3">
-            <div className="h-4 w-16 bg-muted/30 rounded" />
-            <div className="h-4 w-16 bg-muted/30 rounded" />
-            <div className="h-4 w-16 bg-muted/30 rounded" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="h-4 w-10 sm:w-16 bg-muted/30 rounded" />
+            <div className="h-4 w-10 sm:w-16 bg-muted/30 rounded" />
+            <div className="h-4 w-10 sm:w-16 bg-muted/30 rounded" />
           </div>
         </div>
 
@@ -1124,19 +1128,22 @@ export default function QuestionsPage() {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="hidden sm:flex items-center gap-3 text-xs">
+        {/* Stats — always visible, compact on mobile */}
+        <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs shrink-0">
           <div className="flex items-center gap-1 text-teal">
             <Check className="size-3" />
-            <span>{knownCount} known</span>
+            <span>{knownCount}</span>
+            <span className="hidden sm:inline">known</span>
           </div>
           <div className="flex items-center gap-1 text-gold">
             <RotateCcw className="size-3" />
-            <span>{reviewCount} review</span>
+            <span>{reviewCount}</span>
+            <span className="hidden sm:inline">review</span>
           </div>
           <div className="flex items-center gap-1 text-saffron">
             <BookmarkCheck className="size-3" />
-            <span>{bookmarkedCount} saved</span>
+            <span>{bookmarkedCount}</span>
+            <span className="hidden sm:inline">saved</span>
           </div>
         </div>
       </div>
@@ -1464,15 +1471,15 @@ export default function QuestionsPage() {
               </motion.div>
             </AnimatePresence>
 
-            {/* Subtle prev/next navigation */}
+            {/* Subtle prev/next navigation — min 48px touch target on mobile */}
             <div className="flex items-center justify-center gap-4 mt-6">
               <button
                 type="button"
                 onClick={goPrev}
                 disabled={currentIndex === 0}
-                className="flex items-center gap-1 rounded-lg border border-border/40 bg-surface/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-surface-hover hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 rounded-lg border border-border/40 bg-surface/60 px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-surface-hover hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed min-h-[48px]"
               >
-                <ChevronLeft className="size-3.5" />
+                <ChevronLeft className="size-4" />
                 Prev
               </button>
 
@@ -1480,10 +1487,10 @@ export default function QuestionsPage() {
                 type="button"
                 onClick={goNext}
                 disabled={currentIndex >= totalFiltered - 1}
-                className="flex items-center gap-1 rounded-lg border border-border/40 bg-surface/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-surface-hover hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 rounded-lg border border-border/40 bg-surface/60 px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-surface-hover hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed min-h-[48px]"
               >
                 Next
-                <ChevronRight className="size-3.5" />
+                <ChevronRight className="size-4" />
               </button>
             </div>
 
