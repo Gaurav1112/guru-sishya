@@ -398,10 +398,15 @@ export default function PricingPage() {
         </div>
       )}
 
-      {/* Countdown timer + social proof */}
-      {process.env.NEXT_PUBLIC_LAUNCH_PRICE_END && (
-        <CountdownTimer endDate={process.env.NEXT_PUBLIC_LAUNCH_PRICE_END} />
-      )}
+      {/* Countdown timer — always show, rolling 3-day window */}
+      <CountdownTimer endDate={(() => {
+        // Rolling 3-day window: always shows ~3 days remaining
+        const stored = typeof window !== "undefined" ? localStorage.getItem("gs-price-timer-end") : null;
+        if (stored && new Date(stored).getTime() > Date.now()) return stored;
+        const end = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+        if (typeof window !== "undefined") localStorage.setItem("gs-price-timer-end", end);
+        return end;
+      })()} />
       <p className="text-center text-muted-foreground text-sm mb-8">
         Trusted by software engineers preparing for interviews at top tech companies
       </p>
