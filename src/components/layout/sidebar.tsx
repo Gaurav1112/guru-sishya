@@ -174,7 +174,7 @@ export function Sidebar() {
             href="/app/admin"
             className={cn(
               "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
-              pathname === "/app/admin"
+              pathname.startsWith("/app/admin")
                 ? "bg-indigo-500/20 text-indigo-400"
                 : "text-indigo-400/80 hover:bg-indigo-500/10 hover:text-indigo-300"
             )}
