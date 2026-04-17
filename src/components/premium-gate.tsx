@@ -74,10 +74,9 @@ const FEATURE_LABELS: Record<PremiumFeature, { title: string; description: strin
 function resolveGateCopy(
   hadPremium: boolean,
   planType: string | null
-): { cta: string; href: string; subtext?: string } {
+): { cta: string; href: string; subtext?: string; showStarter?: boolean } {
   if (!hadPremium) {
-    // User has never been premium (no stored premiumUntil at all)
-    return { cta: "Upgrade to Pro", href: "/app/pricing" };
+    return { cta: "Upgrade to Pro — ₹149/mo", href: "/app/pricing", showStarter: true };
   }
 
   const isFreeTrial = planType === "free_trial";
@@ -86,6 +85,7 @@ function resolveGateCopy(
       cta: "Subscribe Now",
       href: "/app/pricing",
       subtext: "Your free trial has ended — Subscribe to continue",
+      showStarter: true,
     };
   }
 

@@ -3,13 +3,16 @@ import type { StateCreator } from "zustand";
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 /**
- * The admin email — always gets permanent free premium access.
- * Read from NEXT_PUBLIC_ADMIN_EMAIL so the literal value is not hardcoded in
- * source. Tradeoff: it is still visible in the client bundle because of the
- * NEXT_PUBLIC_ prefix; acceptable at this scale (₹149/month hobby project).
+ * Admin emails — always get permanent free premium access.
+ * SECURITY: No hardcoded fallback. NEXT_PUBLIC_ADMIN_EMAILS must be set in env.
  */
-export const ADMIN_EMAIL =
-  process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
+const ADMIN_EMAILS_LIST = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+/** @deprecated Use ADMIN_EMAILS_LIST. Kept for backward compat with components that import it. */
+export const ADMIN_EMAIL = ADMIN_EMAILS_LIST[0] ?? "";
 
 /**
  * FAR-FUTURE date used to represent "permanent" premium for allowlisted users.
@@ -201,7 +204,7 @@ export const createPremiumSlice: StateCreator<
     const normalised = email.trim().toLowerCase();
 
     // Admin always gets free premium — no fetch needed
-    if (normalised === ADMIN_EMAIL.toLowerCase()) {
+    if (ADMIN_EMAILS_LIST.includes(normalised)) {
       set((state) => {
         state.isPremium = true;
         state.premiumUntil = PERMANENT_PREMIUM_UNTIL;
@@ -256,8 +259,7 @@ export const createPremiumSlice: StateCreator<
 
     // Admin email is the only user that can skip server sync — verified by
     // comparing against the env-provided admin email (not client state).
-    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "").trim().toLowerCase();
-    if (adminEmail && normalised === adminEmail) return;
+    if (ADMIN_EMAILS_LIST.includes(normalised)) return;
 
     try {
       const res = await fetch(

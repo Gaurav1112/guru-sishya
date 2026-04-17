@@ -7,6 +7,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 // ── Plan durations ────────────────────────────────────────────────────────────
 
 const PLAN_DURATION_DAYS: Record<string, number> = {
+  starter: 30,
   monthly: 30,
   semester: 180,
   annual: 365,
@@ -16,6 +17,7 @@ const PLAN_DURATION_DAYS: Record<string, number> = {
 // ── Plan amounts in paise (must match create-order) ───────────────────────────
 
 const PLAN_AMOUNTS: Record<string, number> = {
+  starter: 4900,
   monthly: 14900,
   semester: 69900,
   annual: 119900,
@@ -85,12 +87,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fetch order from Razorpay to verify the amount matches the claimed planType
+    // Idempotency: if this payment_id was already processed, return cached result
+    try {
+      const supabase = getSupabaseAdmin();
+      const { data: existing } = await supabase
+        .from("subscriptions")
+        .select("premium_until, plan_type")
+        .eq("payment_id", razorpay_payment_id)
+        .maybeSingle();
+
+      if (existing) {
+        return NextResponse.json({
+          success: true,
+          premiumUntil: existing.premium_until,
+          paymentId: razorpay_payment_id,
+          planType: existing.plan_type,
+        });
+      }
+    } catch {
+      // Supabase unavailable — proceed with normal verification
+    }
+
+    // Fetch order from Razorpay with a 5-second timeout to prevent hanging
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID!,
       key_secret: key_secret,
     });
-    const order = await razorpay.orders.fetch(razorpay_order_id);
+
+    const orderPromise = razorpay.orders.fetch(razorpay_order_id);
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Razorpay fetch timed out")), 5000)
+    );
+
+    const order = await Promise.race([orderPromise, timeoutPromise]);
     if (Number(order.amount) !== expectedAmount) {
       return NextResponse.json(
         { error: "Plan type does not match payment amount." },
@@ -104,9 +133,10 @@ export async function POST(req: NextRequest) {
     premiumUntil.setDate(premiumUntil.getDate() + durationDays);
 
     // Persist subscription to Supabase (server-side, non-bypassable)
+    // Use payment_id as unique key to prevent duplicate rows from race conditions
     try {
       const supabase = getSupabaseAdmin();
-      await supabase.from("subscriptions").upsert(
+      const { error: upsertError } = await supabase.from("subscriptions").upsert(
         {
           email: email?.trim().toLowerCase() ?? "anonymous",
           plan_type: planType,
@@ -115,8 +145,11 @@ export async function POST(req: NextRequest) {
           razorpay_order_id: razorpay_order_id,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: "email" }
+        { onConflict: "payment_id" }
       );
+      if (upsertError) {
+        console.error("[razorpay/verify] Supabase upsert error:", upsertError.message);
+      }
     } catch (supabaseErr) {
       // Log but don't fail the response — localStorage flow still works
       console.error("[razorpay/verify] Supabase upsert failed:", supabaseErr);

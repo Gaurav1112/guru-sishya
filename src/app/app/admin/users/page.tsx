@@ -20,11 +20,10 @@ import { BackButton } from "@/components/back-button";
 
 // ── Admin email check ────────────────────────────────────────────────────────
 
-const ADMIN_EMAILS = (
-  process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com"
-)
+const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
   .split(",")
-  .map((e) => e.trim().toLowerCase());
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
 
 function isAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false;

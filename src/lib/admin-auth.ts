@@ -1,13 +1,13 @@
 import { auth } from "@/lib/auth";
 
 /**
- * Admin emails — comma-separated list from env, with hardcoded fallback.
+ * Admin emails — comma-separated list from env variable ADMIN_EMAILS.
  * Format: "email1@example.com,email2@example.com"
+ *
+ * SECURITY: No hardcoded fallback. If ADMIN_EMAILS is unset, no one is admin.
+ * Do NOT use NEXT_PUBLIC_ prefix — admin emails must stay server-side only.
  */
-const ADMIN_EMAILS_RAW =
-  process.env.ADMIN_EMAILS ??
-  process.env.NEXT_PUBLIC_ADMIN_EMAIL ??
-  "kgauravis016@gmail.com";
+const ADMIN_EMAILS_RAW = process.env.ADMIN_EMAILS ?? "";
 
 export const ADMIN_EMAILS = ADMIN_EMAILS_RAW.split(",")
   .map((e) => e.trim().toLowerCase())

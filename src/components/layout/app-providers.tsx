@@ -8,6 +8,7 @@ import { useStore } from "@/lib/store";
 import { TourProvider } from "@/components/onboarding/tour-provider";
 import { StickyUpgradeBar } from "@/components/pricing/sticky-upgrade-bar";
 import { trackPageView } from "@/lib/analytics-tracker";
+import { cleanupOldUsageTracking } from "@/lib/db";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -136,11 +137,27 @@ function PageViewTracker() {
   return null;
 }
 
+// ── IndexedDB Cleanup ──────────────────────────────────────────────────────────
+// Runs once on mount to remove usage tracking entries older than 30 days.
+
+function IndexedDBCleanup() {
+  const cleanedRef = useRef(false);
+
+  useEffect(() => {
+    if (cleanedRef.current) return;
+    cleanedRef.current = true;
+    cleanupOldUsageTracking();
+  }, []);
+
+  return null;
+}
+
 // ── AppProviders ──────────────────────────────────────────────────────────────
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
+      <IndexedDBCleanup />
       <AllowlistSync />
       <ProgressSync />
       <PageViewTracker />

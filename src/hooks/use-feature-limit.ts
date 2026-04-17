@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
-import { FREE_LIMITS } from "@/lib/premium/limits";
+import { FREE_LIMITS, STARTER_LIMITS } from "@/lib/premium/limits";
 
 interface FeatureLimitResult {
   allowed: boolean;
@@ -70,10 +70,16 @@ async function serverIncrement(
 export function useFeatureLimit(feature: string): FeatureLimitResult {
   const isPremium = useStore((s) => s.isPremium);
   const premiumUntil = useStore((s) => s.premiumUntil);
-  const isActivePro = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const planType = useStore((s) => s.planType);
+  const isActivePro = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date() && planType !== "starter";
+  const isActiveStarter = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date() && planType === "starter";
   const [count, setCount] = useState(0);
   const [serverDenied, setServerDenied] = useState(false);
-  const limits = FREE_LIMITS[feature];
+
+  // Starter tier uses its own limits; free tier uses FREE_LIMITS; Pro bypasses all
+  const limits = isActiveStarter
+    ? (STARTER_LIMITS[feature] ?? FREE_LIMITS[feature])
+    : FREE_LIMITS[feature];
   const dailyLimit = limits?.daily ?? Infinity;
   const label = limits?.label ?? feature;
 
@@ -81,14 +87,14 @@ export function useFeatureLimit(feature: string): FeatureLimitResult {
   const verifiedRef = useRef(false);
 
   useEffect(() => {
-    if (isActivePro) return;
+    if (isActivePro) return; // Pro users bypass all limits
     const today = getToday();
     db.usageTracking
       .where({ feature, date: today })
       .first()
       .then((entry) => setCount(entry?.count ?? 0))
       .catch(() => setCount(0));
-  }, [feature, isActivePro]);
+  }, [feature, isActivePro, isActiveStarter]);
 
   // Server verification (for gating high-value actions)
   const verifyWithServer = useCallback(async (): Promise<boolean> => {

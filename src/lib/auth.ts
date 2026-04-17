@@ -16,6 +16,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   basePath: "/api/auth",
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  session: {
+    maxAge: 24 * 60 * 60, // 24 hours (in seconds)
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production"
+        ? "__Secure-authjs.session-token"
+        : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   providers,
   callbacks: {
     async signIn({ user }) {

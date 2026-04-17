@@ -358,3 +358,30 @@ class GuruSishyaDB extends Dexie {
 }
 
 export const db = new GuruSishyaDB();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Cleanup: remove stale usage tracking entries older than 30 days.
+// Call once on app startup to prevent unbounded IndexedDB growth.
+// ────────────────────────────────────────────────────────────────────────────
+
+const USAGE_MAX_AGE_DAYS = 30;
+
+export async function cleanupOldUsageTracking(): Promise<void> {
+  try {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - USAGE_MAX_AGE_DAYS);
+    const cutoffStr = cutoff.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    const staleEntries = await db.usageTracking
+      .where("date")
+      .below(cutoffStr)
+      .toArray();
+
+    if (staleEntries.length > 0) {
+      const ids = staleEntries.map((e) => e.id!).filter(Boolean);
+      await db.usageTracking.bulkDelete(ids);
+    }
+  } catch {
+    // Non-critical — silently ignore cleanup failures
+  }
+}
