@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "redis";
+import { isAdminEmail } from "@/lib/admin-auth";
 import { auth } from "@/lib/auth";
-
-// ── Constants ──────────────────────────────────────────────────────────────────
-
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
 const REDIS_KEY = "premium_allowlist";
 
 // ── Redis client ───────────────────────────────────────────────────────────────
@@ -54,7 +51,7 @@ export async function GET() {
   const callerEmail = session?.user?.email?.toLowerCase() ?? "";
 
   // Admin gets the full list (for the admin console)
-  if (callerEmail === ADMIN_EMAIL.toLowerCase()) {
+  if (isAdminEmail(callerEmail)) {
     const emails = await readAllowlist();
     return NextResponse.json({ allowedEmails: emails });
   }
@@ -76,8 +73,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   // SECURITY: Authenticate via server-side session, not client-supplied headers
   const session = await auth();
-  const callerEmail = session?.user?.email?.toLowerCase() ?? "";
-  if (callerEmail !== ADMIN_EMAIL.toLowerCase()) {
+  const callerEmail = session?.user?.email;
+  if (!isAdminEmail(callerEmail)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -103,7 +100,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
   }
 
-  if (normalised === ADMIN_EMAIL.toLowerCase()) {
+  if (isAdminEmail(normalised)) {
     return NextResponse.json(
       { error: "Admin email is always premium — no need to add it." },
       { status: 400 }

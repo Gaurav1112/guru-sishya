@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { isAdminEmail } from "@/lib/admin-auth";
 import { auth } from "@/lib/auth";
 
 // ── POST /api/admin/setup-db ───────────────────────────────────────────────────
 // Admin-only route that creates required Supabase tables.
 // Protected by server-side session check (not spoofable headers).
-
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "kgauravis016@gmail.com";
 
 const SETUP_SQL = `
 -- User subscriptions (server-side, not bypassable)
@@ -48,8 +47,8 @@ export async function POST(req: NextRequest) {
   try {
     // SECURITY: Authenticate via server-side session, not client-supplied headers
     const session = await auth();
-    const sessionEmail = session?.user?.email?.toLowerCase() ?? "";
-    if (sessionEmail !== ADMIN_EMAIL.toLowerCase()) {
+    const sessionEmail = session?.user?.email;
+    if (!isAdminEmail(sessionEmail)) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
@@ -101,8 +100,8 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   // SECURITY: Authenticate via server-side session
   const session = await auth();
-  const sessionEmail = session?.user?.email?.toLowerCase() ?? "";
-  if (sessionEmail !== ADMIN_EMAIL.toLowerCase()) {
+  const sessionEmail = session?.user?.email;
+  if (!isAdminEmail(sessionEmail)) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
   return NextResponse.json({ sql: SETUP_SQL });

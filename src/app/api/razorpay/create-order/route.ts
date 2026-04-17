@@ -5,6 +5,11 @@ import { checkRateLimit } from "@/lib/rate-limit";
 // ── Plan definitions ─────────────────────────────────────────────────────────
 
 const PLANS = {
+  starter: {
+    amount: 4900,    // ₹49 in paise
+    currency: "INR",
+    label: "Starter",
+  },
   monthly: {
     amount: 14900,   // ₹149 in paise
     currency: "INR",
@@ -60,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     if (!planType || !(planType in PLANS)) {
       return NextResponse.json(
-        { error: "Invalid planType. Must be monthly, semester, annual, or lifetime." },
+        { error: "Invalid planType. Must be starter, monthly, semester, annual, or lifetime." },
         { status: 400 }
       );
     }

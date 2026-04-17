@@ -5,12 +5,30 @@ import { Redis } from "@upstash/redis";
 // ---------------------------------------------------------------------------
 const rateMap = new Map<string, { count: number; resetAt: number }>();
 
+const MAX_RATE_MAP_SIZE = 10_000;
+
+/** Remove all expired entries from the in-memory rate map. */
+function cleanupExpiredEntries(): void {
+  const now = Date.now();
+  for (const [key, entry] of rateMap) {
+    if (now > entry.resetAt) {
+      rateMap.delete(key);
+    }
+  }
+}
+
 function inMemoryRateLimit(
   key: string,
   limit: number,
   windowMs: number,
 ): { success: boolean; remaining: number; reset: number } {
   const now = Date.now();
+
+  // Prevent unbounded memory growth: clean expired entries when map is large
+  if (rateMap.size >= MAX_RATE_MAP_SIZE) {
+    cleanupExpiredEntries();
+  }
+
   const entry = rateMap.get(key);
 
   if (!entry || now > entry.resetAt) {

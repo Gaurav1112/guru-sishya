@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-type PlanType = "monthly" | "semester" | "annual" | "lifetime";
+type PlanType = "starter" | "monthly" | "semester" | "annual" | "lifetime";
 
 // ── Plan data ─────────────────────────────────────────────────────────────────
 
@@ -36,25 +36,34 @@ const PLANS: {
   badge?: string;
 }[] = [
   {
+    id: "starter",
+    label: "Starter",
+    price: 49,
+    period: "per month",
+    highlight: false,
+    icon: <Zap className="size-5" />,
+    badge: "New",
+  },
+  {
     id: "monthly",
-    label: "Monthly",
+    label: "Pro Monthly",
     price: 149,
     originalPrice: 299,
     period: "per month",
     savingsPct: 50,
     highlight: false,
-    icon: <Zap className="size-5" />,
+    icon: <Sparkles className="size-5" />,
     badge: "50% Off",
   },
   {
     id: "semester",
-    label: "Semester",
+    label: "Pro Semester",
     price: 699,
     originalPrice: 149 * 6,
     period: "for 6 months",
     savingsPct: Math.round((1 - 699 / (149 * 6)) * 100),
     highlight: false,
-    icon: <Sparkles className="size-5" />,
+    icon: <Zap className="size-5" />,
     badge: `Save ${Math.round((1 - 699 / (149 * 6)) * 100)}%`,
   },
   {
@@ -85,7 +94,7 @@ const PLANS: {
 const COMPARISON = [
   {
     feature: "Price",
-    gs: "₹149/mo",
+    gs: "₹49-149/mo",
     lc: "₹2,917/mo",
     ae: "₹1,660/mo",
     nc: "₹991/mo",
@@ -157,21 +166,26 @@ function CompetitorCell({ value }: { value: string }) {
 
 // ── Feature comparison data ───────────────────────────────────────────────────
 
-const FEATURES = [
-  { label: "All topics + quiz banks", free: true, pro: true },
-  { label: "First 5 interview Q&A answers per topic", free: true, pro: true },
-  { label: "First 2 learning sessions per topic", free: true, pro: true },
-  { label: "First 3 STAR method answers", free: true, pro: true },
-  { label: "Easy & medium quiz difficulty", free: true, pro: true },
-  { label: "Up to 50 flashcards", free: true, pro: true },
-  { label: "Gamification (XP, streaks, badges)", free: true, pro: true },
-  { label: "Full interview Q&A answers (unlimited)", free: false, pro: true },
-  { label: "All learning sessions (unlimited)", free: false, pro: true },
-  { label: "All STAR method answers", free: false, pro: true },
-  { label: "Hard difficulty + timed quiz mode", free: false, pro: true },
-  { label: "Full Vidya Levels (levels 2–5)", free: false, pro: true },
-  { label: "Guru Mode sessions", free: false, pro: true },
-  { label: "Unlimited flashcards", free: false, pro: true },
+const FEATURES: { label: string; free: boolean | string; starter: boolean | string; pro: boolean | string }[] = [
+  { label: "All topics + quiz banks", free: true, starter: true, pro: true },
+  { label: "First 5 interview Q&A answers per topic", free: true, starter: true, pro: true },
+  { label: "Learning sessions per topic", free: "2/topic", starter: "3/topic", pro: true },
+  { label: "First 3 STAR method answers", free: true, starter: true, pro: true },
+  { label: "Easy & medium quiz difficulty", free: "3/day", starter: true, pro: true },
+  { label: "Up to 50 flashcards", free: true, starter: true, pro: true },
+  { label: "Gamification (XP, streaks, badges)", free: true, starter: true, pro: true },
+  { label: "Mitra AI messages", free: "2/day", starter: "10/day", pro: true },
+  { label: "Full interview Q&A answers (unlimited)", free: false, starter: false, pro: true },
+  { label: "All learning sessions (unlimited)", free: false, starter: false, pro: true },
+  { label: "All STAR method answers", free: false, starter: false, pro: true },
+  { label: "Hard difficulty + timed quiz mode", free: false, starter: false, pro: true },
+  { label: "Full Vidya Levels (levels 2-5)", free: false, starter: false, pro: true },
+  { label: "Guru Mode sessions", free: false, starter: false, pro: true },
+  { label: "Unlimited flashcards", free: false, starter: false, pro: true },
+  { label: "Cheatsheet export", free: false, starter: false, pro: true },
+  { label: "Mock interview", free: false, starter: false, pro: true },
+  { label: "Java playground", free: false, starter: false, pro: true },
+  { label: "Completion certificates", free: false, starter: false, pro: true },
 ];
 
 // ── Razorpay script loader ────────────────────────────────────────────────────
@@ -401,7 +415,7 @@ export default function PricingPage() {
       </p>
 
       {/* Plan cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {PLANS.map((plan, i) => (
           <motion.div
             key={plan.id}
@@ -563,7 +577,7 @@ export default function PricingPage() {
       {/* Feature comparison table */}
       <section>
         <h2 className="font-heading text-xl font-semibold mb-4 text-center">
-          Free vs Pro
+          Free vs Starter vs Pro
         </h2>
         <div className="overflow-x-auto rounded-2xl border border-border/50">
           <table className="w-full text-xs sm:text-sm">
@@ -574,6 +588,9 @@ export default function PricingPage() {
                 </th>
                 <th scope="col" className="px-3 sm:px-4 py-3 text-center font-medium text-muted-foreground whitespace-nowrap">
                   Free
+                </th>
+                <th scope="col" className="px-3 sm:px-4 py-3 text-center font-semibold text-teal whitespace-nowrap">
+                  Starter
                 </th>
                 <th scope="col" className="px-3 sm:px-4 py-3 text-center font-semibold text-saffron whitespace-nowrap">
                   Pro
@@ -594,17 +611,30 @@ export default function PricingPage() {
                       : feat.label}
                   </td>
                   <td className="px-3 sm:px-4 py-3 text-center">
-                    {feat.free ? (
+                    {feat.free === true ? (
                       <Check className="mx-auto size-3.5 sm:size-4 text-teal" />
+                    ) : typeof feat.free === "string" ? (
+                      <span className="text-xs text-muted-foreground font-medium">{feat.free}</span>
                     ) : (
-                      <span className="text-muted-foreground/40">—</span>
+                      <span className="text-muted-foreground/40">&mdash;</span>
                     )}
                   </td>
                   <td className="px-3 sm:px-4 py-3 text-center">
-                    {feat.pro ? (
-                      <Check className="mx-auto size-3.5 sm:size-4 text-saffron" />
+                    {feat.starter === true ? (
+                      <Check className="mx-auto size-3.5 sm:size-4 text-teal" />
+                    ) : typeof feat.starter === "string" ? (
+                      <span className="text-xs text-teal font-medium">{feat.starter}</span>
                     ) : (
-                      <span className="text-muted-foreground/40">—</span>
+                      <span className="text-muted-foreground/40">&mdash;</span>
+                    )}
+                  </td>
+                  <td className="px-3 sm:px-4 py-3 text-center">
+                    {feat.pro === true ? (
+                      <Check className="mx-auto size-3.5 sm:size-4 text-saffron" />
+                    ) : typeof feat.pro === "string" ? (
+                      <span className="text-xs text-saffron font-medium">{feat.pro}</span>
+                    ) : (
+                      <span className="text-muted-foreground/40">&mdash;</span>
                     )}
                   </td>
                 </tr>
