@@ -1,90 +1,14 @@
 "use client";
-import { motion, useInView } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { EmailCapture } from "./email-capture";
-import type { ContentStats } from "@/app/page";
 
 const TRUST_BADGES = [
   "No credit card required",
   "No API key needed",
   "Works offline",
 ];
-
-const FAANG_COMPANIES = [
-  "Google",
-  "Amazon",
-  "Microsoft",
-  "Meta",
-  "Apple",
-  "Netflix",
-];
-
-// ── Animated counter ──────────────────────────────────────────────────────────
-
-function AnimatedCounter({
-  target,
-  display,
-  suffix,
-  color,
-  label,
-  delay,
-}: {
-  target: number;
-  display: string;
-  suffix?: string;
-  color: string;
-  label: string;
-  delay: number;
-}) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    if (!inView || hasAnimated.current) return;
-    hasAnimated.current = true;
-
-    const duration = 1200;
-    const steps = 40;
-    const stepDuration = duration / steps;
-    let step = 0;
-
-    const timer = setInterval(() => {
-      step++;
-      const progress = step / steps;
-      // ease-out curve
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(eased * target));
-      if (step >= steps) clearInterval(timer);
-    }, stepDuration);
-
-    return () => clearInterval(timer);
-  }, [inView, target]);
-
-  // For "100%" we show the % sign; for "710+" we show the + sign
-  const hasPlus = display.endsWith("+");
-  const hasPct = display.endsWith("%");
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 16 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay, duration: 0.4, ease: "easeOut" }}
-      className="rounded-xl border border-border/50 bg-surface/60 px-3 py-3"
-    >
-      <div className={`font-heading text-xl font-bold tabular-nums ${color}`}>
-        {inView ? count : 0}
-        {hasPlus && "+"}
-        {hasPct && "%"}
-      </div>
-      <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
-    </motion.div>
-  );
-}
 
 // ── Staggered headline words ──────────────────────────────────────────────────
 
@@ -111,127 +35,76 @@ function StaggeredHeadline({ text }: { text: string }) {
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 
-export function Hero({ stats }: { stats: ContentStats }) {
-  const STATS = [
-    { value: stats.topicCount, display: String(stats.topicCount), label: "Topics", color: "text-saffron" },
-    { value: stats.questionCount, display: String(stats.questionCount), label: "Questions", color: "text-teal" },
-    { value: stats.sessionCount, display: String(stats.sessionCount), label: "Sessions", color: "text-gold" },
-    { value: 6, display: "6", label: "FAANG Companies", color: "text-indigo", suffix: "" },
-  ];
-
+export function Hero() {
   return (
-    <section className="relative flex min-h-[88vh] flex-col items-center justify-center px-6 text-center">
+    <section className="relative flex min-h-[88vh] flex-col items-center justify-center px-4 sm:px-6 text-center">
       {/* Radial gradient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-saffron)_6%,transparent),transparent_70%)] pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl">
-        {/* Social proof pill */}
-        <motion.div
+        {/* Social proof line */}
+        <motion.p
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="mb-5 inline-flex items-center gap-2 rounded-full border border-saffron/30 bg-saffron/10 px-4 py-1.5"
+          className="mb-5 text-sm text-muted-foreground tracking-wide"
         >
-          <span className="h-2 w-2 rounded-full bg-saffron animate-pulse" />
-          <span className="text-xs font-semibold text-saffron tracking-wide">
-            Built for FAANG interview prep
-          </span>
-        </motion.div>
+          Join <span className="text-foreground font-semibold">1,000+</span> engineers preparing for{" "}
+          <span className="text-foreground font-semibold">Google, Amazon, Meta</span> &amp; more
+        </motion.p>
 
-        {/* Headline — word-by-word stagger */}
-        <StaggeredHeadline text="Master DSA System Design and Coding Interviews" />
+        {/* Headline — outcome-driven, word-by-word stagger */}
+        <StaggeredHeadline text="From Zero to FAANG Offer in 12 Weeks" />
 
-        {/* Subheadline */}
+        {/* Subheadline — value prop */}
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
-          className="mx-auto mt-5 max-w-xl text-base text-muted-foreground leading-relaxed"
+          className="mx-auto mt-5 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed"
         >
-          Structured prep paths, <span className="text-foreground font-semibold">{stats.questionCount.toLocaleString()} practice questions</span>,{" "}
-          <span className="text-foreground font-semibold">mock interviews with boss rounds</span>, and{" "}
-          <span className="text-foreground font-semibold">STAR behavioral prep</span> &mdash; all free to start
+          The only platform with{" "}
+          <span className="text-foreground font-semibold">DSA + System Design + Behavioral</span> prep.{" "}
+          Java &amp; Python code. 141 topics. Free to start.
         </motion.p>
 
-        {/* Stats grid — counter animation */}
-        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto">
-          {STATS.map((stat, i) => (
-            <AnimatedCounter
-              key={stat.label}
-              target={stat.value}
-              display={stat.display}
-              suffix={stat.suffix}
-              color={stat.color}
-              label={stat.label}
-              delay={0.8 + i * 0.07}
-            />
-          ))}
-        </div>
-
-        {/* Primary CTAs — bounce on mount */}
+        {/* Primary CTAs — action-oriented */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.05, duration: 0.5, type: "spring", stiffness: 200, damping: 18 }}
+          transition={{ delay: 0.9, duration: 0.5, type: "spring", stiffness: 200, damping: 18 }}
           className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
         >
-          <Link href="/app/topics">
-            <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[140px] text-base font-semibold btn-press">
-              Get Started
+          <Link href="/app/interview">
+            <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[220px] sm:min-w-[260px] text-base font-semibold btn-press">
+              Start Your First Mock Interview
             </Button>
           </Link>
-          <Link href="/app/roadmap">
-            <Button variant="outline" size="lg" className="min-w-[140px] text-base btn-outline-glow">
-              View Roadmap
+          <Link href="/app/topics">
+            <Button variant="outline" size="lg" className="min-w-[180px] text-base btn-outline-glow">
+              Browse 141 Topics
             </Button>
           </Link>
         </motion.div>
 
-        {/* Email capture — below main CTAs */}
+        {/* Email capture — moved higher, visible without scrolling */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.15, duration: 0.5 }}
+          transition={{ delay: 1.0, duration: 0.5 }}
           className="mt-6 flex flex-col items-center gap-1.5"
         >
           <p className="text-xs text-muted-foreground/70 mb-1">
-            Or get our free DSA Cheatsheet PDF &mdash; no signup needed
+            Get our free DSA Cheatsheet PDF &mdash; no signup needed
           </p>
           <EmailCapture />
-        </motion.div>
-
-        {/* FAANG company badges — staggered slide from bottom */}
-        <motion.div
-          className="mt-6 flex flex-wrap items-center justify-center gap-2"
-          initial="hidden"
-          animate="visible"
-          variants={{ visible: { transition: { staggerChildren: 0.07, delayChildren: 1.2 } } }}
-        >
-          <motion.span
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-            className="text-xs text-muted-foreground/70 mr-1"
-          >
-            Prepare for:
-          </motion.span>
-          {FAANG_COMPANIES.map((company) => (
-            <motion.span
-              key={company}
-              variants={{
-                hidden: { opacity: 0, y: 12 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
-              }}
-              className="rounded-full border border-border/50 bg-surface/80 px-3 py-1 text-xs font-medium text-muted-foreground hover:border-saffron/40 hover:text-foreground transition-colors"
-            >
-              {company}
-            </motion.span>
-          ))}
         </motion.div>
 
         {/* Trust badges */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.6, duration: 0.5 }}
+          transition={{ delay: 1.2, duration: 0.5 }}
           className="mt-5 flex flex-wrap items-center justify-center gap-3"
         >
           {TRUST_BADGES.map((badge) => (
@@ -258,7 +131,7 @@ export function Hero({ stats }: { stats: ContentStats }) {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.8, duration: 0.5 }}
+          transition={{ delay: 1.4, duration: 0.5 }}
           className="mt-5 text-xs text-muted-foreground/60"
         >
           Powered by Pareto Principle &bull; Guru Mode &bull; Bloom&apos;s Taxonomy &bull; Spaced Repetition

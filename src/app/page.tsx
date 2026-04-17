@@ -240,7 +240,7 @@ export default function LandingPage() {
         <LandingNavbar />
       </header>
       <main id="main-content">
-      <Hero stats={stats} />
+      <Hero />
       <ScrollReveal delay={0}>
         <CompanyLogoStrip />
       </ScrollReveal>
