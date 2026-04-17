@@ -23,12 +23,20 @@ function getFreeFeatures(stats: ContentStats): PlanFeature[] {
   ];
 }
 
-const PRO_MONTHLY_FEATURES: PlanFeature[] = [
+const STARTER_FEATURES: PlanFeature[] = [
   { text: "Everything in Free" },
+  { text: "Unlimited quizzes (Easy + Medium)", highlight: true },
+  { text: "10 Mitra AI messages/day", highlight: true },
+  { text: "3 sessions per topic", highlight: true },
+  { text: "Cheatsheet view (no export)" },
+];
+
+const PRO_MONTHLY_FEATURES: PlanFeature[] = [
+  { text: "Everything in Starter" },
   { text: "AI-powered Guru Mode", highlight: true },
-  { text: "Custom topic generation", highlight: true },
-  { text: "Priority support", highlight: true },
-  { text: "Certificate of completion", highlight: true },
+  { text: "Hard difficulty + timed quiz", highlight: true },
+  { text: "Mock interview + Java playground", highlight: true },
+  { text: "Certificates + cheatsheet export", highlight: true },
 ];
 
 const PRO_SEMESTER_FEATURES: PlanFeature[] = [
@@ -90,7 +98,7 @@ export function Pricing({ stats }: { stats: ContentStats }) {
         </p>
       </motion.div>
 
-      <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-5">
+      <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3 lg:grid-cols-6">
         {/* Free plan */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -126,11 +134,59 @@ export function Pricing({ stats }: { stats: ContentStats }) {
           </Link>
         </motion.div>
 
+        {/* Starter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.5 }}
+          viewport={{ once: true }}
+          className="rounded-2xl border-2 border-teal/50 bg-gradient-to-br from-teal/10 via-surface to-surface p-7 flex flex-col relative overflow-hidden"
+        >
+          <div className="absolute top-4 right-4">
+            <span className="rounded-full bg-teal/20 border border-teal/40 px-3 py-1 text-xs font-bold text-teal">
+              New
+            </span>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-xs font-semibold tracking-widest text-teal uppercase mb-2">
+              Starter
+            </p>
+            <div className="flex items-end gap-1">
+              <span className="font-heading text-4xl font-bold text-teal">₹49</span>
+              <span className="text-muted-foreground mb-1">/month</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Less than a samosa a day
+            </p>
+          </div>
+
+          <ul className="space-y-3 flex-1 mb-8">
+            {STARTER_FEATURES.map((f) => (
+              <li key={f.text} className="flex items-start gap-2.5 text-sm">
+                <CheckIcon highlight={f.highlight} />
+                <span className={f.highlight ? "text-foreground font-medium" : "text-muted-foreground"}>
+                  {f.text}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <Link href="/app/pricing">
+            <Button className="w-full bg-teal hover:bg-teal/90 text-background" size="lg">
+              Get Starter
+            </Button>
+          </Link>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Cancel anytime
+          </p>
+        </motion.div>
+
         {/* Pro Monthly */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          transition={{ delay: 0.25, duration: 0.5 }}
           viewport={{ once: true }}
           className="rounded-2xl border-2 border-saffron/50 bg-gradient-to-br from-saffron/10 via-surface to-surface p-7 flex flex-col relative overflow-hidden"
         >
@@ -172,7 +228,7 @@ export function Pricing({ stats }: { stats: ContentStats }) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          transition={{ delay: 0.35, duration: 0.5 }}
           viewport={{ once: true }}
           className="rounded-2xl border-2 border-saffron/60 bg-gradient-to-br from-saffron/15 via-surface to-surface p-7 flex flex-col relative overflow-hidden"
         >
@@ -223,7 +279,7 @@ export function Pricing({ stats }: { stats: ContentStats }) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
+          transition={{ delay: 0.45, duration: 0.5 }}
           viewport={{ once: true }}
           className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-gold/8 via-surface to-surface p-7 flex flex-col relative overflow-hidden"
         >
@@ -275,7 +331,7 @@ export function Pricing({ stats }: { stats: ContentStats }) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          transition={{ delay: 0.55, duration: 0.5 }}
           viewport={{ once: true }}
           className="rounded-2xl border-2 border-gold/60 bg-gradient-to-br from-gold/15 via-surface to-surface p-7 flex flex-col relative overflow-hidden ring-1 ring-gold/30"
         >

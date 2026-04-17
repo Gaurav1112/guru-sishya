@@ -142,7 +142,40 @@ export function PremiumGate({ feature, children, overlay = true, limitFeature }:
 
   // Daily limit exhausted (free user hit their per-day cap)
   if (limit && !limit.allowed) {
-    const limitMsg = `Daily limit reached (${limit.limit} ${limit.label}/day). Resets tomorrow or upgrade to Pro.`;
+    const limitCard = (
+      <div className="mx-4 flex flex-col items-center gap-3 rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/10 to-background p-6 text-center shadow-xl max-w-sm w-full">
+        <div className="flex size-12 items-center justify-center rounded-full border border-saffron/40 bg-saffron/10">
+          <Timer className="size-5 text-saffron" />
+        </div>
+        <div>
+          <p className="font-heading font-semibold text-foreground">Daily Limit Reached</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            You&apos;ve used {limit.limit} of {limit.limit} free {limit.label} today.
+          </p>
+          <p className="mt-2 text-xs text-amber-400 font-medium">
+            Your streak is at risk &mdash; upgrade to keep learning
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 w-full">
+          <Link
+            href="/app/pricing"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-teal/50 bg-teal/10 px-4 py-2 text-sm font-semibold text-teal transition-opacity hover:bg-teal/20"
+          >
+            Starter &mdash; ₹49/mo
+          </Link>
+          <Link
+            href="/app/pricing"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+          >
+            Pro &mdash; ₹149/mo (Everything)
+          </Link>
+        </div>
+        <p className="text-[10px] text-muted-foreground/60">
+          Pro users complete 3x more topics on average
+        </p>
+      </div>
+    );
+
     if (overlay) {
       return (
         <div className="relative">
@@ -150,42 +183,12 @@ export function PremiumGate({ feature, children, overlay = true, limitFeature }:
             {children}
           </div>
           <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/60 backdrop-blur-[2px]">
-            <div className="mx-4 flex flex-col items-center gap-3 rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/10 to-background p-6 text-center shadow-xl max-w-sm w-full">
-              <div className="flex size-12 items-center justify-center rounded-full border border-saffron/40 bg-saffron/10">
-                <Timer className="size-5 text-saffron" />
-              </div>
-              <div>
-                <p className="font-heading font-semibold text-foreground">Daily Limit Reached</p>
-                <p className="mt-1 text-sm text-muted-foreground">{limitMsg}</p>
-              </div>
-              <Link
-                href="/app/pricing"
-                className="mt-1 inline-flex items-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-              >
-                Upgrade to Pro
-              </Link>
-            </div>
+            {limitCard}
           </div>
         </div>
       );
     }
-    return (
-      <div className="flex flex-col items-center gap-3 rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/10 to-background p-6 text-center">
-        <div className="flex size-12 items-center justify-center rounded-full border border-saffron/40 bg-saffron/10">
-          <Timer className="size-5 text-saffron" />
-        </div>
-        <div>
-          <p className="font-heading font-semibold text-foreground">Daily Limit Reached</p>
-          <p className="mt-1 text-sm text-muted-foreground">{limitMsg}</p>
-        </div>
-        <Link
-          href="/app/pricing"
-          className="mt-1 inline-flex items-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-        >
-          Upgrade to Pro
-        </Link>
-      </div>
-    );
+    return limitCard;
   }
 
   const { title, description } = FEATURE_LABELS[feature];
@@ -205,9 +208,51 @@ export function PremiumGate({ feature, children, overlay = true, limitFeature }:
   // will show "Upgrade to Pro" — which is acceptable since the state is cleared.
   // The banner (shown while still active) handles the "expiring soon" message.
   const hadPremium = planType != null || paymentId != null;
-  const { cta, href, subtext } = resolveGateCopy(hadPremium, planType);
+  const { cta, href, subtext, showStarter } = resolveGateCopy(hadPremium, planType);
 
   const GateIcon = hadPremium ? RefreshCw : Lock;
+
+  const gateCard = (
+    <div className="mx-4 flex flex-col items-center gap-3 rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/10 to-background p-6 text-center shadow-xl max-w-sm w-full">
+      <div className="flex size-12 items-center justify-center rounded-full border border-saffron/40 bg-saffron/10">
+        <GateIcon className="size-5 text-saffron" />
+      </div>
+      <div>
+        <p className="font-heading font-semibold text-foreground">{title}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        {subtext && (
+          <p className="mt-2 text-xs font-medium text-amber-400">{subtext}</p>
+        )}
+      </div>
+      <div className="flex flex-col gap-2 w-full">
+        {showStarter && (
+          <Link
+            href={href}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-teal/50 bg-teal/10 px-4 py-2 text-sm font-semibold text-teal transition-opacity hover:bg-teal/20"
+          >
+            Starter &mdash; ₹49/mo
+          </Link>
+        )}
+        <Link
+          href={href}
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+        >
+          {cta}
+        </Link>
+      </div>
+      {!hadPremium && (
+        <Link
+          href="/app/pricing"
+          className="text-xs text-muted-foreground hover:text-saffron transition-colors"
+        >
+          or start 7-day free trial
+        </Link>
+      )}
+      <p className="text-[10px] text-muted-foreground/60">
+        Pro users complete 3x more topics on average
+      </p>
+    </div>
+  );
 
   if (overlay) {
     return (
@@ -219,56 +264,12 @@ export function PremiumGate({ feature, children, overlay = true, limitFeature }:
 
         {/* Overlay */}
         <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/60 backdrop-blur-[2px]">
-          <div className="mx-4 flex flex-col items-center gap-3 rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/10 to-background p-6 text-center shadow-xl max-w-sm w-full">
-            <div className="flex size-12 items-center justify-center rounded-full border border-saffron/40 bg-saffron/10">
-              <GateIcon className="size-5 text-saffron" />
-            </div>
-            <div>
-              <p className="font-heading font-semibold text-foreground">{title}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-              {subtext && (
-                <p className="mt-2 text-xs font-medium text-amber-400">{subtext}</p>
-              )}
-            </div>
-            <Link
-              href={href}
-              className="mt-1 inline-flex items-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-            >
-              {cta}
-            </Link>
-            {!hadPremium && (
-              <Link
-                href="/app/pricing"
-                className="text-xs text-muted-foreground hover:text-saffron transition-colors"
-              >
-                or start 7-day free trial
-              </Link>
-            )}
-          </div>
+          {gateCard}
         </div>
       </div>
     );
   }
 
   // Non-overlay variant: replace content entirely with the gate card
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/10 to-background p-6 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full border border-saffron/40 bg-saffron/10">
-        <GateIcon className="size-5 text-saffron" />
-      </div>
-      <div>
-        <p className="font-heading font-semibold text-foreground">{title}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        {subtext && (
-          <p className="mt-2 text-xs font-medium text-amber-400">{subtext}</p>
-        )}
-      </div>
-      <Link
-        href={href}
-        className="mt-1 inline-flex items-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-      >
-        {cta}
-      </Link>
-    </div>
-  );
+  return gateCard;
 }
