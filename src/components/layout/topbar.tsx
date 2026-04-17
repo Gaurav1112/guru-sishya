@@ -219,19 +219,18 @@ export function Topbar() {
         {xpBoostActive && (
           <span
             title="XP Boost active — 1.5x XP for the next hour"
-            className="inline-flex items-center gap-1 rounded-full bg-saffron/20 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-saffron"
+            className="hidden sm:inline-flex items-center gap-1 rounded-full bg-saffron/20 px-2 py-0.5 text-xs font-semibold text-saffron"
           >
-            <span className="hidden sm:inline">⚡ 1.5x XP</span>
-            <span className="sm:hidden">⚡1.5x</span>
+            ⚡ 1.5x XP
           </span>
         )}
         <div className="hidden sm:block">
           <XPBar totalXP={totalXP} level={level} />
         </div>
-        {/* Coin display: icon+count always visible */}
-        <div className="flex items-center gap-1 text-sm">
+        {/* Coin display: hidden on mobile, visible sm+ */}
+        <div className="hidden sm:flex items-center gap-1 text-sm">
           <span className="inline-block text-gold">🪙</span>
-          <span className="font-medium tabular-nums text-xs sm:text-sm">{coins.toLocaleString()}</span>
+          <span className="font-medium tabular-nums text-sm">{coins.toLocaleString()}</span>
         </div>
         <LevelBadge level={level} size="sm" className="hidden sm:inline-flex" />
         <UserMenu />

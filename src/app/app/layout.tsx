@@ -1,6 +1,7 @@
 import { AppProviders } from "@/components/layout/app-providers";
 import { Topbar } from "@/components/layout/topbar";
 import { Sidebar } from "@/components/layout/sidebar";
+import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { CelebrationOverlay } from "@/components/gamification/celebration-overlay";
 import { SubscriptionBanner } from "@/components/subscription-banner";
 import { ExpiryChecker } from "@/components/expiry-checker";
@@ -25,9 +26,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SubscriptionBanner />
         <div className="flex flex-1 min-h-0">
           <Sidebar />
-          <main id="main-content" className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">{children}</main>
+          <main id="main-content" className="flex-1 overflow-y-auto p-3 pb-20 sm:p-4 sm:pb-4 md:p-6">{children}</main>
         </div>
       </div>
+      <MobileTabBar />
       <CelebrationOverlay />
       <MitraChat />
       <FeedbackWidget />

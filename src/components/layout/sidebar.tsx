@@ -48,19 +48,19 @@ const primaryNavItems = [
   { href: "/app/questions", label: "Questions", icon: "📝" },
   { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
   { href: "/app/review", label: "Review", icon: "🔁" },
-  { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
-  { href: "/app/playground", label: "Playground", icon: "⚡" },
-  { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
-  { href: "/app/profile", label: "Profile", icon: "👤" },
-  { href: "/app/settings", label: "Settings", icon: "⚙️" },
 ];
 
 const moreNavItems = [
-  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
-  { href: "/app/shop", label: "Shop", icon: "🛒" },
+  { href: "/app/playground", label: "Playground", icon: "⚡" },
+  { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/app/notes", label: "My Notes", icon: "📓" },
+  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
   { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
   { href: "/app/revision", label: "Revision", icon: "📖" },
+  { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
+  { href: "/app/shop", label: "Shop", icon: "🛒" },
+  { href: "/app/profile", label: "Profile", icon: "👤" },
+  { href: "/app/settings", label: "Settings", icon: "⚙️" },
 ];
 
 export function Sidebar() {

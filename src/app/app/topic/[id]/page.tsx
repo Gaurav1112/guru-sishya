@@ -176,7 +176,7 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
       {topic.name && <YouTubeVideos videos={getVideosForTopic(topic.name)} />}
 
       {/* Feature cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-6">
         {featureCards.map((f, i) => {
           const hasContent = builtIn ? CONTENT_KEYS[f.key]?.(builtIn) ?? false : false;
           return (
