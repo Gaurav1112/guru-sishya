@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components/auth-provider";
 import { useStore } from "@/lib/store";
 import { TourProvider } from "@/components/onboarding/tour-provider";
 import { StickyUpgradeBar } from "@/components/pricing/sticky-upgrade-bar";
+import { trackPageView } from "@/lib/analytics-tracker";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -117,6 +119,23 @@ function ProgressSync() {
   return null;
 }
 
+// ── PageViewTracker ───────────────────────────────────────────────────────────
+// Tracks page views in Supabase for signed-in users.
+// Rate-limited client-side (1 per user+path per 5 min).
+
+function PageViewTracker() {
+  const { data: session } = useSession();
+  const pathname = usePathname();
+  const email = session?.user?.email;
+
+  useEffect(() => {
+    if (!email || !pathname) return;
+    trackPageView(email, pathname);
+  }, [email, pathname]);
+
+  return null;
+}
+
 // ── AppProviders ──────────────────────────────────────────────────────────────
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
@@ -124,6 +143,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <AllowlistSync />
       <ProgressSync />
+      <PageViewTracker />
       <TourProvider>{children}</TourProvider>
       <StickyUpgradeBar />
       <Toaster position="bottom-right" theme="dark" />

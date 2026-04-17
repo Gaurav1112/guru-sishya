@@ -2,6 +2,7 @@
 import { Auth } from "@auth/core";
 import Google from "@auth/core/providers/google";
 import type { NextRequest } from "next/server";
+import { trackUserLogin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +27,26 @@ async function handler(req: NextRequest) {
       }),
     ],
     callbacks: {
+      async signIn({ user }: any) {
+        // Track every Google login in Supabase (fire-and-forget).
+        try {
+          await trackUserLogin({
+            email: user?.email,
+            name: user?.name,
+            image: user?.image,
+          });
+        } catch {
+          // Non-critical — don't block authentication
+        }
+        return true;
+      },
       session({ session, token }: any) {
-        if (session?.user) session.user.id = token?.sub;
+        if (session?.user) {
+          session.user.id = token?.sub;
+          if (token?.email) {
+            session.user.email = token.email;
+          }
+        }
         return session;
       },
     },
