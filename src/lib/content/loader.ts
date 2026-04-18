@@ -58,6 +58,10 @@ const CONTENT_FILES = [
   "/content/dsa-advanced.json",
   "/content/system-design-cases-detailed.json",
   "/content/segment-trees.json",
+  "/content/string-algorithms.json",
+  "/content/advanced-graphs.json",
+  "/content/greedy-algorithms.json",
+  "/content/fenwick-tree.json",
 ];
 
 let _contentCache: TopicContent[] | null = null;
