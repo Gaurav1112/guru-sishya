@@ -6,7 +6,7 @@ import type { StateCreator } from "zustand";
  * Admin emails — always get permanent free premium access.
  * SECURITY: No hardcoded fallback. NEXT_PUBLIC_ADMIN_EMAILS must be set in env.
  */
-const ADMIN_EMAILS_LIST = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
+const ADMIN_EMAILS_LIST = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || "gurusishya.in@gmail.com")
   .split(",")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
