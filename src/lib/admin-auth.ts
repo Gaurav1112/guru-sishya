@@ -7,7 +7,7 @@ import { auth } from "@/lib/auth";
  * SECURITY: No hardcoded fallback. If ADMIN_EMAILS is unset, no one is admin.
  * Do NOT use NEXT_PUBLIC_ prefix — admin emails must stay server-side only.
  */
-const ADMIN_EMAILS_RAW = process.env.ADMIN_EMAILS || "gurusishya.in@gmail.com";
+const ADMIN_EMAILS_RAW = process.env.ADMIN_EMAILS || "kgauravis016@gmail.com,gurusishya.in@gmail.com";
 
 export const ADMIN_EMAILS = ADMIN_EMAILS_RAW.split(",")
   .map((e) => e.trim().toLowerCase())
