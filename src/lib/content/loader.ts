@@ -57,6 +57,7 @@ const CONTENT_FILES = [
   "/content/nodejs.json",
   "/content/dsa-advanced.json",
   "/content/system-design-cases-detailed.json",
+  "/content/segment-trees.json",
 ];
 
 let _contentCache: TopicContent[] | null = null;
