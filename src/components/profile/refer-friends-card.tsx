@@ -47,7 +47,7 @@ export function ReferFriendsCard() {
   }
 
   function handleWhatsApp() {
-    const text = `Hey! I'm using Guru Sishya for SWE interview prep. It's amazing - 138 topics, quizzes, mock interviews, all free.\n\nJoin using my link and we both get rewards:\n${referralUrl}`;
+    const text = `Hey! I'm using Guru Sishya for SWE interview prep. It's amazing - 81 topics, quizzes, mock interviews, all free.\n\nJoin using my link and we both get rewards:\n${referralUrl}`;
     window.open(
       `https://wa.me/?text=${encodeURIComponent(text)}`,
       "_blank",

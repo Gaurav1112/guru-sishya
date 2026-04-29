@@ -167,7 +167,7 @@ export default function ReferralPage() {
   }, [referralUrl]);
 
   const handleWhatsApp = useCallback(() => {
-    const text = `Hey! I'm using Guru Sishya to prep for software engineering interviews. It's the best free tool I've found - 138 topics, quizzes, mock interviews, the works.\n\nJoin using my link and we both get rewards:\n${referralUrl}`;
+    const text = `Hey! I'm using Guru Sishya to prep for software engineering interviews. It's the best free tool I've found - 81 topics, quizzes, mock interviews, the works.\n\nJoin using my link and we both get rewards:\n${referralUrl}`;
     window.open(
       `https://wa.me/?text=${encodeURIComponent(text)}`,
       "_blank",
@@ -176,7 +176,7 @@ export default function ReferralPage() {
   }, [referralUrl]);
 
   const handleTwitter = useCallback(() => {
-    const text = `Prepping for SWE interviews? Guru Sishya is a game-changer - 138 topics, adaptive quizzes, mock interviews. All free.\n\nJoin via my link:`;
+    const text = `Prepping for SWE interviews? Guru Sishya is a game-changer - 81 topics, adaptive quizzes, mock interviews. All free.\n\nJoin via my link:`;
     window.open(
       `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(referralUrl)}`,
       "_blank",

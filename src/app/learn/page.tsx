@@ -8,7 +8,7 @@ import {
 export const metadata: Metadata = {
   title: "Learn 141 Software Engineering Interview Topics",
   description:
-    "Master software engineering interviews with free lessons on system design, data structures, algorithms, and core CS. 141 topics, 1988 questions, all free.",
+    "Master software engineering interviews with free lessons on system design, data structures, algorithms, and core CS. 81 topics, 1730 questions, all free.",
   keywords: [
     "software engineering interview topics",
     "system design interview",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Learn 141 Software Engineering Interview Topics | Guru Sishya",
     description:
-      "Free lessons on system design, DSA, algorithms, and core CS. 141 topics, 1988 questions.",
+      "Free lessons on system design, DSA, algorithms, and core CS. 81 topics, 1730 questions.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
 };
@@ -179,7 +179,7 @@ export default function LearnIndexPage() {
           Learn Software Engineering Interview Topics
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
-          138 topics covering system design, data structures, algorithms, and
+          81 topics covering system design, data structures, algorithms, and
           core CS. Each topic includes lessons, quizzes, cheat sheets, and
           curated resources &mdash; all free.
         </p>
@@ -280,7 +280,7 @@ export default function LearnIndexPage() {
             "@type": "ItemList",
             name: "Software Engineering Interview Topics",
             description:
-              "138 topics for software engineering interview preparation",
+              "81 topics for software engineering interview preparation",
             numberOfItems: allTopics.length,
             itemListElement: allTopics.slice(0, 50).map((t, idx) => ({
               "@type": "ListItem",

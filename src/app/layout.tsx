@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     template: "%s | Guru Sishya",
   },
   description:
-    "Practice 1988 DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free platform with Java + Python code.",
+    "Practice 1,730+ DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free platform with Java + Python code.",
   keywords: [
     "software engineering interview prep",
     "coding interview questions",
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DSA, System Design & Behavioral Interview Prep | Guru Sishya",
     description:
-      "Practice 1988 DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free with Java + Python code.",
+      "Practice 1,730+ DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free with Java + Python code.",
     url: "https://www.guru-sishya.in",
     siteName: "Guru Sishya",
     type: "website",
@@ -117,7 +117,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DSA, System Design & Behavioral Interview Prep | Guru Sishya",
     description:
-      "Practice 1988 DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free with Java + Python code.",
+      "Practice 1,730+ DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free with Java + Python code.",
     images: ["https://www.guru-sishya.in/api/og"],
   },
   category: "education",
@@ -156,7 +156,7 @@ export default function RootLayout({
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
               description:
-                "Software engineering interview preparation platform with 138 topics, 1933 questions, and STAR behavioral prep for FAANG interviews.",
+                "Software engineering interview preparation platform with 81 topics, 1730 questions, and STAR behavioral prep for FAANG interviews.",
               url: "https://www.guru-sishya.in",
             }),
           }}
@@ -217,7 +217,7 @@ export default function RootLayout({
                   name: "Is Guru Sishya really free? What's the catch?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes - 141 topics, 1988 quiz questions with answers, 693 full sessions, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 149/month or Rs 1199/year) for AI-powered features like the Teach Mode and custom topic generation, but the core prep content will always be free.",
+                    text: "Yes - 81 topics, 1730 quiz questions with answers, 500+ full sessions, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 149/month or Rs 1199/year) for AI-powered features like the Teach Mode and custom topic generation, but the core prep content will always be free.",
                   },
                 },
                 {
@@ -233,7 +233,7 @@ export default function RootLayout({
                   name: "What topics does Guru Sishya cover?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "138 topics across four domains: System Design Fundamentals (load balancing, caching, databases, message queues, CDNs), System Design Case Studies (Twitter, YouTube, Uber, etc.), Data Structures and Algorithms (arrays, trees, dynamic programming, graphs), and Core CS (operating systems, networking, databases, compilers). More topics are added regularly.",
+                    text: "81 topics across four domains: System Design Fundamentals (load balancing, caching, databases, message queues, CDNs), System Design Case Studies (Twitter, YouTube, Uber, etc.), Data Structures and Algorithms (arrays, trees, dynamic programming, graphs), and Core CS (operating systems, networking, databases, compilers). More topics are added regularly.",
                   },
                 },
                 {
@@ -241,7 +241,7 @@ export default function RootLayout({
                   name: "How is Guru Sishya different from LeetCode, AlgoExpert, or NeetCode?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Guru Sishya is the only platform that combines all of this in one place for free: 1933 questions with full answers (not just hints), 58 STAR behavioral answers, 32 system design topics, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes. Competitors charge Rs 991-Rs 2917/month and still lack behavioral prep and offline support.",
+                    text: "Guru Sishya is the only platform that combines all of this in one place for free: 1730 questions with full answers (not just hints), 58 STAR behavioral answers, 32 system design topics, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes. Competitors charge Rs 991-Rs 2917/month and still lack behavioral prep and offline support.",
                   },
                 },
                 {

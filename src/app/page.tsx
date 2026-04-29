@@ -217,7 +217,7 @@ function PainPoints() {
     },
     {
       problem: "No structure -- jumping between YouTube, blogs, and courses",
-      solution: "One platform with 141 topics, 693 lessons, and a visual roadmap from zero to offer",
+      solution: "One platform with 80 topics, 775 lessons, and a visual roadmap from zero to offer",
       icon: (
         <svg aria-hidden="true" className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
@@ -315,7 +315,7 @@ function FinalCTA({ stats }: { stats: ContentStats }) {
 export default function LandingPage() {
   // Static stats — avoids loading 11MB of content JSON on the landing page
   // Update these when content changes significantly
-  const stats: ContentStats = { topicCount: 141, questionCount: 1988, sessionCount: 693 };
+  const stats: ContentStats = { topicCount: 80, questionCount: 1715, sessionCount: 775 };
 
   return (
     <div className="min-h-screen">

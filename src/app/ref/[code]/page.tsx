@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { storePendingReferral } from "@/lib/gamification/referrals";
 
 const highlights = [
-  { icon: BookOpen, label: "138 Topics", description: "From arrays to system design" },
+  { icon: BookOpen, label: "81 Topics", description: "From arrays to system design" },
   { icon: Target, label: "1900+ Questions", description: "Adaptive difficulty quizzes" },
   { icon: Users, label: "Mock Interviews", description: "3-round boss fight format" },
   { icon: Zap, label: "100% Free Core", description: "No credit card needed" },

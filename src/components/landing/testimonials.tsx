@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const WHAT_YOU_GET = [
   {
-    number: "141",
+    number: "81",
     title: "Expert-Curated Topics",
     description: "System Design, DS&A, Core CS — every domain you'll face in a top-tier interview.",
     badges: ["System Design", "DS&A", "Core CS"],

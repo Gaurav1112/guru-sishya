@@ -221,7 +221,7 @@ export default function DSAInterviewQuestionsPage() {
                 href="/learn"
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-6 border border-border/50 text-muted-foreground hover:text-foreground hover:border-border transition-colors"
               >
-                Browse All 138 Topics
+                Browse All 81 Topics
               </Link>
             </div>
           </header>
@@ -614,8 +614,8 @@ function SeoFooter() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Free Features</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>138 Topics</li>
-              <li>1933 Quiz Questions</li>
+              <li>81 Topics</li>
+              <li>1,730+ Quiz Questions</li>
               <li>Code Playground</li>
               <li>No Signup Required</li>
             </ul>

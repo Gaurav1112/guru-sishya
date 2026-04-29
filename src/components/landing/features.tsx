@@ -29,7 +29,7 @@ const features = [
   {
     title: "Adaptive Quiz Engine",
     description:
-      "Never wonder if you're ready. 1,988+ questions with adaptive difficulty that pinpoint your weak spots and grade you instantly — no AI key required.",
+      "Never wonder if you're ready. 1,730+ questions with adaptive difficulty that pinpoint your weak spots and grade you instantly — no AI key required.",
     icon: "🧠",
   },
   {

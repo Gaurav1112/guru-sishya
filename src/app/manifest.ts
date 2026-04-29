@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Guru Sishya — Interview Prep",
     short_name: "Guru Sishya",
     description:
-      "Master software engineering interviews with 138 topics, 1933 questions, and 671 sessions. Works offline.",
+      "Master software engineering interviews with 81 topics, 1730 questions, and 500+ sessions. Works offline.",
     start_url: "/app/dashboard",
     display: "standalone",
     background_color: "#0C0A15",

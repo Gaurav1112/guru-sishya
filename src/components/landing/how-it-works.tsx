@@ -6,7 +6,7 @@ const STEPS = [
     step: "01",
     title: "Pick a Topic",
     description:
-      "Choose from 141 interview topics across System Design, DS&A, and Core CS. Follow the visual roadmap or let us build your 8-week prep plan.",
+      "Choose from 81 interview topics across System Design, DS&A, and Core CS. Follow the visual roadmap or let us build your 8-week prep plan.",
     color: "border-saffron/50 bg-saffron/5",
     numberColor: "text-saffron",
     icon: (
@@ -19,7 +19,7 @@ const STEPS = [
     step: "02",
     title: "Follow the Plan",
     description:
-      "Each topic has a structured plan built on the Pareto Principle — targeting the 20% of concepts that appear in 80% of interviews. Practice with 1,988 questions and mock interviews.",
+      "Each topic has a structured plan built on the Pareto Principle — targeting the 20% of concepts that appear in 80% of interviews. Practice with 1,730 questions and mock interviews.",
     color: "border-teal/50 bg-teal/5",
     numberColor: "text-teal",
     icon: (

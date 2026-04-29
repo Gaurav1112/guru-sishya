@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: "Learn Software Engineering Interview Topics | Guru Sishya",
   },
   description:
-    "Free software engineering interview preparation. Learn 141 topics covering system design, data structures, algorithms, and core CS concepts.",
+    "Free software engineering interview preparation. Learn 81 topics covering system design, data structures, algorithms, and core CS concepts.",
 };
 
 // ── Simple public navbar (no "use client", no interactivity) ────────────────

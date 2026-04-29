@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title:
     "Best LeetCode Alternative (2026) - Free Interview Prep | Guru Sishya",
   description:
-    "Looking for a free LeetCode alternative? Guru Sishya offers 138 topics, 1933 quiz questions, system design, behavioral prep, and a code playground. No signup, no payment. Compare features vs LeetCode, NeetCode, and AlgoExpert.",
+    "Looking for a free LeetCode alternative? Guru Sishya offers 81 topics, 1730 quiz questions, system design, behavioral prep, and a code playground. No signup, no payment. Compare features vs LeetCode, NeetCode, and AlgoExpert.",
   keywords: [
     "leetcode alternative",
     "leetcode alternative free",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Best LeetCode Alternative (2026) - Free Interview Prep | Guru Sishya",
     description:
-      "Compare Guru Sishya vs LeetCode, NeetCode, and AlgoExpert. 141 topics, 1988 questions, system design, behavioral prep, code playground. Completely free.",
+      "Compare Guru Sishya vs LeetCode, NeetCode, and AlgoExpert. 81 topics, 1730 questions, system design, behavioral prep, code playground. Completely free.",
     url: `${BASE}/leetcode-alternative`,
     type: "website",
     siteName: "Guru Sishya",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Best LeetCode Alternative (2026) - Free Interview Prep | Guru Sishya",
     description:
-      "Compare Guru Sishya vs LeetCode, NeetCode, AlgoExpert. 141 topics, 1988 questions, completely free.",
+      "Compare Guru Sishya vs LeetCode, NeetCode, AlgoExpert. 81 topics, 1730 questions, completely free.",
     images: [`${BASE}/api/og`],
   },
 };
@@ -52,12 +52,12 @@ interface ComparisonRow {
 
 const COMPARISON: ComparisonRow[] = [
   { feature: "Price", guruSishya: "Free (Pro: Rs.149/mo)", leetcode: "$35/month", neetcode: "$99/year", algoexpert: "$99/year" },
-  { feature: "Topics Covered", guruSishya: "138 topics", leetcode: "2800+ problems", neetcode: "150 curated", algoexpert: "160 questions" },
+  { feature: "Topics Covered", guruSishya: "81 topics", leetcode: "2800+ problems", neetcode: "150 curated", algoexpert: "160 questions" },
   { feature: "System Design", guruSishya: "Full course + cases", leetcode: "Premium only", neetcode: "Separate course ($)", algoexpert: "Included" },
   { feature: "Behavioral Prep", guruSishya: "50+ STAR stories", leetcode: "None", neetcode: "None", algoexpert: "Included" },
-  { feature: "Quiz Questions", guruSishya: "1933 questions", leetcode: "N/A", neetcode: "N/A", algoexpert: "N/A" },
+  { feature: "Quiz Questions", guruSishya: "1730 questions", leetcode: "N/A", neetcode: "N/A", algoexpert: "N/A" },
   { feature: "Code Playground", guruSishya: "JS, Python, Java, C/C++", leetcode: "Full IDE", neetcode: "External (LeetCode)", algoexpert: "Built-in" },
-  { feature: "Lessons/Theory", guruSishya: "671 sessions with diagrams", leetcode: "Minimal", neetcode: "Video explanations", algoexpert: "Video + text" },
+  { feature: "Lessons/Theory", guruSishya: "500+ sessions with diagrams", leetcode: "Minimal", neetcode: "Video explanations", algoexpert: "Video + text" },
   { feature: "Signup Required", guruSishya: "No", leetcode: "Yes", neetcode: "Yes", algoexpert: "Yes" },
   { feature: "Progress Tracking", guruSishya: "XP, levels, streaks", leetcode: "Basic stats", neetcode: "Checkboxes", algoexpert: "Progress bar" },
   { feature: "Cheat Sheets", guruSishya: "52 per topic (Java + Python)", leetcode: "Community-made", neetcode: "None", algoexpert: "None" },
@@ -80,7 +80,7 @@ export default function LeetCodeAlternativePage() {
     operatingSystem: "Web",
     offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
     description:
-      "Free LeetCode alternative with 141 topics, 1988 quiz questions, system design, behavioral prep, and a code playground. No signup required.",
+      "Free LeetCode alternative with 81 topics, 1730 quiz questions, system design, behavioral prep, and a code playground. No signup required.",
     url: `${BASE}/leetcode-alternative`,
     aggregateRating: {
       "@type": "AggregateRating",
@@ -118,7 +118,7 @@ export default function LeetCodeAlternativePage() {
             <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed mb-6">
               LeetCode is great for problem practice, but it is not a complete interview preparation platform.
               It lacks structured learning, system design, behavioral prep, and theory lessons. Guru Sishya
-              combines everything you need in one place &mdash; 138 topics, 1933 quiz questions, 671 lessons
+              combines everything you need in one place &mdash; 81 topics, 1730 quiz questions, 500+ lessons
               with code examples, system design case studies, and 50+ STAR stories &mdash; all completely free.
               No signup required. No credit card. No ads.
             </p>
@@ -188,12 +188,12 @@ export default function LeetCodeAlternativePage() {
                 {
                   title: "All-in-One Platform",
                   description:
-                    "DSA, system design, behavioral prep, design patterns, databases, cloud, DevOps, and more. 138 topics covering everything you need for a software engineering interview at any level.",
+                    "DSA, system design, behavioral prep, design patterns, databases, cloud, DevOps, and more. 81 topics covering everything you need for a software engineering interview at any level.",
                 },
                 {
                   title: "Completely Free to Start",
                   description:
-                    "No signup, no credit card, no trial period. All 138 topics, 1933 quiz questions, and the code playground are free. Pro features (Java/C++ execution, priority support) start at Rs.149/month.",
+                    "No signup, no credit card, no trial period. All 81 topics, 1730 quiz questions, and the code playground are free. Pro features (Java/C++ execution, priority support) start at Rs.149/month.",
                 },
                 {
                   title: "Built-in Code Playground",
@@ -293,7 +293,7 @@ export default function LeetCodeAlternativePage() {
                   priceDetail: "Pro from Rs.149/mo",
                   highlight: true,
                   features: [
-                    "138 topics, 1933 questions",
+                    "81 topics, 1730 questions",
                     "System design + behavioral",
                     "Code playground (JS, Python)",
                     "Gamification + progress tracking",
@@ -391,7 +391,7 @@ export default function LeetCodeAlternativePage() {
             <div className="prose prose-invert prose-sm max-w-none text-muted-foreground leading-relaxed space-y-4">
               <p>
                 <strong className="text-foreground">Beginners who need structure.</strong> If you are new to interview
-                prep and do not know where to start, Guru Sishya&apos;s 138-topic curriculum gives you a clear
+                prep and do not know where to start, Guru Sishya&apos;s 81-topic curriculum gives you a clear
                 roadmap. Each topic builds on the previous one, from basic data structures to advanced system design.
               </p>
               <p>
@@ -484,11 +484,11 @@ export default function LeetCodeAlternativePage() {
               {[
                 {
                   q: "Is Guru Sishya really free?",
-                  a: "Yes. All 138 topics, 1933 quiz questions, 671 lessons, system design content, behavioral prep, and the code playground (JavaScript, Python) are completely free. No signup required. Pro features like Java/C++ code execution and priority support start at Rs.149/month (~$1.80).",
+                  a: "Yes. All 81 topics, 1730 quiz questions, 500+ lessons, system design content, behavioral prep, and the code playground (JavaScript, Python) are completely free. No signup required. Pro features like Java/C++ code execution and priority support start at Rs.149/month (~$1.80).",
                 },
                 {
                   q: "Does Guru Sishya have as many problems as LeetCode?",
-                  a: "No. LeetCode has 2800+ problems. Guru Sishya has 1933 quiz questions across 138 topics. Our approach is different: we focus on teaching patterns and concepts with structured lessons, not raw problem volume. Quality and understanding over quantity.",
+                  a: "No. LeetCode has 2800+ problems. Guru Sishya has 1730 quiz questions across 81 topics. Our approach is different: we focus on teaching patterns and concepts with structured lessons, not raw problem volume. Quality and understanding over quantity.",
                 },
                 {
                   q: "Can I use Guru Sishya on mobile?",
@@ -543,7 +543,7 @@ export default function LeetCodeAlternativePage() {
                   href="/learn"
                   className="inline-flex items-center justify-center rounded-md text-sm font-medium h-11 px-8 border border-border/50 text-muted-foreground hover:text-foreground hover:border-border transition-colors"
                 >
-                  Browse 138 Topics
+                  Browse 81 Topics
                 </Link>
               </div>
             </div>
@@ -558,7 +558,7 @@ export default function LeetCodeAlternativePage() {
                 "@type": "SoftwareApplication",
                 name: "Guru Sishya",
                 description:
-                  "Free software engineering interview preparation platform with 138 topics, 1933 quiz questions, system design, behavioral prep, and code playground.",
+                  "Free software engineering interview preparation platform with 81 topics, 1730 quiz questions, system design, behavioral prep, and code playground.",
                 url: BASE,
                 applicationCategory: "EducationalApplication",
                 operatingSystem: "Web",
@@ -575,8 +575,8 @@ export default function LeetCodeAlternativePage() {
                   bestRating: "5",
                 },
                 featureList: [
-                  "138 software engineering topics",
-                  "1933 quiz questions",
+                  "81 software engineering topics",
+                  "1730 quiz questions",
                   "671 interactive lessons",
                   "System design case studies",
                   "Behavioral interview STAR stories",
@@ -601,7 +601,7 @@ export default function LeetCodeAlternativePage() {
                     name: "Is Guru Sishya really free?",
                     acceptedAnswer: {
                       "@type": "Answer",
-                      text: "Yes. All 138 topics, 1933 quiz questions, 671 lessons, system design content, behavioral prep, and the code playground are completely free. No signup required.",
+                      text: "Yes. All 81 topics, 1730 quiz questions, 500+ lessons, system design content, behavioral prep, and the code playground are completely free. No signup required.",
                     },
                   },
                   {
@@ -609,7 +609,7 @@ export default function LeetCodeAlternativePage() {
                     name: "Does Guru Sishya have as many problems as LeetCode?",
                     acceptedAnswer: {
                       "@type": "Answer",
-                      text: "LeetCode has 2800+ problems. Guru Sishya has 1933 quiz questions across 138 topics. We focus on teaching patterns and concepts with structured lessons, not raw problem volume.",
+                      text: "LeetCode has 2800+ problems. Guru Sishya has 1730 quiz questions across 81 topics. We focus on teaching patterns and concepts with structured lessons, not raw problem volume.",
                     },
                   },
                   {
@@ -691,8 +691,8 @@ function SeoFooter() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Free Features</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>138 Topics</li>
-              <li>1933 Quiz Questions</li>
+              <li>81 Topics</li>
+              <li>1,730+ Quiz Questions</li>
               <li>Code Playground</li>
               <li>No Signup Required</li>
             </ul>

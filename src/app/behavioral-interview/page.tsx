@@ -617,8 +617,8 @@ function SeoFooter() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Free Features</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>138 Topics</li>
-              <li>1933 Quiz Questions</li>
+              <li>81 Topics</li>
+              <li>1,730+ Quiz Questions</li>
               <li>Code Playground</li>
               <li>No Signup Required</li>
             </ul>

@@ -515,7 +515,7 @@ export default function DashboardPage() {
             <div className="flex items-start gap-3">
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-saffron/20 text-saffron text-sm font-bold">1</span>
               <p className="text-sm text-foreground/90">
-                <strong>Pick a topic</strong> — choose from {contentStats.topicCount || "138"} interview topics like System Design, DSA, or Java.
+                <strong>Pick a topic</strong> — choose from {contentStats.topicCount || "81"} interview topics like System Design, DSA, or Java.
               </p>
             </div>
             <div className="flex items-start gap-3">

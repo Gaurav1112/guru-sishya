@@ -232,7 +232,7 @@ export default function PricingPage() {
   const [error, setError] = useState<string | null>(null);
   const [trialUsed, setTrialUsed] = useState(false);
   // Static stats — avoids loading 11MB of content JSON on the pricing page
-  const contentStats = { topicCount: 141, questionCount: 1988, sessionCount: 693 };
+  const contentStats = { topicCount: 81, questionCount: 1730, sessionCount: 500 };
 
   // Re-check expiry on mount and check trial-used flag
   useEffect(() => {

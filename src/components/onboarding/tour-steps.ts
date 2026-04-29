@@ -22,7 +22,7 @@ export const TOUR_STEPS: TourStepDef[] = [
   {
     id: "topics",
     targetSelector: 'a[href="/app/topics"]',
-    title: "Browse 138+ Topics",
+    title: "Browse 81 Topics",
     description:
       "Explore topics organized by category -- System Design, Data Structures, Algorithms, Programming Languages, and more.",
     icon: "📚",
@@ -34,7 +34,7 @@ export const TOUR_STEPS: TourStepDef[] = [
     targetSelector: 'a[href="/app/questions"]',
     title: "Take a Quiz",
     description:
-      "Test your knowledge with 1900+ curated quiz questions. Get instant feedback, detailed explanations, and track your accuracy.",
+      "Test your knowledge with 1,730+ curated quiz questions. Get instant feedback, detailed explanations, and track your accuracy.",
     icon: "📝",
     position: "right",
     mobilePosition: "bottom",

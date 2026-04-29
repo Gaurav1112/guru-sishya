@@ -65,7 +65,7 @@ export function Hero() {
         >
           The only platform with{" "}
           <span className="text-foreground font-semibold">DSA + System Design + Behavioral</span> prep.{" "}
-          Java &amp; Python code. 141 topics. 1,988 questions. Free to start.
+          Java &amp; Python code. 80 topics. 1,715 questions. Free to start.
         </motion.p>
 
         {/* Primary CTAs — action-oriented */}
@@ -82,7 +82,7 @@ export function Hero() {
           </Link>
           <Link href="/app/topics">
             <Button variant="outline" size="lg" className="min-w-[180px] text-base btn-outline-glow">
-              Explore 141 Topics
+              Explore 80 Topics
             </Button>
           </Link>
         </motion.div>
