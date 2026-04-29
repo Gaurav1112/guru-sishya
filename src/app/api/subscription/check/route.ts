@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
+    // Check subscriptions table first
     const { data, error } = await supabase
       .from("subscriptions")
       .select("plan_type, premium_until, payment_id")
@@ -40,27 +41,40 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (!data) {
-      // No record found — not premium
+    if (data) {
+      const { plan_type, premium_until } = data;
+      const isLifetime = plan_type === "lifetime";
+      const isPremium =
+        isLifetime ||
+        (premium_until != null && new Date(premium_until) > new Date());
+
       return NextResponse.json({
-        isPremium: false,
-        premiumUntil: null,
-        planType: null,
+        isPremium,
+        premiumUntil: premium_until ?? null,
+        planType: plan_type ?? null,
       });
     }
 
-    const { plan_type, premium_until } = data;
+    // No subscription — check the premium allowlist
+    const { data: allowlistRow } = await supabase
+      .from("premium_allowlist")
+      .select("email")
+      .eq("email", email)
+      .maybeSingle();
 
-    // Lifetime plan never expires
-    const isLifetime = plan_type === "lifetime";
-    const isPremium =
-      isLifetime ||
-      (premium_until != null && new Date(premium_until) > new Date());
+    if (allowlistRow) {
+      return NextResponse.json({
+        isPremium: true,
+        premiumUntil: "9999-12-31T23:59:59.999Z",
+        planType: "allowlist_free",
+      });
+    }
 
+    // Not premium
     return NextResponse.json({
-      isPremium,
-      premiumUntil: premium_until ?? null,
-      planType: plan_type ?? null,
+      isPremium: false,
+      premiumUntil: null,
+      planType: null,
     });
   } catch (err) {
     console.error("[subscription/check]", err);

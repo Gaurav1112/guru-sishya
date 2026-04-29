@@ -91,6 +91,23 @@ export async function verifyPremium(userId: string): Promise<PremiumVerification
     }
 
     if (!data) {
+      // No subscription — check the premium allowlist
+      const { data: allowlistRow } = await supabase
+        .from("premium_allowlist")
+        .select("email")
+        .eq("email", userId.toLowerCase())
+        .maybeSingle();
+
+      if (allowlistRow) {
+        const result: PremiumVerification = {
+          isPremium: true,
+          expiresAt: "9999-12-31T23:59:59.999Z",
+          planType: "allowlist_free",
+        };
+        setCache(userId, result);
+        return result;
+      }
+
       const result: PremiumVerification = {
         isPremium: false,
         expiresAt: null,
