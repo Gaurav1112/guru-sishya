@@ -104,7 +104,11 @@ function ShareMenu({ ogUrl, shareUrl, text, filename, onClose }: ShareMenuProps)
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(shareUrl);
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      // Clipboard API not available or permission denied — ignore
+    }
     setCopied(true);
     setTimeout(() => {
       setCopied(false);

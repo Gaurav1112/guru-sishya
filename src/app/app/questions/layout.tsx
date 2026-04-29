@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "1,730+ Software Engineering Interview Questions with Answers | Guru Sishya",
+  title: "1,730+ Software Engineering Interview Questions with Answers",
   description:
     "Browse 1,730+ curated software engineering interview questions with detailed answers. Covers DSA, system design, Java, Python, React, and behavioral questions. Filter by difficulty and topic.",
   openGraph: {

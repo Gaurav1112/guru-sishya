@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "You've Been Invited to Guru Sishya",
+  title: "You've Been Invited",
   description:
     "Join Guru Sishya — a free interview preparation platform with 81 topics, 1730 questions, system design, and behavioral prep. No signup required to start.",
   robots: { index: false, follow: true },

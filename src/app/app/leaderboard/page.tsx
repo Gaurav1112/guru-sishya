@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useStore } from "@/lib/store";
 import {
@@ -62,7 +62,7 @@ function leagueIcon(league: string): string {
 
 // ── Days until next Sunday (weekly reset) ────────────────────────────────────
 
-function daysUntilSunday(): number {
+function computeDaysUntilSunday(): number {
   const today = new Date().getDay(); // 0=Sun, 1=Mon...
   return today === 0 ? 7 : 7 - today;
 }
@@ -81,29 +81,31 @@ export default function LeaderboardPage() {
 
   // Use actual weekly XP from store; fall back to estimate for old users
   // who don't have weeklyXP tracked yet
-  const currentWeekId = useMemo(() => {
+  const [currentWeekId, setCurrentWeekId] = useState("");
+  const [needsReset, setNeedsReset] = useState(false);
+  const [daysUntilSunday, setDaysUntilSunday] = useState(7);
+
+  useEffect(() => {
     const now = new Date();
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     const week = Math.ceil(
       ((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7
     );
-    return `${now.getFullYear()}-${String(week).padStart(2, "0")}`;
+    setCurrentWeekId(`${now.getFullYear()}-${String(week).padStart(2, "0")}`);
+
+    const lastReset = localStorage.getItem("leagueLastReset") ?? "";
+    const today = now.toISOString().slice(0, 10);
+    setNeedsReset(shouldResetLeague(lastReset, today));
+
+    setDaysUntilSunday(computeDaysUntilSunday());
   }, []);
 
-  const userWeeklyXP = weeklyXPWeek === currentWeekId && weeklyXP > 0
+  const userWeeklyXP = currentWeekId && weeklyXPWeek === currentWeekId && weeklyXP > 0
     ? weeklyXP
     : Math.max(10, Math.round(totalXP / 8)); // fallback estimate
 
   const userLeague = getLeague(totalXP);
   const leagueColor = getLeagueColor(userLeague);
-
-  // Check if league needs reset (just for display; actual reset is client-side)
-  const lastReset =
-    typeof window !== "undefined"
-      ? localStorage.getItem("leagueLastReset") ?? ""
-      : "";
-  const today = new Date().toISOString().slice(0, 10);
-  const needsReset = shouldResetLeague(lastReset, today);
 
   const { entries: allUsers, userRank } = useMemo(
     () =>
@@ -137,7 +139,7 @@ export default function LeaderboardPage() {
             {leagueIcon(userLeague)} {userLeague} League
           </p>
           <p className="text-xs text-muted-foreground">
-            Resets in {daysUntilSunday()} day{daysUntilSunday() !== 1 ? "s" : ""}
+            Resets in {daysUntilSunday} day{daysUntilSunday !== 1 ? "s" : ""}
           </p>
         </div>
       </div>

@@ -6,7 +6,7 @@ const BASE = "https://www.guru-sishya.in";
 
 export const metadata: Metadata = {
   title:
-    "Cloud & DevOps Interview Questions (2026) — AWS, Docker, Kubernetes Guide | Guru Sishya",
+    "Cloud & DevOps Interview Questions (2026) — AWS, Docker, Kubernetes Guide",
   description:
     "20 most-asked cloud and DevOps interview questions with answers. Covers AWS (EC2, S3, Lambda, IAM, VPC), Docker, Kubernetes, CI/CD pipelines, Terraform, and Infrastructure as Code.",
   keywords: [

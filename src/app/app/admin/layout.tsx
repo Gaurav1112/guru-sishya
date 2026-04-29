@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin Console | Guru Sishya",
+  title: "Admin Console",
   description: "Site administration panel.",
   robots: { index: false, follow: false },
 };

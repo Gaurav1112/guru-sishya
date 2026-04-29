@@ -45,9 +45,13 @@ export function FeedbackWidget() {
       });
     } catch {
       // Store locally if API fails
-      const stored = JSON.parse(localStorage.getItem("gs-pending-feedback") ?? "[]");
-      stored.push(payload);
-      localStorage.setItem("gs-pending-feedback", JSON.stringify(stored));
+      try {
+        const stored = JSON.parse(localStorage.getItem("gs-pending-feedback") ?? "[]");
+        stored.push(payload);
+        localStorage.setItem("gs-pending-feedback", JSON.stringify(stored));
+      } catch {
+        // localStorage corrupted or full — silently ignore
+      }
     }
 
     setSubmitted(true);

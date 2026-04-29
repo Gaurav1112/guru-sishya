@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Mock Interview | Guru Sishya",
+  title: "AI Mock Interview",
   description:
     "Practice software engineering interviews with AI-powered mock interview sessions. Get real-time feedback on system design, DSA, and behavioral questions.",
   openGraph: {

@@ -1,10 +1,9 @@
 "use client";
 import { use } from "react";
 import { Loader2, Brain, Lightbulb, RefreshCw, MessageSquare } from "lucide-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useTopicWithFallback } from "@/hooks/use-topic-with-fallback";
 import { FeynmanContainer } from "@/components/features/feynman/feynman-container";
 import { PremiumGate } from "@/components/premium-gate";
 import { BackButton } from "@/components/back-button";
@@ -59,7 +58,7 @@ export default function FeynmanPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const topic = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
+  const { topic, isLoading } = useTopicWithFallback(id);
   const apiKey = useStore((s) => s.apiKey);
   const aiProvider = useStore((s) => s.aiProvider);
   const isPremium = useStore((s) => s.isPremium);
@@ -68,10 +67,16 @@ export default function FeynmanPage({
 
   const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
-  if (!hydrated) {
+  if (!hydrated || isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      <div className="max-w-xl mx-auto space-y-6 animate-pulse">
+        <div className="h-4 w-24 bg-muted/40 rounded" />
+        <div className="h-8 w-48 bg-muted/40 rounded" />
+        <div className="rounded-xl border border-border/30 bg-surface p-6 space-y-3">
+          <div className="h-4 w-32 bg-muted/40 rounded" />
+          <div className="h-3 w-full bg-muted/30 rounded" />
+          <div className="h-3 w-3/4 bg-muted/30 rounded" />
+        </div>
       </div>
     );
   }
@@ -94,14 +99,6 @@ export default function FeynmanPage({
           Settings
         </a>{" "}
         first.
-      </div>
-    );
-  }
-
-  if (topic === undefined) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Cloud & DevOps Interview Questions | Guru Sishya",
+  title: "Cloud & DevOps Interview Questions",
   description:
     "Master cloud and DevOps interviews with 20 essential questions on AWS, Docker, Kubernetes, CI/CD, and infrastructure. Free guide with detailed answers.",
   alternates: {

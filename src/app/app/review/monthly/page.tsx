@@ -35,10 +35,14 @@ function CertificateCard({
   timeTakenSeconds: number;
   breakdown: TopicScoreBreakdown[];
 }) {
-  const monthName = new Date().toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  });
+  const [monthName, setMonthName] = useState("");
+
+  useEffect(() => {
+    setMonthName(new Date().toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    }));
+  }, []);
   const mins = Math.floor(timeTakenSeconds / 60);
   const secs = timeTakenSeconds % 60;
 

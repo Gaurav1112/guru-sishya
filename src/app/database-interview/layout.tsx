@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Database Interview Questions | Guru Sishya",
+  title: "Database Interview Questions",
   description:
     "Ace database interviews with 20 essential questions on SQL, NoSQL, indexing, ACID, sharding, and query optimization. Free guide with detailed answers.",
   alternates: {

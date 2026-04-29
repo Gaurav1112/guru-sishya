@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Backend Engineering Interview Questions | Guru Sishya",
+  title: "Backend Engineering Interview Questions",
   description:
     "Prepare for backend interviews with 20 essential questions on APIs, microservices, caching, authentication, and message queues. Free detailed guide.",
   alternates: {

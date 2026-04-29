@@ -10,7 +10,7 @@ const BASE = "https://www.guru-sishya.in";
 
 export const metadata: Metadata = {
   title:
-    "Top 100 Coding Interview Questions by Company (2026) - Google, Amazon, Meta | Guru Sishya",
+    "Top 100 Coding Interview Questions by Company (2026) - Google, Amazon, Meta",
   description:
     "The 100 most frequently asked coding interview questions organized by company (Google, Amazon, Meta, Microsoft, Apple). Difficulty ratings, topic tags, and free practice on Guru Sishya.",
   keywords: [

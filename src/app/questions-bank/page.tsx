@@ -7,7 +7,7 @@ import {
 
 export const metadata: Metadata = {
   title:
-    "Software Engineering Interview Questions Bank | Guru Sishya",
+    "Software Engineering Interview Questions Bank",
   description:
     "200+ curated software engineering interview questions on system design, data structures, algorithms, and core CS. Practice with detailed explanations.",
   keywords: [

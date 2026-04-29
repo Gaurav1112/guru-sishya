@@ -1,10 +1,9 @@
 "use client";
 import { use } from "react";
 import { Loader2 } from "lucide-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useTopicWithFallback } from "@/hooks/use-topic-with-fallback";
 import { CheatsheetContainer } from "@/components/features/cheatsheet/cheatsheet-container";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
 import { BackButton } from "@/components/back-button";
@@ -15,8 +14,7 @@ export default function CheatsheetPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const topicId = Number(id);
-  const topic = useLiveQuery(async () => (await db.topics.get(topicId)) ?? null, [topicId]);
+  const { topic, isLoading } = useTopicWithFallback(id);
   const apiKey = useStore((s) => s.apiKey);
   const aiProvider = useStore((s) => s.aiProvider);
   const isPremium = useStore((s) => s.isPremium);
@@ -27,10 +25,16 @@ export default function CheatsheetPage({
 
   const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
 
-  if (!hydrated) {
+  if (!hydrated || isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      <div className="space-y-4 max-w-3xl mx-auto animate-pulse">
+        <div className="h-4 w-24 bg-muted/40 rounded" />
+        <div className="h-8 w-48 bg-muted/40 rounded" />
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="h-4 w-full bg-muted/30 rounded" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -43,14 +47,6 @@ export default function CheatsheetPage({
           Settings
         </a>{" "}
         first.
-      </div>
-    );
-  }
-
-  if (topic === undefined) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }

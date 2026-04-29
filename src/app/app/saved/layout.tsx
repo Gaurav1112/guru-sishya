@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Saved Questions | Guru Sishya",
+  title: "Saved Questions",
   description: "Your bookmarked and review-needed interview questions in one place. Track mastery of 1,730+ software engineering questions.",
 };
 

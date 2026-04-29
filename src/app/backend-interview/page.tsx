@@ -6,7 +6,7 @@ const BASE = "https://www.guru-sishya.in";
 
 export const metadata: Metadata = {
   title:
-    "Backend Engineering Interview Questions (2026) — APIs, Microservices, Architecture | Guru Sishya",
+    "Backend Engineering Interview Questions (2026) — APIs, Microservices, Architecture",
   description:
     "20 most-asked backend engineering interview questions with answers. Covers REST vs GraphQL, microservices, authentication (OAuth, JWT), caching (Redis, CDN), message queues (Kafka, RabbitMQ), and API design.",
   keywords: [

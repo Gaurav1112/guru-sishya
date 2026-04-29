@@ -176,8 +176,17 @@ export function ResourceContainer({ topicId, topicName }: ResourceContainerProps
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
+        <div className="space-y-2">
+          <div className="h-3 w-32 bg-muted/30 rounded" />
+          <div className="h-7 w-48 bg-muted/40 rounded" />
+          <div className="h-4 w-72 bg-muted/30 rounded" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-xl border border-border/30 bg-surface p-5 h-32" />
+          ))}
+        </div>
       </div>
     );
   }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Progress Analytics | Guru Sishya",
+  title: "Progress Analytics",
   description:
     "Track your interview preparation progress with accuracy trends, topic strength radar, weak areas analysis, and quiz performance breakdowns.",
 };

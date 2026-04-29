@@ -44,17 +44,24 @@ function AnimatedNumber({ value }: { value: number }) {
 // ────────────────────────────────────────────────────────────────────────────
 
 function StreakCalendar() {
-  const today = new Date();
   const streakHistory = useLiveQuery(() => db.streakHistory.toArray(), []);
 
   const activeDates = new Set((streakHistory ?? []).map((e) => e.date));
 
-  const days = Array.from({ length: 30 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (29 - i));
-    const dateStr = d.toISOString().slice(0, 10);
-    return { dateStr, active: activeDates.has(dateStr) };
-  });
+  const [days, setDays] = useState<{ dateStr: string; active: boolean }[]>([]);
+
+  useEffect(() => {
+    const today = new Date();
+    setDays(
+      Array.from({ length: 30 }, (_, i) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() - (29 - i));
+        const dateStr = d.toISOString().slice(0, 10);
+        return { dateStr, active: activeDates.has(dateStr) };
+      })
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streakHistory]);
 
   return (
     <div className="flex flex-wrap gap-1.5">

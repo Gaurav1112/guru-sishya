@@ -32,20 +32,27 @@ function StreakCalendar({
 }: {
   history: { date: string; cardsReviewed: number }[];
 }) {
-  // Show the last 14 days
-  const days: { dateStr: string; dayLabel: string; hasReview: boolean }[] = [];
-  const today = new Date();
+  // Show the last 14 days — computed after mount to avoid hydration mismatch
+  const [calData, setCalData] = useState<{
+    days: { dateStr: string; dayLabel: string; hasReview: boolean }[];
+    todayStr: string;
+  }>({ days: [], todayStr: "" });
 
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const dayLabel = getDayOfWeek(dateStr);
-    const hasReview = history.some((h) => h.date === dateStr);
-    days.push({ dateStr, dayLabel, hasReview });
-  }
+  useEffect(() => {
+    const today = new Date();
+    const days: { dateStr: string; dayLabel: string; hasReview: boolean }[] = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const dayLabel = getDayOfWeek(dateStr);
+      const hasReview = history.some((h) => h.date === dateStr);
+      days.push({ dateStr, dayLabel, hasReview });
+    }
+    setCalData({ days, todayStr: today.toISOString().slice(0, 10) });
+  }, [history]);
 
-  const todayStr = today.toISOString().slice(0, 10);
+  const { days, todayStr } = calData;
 
   return (
     <div className="rounded-xl border border-border/50 bg-surface p-4">
@@ -106,12 +113,17 @@ function UpcomingReviews() {
       .catch(() => {});
   }, []);
 
-  // Compute approximate next weekly/monthly reset
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // 0=Sunday
-  const daysUntilWeekly = 7 - dayOfWeek;
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const daysUntilMonthly = daysInMonth - today.getDate();
+  // Compute approximate next weekly/monthly reset — defer to avoid hydration mismatch
+  const [daysUntilWeekly, setDaysUntilWeekly] = useState(7);
+  const [daysUntilMonthly, setDaysUntilMonthly] = useState(30);
+
+  useEffect(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    setDaysUntilWeekly(7 - dayOfWeek);
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    setDaysUntilMonthly(daysInMonth - today.getDate());
+  }, []);
 
   return (
     <div className="rounded-xl border border-border/50 bg-surface p-4 space-y-3">
@@ -191,17 +203,29 @@ function ReviewHistory({
 // ── Timed test cards ──────────────────────────────────────────────────────────
 
 function TimedTestCards() {
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 = Sunday
-  const dateOfMonth = today.getDate();
+  const [dateInfo, setDateInfo] = useState({
+    dayOfWeek: 1,
+    daysUntilSunday: 6,
+    isWeeklyDay: false,
+    isMonthlyWeek: false,
+    daysToMonthEnd: 30,
+  });
 
-  const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
-  const isWeeklyDay = dayOfWeek === 0;
-  const isMonthlyWeek = dateOfMonth <= 7;
+  useEffect(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const dateOfMonth = today.getDate();
+    const firstOfNext = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    setDateInfo({
+      dayOfWeek,
+      daysUntilSunday: dayOfWeek === 0 ? 0 : 7 - dayOfWeek,
+      isWeeklyDay: dayOfWeek === 0,
+      isMonthlyWeek: dateOfMonth <= 7,
+      daysToMonthEnd: Math.ceil((firstOfNext.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)),
+    });
+  }, []);
 
-  // Days until first of next month
-  const firstOfNext = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-  const daysToMonthEnd = Math.ceil((firstOfNext.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const { daysUntilSunday, isWeeklyDay, isMonthlyWeek, daysToMonthEnd } = dateInfo;
 
   const testHistory = useLiveQuery(
     () => db.timedTestResults.orderBy("completedAt").reverse().limit(5).toArray(),
@@ -434,7 +458,11 @@ interface HubViewProps {
 
 function HubView({ dueCards, totalDueCount, isActivePremium, history, onStartReview }: HubViewProps) {
   const dueCount = dueCards.length;
-  const hour = new Date().getHours();
+  const [hour, setHour] = useState(12); // default to noon (neutral)
+
+  useEffect(() => {
+    setHour(new Date().getHours());
+  }, []);
 
   const [interviewMissCount, setInterviewMissCount] = useState(0);
   const reviewBookmarks = useLiveQuery(

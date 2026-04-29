@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Study Notes | Guru Sishya",
+  title: "Study Notes",
   description: "View and manage study notes across all interview preparation topics. Search, filter, and revisit key concepts.",
 };
 

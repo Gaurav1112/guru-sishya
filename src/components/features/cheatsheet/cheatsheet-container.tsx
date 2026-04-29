@@ -136,8 +136,16 @@ export function CheatsheetContainer({
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      <div className="max-w-3xl mx-auto space-y-4 animate-pulse">
+        <div className="flex items-center justify-between">
+          <div className="h-6 w-40 bg-muted/40 rounded" />
+          <div className="h-8 w-24 bg-muted/30 rounded" />
+        </div>
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="h-4 bg-muted/30 rounded" style={{ width: `${85 - i * 5}%` }} />
+          ))}
+        </div>
       </div>
     );
   }

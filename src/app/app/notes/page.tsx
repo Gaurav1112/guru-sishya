@@ -292,8 +292,16 @@ export default function NotesPage() {
 
   if (!mounted) {
     return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
-        Loading notes...
+      <div className="max-w-5xl mx-auto space-y-6 animate-pulse">
+        <div className="space-y-2">
+          <div className="h-7 w-32 bg-muted/40 rounded" />
+          <div className="h-4 w-56 bg-muted/30 rounded" />
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-xl border border-border/30 bg-surface/40 p-4 h-20" />
+          ))}
+        </div>
       </div>
     );
   }

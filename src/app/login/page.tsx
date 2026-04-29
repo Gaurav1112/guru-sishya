@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SignInForm } from "./signin-form";
 
 export const metadata: Metadata = {
-  title: "Sign In to Guru Sishya — Sync Progress & Track Badges",
+  title: "Sign In — Sync Progress & Track Badges",
   description:
     "Sign in to Guru Sishya to sync your interview prep progress across devices, track badges, earn XP, and join the leaderboard.",
   alternates: { canonical: "https://www.guru-sishya.in/login" },

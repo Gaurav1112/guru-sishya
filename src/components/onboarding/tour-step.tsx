@@ -31,8 +31,11 @@ export function TourStep({
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const isCenter =
     step.position === "center" || step.targetSelector === "body";
-  const isMobile =
-    typeof window !== "undefined" && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
 
   const computePosition = useCallback(() => {
     if (isCenter) {

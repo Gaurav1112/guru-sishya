@@ -22,9 +22,13 @@ export function EmailCapture() {
       });
     } catch {
       // Fallback to localStorage
-      const emails = JSON.parse(localStorage.getItem("gs-email-captures") || "[]");
-      emails.push({ email: email.trim(), capturedAt: new Date().toISOString() });
-      localStorage.setItem("gs-email-captures", JSON.stringify(emails));
+      try {
+        const emails = JSON.parse(localStorage.getItem("gs-email-captures") || "[]");
+        emails.push({ email: email.trim(), capturedAt: new Date().toISOString() });
+        localStorage.setItem("gs-email-captures", JSON.stringify(emails));
+      } catch {
+        // localStorage corrupted or full — silently ignore
+      }
     }
     setSubmitted(true);
     setLoading(false);

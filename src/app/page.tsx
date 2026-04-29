@@ -473,7 +473,7 @@ export default function LandingPage() {
 
           {/* Bottom bar */}
           <div className="border-t border-border/40 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground/60">
-            <p>&copy; {new Date().getFullYear()} Guru Sishya. Made in India.</p>
+            <p suppressHydrationWarning>&copy; {new Date().getFullYear()} Guru Sishya. Made in India.</p>
             <p>Payments secured by Razorpay</p>
           </div>
         </div>

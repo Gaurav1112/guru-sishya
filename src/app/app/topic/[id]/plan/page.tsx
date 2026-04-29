@@ -1,10 +1,9 @@
 "use client";
 import { use } from "react";
 import { Loader2 } from "lucide-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useTopicWithFallback } from "@/hooks/use-topic-with-fallback";
 import { PlanContainer } from "@/components/features/plan/plan-container";
 import { CodeLanguageToggle } from "@/components/code-language-toggle";
 import { BackButton } from "@/components/back-button";
@@ -15,17 +14,24 @@ export default function PlanPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const topic = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
+  const { topic, isLoading } = useTopicWithFallback(id);
   const apiKey = useStore((s) => s.apiKey);
   const aiProvider = useStore((s) => s.aiProvider);
   const preferredLanguage = useStore((s) => s.preferredLanguage);
   const setPreferredLanguage = useStore((s) => s.setPreferredLanguage);
   const hydrated = useHydrated();
 
-  if (!hydrated) {
+  if (!hydrated || isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      <div className="space-y-6 max-w-3xl mx-auto animate-pulse">
+        <div className="h-4 w-24 bg-muted/40 rounded" />
+        <div className="h-8 w-64 bg-muted/40 rounded" />
+        <div className="h-2 w-full rounded-full bg-muted/30" />
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="rounded-xl border border-border/30 bg-surface p-4 h-16" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -38,14 +44,6 @@ export default function PlanPage({
           Settings
         </a>{" "}
         first.
-      </div>
-    );
-  }
-
-  if (topic === undefined) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }

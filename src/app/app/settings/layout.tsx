@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Settings | Guru Sishya",
+  title: "Settings",
   description:
     "Configure your Guru Sishya experience. Manage AI providers, theme preferences, notification settings, and data export options.",
   openGraph: {

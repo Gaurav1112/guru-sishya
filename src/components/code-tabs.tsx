@@ -109,16 +109,10 @@ export function CodeTabs({ codes, height = 300, title, className }: CodeTabsProp
 
   const availableLangs = sortedCodes.map((c) => normalizeLang(c.language));
 
-  // Read preferred lang from localStorage; fall back to first available
-  const [activeLang, setActiveLang] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored && availableLangs.includes(stored)) return stored;
-    }
-    return availableLangs[0] ?? "python";
-  });
+  // Always start with first available lang for SSR consistency, then sync from localStorage
+  const [activeLang, setActiveLang] = useState<string>(availableLangs[0] ?? "python");
 
-  // Sync from localStorage after hydration (avoids SSR mismatch)
+  // Sync from localStorage after hydration
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && availableLangs.includes(stored) && stored !== activeLang) {

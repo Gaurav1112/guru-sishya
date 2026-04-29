@@ -121,7 +121,7 @@ export function buildAchievementEmail(data: AchievementData): {
           <!-- CTA -->
           <tr>
             <td style="padding: 24px; text-align: center;">
-              <a href="${APP_URL}/app/badges" style="display: inline-block; padding: 14px 32px; background-color: #E85D26; color: #FFFFFF; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+              <a href="${APP_URL}/app/profile" style="display: inline-block; padding: 14px 32px; background-color: #E85D26; color: #FFFFFF; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
                 View Your Badges
               </a>
             </td>

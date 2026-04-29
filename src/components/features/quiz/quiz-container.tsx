@@ -1055,15 +1055,22 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
             <div className="flex gap-3 justify-center">
               <Button
                 onClick={() => {
-                  const s = savedSession;
-                  const restored: AnsweredQuestion[] = JSON.parse(s.answers || "[]");
-                  setAdaptiveAnswers(restored);
-                  allAnswers.current = restored;
-                  setCurrentLevel(s.currentLevel as BloomLevel);
-                  setConsecutiveLow(0);
-                  setShowResume(false);
-                  setSavedSession(null);
-                  setPhase("adaptive_loading");
+                  try {
+                    const s = savedSession;
+                    const restored: AnsweredQuestion[] = JSON.parse(s.answers || "[]");
+                    setAdaptiveAnswers(restored);
+                    allAnswers.current = restored;
+                    setCurrentLevel(s.currentLevel as BloomLevel);
+                    setConsecutiveLow(0);
+                    setShowResume(false);
+                    setSavedSession(null);
+                    setPhase("adaptive_loading");
+                  } catch {
+                    // Corrupted saved session — start fresh
+                    db.quizSessionState.where({ topicId }).delete().catch(() => {});
+                    setShowResume(false);
+                    setSavedSession(null);
+                  }
                 }}
                 className="bg-saffron hover:bg-saffron/90 text-background"
               >
@@ -1085,8 +1092,11 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       );
     }
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      <div className="flex flex-col gap-4 max-w-xl mx-auto animate-pulse">
+        <div className="h-8 w-48 bg-muted/40 rounded" />
+        <div className="h-4 w-72 bg-muted/30 rounded" />
+        <div className="rounded-xl border border-border/30 bg-surface p-6 h-48" />
+        <div className="h-10 w-32 bg-muted/30 rounded-lg mx-auto" />
       </div>
     );
   }
@@ -1120,17 +1130,24 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
               <button
                 className="px-4 py-2 rounded-lg bg-saffron text-background font-medium"
                 onClick={() => {
-                  // Restore saved session state
-                  const s = savedSession!;
-                  const restored: AnsweredQuestion[] = JSON.parse(s.answers || "[]");
-                  setAdaptiveAnswers(restored);
-                  allAnswers.current = restored;
-                  setCurrentLevel(s.currentLevel as BloomLevel);
-                  setConsecutiveLow(0);
-                  setShowResume(false);
-                  setSavedSession(null);
-                  // Skip calibration and go straight to generating next question
-                  setPhase("adaptive_loading");
+                  try {
+                    // Restore saved session state
+                    const s = savedSession!;
+                    const restored: AnsweredQuestion[] = JSON.parse(s.answers || "[]");
+                    setAdaptiveAnswers(restored);
+                    allAnswers.current = restored;
+                    setCurrentLevel(s.currentLevel as BloomLevel);
+                    setConsecutiveLow(0);
+                    setShowResume(false);
+                    setSavedSession(null);
+                    // Skip calibration and go straight to generating next question
+                    setPhase("adaptive_loading");
+                  } catch {
+                    // Corrupted saved session — start fresh
+                    db.quizSessionState.where({ topicId }).delete().catch(() => {});
+                    setShowResume(false);
+                    setSavedSession(null);
+                  }
                 }}
               >
                 Resume
@@ -1462,8 +1479,9 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
 
   // Fallback loading
   return (
-    <div className="flex flex-col items-center gap-3 py-20">
-      <Loader2 className="size-6 animate-spin text-muted-foreground" />
+    <div className="flex flex-col gap-4 max-w-xl mx-auto animate-pulse">
+      <div className="h-2 w-full bg-muted/30 rounded-full" />
+      <div className="rounded-xl border border-border/30 bg-surface p-6 h-48" />
     </div>
   );
 }

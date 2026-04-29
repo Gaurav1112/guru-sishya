@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Profile | Guru Sishya",
+  title: "Profile",
   description:
     "View your interview preparation profile. Track total XP, completed topics, quiz accuracy, streak history, and earned badges.",
   openGraph: {

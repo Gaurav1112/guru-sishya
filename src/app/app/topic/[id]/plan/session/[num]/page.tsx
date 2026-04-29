@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -10,6 +10,8 @@ import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useTopicWithFallback } from "@/hooks/use-topic-with-fallback";
+import { loadAllContent } from "@/lib/content/loader";
 import { generateFlashcardsFromSession } from "@/lib/flashcard-generator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -153,13 +155,10 @@ export default function SessionViewPage({
   const [showCelebration, setShowCelebration] = useState(false);
   const [showConfirmComplete, setShowConfirmComplete] = useState(false);
 
-  // Load topic
-  const topic = useLiveQuery(
-    async () => (await db.topics.get(topicId)) ?? null,
-    [topicId]
-  );
+  // Load topic (with static content fallback for cold loads)
+  const { topic, isLoading: topicLoading } = useTopicWithFallback(id);
 
-  // Load plan
+  // Load plan from Dexie
   const existingPlan = useLiveQuery(
     async () => {
       const plan = await db.learningPlans.where("topicId").equals(topicId).first();
@@ -167,6 +166,22 @@ export default function SessionViewPage({
     },
     [topicId]
   );
+
+  // Fallback: when Dexie has no plan, build one from static content
+  const [fallbackPlan, setFallbackPlan] = useState<GeneratedPlan | null>(null);
+  useEffect(() => {
+    // Only attempt fallback once the Dexie query resolves to null (not undefined = still loading)
+    if (existingPlan === undefined || existingPlan !== null) return;
+    loadAllContent()
+      .then((allContent) => {
+        const idx = topicId - 1;
+        const staticTopic = allContent[idx] ?? null;
+        if (staticTopic?.plan?.sessions?.length) {
+          setFallbackPlan(staticTopic.plan as unknown as GeneratedPlan);
+        }
+      })
+      .catch(() => {/* ignore */});
+  }, [existingPlan, topicId]);
 
   // Load session completion status
   const planSession = useLiveQuery(
@@ -194,7 +209,7 @@ export default function SessionViewPage({
     );
   }
 
-  // Parse plan JSON
+  // Parse plan JSON — prefer Dexie plan, fall back to static content plan
   let plan: GeneratedPlan | null = null;
   if (existingPlan) {
     try {
@@ -203,19 +218,23 @@ export default function SessionViewPage({
       plan = null;
     }
   }
+  if (!plan && fallbackPlan) {
+    plan = fallbackPlan;
+  }
 
   // Find session by sessionNumber, falling back to array index for content
   // files that omit sessionNumber (e.g. system-design-cases.json)
   const session = (
     plan?.sessions.find((s) => s.sessionNumber === sessionNum) ??
-    (sessionNum >= 1 && sessionNum <= (plan?.sessions.length ?? 0)
-      ? { ...plan!.sessions[sessionNum - 1], sessionNumber: sessionNum }
+    (plan && sessionNum >= 1 && sessionNum <= plan.sessions.length
+      ? { ...plan.sessions[sessionNum - 1], sessionNumber: sessionNum }
       : undefined)
   ) as SessionWithContent | undefined;
   const totalSessions = plan?.sessions.length ?? 0;
 
-  // Loading states
-  if (!hydrated || topic === undefined || existingPlan === undefined) {
+  // Loading states — wait for topic + plan (Dexie or fallback)
+  const planLoading = existingPlan === undefined && !fallbackPlan;
+  if (!hydrated || topicLoading || planLoading) {
     return (
       <div className="flex items-center justify-center py-32">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />

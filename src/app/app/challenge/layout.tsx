@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Quiz Challenge | Guru Sishya",
+  title: "Quiz Challenge",
   description: "Accept a quiz challenge from a friend. Answer the same questions and compare scores.",
 };
 

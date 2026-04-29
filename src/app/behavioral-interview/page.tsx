@@ -8,7 +8,7 @@ const BASE = "https://www.guru-sishya.in";
 
 export const metadata: Metadata = {
   title:
-    "Behavioral Interview Questions & STAR Method Guide (2026) | Guru Sishya",
+    "Behavioral Interview Questions & STAR Method Guide (2026)",
   description:
     "Master behavioral interviews with the STAR method. 50 real STAR stories, company-specific questions for Amazon, Google, Meta, and proven frameworks to ace your behavioral round.",
   keywords: [

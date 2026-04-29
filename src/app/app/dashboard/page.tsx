@@ -85,9 +85,13 @@ function ReviewWidget() {
     return db.flashcards.where("nextReviewAt").belowOrEqual(today).count();
   }, []);
 
-  const hour = new Date().getHours();
+  const [hour, setHour] = useState<number | null>(null);
 
-  if (dueCount === undefined) return null;
+  useEffect(() => {
+    setHour(new Date().getHours());
+  }, []);
+
+  if (dueCount === undefined || hour === null) return null;
 
   let message: string;
   let borderClass: string;
@@ -168,8 +172,13 @@ function ComebackBanner() {
 function DailyGoalBar() {
   const { dailyGoal, dailyXP, dailyXPDate, queueCelebration } = useStore();
   const goalXP = dailyGoal * 5;
-  const today = new Date().toISOString().slice(0, 10);
-  const todayXP = dailyXPDate === today ? dailyXP : 0;
+  const [today, setToday] = useState("");
+
+  useEffect(() => {
+    setToday(new Date().toISOString().slice(0, 10));
+  }, []);
+
+  const todayXP = today && dailyXPDate === today ? dailyXP : 0;
   const pct = Math.min(100, goalXP > 0 ? Math.round((todayXP / goalXP) * 100) : 0);
   const goalMet = todayXP >= goalXP && goalXP > 0;
 
@@ -350,13 +359,20 @@ function YourProgress() {
   const quizAttempts = useLiveQuery(() => db.quizAttempts.toArray(), []);
   const topicCount = useLiveQuery(() => db.topics.count(), []);
 
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const questionsToday = (quizAttempts ?? [])
-    .filter(
-      (q) =>
-        new Date(q.completedAt).toISOString().slice(0, 10) === todayStr
-    )
-    .reduce((acc, q) => acc + (q.questions?.length ?? 0), 0);
+  const [todayStr, setTodayStr] = useState("");
+
+  useEffect(() => {
+    setTodayStr(new Date().toISOString().slice(0, 10));
+  }, []);
+
+  const questionsToday = todayStr
+    ? (quizAttempts ?? [])
+        .filter(
+          (q) =>
+            new Date(q.completedAt).toISOString().slice(0, 10) === todayStr
+        )
+        .reduce((acc, q) => acc + (q.questions?.length ?? 0), 0)
+    : 0;
 
   return (
     <div className="grid gap-4 sm:grid-cols-3">

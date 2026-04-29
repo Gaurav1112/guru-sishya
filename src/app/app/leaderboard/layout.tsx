@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Leaderboard | Guru Sishya",
+  title: "Leaderboard",
   description:
     "Compete with fellow learners on the weekly leaderboard. Earn XP by completing lessons, quizzes, and daily challenges to climb the ranks.",
   openGraph: {

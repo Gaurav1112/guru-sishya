@@ -30,7 +30,7 @@ export async function generateMetadata({
   const topic = findTopicBySlug(slug);
   if (!topic) return {};
 
-  const title = `${topic.topic} - Interview Prep | Guru Sishya`;
+  const title = `${topic.topic} - Interview Prep`;
   const description = truncateText(
     topic.plan?.overview ||
       `Learn ${topic.topic} for software engineering interviews. Covers key concepts, common questions, and best practices.`,

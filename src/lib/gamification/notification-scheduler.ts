@@ -258,6 +258,7 @@ export function startNotificationScheduler(): void {
  * Stop all scheduled notifications and clear timers.
  */
 export function stopNotificationScheduler(): void {
+  if (typeof window === "undefined") return;
   while (activeTimers.length > 0) {
     const timer = activeTimers.pop();
     if (timer !== undefined) {
@@ -265,7 +266,5 @@ export function stopNotificationScheduler(): void {
     }
   }
 
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(SCHEDULED_KEY);
-  }
+  localStorage.removeItem(SCHEDULED_KEY);
 }

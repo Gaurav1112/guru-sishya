@@ -161,8 +161,17 @@ export function LadderContainer({ topicId, topicName }: LadderContainerProps) {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      <div className="max-w-3xl mx-auto animate-pulse">
+        <div className="space-y-2 mb-6">
+          <div className="h-3 w-24 bg-muted/30 rounded" />
+          <div className="h-7 w-48 bg-muted/40 rounded" />
+          <div className="h-4 w-64 bg-muted/30 rounded" />
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="rounded-xl border border-border/30 bg-surface p-5 h-24" />
+          ))}
+        </div>
       </div>
     );
   }

@@ -4,7 +4,8 @@ import { use, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "framer-motion";
 import { db } from "@/lib/db";
-import { findTopicContent, loadAllContent, type TopicContent } from "@/lib/content/loader";
+import { findTopicContent, type TopicContent } from "@/lib/content/loader";
+import { useTopicWithFallback } from "@/hooks/use-topic-with-fallback";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { BackButton } from "@/components/back-button";
@@ -45,8 +46,7 @@ const CATEGORY_BADGE: Record<string, string> = {
 
 export default function TopicHubPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  // useLiveQuery returns undefined while loading, null/undefined when not found
-  const topicFromDb = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
+  const { topic, isLoading } = useTopicWithFallback(id);
   const [builtIn, setBuiltIn] = useState<TopicContent | null>(null);
   const [contentChecked, setContentChecked] = useState(false);
 
@@ -61,37 +61,6 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
     [id]
   );
 
-  // Fallback topic synthesised from static content for direct URL cold loads
-  const [fallbackTopic, setFallbackTopic] = useState<{ id: number; name: string; category?: string } | null>(null);
-  const [dbChecked, setDbChecked] = useState(false);
-
-  // topicFromDb is undefined while Dexie query is pending; null once it resolves with no result
-  const topic = topicFromDb ?? fallbackTopic ?? null;
-
-  // When Dexie resolves to null, attempt to build a topic stub from static content
-  useEffect(() => {
-    if (topicFromDb !== undefined) {
-      setDbChecked(true);
-    }
-  }, [topicFromDb]);
-
-  useEffect(() => {
-    if (!dbChecked || topicFromDb !== null) return;
-    // Dexie has no record for this id — try to find a matching topic in static content
-    loadAllContent().then((allContent) => {
-      // Use id as an index (1-based) into sorted static topics as a best-effort fallback
-      const idx = Number(id) - 1;
-      const staticTopic = allContent[idx] ?? null;
-      if (staticTopic) {
-        setFallbackTopic({
-          id: Number(id),
-          name: staticTopic.topic,
-          category: staticTopic.category,
-        });
-      }
-    }).catch(() => {/* ignore */});
-  }, [dbChecked, topicFromDb, id]);
-
   useEffect(() => {
     if (!topic) return;
     findTopicContent(topic.name)
@@ -102,16 +71,27 @@ export default function TopicHubPage({ params }: { params: Promise<{ id: string 
       .catch(() => setContentChecked(true));
   }, [topic]);
 
-  // Still loading from Dexie and no fallback yet
-  if (topicFromDb === undefined && !fallbackTopic)
+  // Still loading from Dexie — show skeleton matching final layout (no spinner)
+  if (isLoading)
     return (
-      <div className="py-20 text-center text-muted-foreground">
-        <Loader2 className="mx-auto mb-3 size-6 animate-spin" />
-        Loading topic...
+      <div>
+        <div className="mb-6 flex flex-col gap-2 animate-pulse">
+          <div className="h-9 w-64 bg-muted/40 rounded" />
+          <div className="h-4 w-48 bg-muted/30 rounded" />
+        </div>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="rounded-xl border border-border/30 bg-surface p-6 space-y-3 animate-pulse">
+              <div className="h-8 w-8 bg-muted/30 rounded" />
+              <div className="h-4 w-24 bg-muted/40 rounded" />
+              <div className="h-3 w-full bg-muted/30 rounded" />
+            </div>
+          ))}
+        </div>
       </div>
     );
 
-  // Dexie resolved null AND static fallback found nothing
+  // Dexie and static fallback both found nothing
   if (!topic)
     return (
       <div className="py-20 text-center text-muted-foreground">

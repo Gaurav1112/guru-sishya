@@ -194,7 +194,8 @@ function useRazorpayScript() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (window.Razorpay) {
+    if (typeof window === "undefined") return;
+    if ((window as unknown as Record<string, unknown>).Razorpay) {
       setLoaded(true);
       return;
     }
@@ -231,6 +232,7 @@ export default function PricingPage() {
   const [trialLoading, setTrialLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trialUsed, setTrialUsed] = useState(false);
+  const [countdownEndDate, setCountdownEndDate] = useState<string | null>(null);
   // Static stats — avoids loading 11MB of content JSON on the pricing page
   const contentStats = { topicCount: 81, questionCount: 1730, sessionCount: 500 };
 
@@ -241,6 +243,19 @@ export default function PricingPage() {
       setTrialUsed(localStorage.getItem("gs-trial-used") === "true");
     } catch {
       // ignore
+    }
+    // Rolling 3-day countdown window
+    try {
+      const stored = localStorage.getItem("gs-price-timer-end");
+      if (stored && new Date(stored).getTime() > Date.now()) {
+        setCountdownEndDate(stored);
+      } else {
+        const end = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+        localStorage.setItem("gs-price-timer-end", end);
+        setCountdownEndDate(end);
+      }
+    } catch {
+      setCountdownEndDate(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString());
     }
   }, [checkPremiumExpiry]);
 
@@ -402,14 +417,7 @@ export default function PricingPage() {
       )}
 
       {/* Countdown timer — always show, rolling 3-day window */}
-      <CountdownTimer endDate={(() => {
-        // Rolling 3-day window: always shows ~3 days remaining
-        const stored = typeof window !== "undefined" ? localStorage.getItem("gs-price-timer-end") : null;
-        if (stored && new Date(stored).getTime() > Date.now()) return stored;
-        const end = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
-        if (typeof window !== "undefined") localStorage.setItem("gs-price-timer-end", end);
-        return end;
-      })()} />
+      {countdownEndDate && <CountdownTimer endDate={countdownEndDate} />}
       <p className="text-center text-muted-foreground text-sm mb-8">
         Trusted by software engineers preparing for interviews at top tech companies
       </p>

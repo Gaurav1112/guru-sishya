@@ -6,7 +6,7 @@ const BASE = "https://www.guru-sishya.in";
 
 export const metadata: Metadata = {
   title:
-    "Best LeetCode Alternative (2026) - Free Interview Prep | Guru Sishya",
+    "Best LeetCode Alternative (2026) - Free Interview Prep",
   description:
     "Looking for a free LeetCode alternative? Guru Sishya offers 81 topics, 1730 quiz questions, system design, behavioral prep, and a code playground. No signup, no payment. Compare features vs LeetCode, NeetCode, and AlgoExpert.",
   keywords: [

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Company Interview Path | Guru Sishya",
+  title: "Company Interview Path",
   description:
     "Follow a structured, company-specific interview preparation path. Curated topic sequences for Google, Amazon, Microsoft, Meta, Apple, and Flipkart.",
   openGraph: {

@@ -1,10 +1,9 @@
 "use client";
 import { use } from "react";
 import { Loader2 } from "lucide-react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useTopicWithFallback } from "@/hooks/use-topic-with-fallback";
 import { ResourceContainer } from "@/components/features/resources/resource-container";
 import { BackButton } from "@/components/back-button";
 import { YouTubeVideos } from "@/components/youtube-embed";
@@ -16,15 +15,22 @@ export default function ResourcesPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const topic = useLiveQuery(async () => (await db.topics.get(Number(id))) ?? null, [id]);
+  const { topic, isLoading } = useTopicWithFallback(id);
   const apiKey = useStore((s) => s.apiKey);
   const aiProvider = useStore((s) => s.aiProvider);
   const hydrated = useHydrated();
 
-  if (!hydrated) {
+  if (!hydrated || isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      <div className="max-w-4xl mx-auto animate-pulse">
+        <div className="h-4 w-24 bg-muted/40 rounded mb-4" />
+        <div className="h-8 w-48 bg-muted/40 rounded mb-2" />
+        <div className="h-4 w-72 bg-muted/30 rounded mb-6" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-xl border border-border/30 bg-surface p-5 h-32" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -37,14 +43,6 @@ export default function ResourcesPage({
           Settings
         </a>{" "}
         first.
-      </div>
-    );
-  }
-
-  if (topic === undefined) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }

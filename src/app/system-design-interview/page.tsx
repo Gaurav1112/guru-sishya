@@ -10,7 +10,7 @@ const BASE = "https://www.guru-sishya.in";
 
 export const metadata: Metadata = {
   title:
-    "System Design Interview Prep Guide (2026) - Complete Roadmap | Guru Sishya",
+    "System Design Interview Prep Guide (2026) - Complete Roadmap",
   description:
     "Complete system design interview preparation guide. Learn how to design scalable systems like URL shorteners, chat apps, and Netflix. 8 case studies, proven frameworks, and free practice materials.",
   keywords: [

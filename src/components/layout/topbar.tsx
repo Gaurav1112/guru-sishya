@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Crown, Menu, ShieldCheck } from "lucide-react";
@@ -186,18 +186,22 @@ function MobileNav() {
 export function Topbar() {
   const { totalXP, level, coins, currentStreak, streakFreezes, activeXPBoost, displayName } = useStore();
   const { data: session } = useSession();
-  const xpBoostActive =
-    !!activeXPBoost && new Date(activeXPBoost) > new Date();
+  const [xpBoostActive, setXpBoostActive] = useState(false);
+
+  useEffect(() => {
+    setXpBoostActive(!!activeXPBoost && new Date(activeXPBoost) > new Date());
+  }, [activeXPBoost]);
 
   // Determine streak status: active today, at-risk with freeze, or at-risk no freeze
-  const streakStatus: StreakStatus | undefined = useMemo(() => {
-    if (typeof window === "undefined") return undefined;
+  const [streakStatus, setStreakStatus] = useState<StreakStatus | undefined>(undefined);
+
+  useEffect(() => {
     const lastDate = localStorage.getItem("lastStreakDate") ?? "";
     const today = new Date().toISOString().slice(0, 10);
-    if (lastDate === today) return "active";
-    if (streakFreezes > 0) return "at-risk";
-    if (currentStreak > 0) return "no-freeze";
-    return undefined;
+    if (lastDate === today) setStreakStatus("active");
+    else if (streakFreezes > 0) setStreakStatus("at-risk");
+    else if (currentStreak > 0) setStreakStatus("no-freeze");
+    else setStreakStatus(undefined);
   }, [streakFreezes, currentStreak]);
 
   // Resolve display name: Google session name takes priority, then store displayName

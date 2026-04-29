@@ -6,7 +6,7 @@ const BASE = "https://www.guru-sishya.in";
 
 export const metadata: Metadata = {
   title:
-    "Database Interview Questions (2026) — SQL, NoSQL, System Design Guide | Guru Sishya",
+    "Database Interview Questions (2026) — SQL, NoSQL, System Design Guide",
   description:
     "20 most-asked database interview questions with answers. Covers SQL (JOINs, indexes, transactions, ACID), NoSQL (document, key-value, graph), database design, normalization, sharding, and query optimization.",
   keywords: [

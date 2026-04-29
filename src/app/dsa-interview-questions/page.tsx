@@ -10,7 +10,7 @@ const BASE = "https://www.guru-sishya.in";
 
 export const metadata: Metadata = {
   title:
-    "Top 50 DSA Interview Questions (2026) - Data Structures & Algorithms | Guru Sishya",
+    "Top 50 DSA Interview Questions (2026) - Data Structures & Algorithms",
   description:
     "Curated list of the 50 most-asked data structures and algorithms interview questions for software engineers. Organized by topic with difficulty levels, company tags, and free practice materials.",
   keywords: [

@@ -220,7 +220,10 @@ const TOPIC_CONTENT_FILES = [
 // ── Mitra mode persistence ──────────────────────────────────────────────────
 
 function getMitraMode(): MitraMode {
-  if (typeof window === "undefined") return "reference";
+  return "reference";
+}
+
+function getMitraModeClient(): MitraMode {
   return (localStorage.getItem("gs-mitra-mode") as MitraMode) || "reference";
 }
 
@@ -669,8 +672,13 @@ export function MitraChat() {
   const { isPremium, premiumUntil } = useStore();
   const mitraLimit = useMitraLimit();
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<MitraMode>(() => getMitraMode());
+  const [mode, setMode] = useState<MitraMode>("reference");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  // Sync mode from localStorage after hydration
+  useEffect(() => {
+    setMode(getMitraModeClient());
+  }, []);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [knowledgeLoaded, setKnowledgeLoaded] = useState(false);
