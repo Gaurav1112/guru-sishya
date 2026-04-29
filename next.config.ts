@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
               "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com",
               "object-src 'none'",
               "base-uri 'self'",
-              "form-action 'self'",
+              "form-action 'self' https://accounts.google.com",
             ].join("; "),
           },
         ],
