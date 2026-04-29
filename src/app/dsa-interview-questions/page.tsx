@@ -592,6 +592,9 @@ function SeoFooter() {
               <li><Link href="/dsa-interview-questions" className="hover:text-foreground transition-colors">DSA Questions</Link></li>
               <li><Link href="/system-design-interview" className="hover:text-foreground transition-colors">System Design</Link></li>
               <li><Link href="/behavioral-interview" className="hover:text-foreground transition-colors">Behavioral Interview</Link></li>
+              <li><Link href="/cloud-devops-interview" className="hover:text-foreground transition-colors">Cloud & DevOps</Link></li>
+              <li><Link href="/database-interview" className="hover:text-foreground transition-colors">Database Interview</Link></li>
+              <li><Link href="/backend-interview" className="hover:text-foreground transition-colors">Backend Interview</Link></li>
               <li><Link href="/top-coding-questions" className="hover:text-foreground transition-colors">Top 100 Coding Questions</Link></li>
             </ul>
           </div>

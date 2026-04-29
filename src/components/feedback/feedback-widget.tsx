@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageSquarePlus, X, Send, Bug, Lightbulb, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,6 +17,11 @@ export function FeedbackWidget() {
   const [page, setPage] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
+  const [currentPath, setCurrentPath] = useState("");
+
+  useEffect(() => {
+    setCurrentPath(window.location.pathname);
+  }, []);
 
   async function handleSubmit() {
     if (!message.trim()) return;
@@ -134,7 +139,7 @@ export function FeedbackWidget() {
                   value={page}
                   onChange={(e) => setPage(e.target.value)}
                   aria-label="Page URL where issue occurred"
-                  placeholder={`Page: ${typeof window !== "undefined" ? window.location.pathname : ""}`}
+                  placeholder={`Page: ${currentPath}`}
                   className="w-full rounded-lg border border-border/30 bg-background px-3 py-1.5 text-xs placeholder:text-muted-foreground/50 focus:border-saffron/50 focus:outline-none"
                 />
 

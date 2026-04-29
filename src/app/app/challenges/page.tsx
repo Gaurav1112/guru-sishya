@@ -63,6 +63,19 @@ const TOPICS = [
   "Kafka",
   "AWS",
   "Kubernetes & Docker",
+  "JavaScript",
+  "React & Next.js",
+  "HTML & CSS",
+  "Java Core",
+  "Spring Boot",
+  "NoSQL",
+  "RDBMS & SQL",
+  "Node.js",
+  "Segment Trees",
+  "String Algorithms",
+  "Advanced Graph Algorithms",
+  "Greedy Algorithms",
+  "Fenwick Tree",
 ];
 
 const GOAL_LABELS: Record<GoalType, { label: string; icon: string; unit: string }> = {

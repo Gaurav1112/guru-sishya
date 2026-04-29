@@ -359,7 +359,7 @@ export default function LandingPage() {
       <footer className="border-t border-border/50 py-12 px-6">
         <div className="mx-auto max-w-5xl">
           {/* Footer grid with organized link sections */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-2">
@@ -393,6 +393,31 @@ export default function LandingPage() {
               </nav>
             </div>
 
+            {/* Interview Guides */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Interview Guides</h3>
+              <nav aria-label="Interview guide links" className="flex flex-col gap-2 text-sm text-muted-foreground">
+                <Link href="/dsa-interview-questions" className="hover:text-foreground transition-colors">
+                  DSA Interview
+                </Link>
+                <Link href="/system-design-interview" className="hover:text-foreground transition-colors">
+                  System Design
+                </Link>
+                <Link href="/behavioral-interview" className="hover:text-foreground transition-colors">
+                  Behavioral Interview
+                </Link>
+                <Link href="/cloud-devops-interview" className="hover:text-foreground transition-colors">
+                  Cloud & DevOps
+                </Link>
+                <Link href="/database-interview" className="hover:text-foreground transition-colors">
+                  Database Interview
+                </Link>
+                <Link href="/backend-interview" className="hover:text-foreground transition-colors">
+                  Backend Interview
+                </Link>
+              </nav>
+            </div>
+
             {/* Learn */}
             <div>
               <h3 className="text-sm font-semibold text-foreground mb-3">Learn</h3>
@@ -408,6 +433,12 @@ export default function LandingPage() {
                 </Link>
                 <Link href="/app/pricing" className="hover:text-foreground transition-colors">
                   Pricing
+                </Link>
+                <Link href="/leetcode-alternative" className="hover:text-foreground transition-colors">
+                  Why Guru Sishya
+                </Link>
+                <Link href="/top-coding-questions" className="hover:text-foreground transition-colors">
+                  Top Coding Questions
                 </Link>
               </nav>
             </div>

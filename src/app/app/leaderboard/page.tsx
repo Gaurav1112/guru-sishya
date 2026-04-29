@@ -142,12 +142,12 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      {/* AI Practice Partners disclaimer */}
+      {/* AI Practice Partners info */}
       <div className="rounded-lg border border-border/50 bg-surface/50 px-4 py-3 text-sm text-muted-foreground">
         <span className="font-medium text-foreground">AI Practice Partners</span>
         {" \u2014 "}
         Compete against AI-generated practice partners calibrated to your skill level.
-        Real multiplayer leaderboard coming soon!
+        Earn XP to climb the ranks and get promoted each week.
       </div>
 
       {/* User rank highlight */}
@@ -294,9 +294,9 @@ export default function LeaderboardPage() {
         </span>
       </div>
 
-      {/* Coming soon teaser */}
-      <div className="rounded-lg border border-dashed border-border/40 px-4 py-3 text-center text-xs text-muted-foreground">
-        Coming soon: compete with real users on a global leaderboard
+      {/* Weekly tip */}
+      <div className="rounded-lg border border-border/40 bg-surface/30 px-4 py-3 text-center text-xs text-muted-foreground">
+        Top 5 earn a promotion to the next league. Bottom 5 risk demotion. Rankings reset every Sunday.
       </div>
     </div>
   );

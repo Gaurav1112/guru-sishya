@@ -156,7 +156,7 @@ export default function RootLayout({
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
               description:
-                "Software engineering interview preparation platform with 81 topics, 1730 questions, and STAR behavioral prep for FAANG interviews.",
+                "Software engineering interview preparation platform with 81 topics, 1,730+ questions, 780+ sessions, and STAR behavioral prep for FAANG interviews.",
               url: "https://www.guru-sishya.in",
             }),
           }}
@@ -217,7 +217,7 @@ export default function RootLayout({
                   name: "Is Guru Sishya really free? What's the catch?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes - 81 topics, 1730 quiz questions with answers, 500+ full sessions, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 149/month or Rs 1199/year) for AI-powered features like the Teach Mode and custom topic generation, but the core prep content will always be free.",
+                    text: "Yes - 81 topics, 1,730+ quiz questions with answers, 780+ full sessions, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 149/month or Rs 1199/year) for AI-powered features like the Teach Mode and custom topic generation, but the core prep content will always be free.",
                   },
                 },
                 {
@@ -241,7 +241,7 @@ export default function RootLayout({
                   name: "How is Guru Sishya different from LeetCode, AlgoExpert, or NeetCode?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Guru Sishya is the only platform that combines all of this in one place for free: 1730 questions with full answers (not just hints), 58 STAR behavioral answers, 32 system design topics, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes. Competitors charge Rs 991-Rs 2917/month and still lack behavioral prep and offline support.",
+                    text: "Guru Sishya is the only platform that combines all of this in one place for free: 1,730+ questions with full answers (not just hints), 58 STAR behavioral answers, 32 system design topics, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes. Competitors charge Rs 991-Rs 2917/month and still lack behavioral prep and offline support.",
                   },
                 },
                 {

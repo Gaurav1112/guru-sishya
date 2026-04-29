@@ -9,9 +9,9 @@ test.describe("Landing Page", () => {
     await expect(page).toHaveTitle(/Guru Sishya/i);
   });
 
-  test('has "Ace Your FAANG Interview" heading', async ({ page }) => {
+  test('has hero headline about FAANG offer', async ({ page }) => {
     const heading = page.locator("h1");
-    await expect(heading).toContainText("Ace Your FAANG Interview");
+    await expect(heading).toContainText("From Zero to FAANG Offer in 12 Weeks");
   });
 
   test('"Start Free" button links to /app/topics', async ({ page }) => {
