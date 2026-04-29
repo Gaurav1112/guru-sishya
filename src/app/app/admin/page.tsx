@@ -333,7 +333,14 @@ export default function AdminDashboardPage() {
               color="bg-teal/10 text-teal border border-teal/20"
             />
             <QuickLink
-              href="/app/admin"
+              href="/app/admin/allowlist"
+              icon={UserPlus}
+              label="Allowlist"
+              description="Manage free Pro access"
+              color="bg-emerald-500/10 text-emerald-400 border border-emerald-400/20"
+            />
+            <QuickLink
+              href="/app/admin/analytics"
               icon={TrendingUp}
               label="Analytics"
               description="Usage trends and engagement"

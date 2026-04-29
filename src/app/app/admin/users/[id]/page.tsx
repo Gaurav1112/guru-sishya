@@ -45,9 +45,11 @@ interface UserDetail {
   level: number | null;
   plan_type: string | null;
   premium_until: string | null;
-  total_sessions?: number;
-  total_quizzes?: number;
-  topics_explored?: number;
+  quizzes_taken?: number;
+  topics_completed?: number;
+  current_streak?: number;
+  longest_streak?: number;
+  coins?: number;
   payment_id?: string | null;
 }
 
@@ -281,7 +283,7 @@ export default function AdminUserDetailPage({
                   <span className="text-[10px] font-medium">Sessions</span>
                 </div>
                 <p className="font-heading text-2xl font-bold text-indigo-400">
-                  {user.total_sessions ?? "—"}
+                  {user.topics_completed ?? "—"}
                 </p>
               </div>
 
@@ -291,7 +293,7 @@ export default function AdminUserDetailPage({
                   <span className="text-[10px] font-medium">Quizzes</span>
                 </div>
                 <p className="font-heading text-2xl font-bold text-gold">
-                  {user.total_quizzes ?? "—"}
+                  {user.quizzes_taken ?? "—"}
                 </p>
               </div>
             </div>

@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     let query = supabase
       .from("user_progress")
       .select(
-        "id, email, name, avatar_url, created_at, last_active, total_xp, xp, level",
+        "id, email, name, avatar_url, created_at, last_active, total_xp, xp, level, quizzes_taken, topics_completed, current_streak, longest_streak, coins",
         { count: "exact" }
       );
 
