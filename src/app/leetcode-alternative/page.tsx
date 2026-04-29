@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 const BASE = "https://www.guru-sishya.in";
@@ -24,10 +25,18 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Best LeetCode Alternative (2026) - Free Interview Prep | Guru Sishya",
     description:
-      "Compare Guru Sishya vs LeetCode, NeetCode, and AlgoExpert. 138 topics, 1933 questions, system design, behavioral prep, code playground. Completely free.",
+      "Compare Guru Sishya vs LeetCode, NeetCode, and AlgoExpert. 141 topics, 1988 questions, system design, behavioral prep, code playground. Completely free.",
     url: `${BASE}/leetcode-alternative`,
     type: "website",
     siteName: "Guru Sishya",
+    images: [{ url: `${BASE}/api/og`, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Best LeetCode Alternative (2026) - Free Interview Prep | Guru Sishya",
+    description:
+      "Compare Guru Sishya vs LeetCode, NeetCode, AlgoExpert. 141 topics, 1988 questions, completely free.",
+    images: [`${BASE}/api/og`],
   },
 };
 
@@ -62,10 +71,33 @@ const COMPARISON: ComparisonRow[] = [
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LeetCodeAlternativePage() {
+  // JSON-LD SoftwareApplication schema
+  const appSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Guru Sishya",
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "Web",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+    description:
+      "Free LeetCode alternative with 141 topics, 1988 quiz questions, system design, behavioral prep, and a code playground. No signup required.",
+    url: `${BASE}/leetcode-alternative`,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "200",
+      bestRating: "5",
+    },
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <SeoNavbar />
       <main className="flex-1">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(appSchema) }}
+        />
         <article className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {/* Breadcrumb */}
           <nav aria-label="Breadcrumb" className="mb-6">
@@ -171,7 +203,7 @@ export default function LeetCodeAlternativePage() {
                 {
                   title: "Gamification That Works",
                   description:
-                    "XP points, 8 levels (Shishya to Maharishi), 33 badges, daily streaks, coins, and a leaderboard. Gamification keeps you motivated when the grind gets tough.",
+                    "XP points, 8 levels (Beginner to Grandmaster), 33 badges, daily streaks, coins, and a leaderboard. Gamification keeps you motivated when the grind gets tough.",
                 },
                 {
                   title: "Smart Revision System",
@@ -424,7 +456,7 @@ export default function LeetCodeAlternativePage() {
                 },
                 {
                   quote:
-                    "The gamification keeps me coming back. I have a 47-day streak and I'm at Level 5 (Acharya). LeetCode never kept me this engaged.",
+                    "The gamification keeps me coming back. I have a 47-day streak and I'm at Level 5 (Master). LeetCode never kept me this engaged.",
                   name: "Backend Engineer, Remote",
                 },
               ].map((t, idx) => (
@@ -607,8 +639,7 @@ function SeoNavbar() {
       <div className="flex h-14 items-center justify-between px-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.png" alt="Guru Sishya" className="size-8 rounded-lg" width={32} height={32} />
+            <Image src="/logo-mark.png" alt="Guru Sishya" className="size-8 rounded-lg" width={32} height={32} />
             <span className="font-heading text-lg font-bold text-saffron tracking-wider">GURU SISHYA</span>
           </Link>
           <div className="hidden sm:flex items-center gap-4">
@@ -669,8 +700,7 @@ function SeoFooter() {
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border/20">
           <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" width={24} height={24} />
+            <Image src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" width={24} height={24} />
             <span className="text-sm text-muted-foreground">Guru Sishya &mdash; Free Interview Prep for Engineers</span>
           </div>
           <span className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Guru Sishya. All rights reserved.</span>

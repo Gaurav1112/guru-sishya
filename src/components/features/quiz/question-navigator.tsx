@@ -17,7 +17,7 @@ interface QuestionNavigatorProps {
 
 export function QuestionNavigator({ questions, currentIndex, onJump }: QuestionNavigatorProps) {
   return (
-    <div className="flex items-center gap-1.5 flex-wrap px-2 py-2 bg-surface/50 rounded-lg border border-border/30">
+    <nav aria-label="Question navigator" className="flex items-center gap-1.5 flex-wrap px-2 py-2 bg-surface/50 rounded-lg border border-border/30">
       {questions.map((q) => (
         <button
           key={q.index}
@@ -30,7 +30,8 @@ export function QuestionNavigator({ questions, currentIndex, onJump }: QuestionN
             q.answered && q.correct === true && "bg-emerald-500/20 text-emerald-400",
             q.answered && q.correct === false && "bg-red-500/20 text-red-400",
           )}
-          title={`Q${q.index + 1}${q.bookmarked ? " (bookmarked)" : ""}`}
+          aria-label={`Question ${q.index + 1}${q.answered ? (q.correct ? ", answered correctly" : ", answered incorrectly") : ", not yet answered"}${q.bookmarked ? ", bookmarked" : ""}${q.index === currentIndex ? ", current question" : ""}`}
+          aria-current={q.index === currentIndex ? "step" : undefined}
         >
           {q.index + 1}
         </button>
@@ -40,6 +41,7 @@ export function QuestionNavigator({ questions, currentIndex, onJump }: QuestionN
         min={1}
         max={questions.length}
         placeholder="#"
+        aria-label="Jump to question number"
         className="w-10 h-7 text-[10px] text-center bg-muted rounded border border-border/50 text-foreground"
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -51,6 +53,6 @@ export function QuestionNavigator({ questions, currentIndex, onJump }: QuestionN
           }
         }}
       />
-    </div>
+    </nav>
   );
 }

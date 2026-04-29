@@ -14,7 +14,7 @@ interface FeatureLimitResult {
   increment: () => Promise<boolean>;
   /**
    * Verify with the server whether the action is allowed. Use this to gate
-   * high-value actions (quiz start, Guru Mode start, etc.) without making
+   * high-value actions (quiz start, Teach Mode start, etc.) without making
    * every interaction wait for a network call.
    *
    * Returns true if the server confirms the action is allowed, or if the

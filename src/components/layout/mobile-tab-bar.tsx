@@ -50,7 +50,7 @@ export function MobileTabBar() {
         {tabs.map((tab) => {
           const isActive =
             pathname === tab.href ||
-            (tab.href !== "/app/dashboard" && pathname.startsWith(tab.href));
+            pathname.startsWith(tab.href + "/");
           const Icon = tab.icon;
           return (
             <Link

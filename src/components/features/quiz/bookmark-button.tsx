@@ -39,8 +39,8 @@ export function BookmarkButton({ questionId, questionText: _questionText }: Book
   }
 
   return (
-    <button onClick={toggle} className="p-1.5 rounded-md hover:bg-surface-hover transition-colors" title={bookmarked ? "Remove bookmark" : "Bookmark question"}>
-      {bookmarked ? <BookmarkCheck className="size-4 text-gold" /> : <Bookmark className="size-4 text-muted-foreground" />}
+    <button onClick={toggle} className="p-1.5 rounded-md hover:bg-surface-hover transition-colors" aria-label={bookmarked ? "Remove bookmark" : "Bookmark question"} aria-pressed={bookmarked}>
+      {bookmarked ? <BookmarkCheck className="size-4 text-gold" aria-hidden="true" /> : <Bookmark className="size-4 text-muted-foreground" aria-hidden="true" />}
     </button>
   );
 }

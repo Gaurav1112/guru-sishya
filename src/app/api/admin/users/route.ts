@@ -31,8 +31,13 @@ export async function GET(req: NextRequest) {
       );
 
     // Search filter
+    // SECURITY: Sanitize search input to prevent PostgREST filter injection.
+    // Characters like `,`, `.`, `(`, `)` can manipulate the filter syntax.
     if (search) {
-      query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
+      const sanitized = search.replace(/[%_,.*()\\]/g, "");
+      if (sanitized.length > 0) {
+        query = query.or(`email.ilike.%${sanitized}%,name.ilike.%${sanitized}%`);
+      }
     }
 
     // Valid sort columns (total_xp is the actual column; accept "xp" as alias)

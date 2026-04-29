@@ -42,8 +42,8 @@ const TEMPLATES: Record<NotificationType, NotificationTemplate> = {
     url: "/app/dashboard",
   },
   "comeback-nudge": {
-    title: "We miss you, Sishya!",
-    body: "It's been a while since your last session. Come back and pick up where you left off — your Guru awaits!",
+    title: "We miss you!",
+    body: "It's been a while since your last session. Come back and pick up where you left off — your next lesson awaits!",
     tag: "comeback-nudge",
     url: "/app/dashboard",
   },

@@ -34,7 +34,7 @@ export function FirstRunModal({ onComplete }: FirstRunModalProps) {
   const selectedGoal = GOALS.find((g) => g.id === goal);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="first-run-title">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -50,7 +50,7 @@ export function FirstRunModal({ onComplete }: FirstRunModalProps) {
             >
               <div className="flex items-center gap-2 mb-6">
                 <Target className="size-5 text-saffron" />
-                <h2 className="text-lg font-bold">What are you preparing for?</h2>
+                <h2 id="first-run-title" className="text-lg font-bold">What are you preparing for?</h2>
               </div>
               <div className="space-y-2">
                 {GOALS.map((g) => (

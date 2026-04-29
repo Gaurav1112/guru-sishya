@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
+import { auth } from "@/lib/auth";
 import {
   buildWeeklyDigestHtml,
   WeeklyDigestData,
@@ -9,29 +10,34 @@ import {
 /**
  * POST /api/digest
  *
- * Receives weekly digest data and a user email, then sends
- * the digest email via Resend (or logs if no API key configured).
+ * Receives weekly digest data and sends the digest email to the authenticated user.
+ * SECURITY: Requires authentication — only sends to the logged-in user's email
+ * to prevent abuse as an arbitrary email-sending endpoint.
  *
- * Body: { email: string; digest: WeeklyDigestData }
+ * Body: { digest: WeeklyDigestData }
  */
 export async function POST(req: NextRequest) {
   // SECURITY: Rate limit -- max 3 digest requests per IP per hour
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  if (!checkRateLimit(`digest:${ip}`, 3, 3600000)) {
+  if (!(await checkRateLimit(`digest:${ip}`, 3, 3600000))) {
     return NextResponse.json(
       { error: "Too many requests. Try again later." },
       { status: 429 }
     );
   }
 
+  // SECURITY: Require authentication to prevent abuse as an email relay
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
-    const { email, digest } = body;
+    const { digest } = body;
 
-    // Validate email
-    if (!email || typeof email !== "string" || !email.includes("@")) {
-      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
-    }
+    // SECURITY: Always use the session email — never trust client-supplied email
+    const email = session.user.email;
 
     // Validate digest payload exists
     if (!digest || typeof digest !== "object") {

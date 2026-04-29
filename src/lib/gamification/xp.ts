@@ -82,44 +82,44 @@ const TIERS: Array<{
   subLevels: Array<"I" | "II" | "III">;
 }> = [
   {
-    name: "Shishya",
+    name: "Beginner",
     description: "Student",
     levels: [1, 2, 3],
     subLevels: ["I", "II", "III"],
   },
   {
-    name: "Sadhak",
-    description: "Seeker",
+    name: "Apprentice",
+    description: "Learner",
     levels: [4, 5, 6],
     subLevels: ["I", "II", "III"],
   },
   {
-    name: "Vidyarthi",
-    description: "Scholar",
+    name: "Scholar",
+    description: "Intermediate",
     levels: [7, 8, 9],
     subLevels: ["I", "II", "III"],
   },
   {
-    name: "Pandit",
-    description: "Expert",
+    name: "Expert",
+    description: "Advanced",
     levels: [10, 11, 12],
     subLevels: ["I", "II", "III"],
   },
   {
-    name: "Acharya",
-    description: "Master",
+    name: "Master",
+    description: "Proficient",
     levels: [13, 14, 15],
     subLevels: ["I", "II", "III"],
   },
   {
-    name: "Guru",
-    description: "Legend",
+    name: "Legend",
+    description: "Elite",
     levels: [16, 17, 18],
     subLevels: ["I", "II", "III"],
   },
   {
-    name: "Maharishi",
-    description: "Transcendent",
+    name: "Grandmaster",
+    description: "Pinnacle",
     levels: [19, 20],
     subLevels: ["I", "II"],
   },
@@ -146,9 +146,9 @@ export function getLevelInfo(level: number): LevelInfo {
 
   // Fallback — should never happen with valid input
   return {
-    tier: "Shishya",
+    tier: "Beginner",
     tierDescription: "Student",
     subLevel: "I",
-    title: "Shishya I (Student)",
+    title: "Beginner I (Student)",
   };
 }

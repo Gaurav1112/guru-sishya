@@ -33,7 +33,10 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
   },
-  title: "DSA, System Design & Behavioral Interview Prep | Guru Sishya",
+  title: {
+    default: "DSA, System Design & Behavioral Interview Prep | Guru Sishya",
+    template: "%s | Guru Sishya",
+  },
   description:
     "Practice 1988 DSA, system design & behavioral interview questions. Mock interviews, STAR method, FAANG company prep paths & adaptive quizzes. Free platform with Java + Python code.",
   keywords: [
@@ -214,7 +217,7 @@ export default function RootLayout({
                   name: "Is Guru Sishya really free? What's the catch?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Yes - 141 topics, 1988 quiz questions with answers, 693 full sessions, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 149/month or Rs 1199/year) for AI-powered features like the Guru Mode and custom topic generation, but the core prep content will always be free.",
+                    text: "Yes - 141 topics, 1988 quiz questions with answers, 693 full sessions, flashcards, and all progress tracking are free forever. No credit card, no email required. We offer a Pro tier (Rs 149/month or Rs 1199/year) for AI-powered features like the Teach Mode and custom topic generation, but the core prep content will always be free.",
                   },
                 },
                 {
@@ -222,7 +225,7 @@ export default function RootLayout({
                   name: "Do I need an API key or AI subscription?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "No. All lesson content, quiz questions, quick saar notes, STAR behavioral answers, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Only the optional AI features (Guru Mode, custom topics) require a Pro plan.",
+                    text: "No. All lesson content, quiz questions, quick summary notes, STAR behavioral answers, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Only the optional AI features (Teach Mode, custom topics) require a Pro plan.",
                   },
                 },
                 {
@@ -262,7 +265,7 @@ export default function RootLayout({
                   name: "What is the Pro plan and what does it include?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Pro (Rs 149/month or Rs 1199/year) unlocks AI-powered features: the Guru Mode interactive chat for deep understanding, custom topic generation, priority support, and a certificate of completion. All core prep content remains free forever.",
+                    text: "Pro (Rs 149/month or Rs 1199/year) unlocks AI-powered features: the Teach Mode interactive chat for deep understanding, custom topic generation, priority support, and a certificate of completion. All core prep content remains free forever.",
                   },
                 },
               ],

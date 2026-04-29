@@ -43,7 +43,9 @@ export function EmailCapture() {
     <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full max-w-md">
       <div className="relative flex-1">
         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+        <label htmlFor="email-capture" className="sr-only">Email address</label>
         <input
+          id="email-capture"
           type="email"
           required
           placeholder="your@email.com"

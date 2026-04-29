@@ -6,9 +6,9 @@ import {
 } from "@/lib/content/server-loader";
 
 export const metadata: Metadata = {
-  title: "Learn 138 Software Engineering Interview Topics | Guru Sishya",
+  title: "Learn 141 Software Engineering Interview Topics",
   description:
-    "Master software engineering interviews with free lessons on system design, data structures, algorithms, and core CS. 138 topics, 1933 questions, all free.",
+    "Master software engineering interviews with free lessons on system design, data structures, algorithms, and core CS. 141 topics, 1988 questions, all free.",
   keywords: [
     "software engineering interview topics",
     "system design interview",
@@ -23,11 +23,20 @@ export const metadata: Metadata = {
     canonical: "https://www.guru-sishya.in/learn",
   },
   openGraph: {
-    title: "Learn 138 Software Engineering Interview Topics | Guru Sishya",
+    title: "Learn 141 Software Engineering Interview Topics | Guru Sishya",
     description:
       "Master software engineering interviews with free lessons on system design, data structures, algorithms, and core CS.",
     url: "https://www.guru-sishya.in/learn",
     type: "website",
+    siteName: "Guru Sishya",
+    images: [{ url: "https://www.guru-sishya.in/api/og", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Learn 141 Software Engineering Interview Topics | Guru Sishya",
+    description:
+      "Free lessons on system design, DSA, algorithms, and core CS. 141 topics, 1988 questions.",
+    images: ["https://www.guru-sishya.in/api/og"],
   },
 };
 

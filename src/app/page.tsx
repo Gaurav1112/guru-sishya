@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Hero } from "@/components/landing/hero";
@@ -84,8 +85,7 @@ function LandingNavbar() {
       <div className="flex h-14 items-center justify-between px-6">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.png" alt="Guru Sishya" className="size-8 rounded-lg" />
+            <Image src="/logo-mark.png" alt="Guru Sishya" width={32} height={32} className="size-8 rounded-lg" />
             <span className="font-heading text-lg font-bold text-saffron tracking-wider">GURU SISHYA</span>
           </Link>
           <div className="hidden sm:flex items-center gap-4">
@@ -118,8 +118,10 @@ function LandingNavbar() {
           </Link>
           {/* Hamburger — mobile only */}
           <button
-            className="sm:hidden ml-1 flex flex-col justify-center items-center w-12 h-12 p-2 gap-1.5 rounded focus:outline-none"
-            aria-label="Toggle menu"
+            className="sm:hidden ml-1 flex flex-col justify-center items-center w-12 h-12 p-2 gap-1.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-saffron"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav-menu"
             onClick={() => setMenuOpen((v) => !v)}
           >
             <span
@@ -139,6 +141,7 @@ function LandingNavbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
+            id="mobile-nav-menu"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -196,25 +199,108 @@ function CompanyLogoStrip() {
   );
 }
 
+function PainPoints() {
+  const PAINS = [
+    {
+      problem: "Overwhelmed by 2,800+ LeetCode problems",
+      solution: "Our Pareto-based plans focus on the 20% of problems that cover 80% of interviews",
+      icon: (
+        <svg aria-hidden="true" className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+      ),
+      solutionIcon: (
+        <svg aria-hidden="true" className="h-6 w-6 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      problem: "No structure -- jumping between YouTube, blogs, and courses",
+      solution: "One platform with 141 topics, 693 lessons, and a visual roadmap from zero to offer",
+      icon: (
+        <svg aria-hidden="true" className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+      ),
+      solutionIcon: (
+        <svg aria-hidden="true" className="h-6 w-6 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      problem: "Behavioral rounds are a black box -- 40% of candidates fail here",
+      solution: "58 pre-written STAR answers for Google, Amazon, Meta, and more -- ready to customize",
+      icon: (
+        <svg aria-hidden="true" className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+      ),
+      solutionIcon: (
+        <svg aria-hidden="true" className="h-6 w-6 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+  ];
+
+  return (
+    <section className="px-6 py-20">
+      <div className="mx-auto max-w-4xl">
+        <h2 className="font-heading text-3xl font-bold text-center mb-3">
+          Sound Familiar?
+        </h2>
+        <p className="text-center text-muted-foreground mb-12 max-w-xl mx-auto">
+          Most engineers waste weeks on unfocused prep. Here is how Guru Sishya fixes that.
+        </p>
+        <div className="space-y-6">
+          {PAINS.map((pain, i) => (
+            <div key={i} className="grid md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-5">
+                {pain.icon}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-red-400 mb-1">The Problem</p>
+                  <p className="text-sm text-foreground/90">{pain.problem}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl border border-teal/20 bg-teal/5 p-5">
+                {pain.solutionIcon}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-teal mb-1">Our Solution</p>
+                  <p className="text-sm text-foreground/90">{pain.solution}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCTA({ stats }: { stats: ContentStats }) {
   return (
     <section className="px-6 py-20 text-center">
       <div className="mx-auto max-w-2xl rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-surface to-teal/5 p-12">
         <h2 className="font-heading text-3xl font-bold mb-3">
-          Ready to Get the Offer?
+          Your Next Interview Is Closer Than You Think
         </h2>
-        <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+        <p className="text-muted-foreground mb-4 max-w-md mx-auto">
           {stats.topicCount} topics, {stats.questionCount.toLocaleString()} questions, 58 STAR behavioral answers — all free. No signup, no credit card.
+        </p>
+        <p className="text-sm text-foreground/80 font-medium mb-8 max-w-md mx-auto">
+          Every day you wait is a day someone else is preparing. Start now and be interview-ready in 12 weeks.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/app/topics">
-            <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[160px] text-base font-semibold">
-              Start Free Today
+            <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[200px] text-base font-semibold">
+              Start Practicing Free Now
             </Button>
           </Link>
-          <Link href="/login">
-            <Button variant="outline" size="lg" className="min-w-[160px] text-base">
-              Sign In
+          <Link href="/app/pricing">
+            <Button variant="outline" size="lg" className="min-w-[200px] text-base">
+              Try Pro Free for 7 Days
             </Button>
           </Link>
         </div>
@@ -245,16 +331,19 @@ export default function LandingPage() {
         <CompanyLogoStrip />
       </ScrollReveal>
       <ScrollReveal delay={0}>
+        <PainPoints />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
         <HowItWorks />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
+        <Testimonials />
       </ScrollReveal>
       <ScrollReveal delay={0}>
         <Features />
       </ScrollReveal>
       <ScrollReveal delay={0}>
         <SocialProof />
-      </ScrollReveal>
-      <ScrollReveal delay={0}>
-        <Testimonials />
       </ScrollReveal>
       <ScrollReveal delay={0}>
         <Pricing stats={stats} />
@@ -274,8 +363,7 @@ export default function LandingPage() {
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" loading="lazy" />
+                <Image src="/logo-mark.png" alt="Guru Sishya" width={24} height={24} className="size-6 rounded" loading="lazy" />
                 <span className="font-heading text-base font-semibold text-saffron">GURU SISHYA</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">

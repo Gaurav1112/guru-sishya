@@ -81,7 +81,7 @@ export function FeedbackWidget() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border/30 px-4 py-3">
               <p className="text-sm font-semibold">Send Feedback</p>
-              <button type="button" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+              <button type="button" onClick={() => setOpen(false)} aria-label="Close feedback form" className="text-muted-foreground hover:text-foreground">
                 <X className="size-4" />
               </button>
             </div>
@@ -116,6 +116,7 @@ export function FeedbackWidget() {
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
+                  aria-label="Feedback message"
                   placeholder={
                     type === "bug"
                       ? "Describe the bug... What happened? What did you expect?"
@@ -132,6 +133,7 @@ export function FeedbackWidget() {
                   type="text"
                   value={page}
                   onChange={(e) => setPage(e.target.value)}
+                  aria-label="Page URL where issue occurred"
                   placeholder={`Page: ${typeof window !== "undefined" ? window.location.pathname : ""}`}
                   className="w-full rounded-lg border border-border/30 bg-background px-3 py-1.5 text-xs placeholder:text-muted-foreground/50 focus:border-saffron/50 focus:outline-none"
                 />

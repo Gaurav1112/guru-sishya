@@ -16,7 +16,7 @@ test.describe("Quiz Flow", () => {
     await page.waitForURL(/\/app\/topic\/\d+/, { timeout: 10_000 });
 
     // Navigate to quiz
-    const quizLink = page.getByRole("link", { name: /pariksha/i });
+    const quizLink = page.getByRole("link", { name: /quiz/i });
     await quizLink.click();
     await page.waitForURL(/\/app\/topic\/\d+\/quiz/, { timeout: 10_000 });
   });

@@ -40,7 +40,7 @@ export function BadgeMandir() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-heading text-lg font-bold">Badge Mandir</h3>
+        <h3 className="font-heading text-lg font-bold">Badge Showcase</h3>
         <span className="text-sm text-saffron font-semibold">
           {unlockedBadges?.length ?? 0} of {BADGE_DEFINITIONS.length} earned
         </span>

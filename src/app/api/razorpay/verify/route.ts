@@ -3,6 +3,7 @@ import crypto from "crypto";
 import Razorpay from "razorpay";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { auth } from "@/lib/auth";
 
 // ── Plan durations ────────────────────────────────────────────────────────────
 
@@ -43,14 +44,17 @@ export async function POST(req: NextRequest) {
       razorpay_payment_id,
       razorpay_signature,
       planType,
-      email,
     } = body as {
       razorpay_order_id?: string;
       razorpay_payment_id?: string;
       razorpay_signature?: string;
       planType?: string;
-      email?: string;
     };
+
+    // SECURITY: Use authenticated session email, not client-supplied email.
+    // This prevents IDOR where an attacker could assign a subscription to any email.
+    const session = await auth();
+    const email = session?.user?.email?.trim().toLowerCase();
 
     // Validate required fields
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !planType) {
@@ -138,7 +142,7 @@ export async function POST(req: NextRequest) {
       const supabase = getSupabaseAdmin();
       const { error: upsertError } = await supabase.from("subscriptions").upsert(
         {
-          email: email?.trim().toLowerCase() ?? "anonymous",
+          email: email ?? "anonymous",
           plan_type: planType,
           premium_until: premiumUntil.toISOString(),
           payment_id: razorpay_payment_id,

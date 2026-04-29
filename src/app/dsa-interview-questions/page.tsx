@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   loadAllContentFromDisk,
@@ -32,6 +33,14 @@ export const metadata: Metadata = {
     url: `${BASE}/dsa-interview-questions`,
     type: "website",
     siteName: "Guru Sishya",
+    images: [{ url: `${BASE}/api/og`, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Top 50 DSA Interview Questions (2026) | Guru Sishya",
+    description:
+      "Master 50 essential DSA questions asked at Google, Amazon, Meta. Free lessons, quizzes, and code playground.",
+    images: [`${BASE}/api/og`],
   },
 };
 
@@ -151,10 +160,32 @@ export default function DSAInterviewQuestionsPage() {
     return topicSlugs.get(key) ?? null;
   }
 
+  // JSON-LD ItemList schema
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Top 50 DSA Interview Questions (2026)",
+    description:
+      "Curated list of the 50 most-asked data structures and algorithms interview questions for software engineers.",
+    numberOfItems: DSA_QUESTIONS.length,
+    itemListElement: DSA_QUESTIONS.slice(0, 20).map((q, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: q.question,
+      url: findSlug(q.learnTopic)
+        ? `${BASE}/learn/${findSlug(q.learnTopic)}`
+        : `${BASE}/dsa-interview-questions`,
+    })),
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <SeoNavbar />
       <main className="flex-1">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+        />
         <article className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {/* Breadcrumb */}
           <nav aria-label="Breadcrumb" className="mb-6">
@@ -592,8 +623,7 @@ function SeoFooter() {
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border/20">
           <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" width={24} height={24} />
+            <Image src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" width={24} height={24} />
             <span className="text-sm text-muted-foreground">
               Guru Sishya &mdash; Free Interview Prep for Engineers
             </span>

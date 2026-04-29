@@ -14,9 +14,10 @@ export function BackButton({ href, label = "Back" }: BackButtonProps) {
   return (
     <button
       onClick={() => href ? router.push(href) : router.back()}
+      aria-label={label}
       className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
     >
-      <ArrowLeft className="size-4" />
+      <ArrowLeft className="size-4" aria-hidden="true" />
       <span>{label}</span>
     </button>
   );

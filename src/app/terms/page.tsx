@@ -2,9 +2,18 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — Guru Sishya",
-  description: "Terms of Service for Guru Sishya — rules governing use of the platform.",
+  title: "Terms of Service",
+  description:
+    "Terms of Service for Guru Sishya. Rules governing your use of our free interview preparation platform, Pro subscriptions, and refund policy.",
   alternates: { canonical: "https://www.guru-sishya.in/terms" },
+  openGraph: {
+    title: "Terms of Service | Guru Sishya",
+    description:
+      "Rules governing your use of Guru Sishya, including free and Pro plans, refund policy, and acceptable use.",
+    url: "https://www.guru-sishya.in/terms",
+    type: "website",
+    siteName: "Guru Sishya",
+  },
 };
 
 export default function TermsPage() {

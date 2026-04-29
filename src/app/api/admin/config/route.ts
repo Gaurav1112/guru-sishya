@@ -68,8 +68,15 @@ async function writeConfig(config: AppConfig): Promise<void> {
 }
 
 // ── GET /api/admin/config ──────────────────────────────────────────────────────
+// SECURITY: Admin-only — prevents leaking internal feature gate values.
 
 export async function GET() {
+  const session = await auth();
+  const callerEmail = session?.user?.email;
+  if (!isAdminEmail(callerEmail)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const config = await readConfig();
   return NextResponse.json({ config });
 }

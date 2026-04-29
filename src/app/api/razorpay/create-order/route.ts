@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { auth } from "@/lib/auth";
 
 // ── Plan definitions ─────────────────────────────────────────────────────────
 
@@ -50,6 +51,12 @@ function getRazorpayInstance() {
 // ── POST /api/razorpay/create-order ─────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // SECURITY: Require authentication to create payment orders
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Sign in required to purchase" }, { status: 401 });
+  }
+
   // SECURITY: Rate limit order creation to prevent abuse
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
   if (!(await checkRateLimit(`razorpay-order:${ip}`, 5, 60000))) {

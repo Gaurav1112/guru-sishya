@@ -1,11 +1,11 @@
 "use client";
 
-import { QuestionBanner } from "@/components/gamification/question-banner";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
@@ -16,15 +16,30 @@ import { DailyChallengeWidget } from "@/components/gamification/daily-challenge"
 import { useStreak } from "@/hooks/use-streak";
 import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
 import Link from "next/link";
-import { BookOpen, ChevronRight, Sparkles, Mic, BarChart3, ChevronDown, ChevronUp, Rocket } from "lucide-react";
-import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
-import { CompanyQuestionsSection } from "@/components/features/company-questions/company-questions-section";
+import { BookOpen, ChevronRight, Sparkles, Mic, BarChart3, ChevronDown, ChevronUp, Rocket, PlayCircle } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
-import { DailyQuests } from "@/components/gamification/daily-quests";
 import { ShareButton } from "@/components/share-button";
 import { StreakFreezeModal } from "@/components/gamification/streak-freeze-modal";
 import { InterviewCountdown } from "@/components/gamification/interview-countdown";
 import { PushNotificationPrompt } from "@/components/gamification/push-notification-prompt";
+
+// Lazy-load below-fold heavy components
+const ActivityHeatmap = dynamic(
+  () => import("@/components/gamification/activity-heatmap").then((m) => m.ActivityHeatmap),
+  { ssr: false }
+);
+const CompanyQuestionsSection = dynamic(
+  () => import("@/components/features/company-questions/company-questions-section").then((m) => m.CompanyQuestionsSection),
+  { ssr: false }
+);
+const DailyQuests = dynamic(
+  () => import("@/components/gamification/daily-quests").then((m) => m.DailyQuests),
+  { ssr: false }
+);
+const QuestionBanner = dynamic(
+  () => import("@/components/gamification/question-banner").then((m) => m.QuestionBanner),
+  { ssr: false }
+);
 
 // ── Stagger item wrapper ──────────────────────────────────────────────────────
 
@@ -177,7 +192,7 @@ function DailyGoalBar() {
           </span>
         </div>
       </div>
-      <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden">
+      <div className="h-2 w-full rounded-full bg-muted/40 overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`Daily goal progress: ${pct}%`}>
         <div
           className={`h-full rounded-full transition-all duration-500 ${goalMet ? "bg-green-400" : "bg-gold"}`}
           style={{ width: `${pct}%` }}
@@ -280,6 +295,51 @@ function CategoryLinks() {
         </Link>
       ))}
     </div>
+  );
+}
+
+// ── Continue Where You Left Off ──────────────────────────────────────────────
+
+function ContinueLearning() {
+  const router = useRouter();
+  const recentTopics = useLiveQuery(
+    () => db.topics.orderBy("createdAt").reverse().limit(3).toArray(),
+    []
+  );
+
+  if (!recentTopics || recentTopics.length === 0) return null;
+
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-heading text-lg font-semibold">Continue Where You Left Off</h2>
+        <Link
+          href="/app/topics"
+          className="text-sm text-saffron hover:underline"
+        >
+          All topics
+        </Link>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {recentTopics.map((topic) => (
+          <button
+            key={topic.id}
+            type="button"
+            onClick={() => router.push(`/app/topic/${topic.id}`)}
+            className="group text-left rounded-xl border border-saffron/20 bg-gradient-to-r from-saffron/5 to-surface p-4 flex items-center gap-3 transition-all hover:border-saffron/40 hover:scale-[1.01] cursor-pointer"
+          >
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-saffron/30 bg-saffron/10">
+              <PlayCircle className="size-4 text-saffron" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate">{topic.name}</p>
+              <p className="text-[10px] text-muted-foreground">{topic.category}</p>
+            </div>
+            <ChevronRight className="size-4 text-muted-foreground group-hover:text-saffron transition-colors shrink-0" />
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -461,13 +521,13 @@ export default function DashboardPage() {
             <div className="flex items-start gap-3">
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gold/20 text-gold text-sm font-bold">2</span>
               <p className="text-sm text-foreground/90">
-                <strong>Take a Pariksha</strong> — test your knowledge with curated quiz questions and get instant feedback.
+                <strong>Take a Quiz</strong> — test your knowledge with curated quiz questions and get instant feedback.
               </p>
             </div>
             <div className="flex items-start gap-3">
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal/20 text-teal text-sm font-bold">3</span>
               <p className="text-sm text-foreground/90">
-                <strong>Review with Quick Saar</strong> — use cheatsheets and flashcards to solidify your understanding.
+                <strong>Review with Cheatsheets</strong> — use cheatsheets and flashcards to solidify your understanding.
               </p>
             </div>
           </div>
@@ -487,63 +547,9 @@ export default function DashboardPage() {
       {/* Push notification prompt — shows after 3rd visit */}
       <FadeIn index={idx++}><PushNotificationPrompt /></FadeIn>
 
-      {/* ── Above Fold: always visible ────────────────────────────────── */}
+      {/* ── Above Fold: key status + next actions ─────────────────────── */}
 
-      {/* Review Widget */}
-      <FadeIn index={idx++}><ReviewWidget /></FadeIn>
-
-      {/* Mock Interview CTA — moved up, key feature */}
-      <FadeIn index={idx++}>
-      <Link
-        href="/app/interview"
-        className="group flex items-center gap-4 rounded-xl border border-saffron/20 bg-gradient-to-r from-saffron/5 via-gold/5 to-indigo/5 p-4 transition-all hover:scale-[1.01] hover:border-saffron/30"
-      >
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-saffron/30 bg-saffron/10">
-          <Mic className="size-5 text-saffron" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground">
-            Live AI Interviewer — Mock Interview
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Simulate real interviews with Google, Amazon, Meta & more. Instant feedback via keyword analysis — no API needed.
-          </p>
-        </div>
-        <div className="shrink-0 flex items-center gap-1 rounded-lg border border-saffron/20 bg-saffron/10 px-3 py-1.5 text-xs font-medium text-saffron group-hover:opacity-80">
-          Start Now
-          <ChevronRight className="size-3.5" />
-        </div>
-      </Link>
-      </FadeIn>
-
-      {/* Important Questions Widget */}
-      <FadeIn index={idx++}>
-      <Link
-        href="/app/questions"
-        className="group flex items-center gap-4 rounded-xl border border-indigo/20 bg-gradient-to-r from-indigo/5 via-saffron/5 to-gold/5 p-4 transition-all hover:scale-[1.01] hover:border-indigo/30"
-      >
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-indigo/30 bg-indigo/10">
-          <Sparkles className="size-5 text-indigo" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground">
-            650+ Interview Questions
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Curated Java questions with book-style flip cards. Core Java, Spring Boot, Microservices, System Design & more.
-          </p>
-        </div>
-        <div className="shrink-0 flex items-center gap-1 rounded-lg border border-indigo/20 bg-indigo/10 px-3 py-1.5 text-xs font-medium text-indigo group-hover:opacity-80">
-          Start Now
-          <ChevronRight className="size-3.5" />
-        </div>
-      </Link>
-      </FadeIn>
-
-      {/* Interview Countdown */}
-      <FadeIn index={idx++}><InterviewCountdown /></FadeIn>
-
-      {/* Your Progress */}
+      {/* Your Progress — most important info first */}
       <FadeIn index={idx++}>
       <section>
         <div className="flex items-center justify-between mb-3">
@@ -560,8 +566,27 @@ export default function DashboardPage() {
       </section>
       </FadeIn>
 
-      {/* Daily Goal */}
+      {/* Daily Goal — logically grouped with progress */}
       <FadeIn index={idx++}><DailyGoalBar /></FadeIn>
+
+      {/* Continue Where You Left Off — clear next action */}
+      {!isNewUser && (
+        <FadeIn index={idx++}><ContinueLearning /></FadeIn>
+      )}
+
+      {/* Review Widget */}
+      <FadeIn index={idx++}><ReviewWidget /></FadeIn>
+
+      {/* Interview Countdown */}
+      <FadeIn index={idx++}><InterviewCountdown /></FadeIn>
+
+      {/* Daily Quests — engagement hook, above fold */}
+      <FadeIn index={idx++}>
+      <section>
+        <h2 className="font-heading text-lg font-semibold mb-3">Daily Quests</h2>
+        <DailyQuests />
+      </section>
+      </FadeIn>
 
       {/* Daily Challenge */}
       <FadeIn index={idx++}><DailyChallengeWidget /></FadeIn>
@@ -573,20 +598,60 @@ export default function DashboardPage() {
 
       {showMore && (
         <>
-          {/* Daily Quests */}
+          {/* Mock Interview CTA */}
           <FadeIn index={0}>
-          <section>
-            <h2 className="font-heading text-lg font-semibold mb-3">Daily Quests</h2>
-            <DailyQuests />
-          </section>
+          <Link
+            href="/app/interview"
+            className="group flex items-center gap-4 rounded-xl border border-saffron/20 bg-gradient-to-r from-saffron/5 via-gold/5 to-indigo/5 p-4 transition-all hover:scale-[1.01] hover:border-saffron/30"
+          >
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-saffron/30 bg-saffron/10">
+              <Mic className="size-5 text-saffron" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">
+                Live AI Interviewer — Mock Interview
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Simulate real interviews with Google, Amazon, Meta & more. Instant feedback via keyword analysis — no API needed.
+              </p>
+            </div>
+            <div className="shrink-0 flex items-center gap-1 rounded-lg border border-saffron/20 bg-saffron/10 px-3 py-1.5 text-xs font-medium text-saffron group-hover:opacity-80">
+              Start Now
+              <ChevronRight className="size-3.5" />
+            </div>
+          </Link>
+          </FadeIn>
+
+          {/* Important Questions Widget */}
+          <FadeIn index={1}>
+          <Link
+            href="/app/questions"
+            className="group flex items-center gap-4 rounded-xl border border-indigo/20 bg-gradient-to-r from-indigo/5 via-saffron/5 to-gold/5 p-4 transition-all hover:scale-[1.01] hover:border-indigo/30"
+          >
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-indigo/30 bg-indigo/10">
+              <Sparkles className="size-5 text-indigo" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">
+                650+ Interview Questions
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Curated Java questions with book-style flip cards. Core Java, Spring Boot, Microservices, System Design & more.
+              </p>
+            </div>
+            <div className="shrink-0 flex items-center gap-1 rounded-lg border border-indigo/20 bg-indigo/10 px-3 py-1.5 text-xs font-medium text-indigo group-hover:opacity-80">
+              Start Now
+              <ChevronRight className="size-3.5" />
+            </div>
+          </Link>
           </FadeIn>
 
           {/* Company-Specific Technical Questions */}
-          <FadeIn index={1}><CompanyQuestionsSection /></FadeIn>
+          <FadeIn index={2}><CompanyQuestionsSection /></FadeIn>
 
           {/* Quick Start — hidden for new users since they have the Getting Started card */}
           {!isNewUser && (
-            <FadeIn index={2}>
+            <FadeIn index={3}>
             <section>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-heading text-lg font-semibold">Quick Start</h2>
@@ -626,7 +691,7 @@ export default function DashboardPage() {
 
           {/* Category Links — hidden for new users since they have the Getting Started card */}
           {!isNewUser && (
-            <FadeIn index={3}>
+            <FadeIn index={4}>
             <section>
               <h2 className="font-heading text-lg font-semibold mb-3">Browse by Category</h2>
               <CategoryLinks />
@@ -635,7 +700,7 @@ export default function DashboardPage() {
           )}
 
           {/* Activity Heatmap */}
-          <FadeIn index={4}><ActivityHeatmap /></FadeIn>
+          <FadeIn index={5}><ActivityHeatmap /></FadeIn>
         </>
       )}
 
@@ -644,6 +709,7 @@ export default function DashboardPage() {
         <button
           type="button"
           onClick={() => setShowMore((prev) => !prev)}
+          aria-expanded={showMore}
           className="flex items-center gap-2 rounded-lg border border-border/50 bg-surface hover:bg-surface-hover px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           {showMore ? (

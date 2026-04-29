@@ -90,9 +90,9 @@ function getLevelTierName(level: number | null): string {
 function getLevelColor(level: number | null): string {
   if (level == null) return "text-muted-foreground";
   const { tier } = getLevelInfo(level);
-  if (tier === "Maharishi" || tier === "Guru") return "text-gold";
-  if (tier === "Acharya" || tier === "Pandit") return "text-saffron";
-  if (tier === "Vidyarthi" || tier === "Sadhak") return "text-teal";
+  if (tier === "Grandmaster" || tier === "Legend") return "text-gold";
+  if (tier === "Master" || tier === "Expert") return "text-saffron";
+  if (tier === "Scholar" || tier === "Apprentice") return "text-teal";
   return "text-indigo-400";
 }
 

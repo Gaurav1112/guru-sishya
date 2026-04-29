@@ -95,20 +95,20 @@ export function UserMenu() {
             </p>
           </div>
 
-          <nav className="py-1">
+          <nav aria-label="User menu" className="py-1">
             <Link
               href="/app/profile"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
             >
-              <span>👤</span> Profile
+              <span aria-hidden="true">👤</span> Profile
             </Link>
             <Link
               href="/app/settings"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
             >
-              <span>⚙️</span> Settings
+              <span aria-hidden="true">⚙️</span> Settings
             </Link>
           </nav>
 
@@ -120,7 +120,7 @@ export function UserMenu() {
               }}
               className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
             >
-              <span>🚪</span> Sign Out
+              <span aria-hidden="true">🚪</span> Sign Out
             </button>
           </div>
         </div>

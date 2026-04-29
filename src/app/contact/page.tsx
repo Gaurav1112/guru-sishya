@@ -1,9 +1,18 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact & Support — Guru Sishya",
-  description: "Get help with Guru Sishya. Contact our support team for technical issues, billing questions, or feedback.",
+  title: "Contact & Support",
+  description:
+    "Get help with Guru Sishya. Contact our support team for technical issues, billing questions, feedback, or refund requests. We respond within 24 hours.",
   alternates: { canonical: "https://www.guru-sishya.in/contact" },
+  openGraph: {
+    title: "Contact & Support | Guru Sishya",
+    description:
+      "Reach the Guru Sishya support team for technical issues, billing, or feedback. We respond within 24 hours.",
+    url: "https://www.guru-sishya.in/contact",
+    type: "website",
+    siteName: "Guru Sishya",
+  },
 };
 
 export default function ContactPage() {

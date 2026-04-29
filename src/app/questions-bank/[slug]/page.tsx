@@ -49,6 +49,14 @@ export async function generateMetadata({
       description,
       url: `https://www.guru-sishya.in/questions-bank/${slug}`,
       type: "article",
+      siteName: "Guru Sishya",
+      images: [{ url: "https://www.guru-sishya.in/api/og", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Interview Question`,
+      description,
+      images: ["https://www.guru-sishya.in/api/og"],
     },
   };
 }

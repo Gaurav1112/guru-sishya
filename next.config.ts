@@ -1,7 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  images: { unoptimized: true },
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
   poweredByHeader: false,
   experimental: {
     // Reduce memory usage during static generation on Vercel

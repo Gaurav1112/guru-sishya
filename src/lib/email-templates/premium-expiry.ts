@@ -65,8 +65,8 @@ export function buildPremiumExpiryHtml(data: PremiumExpiryData): string {
             <td style="padding: 24px;">
               <h3 style="margin: 0 0 12px; color: #F9FAFB; font-size: 16px;">What you will lose access to:</h3>
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                ${lossItem("Guru Mode", "Unlimited AI-powered explanations and mentoring")}
-                ${lossItem("Full Vidya Levels", "All 10 mastery levels with advanced challenges")}
+                ${lossItem("Teach Mode", "Unlimited AI-powered explanations and mentoring")}
+                ${lossItem("Full Skill Levels", "All 10 mastery levels with advanced challenges")}
                 ${lossItem("Interview Boss Rounds", "Hard-mode interview practice with power-ups")}
                 ${lossItem("Code Playground Pro", "Java, C, C++, and TypeScript execution")}
                 ${lossItem("Priority Support", "Faster responses and feature requests")}

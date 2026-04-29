@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -16,21 +17,21 @@ import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/layout/user-menu";
 
-// Must match sidebar.tsx navItems exactly
+// Matches sidebar.tsx nav items (primary + more) in the same order
 const navItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
-  { href: "/app/review", label: "Review", icon: "🔁" },
-  { href: "/app/questions", label: "Questions", icon: "📝" },
-  { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
-  { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
-  { href: "/app/revision", label: "Revision", icon: "📖" },
   { href: "/app/topics", label: "Topics", icon: "📚" },
-  { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
+  { href: "/app/questions", label: "Questions", icon: "📝" },
+  { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
+  { href: "/app/review", label: "Review", icon: "🔁" },
   { href: "/app/playground", label: "Playground", icon: "⚡" },
-  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
-  { href: "/app/notes", label: "My Notes", icon: "📓" },
-  { href: "/app/shop", label: "Shop", icon: "🛒" },
   { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
+  { href: "/app/notes", label: "My Notes", icon: "📓" },
+  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
+  { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
+  { href: "/app/revision", label: "Revision", icon: "📖" },
+  { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
+  { href: "/app/shop", label: "Shop", icon: "🛒" },
   { href: "/app/profile", label: "Profile", icon: "👤" },
   { href: "/app/settings", label: "Settings", icon: "⚙️" },
 ];
@@ -74,32 +75,36 @@ function MobileNav() {
           <SheetTitle className="font-heading text-saffron tracking-wider">GURU SISHYA</SheetTitle>
         </SheetHeader>
         <nav className="flex-1 space-y-1 p-3 overflow-y-auto">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
-                pathname === item.href
-                  ? "bg-surface text-foreground"
-                  : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
-              )}
-            >
-              <span>{item.icon}</span>
-              <span className="flex-1">{item.label}</span>
-              {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
-                <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
-                  {dueCount > 99 ? "99+" : dueCount}
-                </span>
-              )}
-              {item.href === "/app/revision" && revisionCount !== undefined && revisionCount > 0 && (
-                <span className="flex items-center justify-center rounded-full bg-amber-500 text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
-                  {revisionCount > 99 ? "99+" : revisionCount}
-                </span>
-              )}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+                  isActive
+                    ? "bg-surface text-foreground"
+                    : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+                )}
+              >
+                <span>{item.icon}</span>
+                <span className="flex-1">{item.label}</span>
+                {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
+                  <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+                    {dueCount > 99 ? "99+" : dueCount}
+                  </span>
+                )}
+                {item.href === "/app/revision" && revisionCount !== undefined && revisionCount > 0 && (
+                  <span className="flex items-center justify-center rounded-full bg-amber-500 text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
+                    {revisionCount > 99 ? "99+" : revisionCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
           {/* Admin console link — only visible for admin */}
           {isAdmin && (
             <Link
@@ -107,7 +112,7 @@ function MobileNav() {
               onClick={() => setOpen(false)}
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
-                pathname === "/app/admin"
+                pathname.startsWith("/app/admin")
                   ? "bg-indigo-500/20 text-indigo-400"
                   : "text-indigo-400/80 hover:bg-indigo-500/10 hover:text-indigo-300"
               )}
@@ -208,8 +213,7 @@ export function Topbar() {
           href="/app/dashboard"
           className="flex items-center gap-2 shrink-0"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-mark.png" alt="Guru Sishya" className="size-8 rounded-lg" />
+          <Image src="/logo-mark.png" alt="Guru Sishya" width={32} height={32} className="size-8 rounded-lg" priority />
           <span className="font-heading text-lg font-bold text-saffron tracking-wider hidden sm:inline">GURU SISHYA</span>
         </Link>
       </div>

@@ -1,13 +1,31 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SignInForm } from "./signin-form";
 
-export const metadata = {
-  title: "Sign In — Guru Sishya",
-  description: "Sign in to Guru Sishya to sync your interview prep progress across devices, track badges, and join the leaderboard.",
+export const metadata: Metadata = {
+  title: "Sign In to Guru Sishya — Sync Progress & Track Badges",
+  description:
+    "Sign in to Guru Sishya to sync your interview prep progress across devices, track badges, earn XP, and join the leaderboard.",
   alternates: { canonical: "https://www.guru-sishya.in/login" },
+  openGraph: {
+    title: "Sign In to Guru Sishya",
+    description:
+      "Sign in to sync your interview prep progress, track badges, and join the leaderboard. Free forever, no credit card required.",
+    url: "https://www.guru-sishya.in/login",
+    type: "website",
+    siteName: "Guru Sishya",
+    images: [{ url: "https://www.guru-sishya.in/api/og", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sign In to Guru Sishya",
+    description:
+      "Sign in to sync your interview prep progress, track badges, and join the leaderboard.",
+    images: ["https://www.guru-sishya.in/api/og"],
+  },
 };
 
 
@@ -26,7 +44,7 @@ export default async function LoginPage({
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
       {/* Background accent */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-saffron/10 blur-3xl" />
@@ -93,6 +111,6 @@ export default async function LoginPage({
           Sign in only unlocks cross-device sync.
         </p>
       </div>
-    </div>
+    </main>
   );
 }

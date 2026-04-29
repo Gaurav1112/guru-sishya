@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Trophy, Star, Zap, Target, BarChart3, Swords } from "lucide-react";
+import { Trophy, Star, Zap, Target, BarChart3, Swords, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BLOOM_LABELS, type BloomLevel } from "@/lib/quiz/types";
@@ -122,6 +122,12 @@ export function QuizResultScreen({
           valueClass={getAvgScoreColor(result.averageScore)}
         />
         <StatBadge
+          icon={<CheckCircle className="size-4" />}
+          label="Accuracy"
+          value={`${myPct}%`}
+          valueClass={getAvgScoreColor(result.averageScore)}
+        />
+        <StatBadge
           icon={<Target className="size-4" />}
           label="Highest Level"
           value={BLOOM_LABELS[result.highestLevel as BloomLevel]}
@@ -132,12 +138,6 @@ export function QuizResultScreen({
           label="XP Earned"
           value={`+${result.xpEarned}`}
           valueClass="text-gold"
-        />
-        <StatBadge
-          icon={<Zap className="size-4 text-teal" />}
-          label="Perfect"
-          value={`${result.perfectCount}`}
-          valueClass="text-teal"
         />
       </div>
 
@@ -192,13 +192,18 @@ export function QuizResultScreen({
       {weakAnswers.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Areas to Review</CardTitle>
+            <CardTitle className="text-sm">Areas to Review ({weakAnswers.length} question{weakAnswers.length !== 1 ? "s" : ""})</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="flex flex-col gap-2">
               {weakAnswers.map((a, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="mt-1 size-1.5 shrink-0 rounded-full bg-destructive" />
+                  <span className={cn(
+                    "mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                    a.score === 0 ? "bg-destructive/20 text-destructive" : "bg-gold/20 text-gold"
+                  )}>
+                    {a.score}/10
+                  </span>
                   <span className="text-muted-foreground line-clamp-2">
                     {a.question.substring(0, 120)}
                     {a.question.length > 120 ? "..." : ""}
@@ -210,7 +215,18 @@ export function QuizResultScreen({
         </Card>
       )}
 
-      {/* Ask Mitra to review wrong answers */}
+      {/* All correct celebration */}
+      {weakAnswers.length === 0 && result.questionsAnswered > 0 && (
+        <Card className="border-teal/30 bg-teal/5">
+          <CardContent className="pt-4">
+            <p className="text-sm text-center text-teal font-medium">
+              Outstanding! You answered all questions well. Keep pushing to higher difficulty levels!
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Ask Study Buddy to review wrong answers */}
       {weakAnswers.length > 0 && (
         <motion.button
           initial={{ opacity: 0, y: 6 }}
@@ -228,7 +244,7 @@ export function QuizResultScreen({
           className="flex items-center justify-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 text-sm font-medium text-indigo-300 transition-colors hover:bg-indigo-500/20 hover:text-indigo-200"
         >
           <Bot className="size-4" />
-          Review your mistakes with Mitra
+          Review your mistakes with Study Buddy
         </motion.button>
       )}
 

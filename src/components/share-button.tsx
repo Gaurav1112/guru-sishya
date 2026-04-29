@@ -71,7 +71,7 @@ function buildShareText(
     case "stats":
       return `I've explored ${value} topics on Guru Sishya! #InterviewPrep #GuruSishya`;
     case "quiz":
-      return `Scored ${value}% on ${name} Pariksha on Guru Sishya! #CodingInterview #GuruSishya`;
+      return `Scored ${value}% on ${name} Quiz on Guru Sishya! #CodingInterview #GuruSishya`;
     default:
       return "Check out my progress on Guru Sishya - the AI-powered SWE interview prep app! #InterviewPrep #GuruSishya";
   }

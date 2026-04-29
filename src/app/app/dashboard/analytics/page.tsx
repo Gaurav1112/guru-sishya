@@ -1,16 +1,36 @@
 "use client";
 
 import { Component, Suspense, useState, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
-import { AccuracyTrend } from "@/components/analytics/accuracy-trend";
-import { TopicRadar } from "@/components/analytics/topic-radar";
-import { WeakAreas } from "@/components/analytics/weak-areas";
-import { QuizBreakdown } from "@/components/analytics/quiz-breakdown";
-import { LearningVelocity } from "@/components/analytics/learning-velocity";
-import { BadgeProgress } from "@/components/analytics/badge-progress";
+
+const AccuracyTrend = dynamic(
+  () => import("@/components/analytics/accuracy-trend").then((m) => m.AccuracyTrend),
+  { ssr: false }
+);
+const TopicRadar = dynamic(
+  () => import("@/components/analytics/topic-radar").then((m) => m.TopicRadar),
+  { ssr: false }
+);
+const WeakAreas = dynamic(
+  () => import("@/components/analytics/weak-areas").then((m) => m.WeakAreas),
+  { ssr: false }
+);
+const QuizBreakdown = dynamic(
+  () => import("@/components/analytics/quiz-breakdown").then((m) => m.QuizBreakdown),
+  { ssr: false }
+);
+const LearningVelocity = dynamic(
+  () => import("@/components/analytics/learning-velocity").then((m) => m.LearningVelocity),
+  { ssr: false }
+);
+const BadgeProgress = dynamic(
+  () => import("@/components/analytics/badge-progress").then((m) => m.BadgeProgress),
+  { ssr: false }
+);
 
 const RANGES = [
   { label: "7 days", days: 7 },

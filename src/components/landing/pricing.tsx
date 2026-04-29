@@ -26,14 +26,14 @@ function getFreeFeatures(stats: ContentStats): PlanFeature[] {
 const STARTER_FEATURES: PlanFeature[] = [
   { text: "Everything in Free" },
   { text: "Unlimited quizzes (Easy + Medium)", highlight: true },
-  { text: "10 Mitra AI messages/day", highlight: true },
+  { text: "10 Study Buddy AI messages/day", highlight: true },
   { text: "3 sessions per topic", highlight: true },
   { text: "Cheatsheet view (no export)" },
 ];
 
 const PRO_MONTHLY_FEATURES: PlanFeature[] = [
   { text: "Everything in Starter" },
-  { text: "AI-powered Guru Mode", highlight: true },
+  { text: "AI-powered Teach Mode", highlight: true },
   { text: "Hard difficulty + timed quiz", highlight: true },
   { text: "Mock interview + Java playground", highlight: true },
   { text: "Certificates + cheatsheet export", highlight: true },

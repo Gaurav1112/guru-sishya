@@ -96,7 +96,7 @@ function ConfettiBurst({ active }: { active: boolean }) {
   if (!active) return null;
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl" aria-hidden>
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl" aria-hidden="true">
       {particles.map((p) => (
         <motion.div
           key={p.id}
@@ -364,6 +364,7 @@ export function GradeResult({ answer, xpEarned, onNext, isLast }: GradeResultPro
           <button
             type="button"
             onClick={() => setShowPerfect((v) => !v)}
+            aria-expanded={showPerfect}
             className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>See perfect answer</span>

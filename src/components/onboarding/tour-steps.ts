@@ -32,7 +32,7 @@ export const TOUR_STEPS: TourStepDef[] = [
   {
     id: "quiz",
     targetSelector: 'a[href="/app/questions"]',
-    title: "Take a Pariksha",
+    title: "Take a Quiz",
     description:
       "Test your knowledge with 1900+ curated quiz questions. Get instant feedback, detailed explanations, and track your accuracy.",
     icon: "📝",
@@ -61,7 +61,7 @@ export const TOUR_STEPS: TourStepDef[] = [
   {
     id: "interview",
     targetSelector: 'a[href="/app/interview"]',
-    title: "Enter Guru Mode",
+    title: "Enter Teach Mode",
     description:
       "Simulate real interviews with boss rounds, power-ups, and timed questions. Immediate revision for wrong answers helps you truly master concepts.",
     icon: "🎤",

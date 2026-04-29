@@ -30,6 +30,15 @@ export const metadata: Metadata = {
       "200+ curated software engineering interview questions with detailed explanations. System design, DSA, and core CS.",
     url: "https://www.guru-sishya.in/questions-bank",
     type: "website",
+    siteName: "Guru Sishya",
+    images: [{ url: "https://www.guru-sishya.in/api/og", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Software Engineering Interview Questions Bank | Guru Sishya",
+    description:
+      "200+ curated interview questions with explanations. System design, DSA, and core CS topics.",
+    images: ["https://www.guru-sishya.in/api/og"],
   },
 };
 

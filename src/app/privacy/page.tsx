@@ -2,9 +2,18 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Guru Sishya",
-  description: "Privacy Policy for Guru Sishya — how we collect, use, and protect your data.",
+  title: "Privacy Policy",
+  description:
+    "Privacy Policy for Guru Sishya. Learn how we collect, use, and protect your data. Your progress is stored locally in your browser by default.",
   alternates: { canonical: "https://www.guru-sishya.in/privacy" },
+  openGraph: {
+    title: "Privacy Policy | Guru Sishya",
+    description:
+      "How Guru Sishya collects, uses, and protects your data. Your progress is stored locally by default.",
+    url: "https://www.guru-sishya.in/privacy",
+    type: "website",
+    siteName: "Guru Sishya",
+  },
 };
 
 export default function PrivacyPage() {

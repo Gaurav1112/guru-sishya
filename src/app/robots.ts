@@ -8,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           "/",
           "/learn",
+          "/learn/",
           "/app/pricing",
           "/app/roadmap",
           "/login",
@@ -20,6 +21,8 @@ export default function robots(): MetadataRoute.Robots {
           "/top-coding-questions",
           "/leetcode-alternative",
           "/questions-bank",
+          "/questions-bank/",
+          "/ref/",
         ],
         disallow: ["/app/admin", "/app/", "/api/"],
       },

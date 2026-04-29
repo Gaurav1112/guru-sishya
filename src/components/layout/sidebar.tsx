@@ -94,12 +94,15 @@ export function Sidebar() {
 
   // Auto-expand "More" if the active path lives there
   useEffect(() => {
-    const isMoreActive = moreNavItems.some((item) => pathname === item.href);
+    const isMoreActive = moreNavItems.some(
+      (item) => pathname === item.href || pathname.startsWith(item.href + "/")
+    );
     if (isMoreActive) setShowMore(true);
   }, [pathname]);
 
   function renderNavLink(item: { href: string; label: string; icon: string }) {
-    const isActive = pathname === item.href;
+    const isActive =
+      pathname === item.href || pathname.startsWith(item.href + "/");
     return (
       <Link
         key={item.href}

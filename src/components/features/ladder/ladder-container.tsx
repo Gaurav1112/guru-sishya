@@ -172,7 +172,7 @@ export function LadderContainer({ topicId, topicName }: LadderContainerProps) {
       <div className="flex flex-col items-center gap-4 py-16">
         <Loader2 className="size-8 animate-spin text-saffron" />
         <div className="text-center space-y-1">
-          <p className="font-medium">Building your Vidya Levels…</p>
+          <p className="font-medium">Building your Skill Levels…</p>
           <p className="text-sm text-muted-foreground">
             The AI is mapping your 5-level journey using the Dreyfus Model.
           </p>

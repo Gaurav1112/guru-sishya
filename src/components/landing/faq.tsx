@@ -10,19 +10,19 @@ interface FAQItem {
 const FAQS: FAQItem[] = [
   {
     q: "What does Guru Sishya offer for interview preparation?",
-    a: "Guru Sishya provides 138 comprehensive topics, 1933 curated interview questions with detailed answers, AI mock interviews, STAR behavioral prep for 6 FAANG companies, adaptive quizzes, spaced repetition flashcards, and a code playground — all in one platform. Pro members get unlimited access to all features.",
+    a: "Guru Sishya provides 141 comprehensive topics, 1,988 curated interview questions with detailed answers, AI mock interviews, STAR behavioral prep for 6 FAANG companies, adaptive quizzes, spaced repetition flashcards, and a code playground — all in one platform. Pro members get unlimited access to all features.",
   },
   {
     q: "Do I need an API key or AI subscription?",
-    a: "No. All lesson content, quiz questions, cheat sheets, STAR behavioral answers, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Pro features like the AI Mock Interviewer and Mitra chatbot also work without any external API.",
+    a: "No. All lesson content, quiz questions, cheat sheets, STAR behavioral answers, and the learning ladder are pre-generated and bundled into the app. They work entirely offline in your browser. Pro features like the AI Mock Interviewer and Study Buddy chatbot also work without any external API.",
   },
   {
     q: "What topics does Guru Sishya cover?",
-    a: "65+ topics across multiple domains: System Design (30 topics), Data Structures & Algorithms (10 topics), Java Core, Spring Boot, JavaScript/TypeScript, React/Next.js, Node.js, HTML/CSS, RDBMS/SQL, NoSQL, Kafka, AWS, Kubernetes/Docker, Design Patterns, and more. New topics are added regularly.",
+    a: "141 topics across multiple domains: System Design (30+ topics), Data Structures & Algorithms, Java Core, Spring Boot, JavaScript/TypeScript, React/Next.js, Node.js, HTML/CSS, RDBMS/SQL, NoSQL, Kafka, AWS, Kubernetes/Docker, Design Patterns, and more. New topics are added regularly.",
   },
   {
     q: "How is this different from LeetCode, AlgoExpert, or NeetCode?",
-    a: "Guru Sishya combines comprehensive teaching content with 1933 questions (with full answers, not just hints), 58 STAR behavioral answers, AI mock interviews, company-specific prep for FAANG, spaced repetition flashcards, offline access, and Bloom's taxonomy adaptive quizzes — all at ₹149/month. Competitors charge ₹991–₹2,917/month and still lack behavioral prep and offline support.",
+    a: "Guru Sishya combines comprehensive teaching content with 1,988 questions (with full answers, not just hints), 58 STAR behavioral answers, AI mock interviews, company-specific prep for FAANG, spaced repetition flashcards, offline access, and adaptive quizzes — all at ₹149/month. Competitors charge ₹991-₹2,917/month and still lack behavioral prep and offline support.",
   },
   {
     q: "Does it cover behavioral interviews?",
@@ -34,7 +34,7 @@ const FAQS: FAQItem[] = [
   },
   {
     q: "What does the Pro plan include?",
-    a: "Pro (₹149/month, ₹699/semester, ₹1,199/year, or ₹2,999 lifetime) unlocks: all lesson sessions, unlimited Q&A answers, AI Mock Interviewer with voice input, Mitra AI chatbot, hard quiz difficulty with timer, full Vidya Levels, Guru Mode, unlimited flashcards, all Quick Saar notes, and the Revision section.",
+    a: "Pro (₹149/month, ₹699/semester, ₹1,199/year, or ₹2,999 lifetime) unlocks: all lesson sessions, unlimited Q&A answers, AI Mock Interviewer with voice input, Study Buddy AI chatbot, hard quiz difficulty with timer, full Skill Progression Levels, Teach-Back Mode, unlimited flashcards, all Quick Summary sheets, and the Revision section.",
   },
 ];
 

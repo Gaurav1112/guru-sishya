@@ -196,9 +196,10 @@ function CountdownTimer({ total, remaining }: CountdownTimerProps) {
       animate={isUrgent ? { scale: [1, 1.06, 1] } : { scale: 1 }}
       transition={isUrgent ? { repeat: Infinity, duration: 0.6 } : {}}
       className="relative flex items-center justify-center"
-      title={`${remaining}s remaining`}
+      role="timer"
+      aria-label={`${remaining} seconds remaining`}
     >
-      <svg width={56} height={56} className="-rotate-90">
+      <svg width={56} height={56} className="-rotate-90" aria-hidden="true">
         {/* Track */}
         <circle
           cx={28}
@@ -683,7 +684,12 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
       setAdaptiveQuestions((prev) => [...prev, question]);
       setPhase("adaptive_answering");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate question");
+      const msg = err instanceof Error ? err.message : "Failed to generate question";
+      setError(msg);
+      // If no questions could be generated at all, show results with whatever we have
+      if (adaptiveQuestions.length === 0 && isStatic) {
+        setError("No quiz questions available for this topic yet. Try a different topic or switch to an AI provider in Settings.");
+      }
     }
   }, [ai, adaptiveQuestions, currentLevel, topicName, isStatic, quizBank, isActivePremium, quizLimit]);
 
@@ -1041,7 +1047,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
         <div className="flex flex-col gap-4 max-w-xl mx-auto py-12">
           <div className="rounded-xl border border-saffron/30 bg-surface p-6 text-center space-y-4">
             <Play className="mx-auto size-10 text-saffron" />
-            <p className="text-lg font-semibold">Resume Pariksha?</p>
+            <p className="text-lg font-semibold">Resume Quiz?</p>
             <p className="text-muted-foreground text-sm">
               You answered <span className="font-semibold text-foreground">{answeredCount}</span> of {SESSION_CAP} questions.
               Pick up where you left off or start fresh.

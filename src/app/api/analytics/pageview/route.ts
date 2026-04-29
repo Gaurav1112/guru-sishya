@@ -1,18 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, path } = await req.json();
-
-    if (!email || !path || typeof email !== "string" || typeof path !== "string") {
-      return NextResponse.json({ error: "Missing email or path" }, { status: 400 });
+    // SECURITY: Rate limit to prevent analytics table spam
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!(await checkRateLimit(`pageview:${ip}`, 30, 60000))) {
+      return NextResponse.json({ ok: false }, { status: 429 });
     }
 
-    // Sanitize: limit string lengths
-    const safeEmail = email.slice(0, 255);
+    // SECURITY: Use authenticated session email, not client-supplied email
+    const session = await auth();
+    const sessionEmail = session?.user?.email?.trim().toLowerCase();
+
+    const { path } = await req.json();
+
+    if (!path || typeof path !== "string") {
+      return NextResponse.json({ error: "Missing path" }, { status: 400 });
+    }
+
+    // Use the session email if available, otherwise skip recording
+    if (!sessionEmail) {
+      return NextResponse.json({ ok: true }); // silently skip for unauthenticated
+    }
+
+    const safeEmail = sessionEmail.slice(0, 255);
     const safePath = path.slice(0, 500);
 
     const supabase = getSupabaseAdmin();

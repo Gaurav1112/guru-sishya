@@ -648,7 +648,7 @@ function UpgradeNudge() {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="mx-2 mb-2 flex flex-col items-center gap-2 rounded-xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-gold/5 to-transparent p-3 text-center">
       <Crown className="size-5 text-saffron" />
-      <p className="text-xs font-semibold text-foreground">Upgrade to Pro for unlimited Mitra conversations</p>
+      <p className="text-xs font-semibold text-foreground">Upgrade to Pro for unlimited Study Buddy conversations</p>
       <Link href="/app/pricing" className="inline-flex items-center gap-1.5 rounded-lg bg-saffron px-3 py-1.5 text-xs font-bold text-background transition-opacity hover:opacity-90"><Crown className="size-3" />Upgrade to Pro</Link>
     </motion.div>
   );
@@ -689,10 +689,10 @@ export function MitraChat() {
   }, []);
 
   const buildGreeting = useCallback((progress: UserProgress): ChatMessage => {
-    let text = "Hi! I'm Mitra, your study buddy. What would you like to explore today?";
+    let text = "Hi! I'm your Study Buddy. What would you like to explore today?";
     if (progress.loaded && progress.weakTopics.length > 0) {
       const w = progress.weakTopics[0];
-      text = `Hi! I'm Mitra, your study buddy. I noticed you're scoring ${w.avgScore}% on **${w.name}**. Want to review it together?\n\nOr ask me about any topic!`;
+      text = `Hi! I'm your Study Buddy. I noticed you're scoring ${w.avgScore}% on **${w.name}**. Want to review it together?\n\nOr ask me about any topic!`;
     }
     return { id: "greeting", role: "mitra", text, timestamp: 0 };
   }, []);
@@ -758,7 +758,7 @@ export function MitraChat() {
     const trimmed = query.trim();
     if (!trimmed || isTyping) return;
     const canSend = await mitraLimit.increment();
-    if (!canSend) { setMessages((prev) => [...prev, { id: `mitra-limit-${Date.now()}`, role: "mitra", text: `You've reached your daily limit of ${mitraLimit.limit} Mitra messages. Upgrade to Pro for unlimited conversations!`, timestamp: Date.now() }]); return; }
+    if (!canSend) { setMessages((prev) => [...prev, { id: `mitra-limit-${Date.now()}`, role: "mitra", text: `You've reached your daily limit of ${mitraLimit.limit} Study Buddy messages. Upgrade to Pro for unlimited conversations!`, timestamp: Date.now() }]); return; }
 
     const userMsg: ChatMessage = { id: `user-${Date.now()}`, role: "user", text: trimmed, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
@@ -782,7 +782,7 @@ export function MitraChat() {
         if (aiProvider !== "static" && apiKey) {
           try {
             const provider = createAIProvider(apiKey, aiProvider);
-            const sysPrompt = "You are Mitra, a friendly software engineering interview preparation tutor. You're helping a student revise and learn. Be concise, practical, and encouraging. Use examples and analogies. Keep responses under 300 words.";
+            const sysPrompt = "You are Study Buddy, a friendly software engineering interview preparation tutor. You're helping a student revise and learn. Be concise, practical, and encouraging. Use examples and analogies. Keep responses under 300 words.";
             const ctx = [...recentMessages, userMsg].map((m) => m.role === "user" ? `Student: ${m.text}` : `Mitra: ${m.text}`).join("\n\n");
             const aiResponse = await provider.generateText(`Conversation so far:\n${ctx}\n\nRespond to the student's latest message.`, sysPrompt, { maxTokens: 800 });
             if (aiResponse?.trim()) partial = { text: aiResponse.trim(), relatedLinks: partial.relatedLinks, followUps: partial.followUps };
@@ -811,11 +811,11 @@ export function MitraChat() {
     <>
       <AnimatePresence>
         {!open && (isActivePro ? (
-          <motion.button key="mitra-fab-pro" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 380, damping: 26 }} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }} onClick={() => setOpen(true)} aria-label="Open Mitra — your study buddy" className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]">
+          <motion.button key="mitra-fab-pro" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 380, damping: 26 }} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }} onClick={() => setOpen(true)} aria-label="Open Study Buddy" className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]">
             <Bot className="size-6 text-white" /><span className="absolute inset-0 animate-ping rounded-full border border-indigo-400/30 opacity-60" />
           </motion.button>
         ) : (
-          <motion.button key="mitra-fab-free" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 380, damping: 26 }} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }} onClick={() => setOpen(true)} aria-label="Mitra — upgrade to Pro to unlock unlimited chat" className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]">
+          <motion.button key="mitra-fab-free" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} transition={{ type: "spring", stiffness: 380, damping: 26 }} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }} onClick={() => setOpen(true)} aria-label="Study Buddy — upgrade to Pro to unlock unlimited chat" className="fixed bottom-24 right-4 sm:bottom-5 sm:right-5 z-[90] flex size-14 items-center justify-center rounded-full border border-indigo-500/40 bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-[0_4px_24px_rgba(99,102,241,0.45)] transition-shadow hover:shadow-[0_6px_32px_rgba(99,102,241,0.65)]">
             <Bot className="size-6 text-white opacity-70" /><span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-saffron border border-background shadow"><Lock className="size-2.5 text-background" /></span>
           </motion.button>
         ))}
@@ -830,13 +830,13 @@ export function MitraChat() {
             <div className="flex items-center gap-2.5 border-b border-border/50 bg-gradient-to-r from-indigo-950/80 to-background px-4 py-3">
               <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 border border-indigo-500/30"><Bot className="size-4 text-indigo-400" /></div>
               <div className="flex-1 min-w-0">
-                <p className="font-heading text-sm font-semibold text-foreground leading-tight">Mitra</p>
+                <p className="font-heading text-sm font-semibold text-foreground leading-tight">Study Buddy</p>
                 <p className="text-[11px] text-indigo-400/80 leading-tight">{mode === "tutor" ? "Tutor Mode" : "Your Study Buddy"}</p>
               </div>
               <ModeToggle mode={mode} onToggle={toggleMode} />
               {!isActivePro && <span className="inline-flex items-center gap-1 rounded-full border border-saffron/30 bg-saffron/10 px-2 py-0.5 text-[10px] font-semibold text-saffron">{!mitraLimit.allowed ? "Limit reached" : mitraLimit.limit !== Infinity ? `${mitraLimit.remaining} free left` : null}</span>}
               {isActivePro && <span className="inline-flex items-center gap-1 rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-semibold text-gold"><Crown className="size-2.5" />Pro</span>}
-              <button onClick={() => setOpen(false)} aria-label="Close Mitra" className="flex size-10 sm:size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"><X className="size-5 sm:size-4" /></button>
+              <button onClick={() => setOpen(false)} aria-label="Close Study Buddy" className="flex size-10 sm:size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"><X className="size-5 sm:size-4" /></button>
             </div>
 
             <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-3">

@@ -16,12 +16,17 @@ function GoogleIcon() {
 
 export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSignIn() {
     setLoading(true);
+    setError("");
     try {
       // Get CSRF token first
       const csrfRes = await fetch("/api/auth/csrf");
+      if (!csrfRes.ok) {
+        throw new Error("Failed to initialize sign-in. Please refresh and try again.");
+      }
       const { csrfToken } = await csrfRes.json();
 
       // POST to signin endpoint (triggers OAuth redirect)
@@ -43,24 +48,34 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
 
       document.body.appendChild(form);
       form.submit();
-    } catch {
+    } catch (err) {
       setLoading(false);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Sign-in failed. Please check your connection and try again."
+      );
     }
   }
 
   return (
-    <Button
-      type="button"
-      onClick={handleSignIn}
-      disabled={loading}
-      className="w-full h-11 bg-white text-gray-900 hover:bg-gray-100 border border-gray-200 font-medium gap-3 disabled:opacity-60"
-    >
-      {loading ? (
-        <span className="animate-spin">⏳</span>
-      ) : (
-        <GoogleIcon />
+    <div className="space-y-3">
+      <Button
+        type="button"
+        onClick={handleSignIn}
+        disabled={loading}
+        className="w-full h-11 bg-white text-gray-900 hover:bg-gray-100 border border-gray-200 font-medium gap-3 disabled:opacity-60"
+      >
+        {loading ? (
+          <span className="animate-spin">⏳</span>
+        ) : (
+          <GoogleIcon />
+        )}
+        {loading ? "Redirecting..." : "Sign in with Google"}
+      </Button>
+      {error && (
+        <p className="text-xs text-red-400 text-center">{error}</p>
       )}
-      {loading ? "Redirecting..." : "Sign in with Google"}
-    </Button>
+    </div>
   );
 }

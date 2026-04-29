@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // ── Supabase leaderboard sync (optional) ─────────────────────────────────────
 // Only works when NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set.
@@ -42,6 +44,18 @@ function getCurrentWeekId(): string {
 // ── POST: sync user's weekly XP ─────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // SECURITY: Require authentication to prevent unauthenticated leaderboard manipulation
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // SECURITY: Rate limit to prevent abuse
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!(await checkRateLimit(`leaderboard:${ip}`, 10, 60000))) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   if (!isSupabaseConfigured()) {
     return NextResponse.json(
       { error: "Supabase not configured. AI-only leaderboard is active." },

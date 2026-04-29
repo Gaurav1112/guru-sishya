@@ -12,12 +12,12 @@ import { YouTubeVideos } from "@/components/youtube-embed";
 import { getVideosForTopic } from "@/lib/content/youtube-videos";
 
 const featureCards = [
-  { key: "plan", title: "Guru's Path", description: "Structured sessions targeting the 20% that drives 80%", href: "plan", icon: "📋", color: "border-saffron/30" },
-  { key: "cheatsheet", title: "Quick Saar", description: "Visual 1-2 page summary for 5-min revision", href: "cheatsheet", icon: "📄", color: "border-teal/30" },
-  { key: "quiz", title: "Pariksha", description: "Adaptive questions that find your ceiling", href: "quiz", icon: "🧠", color: "border-indigo/30" },
-  { key: "ladder", title: "Vidya Levels", description: "5-level progression from Novice to Expert", href: "ladder", icon: "🪜", color: "border-gold/30" },
-  { key: "resources", title: "Gyan Kosh", description: "Best books, videos & resources for this topic", href: "resources", icon: "🔍", color: "border-saffron/30" },
-  { key: "feynman", title: "Guru Mode", description: "Become the teacher — explain to truly understand", href: "feynman", icon: "💬", color: "border-teal/30" },
+  { key: "plan", title: "Learning Path", description: "Structured sessions targeting the 20% that drives 80%", href: "plan", icon: "📋", color: "border-saffron/30" },
+  { key: "cheatsheet", title: "Quick Summary", description: "Visual 1-2 page summary for 5-min revision", href: "cheatsheet", icon: "📄", color: "border-teal/30" },
+  { key: "quiz", title: "Quiz", description: "Adaptive questions that find your ceiling", href: "quiz", icon: "🧠", color: "border-indigo/30" },
+  { key: "ladder", title: "Skill Levels", description: "5-level progression from Novice to Expert", href: "ladder", icon: "🪜", color: "border-gold/30" },
+  { key: "resources", title: "Resources", description: "Best books, videos & resources for this topic", href: "resources", icon: "🔍", color: "border-saffron/30" },
+  { key: "feynman", title: "Teach Mode", description: "Become the teacher — explain to truly understand", href: "feynman", icon: "💬", color: "border-teal/30" },
 ];
 
 // Keys that map to pre-generated content availability

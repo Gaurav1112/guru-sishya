@@ -15,51 +15,51 @@ const BORDER_COLORS = [
 
 const features = [
   {
-    title: "Guru's Path",
+    title: "Structured Learning Path",
     description:
-      "Structured sessions targeting the 20% that drives 80% of results. Ready instantly for all 138 built-in topics.",
+      "Stop wasting hours on random topics. Our Pareto-based plans focus on the 20% of concepts that appear in 80% of interviews — so you learn what actually matters.",
     icon: "📋",
   },
   {
-    title: "Quick Saar",
+    title: "Quick Summary Sheets",
     description:
-      "Visual 1-2 page essence with diagrams and code examples. Revise an entire topic in 5 minutes.",
+      "Revise an entire topic in 5 minutes before your interview. Visual 1-2 page cheat sheets with diagrams and code examples you can review on the go.",
     icon: "📄",
   },
   {
-    title: "Pariksha",
+    title: "Adaptive Quiz Engine",
     description:
-      "1933 pre-built questions with adaptive difficulty. Instant grading, no AI key required.",
+      "Never wonder if you're ready. 1,988+ questions with adaptive difficulty that pinpoint your weak spots and grade you instantly — no AI key required.",
     icon: "🧠",
   },
   {
-    title: "Vidya Levels",
+    title: "Skill Progression Levels",
     description:
-      "5-level progression from Novice to Expert with clear milestones for every topic.",
+      "Track exactly where you stand. 5-level progression from Novice to Expert with clear milestones, so you always know what to work on next.",
     icon: "🪜",
   },
   {
-    title: "Gyan Kosh",
+    title: "Curated Resource Library",
     description:
-      "Best books, courses, and videos hand-picked for each topic.",
+      "No more searching for the right study material. Hand-picked books, courses, and videos for each topic — vetted so you don't waste time on bad resources.",
     icon: "🔍",
   },
   {
-    title: "Guru Mode",
+    title: "Teach-Back Mode",
     description:
-      "Become the teacher — explain concepts back to truly understand them.",
+      "The fastest way to truly understand a concept: explain it back. Research shows teaching others improves retention by 90%.",
     icon: "💬",
   },
   {
-    title: "Mock Interview",
+    title: "Mock Interview Simulator",
     description:
-      "3-round simulated interviews with Easy, Medium, and Boss rounds. Timer, power-ups, and immediate revision for wrong answers.",
+      "Walk into your real interview with confidence. 3-round simulated interviews with Easy, Medium, and Boss rounds — with a timer and instant feedback on wrong answers.",
     icon: "🎯",
   },
   {
     title: "STAR Behavioral Prep",
     description:
-      "58 curated behavioral questions with structured STAR-format answers. Nail the soft-skills round that eliminates 40% of candidates.",
+      "Don't lose the offer at the behavioral round — 40% of candidates do. 58 curated questions with structured STAR-format answers ready to adapt to your experience.",
     icon: "⭐",
   },
 ];
@@ -75,7 +75,7 @@ const COMPARISON = [
   },
   {
     feature: "Interview Questions",
-    gs: "1933 with answers",
+    gs: "1,988 with answers",
     lc: "2800+ (no answers)",
     ae: "160",
     nc: "150",
@@ -122,7 +122,7 @@ function CheckCell({ value, highlight }: { value: string; highlight: boolean }) 
     <td className="px-4 py-3 text-sm text-center">
       {isYes ? (
         <span className="inline-flex items-center gap-1 text-teal font-medium">
-          <svg aria-hidden="true" role="img" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg aria-hidden="true" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
           {value}
@@ -141,11 +141,11 @@ export function Features() {
     <>
       <section id="features" className="px-6 py-20">
         <h2 className="mb-4 text-center font-heading text-3xl font-bold">
-          Everything You Need to Get the Offer
+          8 Tools That Get You the Offer
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Everything you need to go from beginner to interview-ready. All content
-          is pre-generated and works offline — no API key required, no credit card needed.
+          Stop juggling LeetCode, YouTube, and random blogs. Everything you need is here &mdash;
+          pre-built, works offline, and designed to maximize your interview performance.
         </p>
         <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (

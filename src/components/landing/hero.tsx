@@ -65,7 +65,7 @@ export function Hero() {
         >
           The only platform with{" "}
           <span className="text-foreground font-semibold">DSA + System Design + Behavioral</span> prep.{" "}
-          Java &amp; Python code. 141 topics. Free to start.
+          Java &amp; Python code. 141 topics. 1,988 questions. Free to start.
         </motion.p>
 
         {/* Primary CTAs — action-oriented */}
@@ -77,12 +77,12 @@ export function Hero() {
         >
           <Link href="/app/interview">
             <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[220px] sm:min-w-[260px] text-base font-semibold btn-press">
-              Start Your First Mock Interview
+              Start Practicing Free Now
             </Button>
           </Link>
           <Link href="/app/topics">
             <Button variant="outline" size="lg" className="min-w-[180px] text-base btn-outline-glow">
-              Browse 141 Topics
+              Explore 141 Topics
             </Button>
           </Link>
         </motion.div>
@@ -134,7 +134,7 @@ export function Hero() {
           transition={{ delay: 1.4, duration: 0.5 }}
           className="mt-5 text-xs text-muted-foreground/60"
         >
-          Powered by Pareto Principle &bull; Guru Mode &bull; Bloom&apos;s Taxonomy &bull; Spaced Repetition
+          Focus on what matters most &bull; Teach-back learning &bull; Adaptive difficulty &bull; Spaced repetition
         </motion.p>
       </div>
     </section>

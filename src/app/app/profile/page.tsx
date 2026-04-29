@@ -491,10 +491,10 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* ── Badge Mandir ───────────────────────────────────────────────── */}
+      {/* ── Badge Showcase ──────────────────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-heading text-xl font-bold">Badge Mandir</h2>
+          <h2 className="font-heading text-xl font-bold">Badge Showcase</h2>
           <Button
             variant="outline"
             size="sm"

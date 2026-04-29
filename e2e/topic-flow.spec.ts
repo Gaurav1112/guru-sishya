@@ -53,12 +53,12 @@ test.describe("Topic Flow", () => {
 
     // Check feature card titles
     const expectedTitles = [
-      "Guru's Path",
-      "Quick Saar",
-      "Pariksha",
-      "Vidya Levels",
-      "Gyan Kosh",
-      "Guru Mode",
+      "Learning Path",
+      "Quick Summary",
+      "Quiz",
+      "Skill Levels",
+      "Resources",
+      "Teach Mode",
     ];
 
     for (const title of expectedTitles) {
@@ -66,7 +66,7 @@ test.describe("Topic Flow", () => {
     }
   });
 
-  test("clicking Pariksha navigates to quiz page", async ({ page }) => {
+  test("clicking Quiz navigates to quiz page", async ({ page }) => {
     await page.goto("/app/topics");
 
     const topicCards = page.locator(
@@ -76,8 +76,8 @@ test.describe("Topic Flow", () => {
     await topicCards.first().click();
     await page.waitForURL(/\/app\/topic\/\d+/, { timeout: 10_000 });
 
-    // Click the Pariksha (quiz) feature card
-    const quizLink = page.getByRole("link", { name: /pariksha/i });
+    // Click the Quiz feature card
+    const quizLink = page.getByRole("link", { name: /quiz/i });
     await quizLink.click();
 
     // Should navigate to quiz page

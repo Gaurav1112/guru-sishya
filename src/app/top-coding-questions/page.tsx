@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   loadAllContentFromDisk,
@@ -32,6 +33,14 @@ export const metadata: Metadata = {
     url: `${BASE}/top-coding-questions`,
     type: "website",
     siteName: "Guru Sishya",
+    images: [{ url: `${BASE}/api/og`, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Top 100 Coding Interview Questions by Company (2026) | Guru Sishya",
+    description:
+      "100 most-asked coding questions at Google, Amazon, Meta, Microsoft, Apple. Free practice with lessons and quizzes.",
+    images: [`${BASE}/api/og`],
   },
 };
 
@@ -199,10 +208,32 @@ export default function TopCodingQuestionsPage() {
     );
   }
 
+  // JSON-LD ItemList schema
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Top 100 Coding Interview Questions by Company (2026)",
+    description:
+      "The 100 most frequently asked coding interview questions organized by company.",
+    numberOfItems: CODING_QUESTIONS.length,
+    itemListElement: CODING_QUESTIONS.slice(0, 20).map((q, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: q.question,
+      url: findSlug(q.learnTopic)
+        ? `${BASE}/learn/${findSlug(q.learnTopic)}`
+        : `${BASE}/top-coding-questions`,
+    })),
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <SeoNavbar />
       <main className="flex-1">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+        />
         <article className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {/* Breadcrumb */}
           <nav aria-label="Breadcrumb" className="mb-6">
@@ -517,8 +548,7 @@ function SeoNavbar() {
       <div className="flex h-14 items-center justify-between px-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.png" alt="Guru Sishya" className="size-8 rounded-lg" width={32} height={32} />
+            <Image src="/logo-mark.png" alt="Guru Sishya" className="size-8 rounded-lg" width={32} height={32} />
             <span className="font-heading text-lg font-bold text-saffron tracking-wider">GURU SISHYA</span>
           </Link>
           <div className="hidden sm:flex items-center gap-4">
@@ -579,8 +609,7 @@ function SeoFooter() {
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border/20">
           <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" width={24} height={24} />
+            <Image src="/logo-mark.png" alt="Guru Sishya" className="size-6 rounded" width={24} height={24} />
             <span className="text-sm text-muted-foreground">Guru Sishya &mdash; Free Interview Prep for Engineers</span>
           </div>
           <span className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Guru Sishya. All rights reserved.</span>

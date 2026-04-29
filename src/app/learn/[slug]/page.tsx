@@ -51,10 +51,18 @@ export async function generateMetadata({
       canonical: `https://www.guru-sishya.in/learn/${slug}`,
     },
     openGraph: {
-      title,
+      title: `${title} | Guru Sishya`,
       description,
       url: `https://www.guru-sishya.in/learn/${slug}`,
       type: "article",
+      siteName: "Guru Sishya",
+      images: [{ url: "https://www.guru-sishya.in/api/og", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Guru Sishya`,
+      description,
+      images: ["https://www.guru-sishya.in/api/og"],
     },
   };
 }

@@ -48,7 +48,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ── Consistency (7) ──────────────────────────────────────────────────────
   {
     id: "prathama_jyoti",
-    name: "Prathama Jyoti",
+    name: "First Light",
     description: "Complete your first learning session",
     category: "consistency",
     icon: "🕯️",
@@ -57,7 +57,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "nityam",
-    name: "Nityam",
+    name: "Daily Devotee",
     description: "Maintain a 7-day streak",
     category: "consistency",
     icon: "🔥",
@@ -66,7 +66,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "tapasvi",
-    name: "Tapasvi",
+    name: "Iron Will",
     description: "Maintain a 30-day streak",
     category: "consistency",
     icon: "🧘",
@@ -75,7 +75,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "vajra_sankalp",
-    name: "Vajra Sankalp",
+    name: "Diamond Resolve",
     description: "Maintain a 100-day streak",
     category: "consistency",
     icon: "⚡",
@@ -84,7 +84,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "akhand_sadhana",
-    name: "Akhand Sadhana",
+    name: "Year-Long Streak",
     description: "Maintain a 365-day streak",
     category: "consistency",
     icon: "♾️",
@@ -93,7 +93,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "saptah_veer",
-    name: "Saptah Veer",
+    name: "Week Warrior",
     description: "Reach a 28-day streak",
     category: "consistency",
     icon: "📅",
@@ -102,7 +102,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "dainik_sadhak",
-    name: "Dainik Sadhak",
+    name: "Daily Challenger",
     description: "Complete the daily challenge 5 times",
     category: "consistency",
     icon: "☀️",
@@ -113,7 +113,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ── Mastery (9) ──────────────────────────────────────────────────────────
   {
     id: "shuddh_gyan",
-    name: "Shuddh Gyan",
+    name: "Perfect Score",
     description: "Score 100% on a quiz round",
     category: "mastery",
     icon: "🎯",
@@ -122,7 +122,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "pancha_siddhi",
-    name: "Pancha Siddhi",
+    name: "Five Perfects",
     description: "Score 100% on 5 quiz rounds",
     category: "mastery",
     icon: "⭐",
@@ -131,7 +131,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "dwandva_vijay",
-    name: "Dwandva Vijay",
+    name: "Ace Streak",
     description: "Score 80%+ on 5 quizzes",
     category: "mastery",
     icon: "⚔️",
@@ -140,7 +140,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "smriti_rakshak",
-    name: "Smriti Rakshak",
+    name: "Quiz Veteran",
     description: "Complete 10 quiz rounds",
     category: "mastery",
     icon: "🛡️",
@@ -149,7 +149,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "vishwa_vidya",
-    name: "Vishwa Vidya",
+    name: "Explorer",
     description: "Explore topics in 5 different categories",
     category: "mastery",
     icon: "🌐",
@@ -158,7 +158,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "sutra_dhara",
-    name: "Sutra Dhara",
+    name: "Cheat Sheet Pro",
     description: "Generate cheat sheets for 5 topics",
     category: "mastery",
     icon: "📜",
@@ -167,7 +167,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "sutra_lekhak",
-    name: "Sutra Lekhak",
+    name: "Cheat Sheet Master",
     description: "Generate 10 cheat sheets",
     category: "mastery",
     icon: "✍️",
@@ -176,7 +176,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "vidya_dhan",
-    name: "Vidya Dhan",
+    name: "Knowledge Seeker",
     description: "Reach level 5",
     category: "mastery",
     icon: "💎",
@@ -185,7 +185,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "maha_vidya",
-    name: "Maha Vidya",
+    name: "Knowledge Master",
     description: "Reach level 10",
     category: "mastery",
     icon: "👑",
@@ -196,7 +196,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ── Speed (4) ────────────────────────────────────────────────────────────
   {
     id: "vidyut_gati",
-    name: "Vidyut Gati",
+    name: "Lightning Fast",
     description: "Complete a timed test",
     category: "speed",
     icon: "⚡",
@@ -205,7 +205,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "agni_pareeksha",
-    name: "Agni Pareeksha",
+    name: "Triple Threat",
     description: "Attempt 3 quizzes in a single day",
     category: "speed",
     icon: "🔥",
@@ -214,7 +214,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "ekagra",
-    name: "Ekagra",
+    name: "Focused Mind",
     description: "Complete 3 timed tests",
     category: "speed",
     icon: "🎯",
@@ -223,7 +223,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "quiz_samrat",
-    name: "Quiz Samrat",
+    name: "Quiz Champion",
     description: "Complete 50 quizzes",
     category: "speed",
     icon: "🎓",
@@ -234,7 +234,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ── Exploration (5) ──────────────────────────────────────────────────────
   {
     id: "jigyasu",
-    name: "Jigyasu",
+    name: "Curious Learner",
     description: "Explore 5 different topics",
     category: "exploration",
     icon: "🔍",
@@ -243,7 +243,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "sangam",
-    name: "Sangam",
+    name: "Well-Rounded",
     description: "Explore 10 different topics",
     category: "exploration",
     icon: "🔗",
@@ -252,7 +252,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "nav_dwar",
-    name: "Nav Dwar",
+    name: "Category King",
     description: "Explore topics in all available categories",
     category: "exploration",
     icon: "🚪",
@@ -261,7 +261,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "pathik",
-    name: "Pathik",
+    name: "Pathfinder",
     description: "Complete all sessions in a learning plan",
     category: "exploration",
     icon: "🗺️",
@@ -281,7 +281,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ── Social (5) ───────────────────────────────────────────────────────────
   {
     id: "pratham",
-    name: "Pratham",
+    name: "First Step",
     description: "Complete your very first quiz",
     category: "social",
     icon: "🌱",
@@ -299,7 +299,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "guru_vakta",
-    name: "Guru Vakta",
+    name: "Teaching Pro",
     description: "Complete 20 Feynman technique sessions",
     category: "social",
     icon: "🎙️",
@@ -308,7 +308,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "score_90",
-    name: "Shreshtha",
+    name: "High Achiever",
     description: "Score 90%+ on 3 quizzes",
     category: "social",
     icon: "🏆",
@@ -317,7 +317,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     id: "param_parakrami",
-    name: "Param Parakrami",
+    name: "Badge Collector",
     description: "Unlock 15 badges",
     category: "social",
     icon: "🦁",

@@ -53,7 +53,7 @@ export function PlanViewer({
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-              Guru's Path
+              Learning Path
             </p>
             <h1 className="font-heading text-2xl font-bold">{plan.topic}</h1>
           </div>
