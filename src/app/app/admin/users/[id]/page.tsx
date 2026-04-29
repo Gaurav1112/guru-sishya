@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
 import { BackButton } from "@/components/back-button";
+import { getLevelInfo } from "@/lib/gamification/xp";
 
 // ── Admin email check ────────────────────────────────────────────────────────
 
@@ -41,7 +42,7 @@ interface UserDetail {
   created_at: string;
   last_active: string | null;
   xp: number;
-  level: string | null;
+  level: number | null;
   plan_type: string | null;
   premium_until: string | null;
   total_sessions?: number;
@@ -270,7 +271,7 @@ export default function AdminUserDetailPage({
                   <span className="text-[10px] font-medium">Level</span>
                 </div>
                 <p className="font-heading text-lg font-bold text-teal">
-                  {user.level ?? "—"}
+                  {user.level != null ? getLevelInfo(user.level).title : "—"}
                 </p>
               </div>
 

@@ -6,7 +6,14 @@ import { BADGE_DEFINITIONS } from "@/lib/gamification/badges";
 import { Award } from "lucide-react";
 
 export function BadgeProgress() {
-  const earnedBadges = useLiveQuery(() => db.badges.toArray(), []);
+  const earnedBadges = useLiveQuery(async () => {
+    try {
+      return await db.badges.toArray();
+    } catch (err) {
+      console.error("[BadgeProgress] query error:", err);
+      return [];
+    }
+  }, []);
 
   if (!earnedBadges) return null;
 

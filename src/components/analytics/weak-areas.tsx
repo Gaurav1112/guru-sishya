@@ -14,34 +14,39 @@ interface WeakTopic {
 
 export function WeakAreas() {
   const weakTopics = useLiveQuery(async () => {
-    const attempts = await db.quizAttempts.toArray();
-    const topics = await db.topics.toArray();
-    const topicMap = new Map(topics.map((t) => [t.id!, t.name]));
+    try {
+      const attempts = await db.quizAttempts.toArray();
+      const topics = await db.topics.toArray();
+      const topicMap = new Map(topics.map((t) => [t.id!, t.name]));
 
-    const byTopic = new Map<number, { scoreSum: number; count: number }>();
+      const byTopic = new Map<number, { scoreSum: number; count: number }>();
 
-    for (const a of attempts) {
-      const entry = byTopic.get(a.topicId) ?? { scoreSum: 0, count: 0 };
-      entry.scoreSum += a.score;
-      entry.count += 1;
-      byTopic.set(a.topicId, entry);
-    }
-
-    const result: WeakTopic[] = [];
-    for (const [topicId, stats] of byTopic) {
-      if (stats.count < 2) continue;
-      const accuracy = Math.round(stats.scoreSum / stats.count);
-      if (accuracy < 60) {
-        result.push({
-          topicId,
-          name: topicMap.get(topicId) ?? `Topic ${topicId}`,
-          accuracy,
-          totalQuestions: stats.count,
-        });
+      for (const a of attempts) {
+        const entry = byTopic.get(a.topicId) ?? { scoreSum: 0, count: 0 };
+        entry.scoreSum += a.score;
+        entry.count += 1;
+        byTopic.set(a.topicId, entry);
       }
-    }
 
-    return result.sort((a, b) => a.accuracy - b.accuracy);
+      const result: WeakTopic[] = [];
+      for (const [topicId, stats] of byTopic) {
+        if (stats.count < 2) continue;
+        const accuracy = Math.round(stats.scoreSum / stats.count);
+        if (accuracy < 60) {
+          result.push({
+            topicId,
+            name: topicMap.get(topicId) ?? `Topic ${topicId}`,
+            accuracy,
+            totalQuestions: stats.count,
+          });
+        }
+      }
+
+      return result.sort((a, b) => a.accuracy - b.accuracy);
+    } catch (err) {
+      console.error("[WeakAreas] query error:", err);
+      return [];
+    }
   }, []);
 
   if (!weakTopics) return null;

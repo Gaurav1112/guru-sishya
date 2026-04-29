@@ -16,39 +16,44 @@ interface DayPoint {
 
 export function AccuracyTrend({ days }: Props) {
   const points = useLiveQuery(async () => {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
+    try {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
 
-    const attempts = await db.quizAttempts
-      .where("completedAt")
-      .above(cutoff)
-      .toArray();
+      const attempts = await db.quizAttempts
+        .where("completedAt")
+        .above(cutoff)
+        .toArray();
 
-    const byDate = new Map<string, { scoreSum: number; count: number }>();
+      const byDate = new Map<string, { scoreSum: number; count: number }>();
 
-    for (const a of attempts) {
-      const d = new Date(a.completedAt).toISOString().slice(0, 10);
-      const entry = byDate.get(d) ?? { scoreSum: 0, count: 0 };
-      entry.scoreSum += a.score;
-      entry.count += 1;
-      byDate.set(d, entry);
+      for (const a of attempts) {
+        const d = new Date(a.completedAt).toISOString().slice(0, 10);
+        const entry = byDate.get(d) ?? { scoreSum: 0, count: 0 };
+        entry.scoreSum += a.score;
+        entry.count += 1;
+        byDate.set(d, entry);
+      }
+
+      const result: DayPoint[] = [];
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        const entry = byDate.get(key);
+        result.push({
+          date: key,
+          accuracy: entry && entry.count > 0
+            ? Math.round(entry.scoreSum / entry.count)
+            : -1,
+          total: entry?.count ?? 0,
+        });
+      }
+      return result;
+    } catch (err) {
+      console.error("[AccuracyTrend] query error:", err);
+      return [];
     }
-
-    const result: DayPoint[] = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      const entry = byDate.get(key);
-      result.push({
-        date: key,
-        accuracy: entry && entry.count > 0
-          ? Math.round(entry.scoreSum / entry.count)
-          : -1,
-        total: entry?.count ?? 0,
-      });
-    }
-    return result;
   }, [days]);
 
   if (!points) return <ChartSkeleton />;

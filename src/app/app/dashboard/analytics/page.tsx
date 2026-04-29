@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Component, Suspense, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Calendar } from "lucide-react";
@@ -18,7 +18,7 @@ const RANGES = [
   { label: "All time", days: 365 },
 ] as const;
 
-function FadeIn({ children, index = 0 }: { children: React.ReactNode; index?: number }) {
+function FadeIn({ children, index = 0 }: { children: ReactNode; index?: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -27,6 +27,65 @@ function FadeIn({ children, index = 0 }: { children: React.ReactNode; index?: nu
     >
       {children}
     </motion.div>
+  );
+}
+
+/* ── Error boundary for individual chart cards ───────────────────────────── */
+
+interface ChartErrorBoundaryProps {
+  children: ReactNode;
+  name: string;
+}
+interface ChartErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ChartErrorBoundary extends Component<ChartErrorBoundaryProps, ChartErrorBoundaryState> {
+  constructor(props: ChartErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error(`[Analytics] ${this.props.name} error:`, error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="rounded-xl border border-border/50 bg-surface p-4">
+          <p className="text-sm text-muted-foreground text-center py-8">
+            Unable to load {this.props.name}
+          </p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+/* ── Skeleton shown while a chart card loads ──────────────────────────────── */
+
+function CardSkeleton() {
+  return (
+    <div className="rounded-xl border border-border/50 bg-surface p-4">
+      <div className="h-4 w-32 bg-muted/30 rounded mb-3" />
+      <div className="h-32 bg-muted/10 rounded animate-pulse" />
+    </div>
+  );
+}
+
+/* ── Wrapper combining Suspense + ErrorBoundary ──────────────────────────── */
+
+function SafeChart({ name, children }: { name: string; children: ReactNode }) {
+  return (
+    <ChartErrorBoundary name={name}>
+      <Suspense fallback={<CardSkeleton />}>{children}</Suspense>
+    </ChartErrorBoundary>
   );
 }
 
@@ -72,30 +131,42 @@ export default function AnalyticsPage() {
         {/* Row 1: Accuracy + Radar */}
         <div className="grid gap-4 md:grid-cols-2">
           <FadeIn index={1}>
-            <AccuracyTrend days={RANGES[range].days} />
+            <SafeChart name="Accuracy Trend">
+              <AccuracyTrend days={RANGES[range].days} />
+            </SafeChart>
           </FadeIn>
           <FadeIn index={2}>
-            <TopicRadar />
+            <SafeChart name="Topic Strength">
+              <TopicRadar />
+            </SafeChart>
           </FadeIn>
         </div>
 
         {/* Row 2: Velocity + Breakdown */}
         <div className="grid gap-4 md:grid-cols-2">
           <FadeIn index={3}>
-            <LearningVelocity days={RANGES[range].days} />
+            <SafeChart name="Learning Velocity">
+              <LearningVelocity days={RANGES[range].days} />
+            </SafeChart>
           </FadeIn>
           <FadeIn index={4}>
-            <QuizBreakdown />
+            <SafeChart name="Quiz Breakdown">
+              <QuizBreakdown />
+            </SafeChart>
           </FadeIn>
         </div>
 
         {/* Row 3: Weak Areas + Badges */}
         <div className="grid gap-4 md:grid-cols-2">
           <FadeIn index={5}>
-            <WeakAreas />
+            <SafeChart name="Weak Areas">
+              <WeakAreas />
+            </SafeChart>
           </FadeIn>
           <FadeIn index={6}>
-            <BadgeProgress />
+            <SafeChart name="Badge Collection">
+              <BadgeProgress />
+            </SafeChart>
           </FadeIn>
         </div>
       </div>

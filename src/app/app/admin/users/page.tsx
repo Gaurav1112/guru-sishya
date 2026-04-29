@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
 import { BackButton } from "@/components/back-button";
+import { getLevelInfo } from "@/lib/gamification/xp";
 
 // ── Admin email check ────────────────────────────────────────────────────────
 
@@ -40,7 +41,7 @@ interface UserRow {
   created_at: string;
   last_active: string | null;
   xp: number;
-  level: string | null;
+  level: number | null;
   plan_type: string | null;
   premium_until: string | null;
 }
@@ -80,12 +81,18 @@ function RowSkeleton() {
 
 // ── Level colors ─────────────────────────────────────────────────────────────
 
-function getLevelColor(level: string | null): string {
-  if (!level) return "text-muted-foreground";
-  const l = level.toLowerCase();
-  if (l.includes("maharishi") || l.includes("guru")) return "text-gold";
-  if (l.includes("acharya") || l.includes("pandit")) return "text-saffron";
-  if (l.includes("vidwan") || l.includes("sadhak")) return "text-teal";
+function getLevelTierName(level: number | null): string {
+  if (level == null) return "—";
+  const info = getLevelInfo(level);
+  return info.title;
+}
+
+function getLevelColor(level: number | null): string {
+  if (level == null) return "text-muted-foreground";
+  const { tier } = getLevelInfo(level);
+  if (tier === "Maharishi" || tier === "Guru") return "text-gold";
+  if (tier === "Acharya" || tier === "Pandit") return "text-saffron";
+  if (tier === "Vidyarthi" || tier === "Sadhak") return "text-teal";
   return "text-indigo-400";
 }
 
@@ -371,7 +378,7 @@ export default function AdminUsersPage() {
                               user.level
                             )}`}
                           >
-                            {user.level ?? "—"}
+                            {getLevelTierName(user.level)}
                           </span>
                         </td>
                         <td className="px-4 py-3">

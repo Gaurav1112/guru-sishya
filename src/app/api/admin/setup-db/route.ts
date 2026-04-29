@@ -72,6 +72,64 @@ CREATE TABLE IF NOT EXISTS feedback (
   rating INTEGER,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Page views (analytics)
+CREATE TABLE IF NOT EXISTS page_views (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT,
+  path TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_views_created ON page_views (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_page_views_email_path ON page_views (email, path, created_at DESC);
+
+-- Usage tracking (free-tier daily limits)
+CREATE TABLE IF NOT EXISTS usage_tracking (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_email TEXT NOT NULL,
+  feature TEXT NOT NULL,
+  date TEXT NOT NULL,
+  count INTEGER NOT NULL DEFAULT 0,
+  UNIQUE (user_email, feature, date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_usage_tracking_lookup ON usage_tracking (user_email, feature, date);
+
+-- Leaderboard entries (weekly XP sync)
+CREATE TABLE IF NOT EXISTS leaderboard_entries (
+  id BIGSERIAL PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  weekly_xp INTEGER NOT NULL DEFAULT 0,
+  league TEXT NOT NULL DEFAULT 'Bronze',
+  week_id TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (display_name, week_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_leaderboard_week ON leaderboard_entries (week_id);
+
+-- Email captures (landing page signups)
+CREATE TABLE IF NOT EXISTS email_captures (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  source TEXT DEFAULT 'landing',
+  captured_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Users table (login tracking)
+CREATE TABLE IF NOT EXISTS users (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  image TEXT,
+  provider TEXT DEFAULT 'google',
+  last_login_at TIMESTAMPTZ DEFAULT now(),
+  login_count INTEGER DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_last_login ON users (last_login_at DESC);
 `;
 
 export async function POST(req: NextRequest) {
@@ -92,16 +150,37 @@ export async function POST(req: NextRequest) {
     // function exists. Since we control the schema, we use the REST API
     // exec_sql if available, otherwise we attempt individual table checks.
 
-    // Split statements on double-newline boundaries and run each one.
-    const statements = SETUP_SQL
-      .split(";")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    // Split SQL into individual statements. We cannot naively split on ";"
+    // because DO $$ ... END $$; blocks contain inner semicolons. Instead, we
+    // split on ";" that appear outside $$ delimiters.
+    const statements: string[] = [];
+    let current = "";
+    let inDollarBlock = false;
+    for (const line of SETUP_SQL.split("\n")) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("--") && !inDollarBlock) {
+        // skip comment-only lines outside blocks
+        continue;
+      }
+      if (/\bDO\s+\$\$/.test(trimmed)) inDollarBlock = true;
+      current += line + "\n";
+      if (inDollarBlock) {
+        if (/END\s+\$\$\s*;/.test(trimmed)) {
+          inDollarBlock = false;
+          statements.push(current.trim());
+          current = "";
+        }
+      } else if (trimmed.endsWith(";")) {
+        statements.push(current.trim());
+        current = "";
+      }
+    }
+    if (current.trim()) statements.push(current.trim());
 
     const errors: string[] = [];
 
     for (const sql of statements) {
-      const { error } = await supabase.rpc("exec_sql", { query: sql + ";" });
+      const { error } = await supabase.rpc("exec_sql", { query: sql });
       if (error) {
         // If exec_sql doesn't exist, fall through — we'll report it
         errors.push(`${error.message} [SQL: ${sql.slice(0, 60)}...]`);

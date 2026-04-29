@@ -18,7 +18,7 @@ export async function GET() {
     const [usersResult, subsResult, feedbackResult] = await Promise.allSettled([
       supabase
         .from("user_progress")
-        .select("id, email, name, avatar_url, created_at, last_active, xp, level", {
+        .select("id, email, name, avatar_url, created_at, last_active, total_xp, level", {
           count: "exact",
         })
         .order("created_at", { ascending: false })

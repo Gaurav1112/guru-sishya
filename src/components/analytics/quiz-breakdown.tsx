@@ -13,42 +13,47 @@ interface CategoryStat {
 
 export function QuizBreakdown() {
   const stats = useLiveQuery(async () => {
-    const attempts = await db.quizAttempts.toArray();
-    const topics = await db.topics.toArray();
-    const topicMap = new Map(topics.map((t) => [t.id!, t.category]));
+    try {
+      const attempts = await db.quizAttempts.toArray();
+      const topics = await db.topics.toArray();
+      const topicMap = new Map(topics.map((t) => [t.id!, t.category]));
 
-    const catMap = new Map<string, { scoreSum: number; count: number }>();
+      const catMap = new Map<string, { scoreSum: number; count: number }>();
 
-    for (const a of attempts) {
-      const cat = topicMap.get(a.topicId) ?? "Other";
-      const simplified =
-        cat.includes("System Design") && cat.includes("Cases")
-          ? "Case Studies"
-          : cat.includes("System Design")
-            ? "System Design"
-            : cat.includes("Data Structures") || cat.includes("Algorithm")
-              ? "DS & Algo"
-              : cat.includes("Programming") || cat.includes("Language")
-                ? "Languages"
-                : "Core CS";
+      for (const a of attempts) {
+        const cat = topicMap.get(a.topicId) ?? "Other";
+        const simplified =
+          cat.includes("System Design") && cat.includes("Cases")
+            ? "Case Studies"
+            : cat.includes("System Design")
+              ? "System Design"
+              : cat.includes("Data Structures") || cat.includes("Algorithm")
+                ? "DS & Algo"
+                : cat.includes("Programming") || cat.includes("Language")
+                  ? "Languages"
+                  : "Core CS";
 
-      const entry = catMap.get(simplified) ?? { scoreSum: 0, count: 0 };
-      entry.scoreSum += a.score;
-      entry.count += 1;
-      catMap.set(simplified, entry);
+        const entry = catMap.get(simplified) ?? { scoreSum: 0, count: 0 };
+        entry.scoreSum += a.score;
+        entry.count += 1;
+        catMap.set(simplified, entry);
+      }
+
+      const result: CategoryStat[] = [];
+      for (const [label, s] of catMap) {
+        const avg = s.count > 0 ? Math.round(s.scoreSum / s.count) : 0;
+        result.push({
+          label,
+          correct: avg,
+          incorrect: 100 - avg,
+          total: s.count,
+        });
+      }
+      return result.sort((a, b) => b.total - a.total);
+    } catch (err) {
+      console.error("[QuizBreakdown] query error:", err);
+      return [];
     }
-
-    const result: CategoryStat[] = [];
-    for (const [label, s] of catMap) {
-      const avg = s.count > 0 ? Math.round(s.scoreSum / s.count) : 0;
-      result.push({
-        label,
-        correct: avg,
-        incorrect: 100 - avg,
-        total: s.count,
-      });
-    }
-    return result.sort((a, b) => b.total - a.total);
   }, []);
 
   if (!stats) return null;

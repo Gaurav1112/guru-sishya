@@ -17,33 +17,38 @@ const DISPLAY_AXES = ["System Design", "Case Studies", "DS & Algo", "Languages",
 
 export function TopicRadar() {
   const data = useLiveQuery(async () => {
-    const attempts = await db.quizAttempts.toArray();
-    const topics = await db.topics.toArray();
+    try {
+      const attempts = await db.quizAttempts.toArray();
+      const topics = await db.topics.toArray();
 
-    const topicMap = new Map(topics.map((t) => [t.id!, t.category]));
-    const catScores = new Map<string, { scoreSum: number; count: number }>();
+      const topicMap = new Map(topics.map((t) => [t.id!, t.category]));
+      const catScores = new Map<string, { scoreSum: number; count: number }>();
 
-    for (const a of attempts) {
-      const cat = topicMap.get(a.topicId);
-      if (!cat) continue;
-      const mapped = CATEGORIES.find((c) => c.key === cat);
-      if (!mapped) continue;
-      const label = mapped.label;
-      const entry = catScores.get(label) ?? { scoreSum: 0, count: 0 };
-      entry.scoreSum += a.score;
-      entry.count += 1;
-      catScores.set(label, entry);
+      for (const a of attempts) {
+        const cat = topicMap.get(a.topicId);
+        if (!cat) continue;
+        const mapped = CATEGORIES.find((c) => c.key === cat);
+        if (!mapped) continue;
+        const label = mapped.label;
+        const entry = catScores.get(label) ?? { scoreSum: 0, count: 0 };
+        entry.scoreSum += a.score;
+        entry.count += 1;
+        catScores.set(label, entry);
+      }
+
+      return DISPLAY_AXES.map((axis) => {
+        const entry = catScores.get(axis);
+        return {
+          label: axis,
+          value: entry && entry.count > 0
+            ? Math.round(entry.scoreSum / entry.count)
+            : 0,
+        };
+      });
+    } catch (err) {
+      console.error("[TopicRadar] query error:", err);
+      return DISPLAY_AXES.map((axis) => ({ label: axis, value: 0 }));
     }
-
-    return DISPLAY_AXES.map((axis) => {
-      const entry = catScores.get(axis);
-      return {
-        label: axis,
-        value: entry && entry.count > 0
-          ? Math.round(entry.scoreSum / entry.count)
-          : 0,
-      };
-    });
   }, []);
 
   if (!data) return <ChartSkeleton />;

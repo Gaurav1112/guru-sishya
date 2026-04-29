@@ -22,11 +22,11 @@ export async function GET(req: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
-    // Build query
+    // Build query — plan_type and premium_until live in `subscriptions`, not `user_progress`
     let query = supabase
       .from("user_progress")
       .select(
-        "id, email, name, avatar_url, created_at, last_active, xp, level, plan_type, premium_until",
+        "id, email, name, avatar_url, created_at, last_active, total_xp, xp, level",
         { count: "exact" }
       );
 
@@ -35,9 +35,10 @@ export async function GET(req: NextRequest) {
       query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
     }
 
-    // Valid sort columns
-    const validSorts = ["created_at", "last_active", "xp", "level", "name", "email"];
-    const sortColumn = validSorts.includes(sortBy) ? sortBy : "created_at";
+    // Valid sort columns (total_xp is the actual column; accept "xp" as alias)
+    const validSorts = ["created_at", "last_active", "total_xp", "xp", "level", "name", "email"];
+    let sortColumn = validSorts.includes(sortBy) ? sortBy : "created_at";
+    if (sortColumn === "xp") sortColumn = "total_xp";
 
     query = query
       .order(sortColumn, { ascending: sortDir })
@@ -53,9 +54,34 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const users = data ?? [];
+
+    // Fetch subscription info for the returned users from the `subscriptions` table
+    let subsMap: Record<string, { plan_type: string; premium_until: string | null }> = {};
+    if (users.length > 0) {
+      const emails = users.map((u) => u.email).filter(Boolean);
+      const { data: subs } = await supabase
+        .from("subscriptions")
+        .select("email, plan_type, premium_until")
+        .in("email", emails);
+
+      if (subs) {
+        for (const s of subs) {
+          subsMap[s.email] = { plan_type: s.plan_type, premium_until: s.premium_until };
+        }
+      }
+    }
+
+    // Merge subscription data into each user row
+    const mergedUsers = users.map((u) => ({
+      ...u,
+      plan_type: subsMap[u.email]?.plan_type ?? "free",
+      premium_until: subsMap[u.email]?.premium_until ?? null,
+    }));
+
     return NextResponse.json({
       dbAvailable: true,
-      users: data ?? [],
+      users: mergedUsers,
       total: count ?? 0,
       page,
       pageSize: PAGE_SIZE,

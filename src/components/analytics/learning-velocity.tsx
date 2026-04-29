@@ -10,37 +10,42 @@ interface Props {
 
 export function LearningVelocity({ days }: Props) {
   const data = useLiveQuery(async () => {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
+    try {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
 
-    const attempts = await db.quizAttempts
-      .where("completedAt")
-      .above(cutoff)
-      .toArray();
+      const attempts = await db.quizAttempts
+        .where("completedAt")
+        .above(cutoff)
+        .toArray();
 
-    const sessions = await db.planSessions
-      .where("completedAt")
-      .above(cutoff)
-      .toArray();
+      const sessions = await db.planSessions
+        .where("completedAt")
+        .above(cutoff)
+        .toArray();
 
-    const byDate = new Map<string, number>();
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      byDate.set(d.toISOString().slice(0, 10), 0);
+      const byDate = new Map<string, number>();
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        byDate.set(d.toISOString().slice(0, 10), 0);
+      }
+
+      for (const a of attempts) {
+        const d = new Date(a.completedAt).toISOString().slice(0, 10);
+        if (byDate.has(d)) byDate.set(d, (byDate.get(d) ?? 0) + 1);
+      }
+      for (const s of sessions) {
+        if (!s.completedAt) continue;
+        const d = new Date(s.completedAt).toISOString().slice(0, 10);
+        if (byDate.has(d)) byDate.set(d, (byDate.get(d) ?? 0) + 1);
+      }
+
+      return Array.from(byDate.entries()).map(([date, count]) => ({ date, count }));
+    } catch (err) {
+      console.error("[LearningVelocity] query error:", err);
+      return [];
     }
-
-    for (const a of attempts) {
-      const d = new Date(a.completedAt).toISOString().slice(0, 10);
-      if (byDate.has(d)) byDate.set(d, (byDate.get(d) ?? 0) + 1);
-    }
-    for (const s of sessions) {
-      if (!s.completedAt) continue;
-      const d = new Date(s.completedAt).toISOString().slice(0, 10);
-      if (byDate.has(d)) byDate.set(d, (byDate.get(d) ?? 0) + 1);
-    }
-
-    return Array.from(byDate.entries()).map(([date, count]) => ({ date, count }));
   }, [days]);
 
   if (!data) return null;
