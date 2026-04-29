@@ -66,31 +66,49 @@ export async function trackUserLogin(user: TrackUserInput): Promise<boolean> {
   if (!supabase) return false;
 
   try {
-    // Try to fetch existing user first to increment login_count
+    const now = new Date().toISOString();
+
+    // Upsert into user_progress — the single source of truth for the admin dashboard.
+    // On first login: creates a row with defaults. On subsequent logins: updates
+    // name/avatar/last_active without overwriting progress fields.
     const { data: existing } = await supabase
-      .from("users")
-      .select("login_count")
+      .from("user_progress")
+      .select("id")
       .eq("email", user.email)
       .single();
 
-    const loginCount = (existing?.login_count ?? 0) + 1;
+    if (existing) {
+      // Existing user — only update profile info and last_active
+      const { error } = await supabase
+        .from("user_progress")
+        .update({
+          name: user.name ?? undefined,
+          avatar_url: user.image ?? undefined,
+          last_active: now,
+        })
+        .eq("email", user.email);
 
-    const { error } = await supabase.from("users").upsert(
-      {
+      if (error) {
+        console.error("[supabase-admin] trackUserLogin update error:", error.message);
+        return false;
+      }
+    } else {
+      // New user — insert with defaults
+      const { error } = await supabase.from("user_progress").insert({
         email: user.email,
         name: user.name ?? null,
-        image: user.image ?? null,
-        provider: "google",
-        last_login_at: new Date().toISOString(),
-        login_count: loginCount,
-      },
-      { onConflict: "email" }
-    );
+        avatar_url: user.image ?? null,
+        last_active: now,
+        xp: 0,
+        level: 1,
+      });
 
-    if (error) {
-      console.error("[supabase-admin] trackUserLogin error:", error.message);
-      return false;
+      if (error) {
+        console.error("[supabase-admin] trackUserLogin insert error:", error.message);
+        return false;
+      }
     }
+
     return true;
   } catch (err) {
     console.error("[supabase-admin] trackUserLogin failed:", err);
