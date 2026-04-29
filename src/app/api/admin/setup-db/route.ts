@@ -24,21 +24,52 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 CREATE TABLE IF NOT EXISTS user_progress (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  avatar_url TEXT,
   total_xp INTEGER DEFAULT 0,
+  xp INTEGER DEFAULT 0,
   level INTEGER DEFAULT 1,
   current_streak INTEGER DEFAULT 0,
   longest_streak INTEGER DEFAULT 0,
   coins INTEGER DEFAULT 0,
   topics_completed INTEGER DEFAULT 0,
   quizzes_taken INTEGER DEFAULT 0,
+  last_active TIMESTAMPTZ DEFAULT now(),
+  created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Premium allowlist (replaces Redis for this)
+-- Add columns if table already exists (idempotent)
+DO $$ BEGIN
+  ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS name TEXT;
+  ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+  ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS xp INTEGER DEFAULT 0;
+  ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS last_active TIMESTAMPTZ DEFAULT now();
+  ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+-- Premium allowlist
 CREATE TABLE IF NOT EXISTS premium_allowlist (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   added_by TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- App config (key-value store, replaces Redis)
+CREATE TABLE IF NOT EXISTS app_config (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
+-- Feedback
+CREATE TABLE IF NOT EXISTS feedback (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT,
+  name TEXT,
+  message TEXT NOT NULL,
+  rating INTEGER,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 `;

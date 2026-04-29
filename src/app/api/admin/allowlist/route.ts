@@ -1,50 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "redis";
 import { isAdminEmail } from "@/lib/admin-auth";
 import { auth } from "@/lib/auth";
-const REDIS_KEY = "premium_allowlist";
-
-// ── Redis client ───────────────────────────────────────────────────────────────
-
-async function getRedis() {
-  const url = process.env.REDIS_URL;
-  if (!url) {
-    throw new Error("REDIS_URL not configured");
-  }
-  const client = createClient({ url });
-  await client.connect();
-  return client;
-}
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 async function readAllowlist(): Promise<string[]> {
-  let client;
   try {
-    client = await getRedis();
-    const data = await client.get(REDIS_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch (err) {
-    console.error("[admin/allowlist] Redis read error:", err);
-    return [];
-  } finally {
-    await client?.disconnect();
-  }
-}
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("premium_allowlist")
+      .select("email");
 
-async function writeAllowlist(emails: string[]): Promise<void> {
-  const client = await getRedis();
-  try {
-    await client.set(REDIS_KEY, JSON.stringify(emails));
-  } finally {
-    await client.disconnect();
+    if (error) {
+      console.error("[admin/allowlist] Supabase read error:", error.message);
+      return [];
+    }
+    return (data ?? []).map((row) => row.email);
+  } catch (err) {
+    console.error("[admin/allowlist] read error:", err);
+    return [];
   }
 }
 
 // ── GET /api/admin/allowlist ───────────────────────────────────────────────────
-// SECURITY: This endpoint now checks if the caller is authenticated and only
-// confirms whether THEIR email is on the list (not the full list).
-// The full list is only returned to the admin.
+// Admin gets the full list. Non-admin authenticated users only see their own status.
 
 export async function GET() {
   const session = await auth();
@@ -60,7 +40,6 @@ export async function GET() {
   if (callerEmail) {
     const emails = await readAllowlist();
     const isAllowed = emails.map((e) => e.toLowerCase()).includes(callerEmail);
-    // Return only whether the caller is allowed — don't leak other emails
     return NextResponse.json({ allowedEmails: isAllowed ? [callerEmail] : [] });
   }
 
@@ -71,7 +50,6 @@ export async function GET() {
 // ── POST /api/admin/allowlist ─────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  // SECURITY: Authenticate via server-side session, not client-supplied headers
   const session = await auth();
   const callerEmail = session?.user?.email;
   if (!isAdminEmail(callerEmail)) {
@@ -107,25 +85,36 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let emails = await readAllowlist();
-
-  if (action === "add") {
-    if (!emails.map((e) => e.toLowerCase()).includes(normalised)) {
-      emails.push(normalised);
-    }
-  } else {
-    emails = emails.filter((e) => e.toLowerCase() !== normalised);
-  }
-
   try {
-    await writeAllowlist(emails);
+    const supabase = getSupabaseAdmin();
+
+    if (action === "add") {
+      const { error } = await supabase.from("premium_allowlist").upsert(
+        { email: normalised, added_by: callerEmail! },
+        { onConflict: "email" }
+      );
+      if (error) {
+        console.error("[admin/allowlist] add error:", error.message);
+        return NextResponse.json({ error: "Failed to add email." }, { status: 500 });
+      }
+    } else {
+      const { error } = await supabase
+        .from("premium_allowlist")
+        .delete()
+        .eq("email", normalised);
+      if (error) {
+        console.error("[admin/allowlist] remove error:", error.message);
+        return NextResponse.json({ error: "Failed to remove email." }, { status: 500 });
+      }
+    }
+
+    const emails = await readAllowlist();
+    return NextResponse.json({ success: true, allowedEmails: emails });
   } catch (err) {
-    console.error("[admin/allowlist] Redis write error:", err);
+    console.error("[admin/allowlist] write error:", err);
     return NextResponse.json(
-      { error: "Failed to save. Check Redis configuration." },
+      { error: "Failed to save. Check Supabase configuration." },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({ success: true, allowedEmails: emails });
 }

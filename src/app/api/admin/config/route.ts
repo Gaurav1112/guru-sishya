@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "redis";
 import { isAdminEmail } from "@/lib/admin-auth";
 import { auth } from "@/lib/auth";
-const REDIS_KEY = "app_config";
+import { getSupabaseAdmin } from "@/lib/supabase";
+
+const SUPABASE_CONFIG_TABLE = "app_config";
 
 // ── Default config ─────────────────────────────────────────────────────────────
 
@@ -24,40 +25,45 @@ const DEFAULT_CONFIG: AppConfig = {
   freeMitraMessages: 3,
 };
 
-// ── Redis client ───────────────────────────────────────────────────────────────
-
-async function getRedis() {
-  const url = process.env.REDIS_URL;
-  if (!url) {
-    throw new Error("REDIS_URL not configured");
-  }
-  const client = createClient({ url });
-  await client.connect();
-  return client;
-}
-
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 async function readConfig(): Promise<AppConfig> {
-  let client;
   try {
-    client = await getRedis();
-    const data = await client.get(REDIS_KEY);
-    return data ? { ...DEFAULT_CONFIG, ...JSON.parse(data) } : { ...DEFAULT_CONFIG };
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from(SUPABASE_CONFIG_TABLE)
+      .select("key, value")
+      .limit(50);
+
+    if (error || !data || data.length === 0) {
+      return { ...DEFAULT_CONFIG };
+    }
+
+    const configFromDb: Record<string, number> = {};
+    for (const row of data) {
+      configFromDb[row.key] = Number(row.value);
+    }
+    return { ...DEFAULT_CONFIG, ...configFromDb };
   } catch (err) {
-    console.error("[admin/config] Redis read error:", err);
+    console.error("[admin/config] read error:", err);
     return { ...DEFAULT_CONFIG };
-  } finally {
-    await client?.disconnect();
   }
 }
 
 async function writeConfig(config: AppConfig): Promise<void> {
-  const client = await getRedis();
-  try {
-    await client.set(REDIS_KEY, JSON.stringify(config));
-  } finally {
-    await client.disconnect();
+  const supabase = getSupabaseAdmin();
+  const rows = Object.entries(config).map(([key, value]) => ({
+    key,
+    value: String(value),
+  }));
+
+  for (const row of rows) {
+    const { error } = await supabase
+      .from(SUPABASE_CONFIG_TABLE)
+      .upsert(row, { onConflict: "key" });
+    if (error) {
+      console.error(`[admin/config] write error for ${row.key}:`, error.message);
+    }
   }
 }
 
@@ -71,7 +77,6 @@ export async function GET() {
 // ── POST /api/admin/config ─────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  // SECURITY: Authenticate via server-side session, not client-supplied headers
   const session = await auth();
   const callerEmail = session?.user?.email;
   if (!isAdminEmail(callerEmail)) {
@@ -113,9 +118,9 @@ export async function POST(req: NextRequest) {
   try {
     await writeConfig(updated);
   } catch (err) {
-    console.error("[admin/config] Redis write error:", err);
+    console.error("[admin/config] write error:", err);
     return NextResponse.json(
-      { error: "Failed to save. Check Redis configuration." },
+      { error: "Failed to save. Check Supabase configuration." },
       { status: 500 }
     );
   }
