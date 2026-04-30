@@ -1,8 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { MermaidDiagram } from "./mermaid-diagram";
+
+// Mermaid is ~2.5MB — only load when a diagram is actually rendered
+const MermaidDiagram = dynamic(
+  () => import("./mermaid-diagram").then((mod) => mod.MermaidDiagram),
+  {
+    loading: () => (
+      <div className="my-4 flex items-center justify-center py-8 text-xs text-muted-foreground rounded-lg border border-border bg-surface">
+        Loading diagram...
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 interface MarkdownRendererProps {
   content: string;

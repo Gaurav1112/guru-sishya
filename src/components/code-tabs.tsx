@@ -21,7 +21,24 @@ import dynamic from "next/dynamic";
 import { Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+  loading: () => <div className="h-full animate-pulse bg-[#1e1e1e]" />,
+});
+
+/** Skeleton shown while Monaco loads */
+function EditorSkeleton({ height }: { height: number }) {
+  return (
+    <div className="animate-pulse bg-[#1e1e1e] px-4 py-3 space-y-2" style={{ height }}>
+      {Array.from({ length: Math.min(12, Math.floor(height / 22)) }).map((_, i) => (
+        <div key={i} className="flex gap-3">
+          <div className="h-3 w-6 rounded bg-[#3c3c3c]" />
+          <div className="h-3 rounded bg-[#2d2d2d]" style={{ width: `${50 + ((i * 17) % 40)}%` }} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -181,6 +198,7 @@ export function CodeTabs({ codes, height = 300, title, className }: CodeTabsProp
           language={activeMeta.monacoId}
           value={activeCode}
           theme="vs-dark"
+          loading={<EditorSkeleton height={height} />}
           options={{
             readOnly: true,
             minimap: { enabled: false },

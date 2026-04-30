@@ -25,7 +25,7 @@ export function FloatingStickyNotes({ topicId, sessionNum }: FloatingStickyNotes
       {/* Toggle button — fixed on right edge, mid-screen */}
       <motion.button
         onClick={() => setOpen((o) => !o)}
-        className="fixed right-0 top-1/3 z-50 flex items-center gap-1 rounded-l-xl border border-r-0 border-yellow-400/30 bg-yellow-400/10 backdrop-blur-sm px-2 py-3 text-yellow-300 hover:bg-yellow-400/20 transition-colors shadow-lg"
+        className="fixed right-0 top-1/4 md:top-1/3 z-40 flex items-center gap-1 rounded-l-xl border border-r-0 border-yellow-400/30 bg-yellow-400/10 backdrop-blur-sm px-2 py-3 text-yellow-300 hover:bg-yellow-400/20 transition-colors shadow-lg"
         whileHover={{ x: -4 }}
         whileTap={{ scale: 0.95 }}
         title={open ? "Close notes" : "Open study notes"}

@@ -92,6 +92,15 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     check: (stats) => stats.longestStreak >= 365,
   },
   {
+    id: "paksha_veer",
+    name: "Fortnight Fighter",
+    description: "Maintain a 14-day streak",
+    category: "consistency",
+    icon: "🗓️",
+    hint: "Two weeks of unbroken practice",
+    check: (stats) => stats.longestStreak >= 14,
+  },
+  {
     id: "saptah_veer",
     name: "Week Warrior",
     description: "Reach a 28-day streak",
@@ -108,6 +117,15 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     icon: "☀️",
     hint: "Answer the Guru's question of the day consistently",
     check: (stats) => stats.dailyChallengesCompleted >= 5,
+  },
+  {
+    id: "dainik_nishtha",
+    name: "Challenge Devotee",
+    description: "Complete the daily challenge 15 times",
+    category: "consistency",
+    icon: "🌅",
+    hint: "Consistency in daily challenges shows true dedication",
+    check: (stats) => stats.dailyChallengesCompleted >= 15,
   },
 
   // ── Mastery (9) ──────────────────────────────────────────────────────────

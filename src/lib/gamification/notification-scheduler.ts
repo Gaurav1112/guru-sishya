@@ -28,22 +28,45 @@ interface NotificationTemplate {
 
 // ── Templates ───────────────────────────────────────────────────────────────
 
+const STREAK_BODIES = [
+  "Just 1 question keeps your streak alive. Takes 30 seconds!",
+  "Your streak is about to break — answer one quick question to save it.",
+  "Don't let today's progress slip. A single quiz keeps the fire burning!",
+];
+
+const DAILY_BODIES = [
+  "Today's challenge is ready — solve it for bonus XP before midnight!",
+  "New daily quests just dropped. Complete all 3 to unlock a mystery box!",
+  "A fresh Guru's Question is waiting. Can you get it right?",
+];
+
+const COMEBACK_BODIES = [
+  "Your topics are waiting. Jump back in with a quick quiz — no pressure.",
+  "Knowledge fades without practice. A 2-minute review brings it right back.",
+  "Your weak areas won't fix themselves. Come back and level up today.",
+];
+
+function pickByDay(arr: string[]): string {
+  const day = Math.floor(Date.now() / 86400000);
+  return arr[day % arr.length];
+}
+
 const TEMPLATES: Record<NotificationType, NotificationTemplate> = {
   "streak-at-risk": {
     title: "Your streak is at risk!",
-    body: "Complete a session today to keep your streak alive. Don't let your progress slip away!",
+    body: pickByDay(STREAK_BODIES),
     tag: "streak-at-risk",
     url: "/app/dashboard",
   },
   "daily-challenge-available": {
     title: "New Daily Challenge!",
-    body: "A fresh challenge is waiting for you. Complete it to earn bonus XP and keep your skills sharp!",
+    body: pickByDay(DAILY_BODIES),
     tag: "daily-challenge",
     url: "/app/dashboard",
   },
   "comeback-nudge": {
     title: "We miss you!",
-    body: "It's been a while since your last session. Come back and pick up where you left off — your next lesson awaits!",
+    body: pickByDay(COMEBACK_BODIES),
     tag: "comeback-nudge",
     url: "/app/dashboard",
   },

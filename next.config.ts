@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
     // Reduce memory usage during static generation on Vercel
     workerThreads: false,
     cpus: 1,
+    // Tree-shake barrel exports for heavy packages
+    optimizePackageImports: [
+      "framer-motion",
+      "react-markdown",
+      "@supabase/supabase-js",
+    ],
   },
   async headers() {
     return [

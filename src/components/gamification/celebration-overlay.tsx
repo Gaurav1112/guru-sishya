@@ -80,7 +80,7 @@ function LevelUpOverlay({ data }: { data: Record<string, unknown> }) {
           transition={{ delay: 0.5 }}
           className="mt-6 text-muted-foreground text-sm"
         >
-          Keep going, scholar!
+          New abilities unlocked. Keep pushing — the next milestone is closer than you think!
         </motion.div>
       </motion.div>
     </motion.div>
@@ -278,8 +278,8 @@ function StreakBrokenOverlay({ data }: { data: Record<string, unknown> }) {
           Your {lostStreak}-day streak was lost
         </h2>
         <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
-          Life happens — even the most dedicated scholars miss a day. Your progress and knowledge
-          remain. Pick up where you left off.
+          Life happens — even the best miss a day. But here is what matters: your <strong className="text-foreground">XP, badges, and level are permanent</strong>. The
+          only thing that resets is the counter. Start a new streak today and make it even longer.
         </p>
 
         <div className="flex flex-col gap-3">

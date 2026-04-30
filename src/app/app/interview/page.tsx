@@ -2089,9 +2089,16 @@ export default function InterviewPage() {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center gap-3 py-12 text-muted-foreground">
-          <div className="size-5 animate-spin rounded-full border-2 border-saffron border-t-transparent" />
-          <span className="text-sm">Loading questions...</span>
+        <div className="py-12 space-y-4 animate-pulse max-w-xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="size-5 animate-spin rounded-full border-2 border-saffron border-t-transparent" />
+            <div className="h-4 w-48 rounded bg-muted/30" />
+          </div>
+          <div className="rounded-xl border border-border/50 bg-surface p-5 space-y-3">
+            <div className="h-5 w-3/4 rounded bg-muted/30" />
+            <div className="h-4 w-full rounded bg-muted/20" />
+            <div className="h-4 w-2/3 rounded bg-muted/20" />
+          </div>
         </div>
       )}
 

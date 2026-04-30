@@ -24,37 +24,74 @@ interface QuestProgress {
   boxOpened: boolean;
 }
 
-// ── Constants ────────────────────────────────────────────────────────────────
+// ── Quest pools — rotated daily for variety ──────────────────────────────────
 
-const QUESTS: Quest[] = [
-  {
-    id: "quiz",
-    label: "Quiz Challenger",
-    icon: "🧠",
-    description: "Complete a quiz session",
-    target: 1,
-    unit: "quiz",
-    xpReward: 20,
-  },
-  {
-    id: "flashcards",
-    label: "Card Scholar",
-    icon: "🃏",
-    description: "Review flashcards",
-    target: 5,
-    unit: "cards",
-    xpReward: 15,
-  },
-  {
-    id: "lesson",
-    label: "Lesson Seeker",
-    icon: "📖",
-    description: "Read a lesson session",
-    target: 1,
-    unit: "lesson",
-    xpReward: 10,
-  },
+interface QuestTemplate {
+  id: "quiz" | "flashcards" | "lesson";
+  label: string;
+  icon: string;
+  description: string;
+  target: number;
+  unit: string;
+  xpReward: number;
+}
+
+const QUEST_POOL: QuestTemplate[][] = [
+  // Day pattern 0 — standard
+  [
+    { id: "quiz", label: "Quiz Challenger", icon: "🧠", description: "Complete a quiz session", target: 1, unit: "quiz", xpReward: 20 },
+    { id: "flashcards", label: "Card Scholar", icon: "🃏", description: "Review 5 flashcards", target: 5, unit: "cards", xpReward: 15 },
+    { id: "lesson", label: "Lesson Seeker", icon: "📖", description: "Read a lesson session", target: 1, unit: "lesson", xpReward: 10 },
+  ],
+  // Day pattern 1 — double quiz focus
+  [
+    { id: "quiz", label: "Double Down", icon: "🎯", description: "Complete 2 quiz sessions", target: 2, unit: "quizzes", xpReward: 30 },
+    { id: "flashcards", label: "Quick Review", icon: "🃏", description: "Review 3 flashcards", target: 3, unit: "cards", xpReward: 10 },
+    { id: "lesson", label: "Knowledge Seeker", icon: "📚", description: "Read a lesson session", target: 1, unit: "lesson", xpReward: 10 },
+  ],
+  // Day pattern 2 — flashcard heavy
+  [
+    { id: "quiz", label: "Warm Up", icon: "🧠", description: "Complete a quiz session", target: 1, unit: "quiz", xpReward: 15 },
+    { id: "flashcards", label: "Card Master", icon: "🎴", description: "Review 10 flashcards", target: 10, unit: "cards", xpReward: 25 },
+    { id: "lesson", label: "Steady Learner", icon: "📖", description: "Read a lesson session", target: 1, unit: "lesson", xpReward: 10 },
+  ],
+  // Day pattern 3 — speed day
+  [
+    { id: "quiz", label: "Speed Run", icon: "⚡", description: "Complete a quiz session", target: 1, unit: "quiz", xpReward: 20 },
+    { id: "flashcards", label: "Flash Review", icon: "🃏", description: "Review 7 flashcards", target: 7, unit: "cards", xpReward: 20 },
+    { id: "lesson", label: "Deep Dive", icon: "🔬", description: "Read a lesson session", target: 1, unit: "lesson", xpReward: 15 },
+  ],
+  // Day pattern 4 — bonus XP day
+  [
+    { id: "quiz", label: "Bonus Round", icon: "🌟", description: "Complete a quiz session", target: 1, unit: "quiz", xpReward: 25 },
+    { id: "flashcards", label: "Card Collector", icon: "🃏", description: "Review 5 flashcards", target: 5, unit: "cards", xpReward: 20 },
+    { id: "lesson", label: "Scholar's Path", icon: "📖", description: "Read a lesson session", target: 1, unit: "lesson", xpReward: 15 },
+  ],
+  // Day pattern 5 — marathon
+  [
+    { id: "quiz", label: "Triple Threat", icon: "🔥", description: "Complete 3 quiz sessions", target: 3, unit: "quizzes", xpReward: 40 },
+    { id: "flashcards", label: "Card Scholar", icon: "🃏", description: "Review 5 flashcards", target: 5, unit: "cards", xpReward: 15 },
+    { id: "lesson", label: "Lesson Seeker", icon: "📖", description: "Read a lesson session", target: 1, unit: "lesson", xpReward: 10 },
+  ],
+  // Day pattern 6 — balanced
+  [
+    { id: "quiz", label: "Sunday Scholar", icon: "🎓", description: "Complete a quiz session", target: 1, unit: "quiz", xpReward: 20 },
+    { id: "flashcards", label: "Memory Lane", icon: "🧩", description: "Review 8 flashcards", target: 8, unit: "cards", xpReward: 20 },
+    { id: "lesson", label: "Weekly Wrap", icon: "📖", description: "Read a lesson session", target: 1, unit: "lesson", xpReward: 15 },
+  ],
 ];
+
+/** Pick the quest set for today based on day-of-year, so quests rotate daily. */
+function getTodayQuests(): Quest[] {
+  const now = new Date();
+  const dayOfYear = Math.floor(
+    (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  const pattern = dayOfYear % QUEST_POOL.length;
+  return QUEST_POOL[pattern];
+}
+
+const QUESTS: Quest[] = getTodayQuests();
 
 const LS_PREFIX = "gs-daily-quests-";
 
@@ -239,9 +276,17 @@ export function DailyQuests() {
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Daily Quests
             </p>
+            {(() => {
+              const totalReward = QUESTS.reduce((s, q) => s + q.xpReward, 0);
+              return totalReward > 45 ? (
+                <span className="rounded-full bg-gold/20 px-1.5 py-0.5 text-[9px] font-bold text-gold">
+                  BONUS DAY
+                </span>
+              ) : null;
+            })()}
           </div>
           <span className="text-[10px] text-muted-foreground">
-            Resets at midnight
+            +{QUESTS.reduce((s, q) => s + q.xpReward, 0)} XP total · Resets at midnight
           </span>
         </div>
 

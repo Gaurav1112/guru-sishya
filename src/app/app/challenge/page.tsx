@@ -381,9 +381,21 @@ export default function ChallengePage() {
 
   if (phase === "loading") {
     return (
-      <div className="flex flex-col items-center gap-4 py-20 max-w-xl mx-auto">
-        <Loader2 className="size-8 animate-spin text-saffron" />
-        <p className="text-sm text-muted-foreground">Loading challenge questions…</p>
+      <div className="py-20 max-w-xl mx-auto space-y-5 animate-pulse">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="size-8 animate-spin text-saffron" />
+        </div>
+        <div className="rounded-xl border border-border/50 bg-surface p-6 space-y-3">
+          <div className="h-5 w-2/3 rounded bg-muted/30" />
+          <div className="h-4 w-full rounded bg-muted/20" />
+          <div className="h-4 w-3/4 rounded bg-muted/20" />
+          <div className="h-4 w-1/2 rounded bg-muted/20" />
+        </div>
+        <div className="space-y-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-10 w-full rounded-lg bg-muted/20" />
+          ))}
+        </div>
       </div>
     );
   }

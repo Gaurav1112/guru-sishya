@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // ── GET /api/user/progress?email= ────────────────────────────────────────────
 // Returns user progress from Supabase. Falls back to zeroed defaults when no
@@ -9,6 +10,15 @@ import { auth } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
+    // SECURITY: Rate limit to prevent abuse
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!(await checkRateLimit(`user-progress:${ip}`, 30, 60000))) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429 }
+      );
+    }
+
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -50,6 +60,15 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Rate limit to prevent abuse
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!(await checkRateLimit(`user-progress-write:${ip}`, 20, 60000))) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429 }
+      );
+    }
+
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -65,6 +84,17 @@ export async function POST(req: NextRequest) {
       topics_completed,
       quizzes_taken,
     } = body;
+
+    // Validate numeric fields — reject negative or unreasonable values
+    const numericFields = { total_xp, level, current_streak, longest_streak, coins, topics_completed, quizzes_taken };
+    for (const [field, value] of Object.entries(numericFields)) {
+      if (value !== undefined && (typeof value !== "number" || !Number.isFinite(value) || value < 0)) {
+        return NextResponse.json(
+          { error: `${field} must be a non-negative number.` },
+          { status: 400 }
+        );
+      }
+    }
 
     // SECURITY: Always use the authenticated email, never trust client-supplied email
     const email = session.user.email.toLowerCase();

@@ -54,11 +54,8 @@ export async function POST(req: NextRequest) {
     // Store in Supabase if configured
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       try {
-        const { createClient } = await import("@supabase/supabase-js");
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL,
-          process.env.SUPABASE_SERVICE_ROLE_KEY,
-        );
+        const { getSupabaseAdmin } = await import("@/lib/supabase");
+        const supabase = getSupabaseAdmin();
         await supabase.from("contact_submissions").insert({
           name: sanitised.name,
           email: sanitised.email,

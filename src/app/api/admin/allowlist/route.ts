@@ -30,17 +30,24 @@ export async function GET() {
   const session = await auth();
   const callerEmail = session?.user?.email?.toLowerCase() ?? "";
 
+  const cacheHeaders = {
+    "Cache-Control": "private, max-age=60, stale-while-revalidate=300",
+  };
+
   // Admin gets the full list (for the admin console)
   if (isAdminEmail(callerEmail)) {
     const emails = await readAllowlist();
-    return NextResponse.json({ allowedEmails: emails });
+    return NextResponse.json({ allowedEmails: emails }, { headers: cacheHeaders });
   }
 
   // Non-admin authenticated users: check only their own email
   if (callerEmail) {
     const emails = await readAllowlist();
     const isAllowed = emails.map((e) => e.toLowerCase()).includes(callerEmail);
-    return NextResponse.json({ allowedEmails: isAllowed ? [callerEmail] : [] });
+    return NextResponse.json(
+      { allowedEmails: isAllowed ? [callerEmail] : [] },
+      { headers: cacheHeaders }
+    );
   }
 
   // Unauthenticated: return empty list

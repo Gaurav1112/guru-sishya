@@ -167,7 +167,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error("[razorpay/verify]", err);
-    const message = err instanceof Error ? err.message : "Verification failed.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Payment verification failed. Please contact support." }, { status: 500 });
   }
 }

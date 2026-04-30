@@ -8,7 +8,24 @@ import { Button } from "@/components/ui/button";
 import { runJava, runC, runCpp, runPython, runJavaScriptSandboxed, type RunResult } from "@/lib/code-runner";
 
 // Monaco must be dynamically imported with ssr: false
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+  loading: () => <div className="h-full animate-pulse bg-[#1e1e1e]" />,
+});
+
+/** Skeleton shown while Monaco loads */
+function EditorSkeleton({ height }: { height: number }) {
+  return (
+    <div className="animate-pulse bg-[#1e1e1e] px-4 py-3 space-y-2" style={{ height }}>
+      {Array.from({ length: Math.min(12, Math.floor(height / 22)) }).map((_, i) => (
+        <div key={i} className="flex gap-3">
+          <div className="h-3 w-6 rounded bg-[#3c3c3c]" />
+          <div className="h-3 rounded bg-[#2d2d2d]" style={{ width: `${50 + ((i * 17) % 40)}%` }} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export interface TestCase {
   input?: string;
@@ -353,6 +370,7 @@ export function CodePlayground({
           value={code}
           onChange={(val) => !readOnly && setCode(val ?? "")}
           theme="vs-dark"
+          loading={<EditorSkeleton height={height} />}
           options={{
             readOnly,
             minimap: { enabled: false },
@@ -534,6 +552,7 @@ export function CodeViewer({ code, language = "javascript", height = 200, classN
           language={monacoLang}
           value={code}
           theme="vs-dark"
+          loading={<EditorSkeleton height={height} />}
           options={{
             readOnly: true,
             minimap: { enabled: false },

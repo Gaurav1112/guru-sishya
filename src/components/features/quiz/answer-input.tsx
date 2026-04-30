@@ -290,7 +290,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
           onClick={handleSubmit}
           disabled={!selected || disabled}
           aria-label="Submit answer"
-          className="mt-2 w-full sticky bottom-4 md:static md:bottom-auto"
+          className="mt-2 w-full sticky bottom-20 md:static md:bottom-auto"
           size="lg"
         >
           Submit Answer
@@ -337,7 +337,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
           onClick={handleSubmit}
           disabled={!selected || disabled}
           aria-label="Submit answer"
-          className="w-full sticky bottom-4 md:static md:bottom-auto"
+          className="w-full sticky bottom-20 md:static md:bottom-auto"
           size="lg"
         >
           Submit Answer
@@ -396,7 +396,7 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
         onClick={handleSubmit}
         disabled={!selected.trim() || disabled}
         aria-label="Submit answer"
-        className="w-full sticky bottom-4 md:static md:bottom-auto"
+        className="w-full sticky bottom-20 md:static md:bottom-auto"
         size="lg"
       >
         Submit Answer

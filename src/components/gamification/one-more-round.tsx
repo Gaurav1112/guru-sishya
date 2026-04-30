@@ -78,7 +78,7 @@ export function OneMoreRound({ trigger, onAccept, onDismiss }: OneMoreRoundProps
                   Great session!
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  See you tomorrow.
+                  Rest well — tomorrow&apos;s daily quests reset at midnight.
                 </p>
               </div>
             ) : (

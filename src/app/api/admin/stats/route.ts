@@ -59,30 +59,30 @@ export async function GET() {
         created_at: u.created_at,
       }));
 
-      // Count active users by period
+      // Count active users by period — run all three queries in parallel
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const weekStart = new Date(todayStart.getTime() - 7 * 86400000);
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      // We need a separate query for active users since the initial was limited to 10
-      const { count: todayCount } = await supabase
-        .from("user_progress")
-        .select("id", { count: "exact", head: true })
-        .gte("last_active", todayStart.toISOString());
-      activeToday = todayCount ?? 0;
+      const [todayResult, weekResult, monthResult] = await Promise.all([
+        supabase
+          .from("user_progress")
+          .select("id", { count: "exact", head: true })
+          .gte("last_active", todayStart.toISOString()),
+        supabase
+          .from("user_progress")
+          .select("id", { count: "exact", head: true })
+          .gte("last_active", weekStart.toISOString()),
+        supabase
+          .from("user_progress")
+          .select("id", { count: "exact", head: true })
+          .gte("last_active", monthStart.toISOString()),
+      ]);
 
-      const { count: weekCount } = await supabase
-        .from("user_progress")
-        .select("id", { count: "exact", head: true })
-        .gte("last_active", weekStart.toISOString());
-      activeWeek = weekCount ?? 0;
-
-      const { count: monthCount } = await supabase
-        .from("user_progress")
-        .select("id", { count: "exact", head: true })
-        .gte("last_active", monthStart.toISOString());
-      activeMonth = monthCount ?? 0;
+      activeToday = todayResult.count ?? 0;
+      activeWeek = weekResult.count ?? 0;
+      activeMonth = monthResult.count ?? 0;
     } else {
       dbAvailable = false;
     }
@@ -124,18 +124,25 @@ export async function GET() {
       totalFeedback = feedbackResult.value.count ?? 0;
     }
 
-    return NextResponse.json({
-      dbAvailable,
-      totalUsers,
-      activeToday,
-      activeWeek,
-      activeMonth,
-      totalSubscribers,
-      activeSubscribers,
-      revenueThisMonth,
-      totalFeedback,
-      recentSignups,
-    });
+    return NextResponse.json(
+      {
+        dbAvailable,
+        totalUsers,
+        activeToday,
+        activeWeek,
+        activeMonth,
+        totalSubscribers,
+        activeSubscribers,
+        revenueThisMonth,
+        totalFeedback,
+        recentSignups,
+      },
+      {
+        headers: {
+          "Cache-Control": "private, max-age=60, stale-while-revalidate=120",
+        },
+      }
+    );
   } catch (err) {
     console.error("[admin/stats]", err);
     const message = err instanceof Error ? err.message : "Failed to fetch stats.";

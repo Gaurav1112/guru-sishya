@@ -238,8 +238,22 @@ export function ActivityHeatmap() {
       </div>
 
       {isLoading ? (
-        <div className="h-28 flex items-center justify-center text-sm text-muted-foreground animate-pulse">
-          Loading activity...
+        <div className="h-28 animate-pulse space-y-2 py-2">
+          <div className="flex gap-1">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div key={i} className="size-3 rounded-sm bg-muted/20" />
+            ))}
+          </div>
+          <div className="flex gap-1">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div key={i} className="size-3 rounded-sm bg-muted/15" />
+            ))}
+          </div>
+          <div className="flex gap-1">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div key={i} className="size-3 rounded-sm bg-muted/10" />
+            ))}
+          </div>
         </div>
       ) : (
         <>

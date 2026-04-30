@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { auth } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // ── GET /api/subscription/check?email=user@example.com ───────────────────────
 // Server-side premium check that cannot be bypassed from the client.
@@ -9,6 +10,15 @@ import { auth } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
+    // SECURITY: Rate limit to prevent enumeration attacks
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!(await checkRateLimit(`sub-check:${ip}`, 30, 60000))) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429 }
+      );
+    }
+
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -41,6 +51,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const cacheHeaders = {
+      "Cache-Control": "private, max-age=30, stale-while-revalidate=60",
+    };
+
     if (data) {
       const { plan_type, premium_until } = data;
       const isLifetime = plan_type === "lifetime";
@@ -48,11 +62,14 @@ export async function GET(req: NextRequest) {
         isLifetime ||
         (premium_until != null && new Date(premium_until) > new Date());
 
-      return NextResponse.json({
-        isPremium,
-        premiumUntil: premium_until ?? null,
-        planType: plan_type ?? null,
-      });
+      return NextResponse.json(
+        {
+          isPremium,
+          premiumUntil: premium_until ?? null,
+          planType: plan_type ?? null,
+        },
+        { headers: cacheHeaders }
+      );
     }
 
     // No subscription — check the premium allowlist
@@ -63,22 +80,27 @@ export async function GET(req: NextRequest) {
       .maybeSingle();
 
     if (allowlistRow) {
-      return NextResponse.json({
-        isPremium: true,
-        premiumUntil: "9999-12-31T23:59:59.999Z",
-        planType: "allowlist_free",
-      });
+      return NextResponse.json(
+        {
+          isPremium: true,
+          premiumUntil: "9999-12-31T23:59:59.999Z",
+          planType: "allowlist_free",
+        },
+        { headers: cacheHeaders }
+      );
     }
 
     // Not premium
-    return NextResponse.json({
-      isPremium: false,
-      premiumUntil: null,
-      planType: null,
-    });
+    return NextResponse.json(
+      {
+        isPremium: false,
+        premiumUntil: null,
+        planType: null,
+      },
+      { headers: cacheHeaders }
+    );
   } catch (err) {
     console.error("[subscription/check]", err);
-    const message = err instanceof Error ? err.message : "Check failed.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to check subscription." }, { status: 500 });
   }
 }

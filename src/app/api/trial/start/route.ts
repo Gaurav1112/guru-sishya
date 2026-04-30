@@ -1,7 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  // SECURITY: Rate limit trial start to prevent abuse
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!(await checkRateLimit(`trial-start:${ip}`, 5, 3600000))) {
+    return NextResponse.json(
+      { error: "Too many requests. Try again later." },
+      { status: 429 }
+    );
+  }
+
   const session = await auth();
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Sign in required to start trial" }, { status: 401 });

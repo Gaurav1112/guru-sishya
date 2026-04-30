@@ -211,8 +211,17 @@ export default function ReferralPage() {
 
   if (!data) {
     return (
-      <div className="max-w-2xl mx-auto py-12 text-center">
-        <div className="animate-pulse text-muted-foreground">Loading referral data...</div>
+      <div className="max-w-2xl mx-auto py-12 space-y-6 animate-pulse">
+        <div className="h-8 w-48 rounded bg-muted/30" />
+        <div className="rounded-xl border border-border/50 bg-surface p-6 space-y-4">
+          <div className="h-5 w-40 rounded bg-muted/30" />
+          <div className="h-4 w-full rounded bg-muted/20" />
+          <div className="h-10 w-64 rounded bg-muted/20" />
+        </div>
+        <div className="rounded-xl border border-border/50 bg-surface p-6 space-y-3">
+          <div className="h-5 w-36 rounded bg-muted/30" />
+          <div className="h-4 w-3/4 rounded bg-muted/20" />
+        </div>
       </div>
     );
   }

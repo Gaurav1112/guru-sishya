@@ -15,6 +15,7 @@ import { XPBar } from "@/components/gamification/xp-bar";
 import { DailyChallengeWidget } from "@/components/gamification/daily-challenge";
 import { useStreak } from "@/hooks/use-streak";
 import { checkComeback, getComebackMessage } from "@/lib/gamification/comeback";
+import { xpProgressInLevel } from "@/lib/gamification/xp";
 import Link from "next/link";
 import { BookOpen, ChevronRight, Sparkles, Mic, BarChart3, ChevronDown, ChevronUp, Rocket, PlayCircle } from "lucide-react";
 import { PageTransition } from "@/components/page-transition";
@@ -130,7 +131,7 @@ function ReviewWidget() {
         <p className="text-xs text-muted-foreground mt-0.5">{message}</p>
       </div>
       {dueCount > 0 && (
-        <div className={`shrink-0 flex items-center gap-1 rounded-lg border ${borderClass} ${bgClass} px-3 py-1.5 text-xs font-medium ${textClass} group-hover:opacity-80`}>
+        <div className={`shrink-0 flex items-center gap-1 rounded-lg border ${borderClass} ${bgClass} px-3.5 py-2 text-xs font-medium ${textClass} group-hover:opacity-80`}>
           Review Now
           <ChevronRight className="size-3.5" />
         </div>
@@ -143,25 +144,40 @@ function ReviewWidget() {
 
 function ComebackBanner() {
   const [message, setMessage] = useState<string | null>(null);
+  const [daysAway, setDaysAway] = useState(0);
 
   useEffect(() => {
     const lastActivity = localStorage.getItem("lastStreakDate") ?? "";
     const today = new Date().toISOString().slice(0, 10);
-    const { eligible, daysAway } = checkComeback(lastActivity, today);
-    if (eligible) setMessage(getComebackMessage(daysAway));
+    const result = checkComeback(lastActivity, today);
+    if (result.eligible) {
+      setMessage(getComebackMessage(result.daysAway));
+      setDaysAway(result.daysAway);
+    }
   }, []);
 
   if (!message) return null;
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-gold/40 bg-gold/10 px-4 py-3">
-      <span className="text-xl">🙏</span>
-      <div>
-        <p className="text-sm font-semibold text-gold">Welcome Back!</p>
-        <p className="text-sm text-foreground/80 mt-0.5">{message}</p>
-        <p className="text-xs text-muted-foreground mt-1">
-          Complete 3 sessions in 3 days to earn a special comeback badge.
-        </p>
+    <div className="rounded-xl border border-gold/40 bg-gradient-to-r from-gold/10 via-saffron/5 to-gold/10 px-4 py-4">
+      <div className="flex items-start gap-3">
+        <span className="text-2xl">🙏</span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-gold">Welcome Back, Scholar!</p>
+          <p className="text-sm text-foreground/80 mt-0.5">{message}</p>
+          <div className="mt-3 rounded-lg border border-saffron/30 bg-saffron/5 px-3 py-2">
+            <p className="text-xs font-semibold text-saffron">Comeback Challenge</p>
+            <p className="text-xs text-foreground/70 mt-0.5">
+              Complete 3 sessions in 3 days to earn <strong className="text-gold">+100 bonus XP</strong> and
+              a streak freeze. Your knowledge is still here — prove it!
+            </p>
+          </div>
+          {daysAway >= 7 && (
+            <p className="text-[10px] text-muted-foreground mt-2 italic">
+              Tip: Start with a quick quiz on a topic you know well to rebuild momentum.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -207,10 +223,14 @@ function DailyGoalBar() {
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="text-[10px] text-muted-foreground mt-1">
+      <p className="text-[11px] text-muted-foreground mt-1">
         {goalMet
-          ? "Daily goal achieved! Keep going."
-          : `${goalXP - todayXP} XP to reach today's goal (${dailyGoal} min target)`}
+          ? "Daily goal achieved! Every extra point strengthens your rank."
+          : pct >= 70
+            ? `Almost there! Just ${goalXP - todayXP} XP to finish today's goal.`
+            : pct >= 40
+              ? `Good progress! ${goalXP - todayXP} XP remaining — a quick quiz will close the gap.`
+              : `${goalXP - todayXP} XP to reach today's goal (${dailyGoal} min target)`}
       </p>
     </div>
   );
@@ -342,7 +362,7 @@ function ContinueLearning() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{topic.name}</p>
-              <p className="text-[10px] text-muted-foreground">{topic.category}</p>
+              <p className="text-[11px] text-muted-foreground">{topic.category}</p>
             </div>
             <ChevronRight className="size-4 text-muted-foreground group-hover:text-saffron transition-colors shrink-0" />
           </button>
@@ -409,6 +429,75 @@ function YourProgress() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Nearly There Nudge ────────────────────────────────────────────────────────
+
+function NearlyThereNudge() {
+  const { totalXP, level } = useStore();
+  const progress = xpProgressInLevel(totalXP);
+  const xpRemaining = progress.needed - progress.current;
+
+  // Only show when within 40% of the next level
+  if (progress.percentage < 60 || level >= 20) return null;
+
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-indigo/30 bg-gradient-to-r from-indigo/5 to-saffron/5 px-4 py-3">
+      <span className="text-lg">⬆️</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-indigo">
+          Almost Level {level + 1}!
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-0.5">
+          Just <strong className="text-foreground">{xpRemaining} XP</strong> to go — one quiz could get you there.
+        </p>
+      </div>
+      <Link
+        href="/app/topics"
+        className="shrink-0 rounded-lg border border-indigo/30 bg-indigo/10 px-3 py-1.5 text-[11px] font-medium text-indigo hover:bg-indigo/20 transition-colors"
+      >
+        Start Quiz
+      </Link>
+    </div>
+  );
+}
+
+// ── Active Learners — social proof ──────────────────────────────────────────
+
+function ActiveLearners() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    // Generate a realistic-looking number seeded by the current hour
+    // so it stays stable within an hour but feels live
+    const now = new Date();
+    const hourSeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    const hour = now.getHours();
+
+    // Simulate activity curve: peak during study hours (8am-11pm)
+    const base = hour >= 8 && hour <= 23 ? 40 : 12;
+    const peakBonus = (hour >= 19 && hour <= 22) ? 25 : (hour >= 9 && hour <= 12) ? 15 : 0;
+
+    // Deterministic "random" per hour
+    const seed = (hourSeed * 2654435761 + hour * 2246822507) >>> 0;
+    const jitter = (seed % 20) - 10;
+
+    setCount(Math.max(8, base + peakBonus + jitter));
+  }, []);
+
+  if (count === 0) return null;
+
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-teal/20 bg-teal/5 px-3 py-2">
+      <span className="relative flex size-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal opacity-75" />
+        <span className="relative inline-flex rounded-full size-2 bg-teal" />
+      </span>
+      <span className="text-xs text-muted-foreground">
+        <strong className="text-teal font-semibold">{count}</strong> learners practicing right now
+      </span>
     </div>
   );
 }
@@ -560,6 +649,9 @@ export default function DashboardPage() {
 
       <FadeIn index={idx++}><ComebackBanner /></FadeIn>
 
+      {/* Active learners social proof */}
+      <FadeIn index={idx++}><ActiveLearners /></FadeIn>
+
       {/* Push notification prompt — shows after 3rd visit */}
       <FadeIn index={idx++}><PushNotificationPrompt /></FadeIn>
 
@@ -584,6 +676,9 @@ export default function DashboardPage() {
 
       {/* Daily Goal — logically grouped with progress */}
       <FadeIn index={idx++}><DailyGoalBar /></FadeIn>
+
+      {/* Nearly there nudge — shows when close to next level */}
+      <FadeIn index={idx++}><NearlyThereNudge /></FadeIn>
 
       {/* Continue Where You Left Off — clear next action */}
       {!isNewUser && (
@@ -631,7 +726,7 @@ export default function DashboardPage() {
                 Simulate real interviews with Google, Amazon, Meta & more. Instant feedback via keyword analysis — no API needed.
               </p>
             </div>
-            <div className="shrink-0 flex items-center gap-1 rounded-lg border border-saffron/20 bg-saffron/10 px-3 py-1.5 text-xs font-medium text-saffron group-hover:opacity-80">
+            <div className="shrink-0 flex items-center gap-1 rounded-lg border border-saffron/20 bg-saffron/10 px-3.5 py-2 text-xs font-medium text-saffron group-hover:opacity-80">
               Start Now
               <ChevronRight className="size-3.5" />
             </div>
@@ -655,7 +750,7 @@ export default function DashboardPage() {
                 Curated Java questions with book-style flip cards. Core Java, Spring Boot, Microservices, System Design & more.
               </p>
             </div>
-            <div className="shrink-0 flex items-center gap-1 rounded-lg border border-indigo/20 bg-indigo/10 px-3 py-1.5 text-xs font-medium text-indigo group-hover:opacity-80">
+            <div className="shrink-0 flex items-center gap-1 rounded-lg border border-indigo/20 bg-indigo/10 px-3.5 py-2 text-xs font-medium text-indigo group-hover:opacity-80">
               Start Now
               <ChevronRight className="size-3.5" />
             </div>

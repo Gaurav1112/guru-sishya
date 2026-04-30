@@ -11,7 +11,6 @@ import { Pricing } from "@/components/landing/pricing";
 import { Testimonials } from "@/components/landing/testimonials";
 import { SocialProof } from "@/components/landing/social-proof";
 import { FAQ } from "@/components/landing/faq";
-import { EmailCapture } from "@/components/landing/email-capture";
 import { ExitIntent } from "@/components/landing/exit-intent";
 import { Button } from "@/components/ui/button";
 // Content stats are hardcoded on landing page to avoid loading 11MB of JSON
@@ -152,7 +151,7 @@ function LandingNavbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2.5"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
@@ -282,30 +281,20 @@ function PainPoints() {
 function FinalCTA({ stats }: { stats: ContentStats }) {
   return (
     <section className="px-6 py-20 text-center">
-      <div className="mx-auto max-w-2xl rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-surface to-teal/5 p-12">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-surface to-teal/5 p-6 sm:p-12">
         <h2 className="font-heading text-3xl font-bold mb-3">
-          Your Next Interview Is Closer Than You Think
+          Ready to Start Preparing?
         </h2>
-        <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-          {stats.topicCount} topics, {stats.questionCount.toLocaleString()} questions, 58 STAR behavioral answers — all free. No signup, no credit card.
+        <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+          {stats.topicCount} topics, {stats.questionCount.toLocaleString()} questions, 58 STAR behavioral answers — all free. No signup needed.
         </p>
-        <p className="text-sm text-foreground/80 font-medium mb-8 max-w-md mx-auto">
-          Every day you wait is a day someone else is preparing. Start now and be interview-ready in 12 weeks.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href="/app/topics">
-            <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[200px] text-base font-semibold">
-              Start Practicing Free Now
-            </Button>
-          </Link>
-          <Link href="/app/pricing">
-            <Button variant="outline" size="lg" className="min-w-[200px] text-base">
-              Try Pro Free for 7 Days
-            </Button>
-          </Link>
-        </div>
+        <Link href="/app/topics">
+          <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[240px] text-base font-semibold">
+            Browse Topics &mdash; It&apos;s Free
+          </Button>
+        </Link>
         <p className="mt-5 text-xs text-muted-foreground/60">
-          No credit card required &bull; No API key needed &bull; Works offline
+          No credit card required &bull; No signup needed &bull; Works offline
         </p>
       </div>
     </section>
@@ -331,6 +320,9 @@ export default function LandingPage() {
         <CompanyLogoStrip />
       </ScrollReveal>
       <ScrollReveal delay={0}>
+        <SocialProof />
+      </ScrollReveal>
+      <ScrollReveal delay={0}>
         <PainPoints />
       </ScrollReveal>
       <ScrollReveal delay={0}>
@@ -341,9 +333,6 @@ export default function LandingPage() {
       </ScrollReveal>
       <ScrollReveal delay={0}>
         <Features />
-      </ScrollReveal>
-      <ScrollReveal delay={0}>
-        <SocialProof />
       </ScrollReveal>
       <ScrollReveal delay={0}>
         <Pricing stats={stats} />

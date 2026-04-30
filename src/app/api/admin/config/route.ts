@@ -78,7 +78,14 @@ export async function GET() {
   }
 
   const config = await readConfig();
-  return NextResponse.json({ config });
+  return NextResponse.json(
+    { config },
+    {
+      headers: {
+        "Cache-Control": "private, max-age=60, stale-while-revalidate=120",
+      },
+    }
+  );
 }
 
 // ── POST /api/admin/config ─────────────────────────────────────────────────────

@@ -184,39 +184,48 @@ export async function GET() {
       subscriptionBreakdown.sort((a, b) => b.count - a.count);
     }
 
-    return NextResponse.json({
-      dbAvailable,
-      growth: {
-        totalUsers,
-        newThisWeek,
-        newThisMonth,
-        growthPercentage,
+    return NextResponse.json(
+      {
+        dbAvailable,
+        growth: {
+          totalUsers,
+          newThisWeek,
+          newThisMonth,
+          growthPercentage,
+        },
+        activeUsers: {
+          today: activeToday,
+          thisWeek: activeWeek,
+          thisMonth: activeMonth,
+        },
+        signupTrend: signupsByDay,
+        topPages,
+        subscriptionBreakdown,
       },
-      activeUsers: {
-        today: activeToday,
-        thisWeek: activeWeek,
-        thisMonth: activeMonth,
-      },
-      signupTrend: signupsByDay,
-      topPages,
-      subscriptionBreakdown,
-    });
+      {
+        headers: {
+          "Cache-Control": "private, max-age=60, stale-while-revalidate=120",
+        },
+      }
+    );
   } catch (err) {
     console.error("[admin/analytics]", err);
-    const message = err instanceof Error ? err.message : "Failed to fetch analytics.";
-    return NextResponse.json({
-      dbAvailable: false,
-      growth: {
-        totalUsers: 0,
-        newThisWeek: 0,
-        newThisMonth: 0,
-        growthPercentage: 0,
+    return NextResponse.json(
+      {
+        dbAvailable: false,
+        growth: {
+          totalUsers: 0,
+          newThisWeek: 0,
+          newThisMonth: 0,
+          growthPercentage: 0,
+        },
+        activeUsers: { today: 0, thisWeek: 0, thisMonth: 0 },
+        signupTrend: [],
+        topPages: [],
+        subscriptionBreakdown: [],
+        error: "Failed to fetch analytics.",
       },
-      activeUsers: { today: 0, thisWeek: 0, thisMonth: 0 },
-      signupTrend: [],
-      topPages: [],
-      subscriptionBreakdown: [],
-      error: message,
-    });
+      { status: 500 }
+    );
   }
 }

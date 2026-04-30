@@ -669,7 +669,7 @@ export default function TopicsPage() {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`rounded-lg px-3.5 py-2 text-xs font-medium transition-colors min-h-[36px] ${
                 activeTab === tab.id
                   ? "bg-saffron text-white"
                   : "bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-hover border border-border/50"

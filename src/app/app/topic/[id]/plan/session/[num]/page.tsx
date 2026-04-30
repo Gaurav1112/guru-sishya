@@ -386,7 +386,7 @@ export default function SessionViewPage({
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 pb-16">
+    <div className="max-w-3xl mx-auto space-y-8 pb-8">
       {/* ── Back link ────────────────────────────────────────────────────── */}
       <div>
         <Link
@@ -771,11 +771,11 @@ export default function SessionViewPage({
       )}
 
       {/* ── Session navigation ────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-4 pt-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
         {prevNum ? (
           <Link
             href={`/app/topic/${id}/plan/session/${prevNum}`}
-            className="flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors group"
+            className="flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors group min-h-[48px]"
           >
             <ArrowLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
             <span>
@@ -791,7 +791,7 @@ export default function SessionViewPage({
           !isActivePremium && nextNum > FREE_SESSION_LIMIT ? (
             <Link
               href="/app/pricing"
-              className="flex items-center gap-2 rounded-lg border border-saffron/40 bg-saffron/5 px-4 py-2.5 text-sm text-saffron hover:bg-saffron/10 transition-colors text-right ml-auto"
+              className="flex items-center gap-2 rounded-lg border border-saffron/40 bg-saffron/5 px-4 py-3 text-sm text-saffron hover:bg-saffron/10 transition-colors text-right sm:ml-auto min-h-[48px]"
             >
               <span>
                 <span className="block text-xs text-saffron/70">Next</span>
@@ -802,7 +802,7 @@ export default function SessionViewPage({
           ) : (
             <Link
               href={`/app/topic/${id}/plan/session/${nextNum}`}
-              className="flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors group text-right ml-auto"
+              className="flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors group text-right sm:ml-auto min-h-[48px]"
             >
               <span>
                 <span className="block text-xs text-muted-foreground/70">Next</span>

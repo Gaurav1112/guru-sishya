@@ -103,13 +103,13 @@ export function isComebackExpired(
  */
 export function getComebackMessage(daysAway: number): string {
   if (daysAway >= 30) {
-    return "Welcome back! Knowledge never truly leaves — let's rekindle your learning journey.";
+    return "It's been a while, but knowledge never truly leaves. Studies show even a brief review can reactivate what you learned. Let's pick up where you left off.";
   }
   if (daysAway >= 14) {
-    return `It's been ${daysAway} days, but every great journey has pauses. Ready to continue?`;
+    return `${daysAway} days is just a pause, not an ending. A quick quiz today can bring it all back — your brain remembers more than you think.`;
   }
   if (daysAway >= 7) {
-    return `A week away makes the return sweeter. Your topics are waiting for you!`;
+    return "A week away is the perfect reset. Your topics haven't gone anywhere, and a single session today puts you back on track.";
   }
-  return `Welcome back! You've been away for ${daysAway} days — let's pick up where you left off.`;
+  return `You've been away for ${daysAway} days. The hardest part is showing up — and you just did. One quick quiz is all it takes to restart your momentum.`;
 }

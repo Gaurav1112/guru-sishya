@@ -150,11 +150,16 @@ export function CertificatesSection() {
       </div>
 
       {certStatuses.length === 0 && topics.length > 0 && (
-        <div className="rounded-xl border border-border/50 bg-surface p-6 text-center">
-          <Award className="size-10 mx-auto mb-3 text-muted-foreground/30" />
-          <p className="text-muted-foreground text-sm">
-            Loading certificate status...
-          </p>
+        <div className="grid gap-3 sm:grid-cols-2 animate-pulse">
+          {Array.from({ length: Math.min(4, topics.length) }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 rounded-xl border border-border/50 bg-surface p-4">
+              <div className="size-10 shrink-0 rounded-lg bg-muted/30" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-32 rounded bg-muted/30" />
+                <div className="h-3 w-24 rounded bg-muted/20" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

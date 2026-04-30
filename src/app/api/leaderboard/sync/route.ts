@@ -135,7 +135,14 @@ export async function GET() {
       league: row.league,
     }));
 
-    return NextResponse.json({ entries, weekId });
+    return NextResponse.json(
+      { entries, weekId },
+      {
+        headers: {
+          "Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+        },
+      }
+    );
   } catch (err) {
     console.error("[leaderboard/sync] Error:", err);
     return NextResponse.json({ entries: [] }, { status: 500 });

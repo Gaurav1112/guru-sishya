@@ -67,7 +67,7 @@ export function MobileTabBar() {
                 className={cn("size-5", isActive && "stroke-[2.5]")}
                 aria-hidden="true"
               />
-              <span className="text-[10px] font-medium leading-none">
+              <span className="text-[11px] font-medium leading-none">
                 {tab.label}
               </span>
               {isActive && (
