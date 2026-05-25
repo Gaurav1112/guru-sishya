@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, use } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { useRouter } from "next/navigation";
 import {
   User,

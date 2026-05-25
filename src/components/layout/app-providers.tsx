@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { usePathname } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/components/auth-provider";

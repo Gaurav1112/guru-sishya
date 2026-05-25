@@ -1,5 +1,5 @@
 "use client";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, useSignOut } from "@/lib/clerk-compat";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 export function UserMenu() {
   const { data: session, status } = useSession();
+  const signOut = useSignOut();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

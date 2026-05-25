@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSignIn } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
 function GoogleIcon() {
@@ -15,39 +16,20 @@ function GoogleIcon() {
 }
 
 export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
+  const { signIn, isLoaded } = useSignIn();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSignIn() {
+    if (!isLoaded) return;
     setLoading(true);
     setError("");
     try {
-      // Get CSRF token first
-      const csrfRes = await fetch("/api/auth/csrf");
-      if (!csrfRes.ok) {
-        throw new Error("Failed to initialize sign-in. Please refresh and try again.");
-      }
-      const { csrfToken } = await csrfRes.json();
-
-      // POST to signin endpoint (triggers OAuth redirect)
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "/api/auth/signin/google";
-
-      const csrfInput = document.createElement("input");
-      csrfInput.type = "hidden";
-      csrfInput.name = "csrfToken";
-      csrfInput.value = csrfToken;
-      form.appendChild(csrfInput);
-
-      const callbackInput = document.createElement("input");
-      callbackInput.type = "hidden";
-      callbackInput.name = "callbackUrl";
-      callbackInput.value = callbackUrl;
-      form.appendChild(callbackInput);
-
-      document.body.appendChild(form);
-      form.submit();
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: callbackUrl,
+      });
     } catch (err) {
       setLoading(false);
       setError(
@@ -63,7 +45,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
       <Button
         type="button"
         onClick={handleSignIn}
-        disabled={loading}
+        disabled={loading || !isLoaded}
         className="w-full h-11 bg-white text-gray-900 hover:bg-gray-100 border border-gray-200 font-medium gap-3 disabled:opacity-60"
       >
         {loading ? (

@@ -1,6 +1,6 @@
 "use client";
 import { getLevelInfo } from "@/lib/gamification/xp";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { useStore } from "@/lib/store";
 
 interface LevelBadgeProps {

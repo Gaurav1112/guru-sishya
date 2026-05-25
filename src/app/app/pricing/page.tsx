@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Check, Sparkles, Crown, Zap, Infinity as InfinityIcon, LogIn, X } from "lucide-react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { useStore } from "@/lib/store";
 import { PageTransition } from "@/components/page-transition";
 import { CountdownTimer } from "@/components/pricing/countdown-timer";

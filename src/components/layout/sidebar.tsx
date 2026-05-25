@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Crown, ShieldCheck, ChevronDown } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/db";

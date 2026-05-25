@@ -1,6 +1,6 @@
 "use client";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import Image from "next/image";
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -314,7 +314,7 @@ function SignInCTA() {
         export and sync it across your devices for free.
       </p>
       <Button
-        onClick={() => signIn("google", { callbackUrl: "/app/profile" })}
+        onClick={() => { window.location.href = "/login?callbackUrl=" + encodeURIComponent("/app/profile"); }}
         className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-200 font-medium gap-3"
       >
         <svg viewBox="0 0 24 24" className="size-4" aria-hidden>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { useStore } from "@/lib/store";
 import {
   buildLeaderboard,

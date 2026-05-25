@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Loader2, ArrowLeft, Award } from "lucide-react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { db } from "@/lib/db";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";

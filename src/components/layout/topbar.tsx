@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Crown, Menu, ShieldCheck } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { useStore } from "@/lib/store";
 import { ADMIN_EMAIL } from "@/lib/stores/premium-slice";
 import { StreakFlame, type StreakStatus } from "@/components/gamification/streak-flame";
