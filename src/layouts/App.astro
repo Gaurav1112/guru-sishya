@@ -11,7 +11,7 @@ const {
   description = "Your personal interview preparation dashboard",
 } = Astro.props;
 
-const { userId } = Astro.locals.auth();
+const userId = Astro.locals.auth?.()?.userId;
 if (!userId) return Astro.redirect("/login");
 ---
 <Base title={title} description={description} noIndex={true}>
