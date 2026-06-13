@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { Users, Copy, Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -100,12 +99,12 @@ export function ReferFriendsCard() {
             <WhatsAppIcon className="size-3.5" />
             WhatsApp
           </Button>
-          <Link href="/app/profile/referral" className="ml-auto">
+          <a href="/app/profile/referral" className="ml-auto">
             <Button variant="ghost" size="sm" className="text-saffron hover:text-saffron/80 gap-1">
               All Rewards
               <ArrowRight className="size-3.5" />
             </Button>
-          </Link>
+          </a>
         </div>
       </CardContent>
     </Card>

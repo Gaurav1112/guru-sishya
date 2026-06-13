@@ -3,7 +3,7 @@
 // Client-side compatibility shim — mirrors the NextAuth useSession / signOut API
 // so all client components need only an import-path change, not a logic rewrite.
 
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useUser, useClerk } from "@clerk/astro/react";
 
 export function useSession() {
   const { user, isLoaded, isSignedIn } = useUser();

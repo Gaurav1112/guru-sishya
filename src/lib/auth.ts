@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/astro/server";
 
 // Compatibility wrapper — all API routes call auth() unchanged.
 // Returns the same shape as the previous NextAuth session object.

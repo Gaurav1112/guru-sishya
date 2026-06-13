@@ -1,7 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 const TRUST_BADGES = [
   "100% free to start",
@@ -57,14 +56,14 @@ export function Hero() {
           transition={{ delay: 0.3, duration: 0.4, type: "spring", stiffness: 200, damping: 18 }}
           className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
         >
-          <Link href="/app/topics">
+          <a href="/app/topics">
             <Button size="lg" className="bg-saffron hover:bg-saffron/90 min-w-[220px] sm:min-w-[280px] text-base font-semibold btn-press">
               Browse Topics &mdash; It&apos;s Free
             </Button>
-          </Link>
-          <Link href="/app/interview" className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4">
+          </a>
+          <a href="/app/interview" className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4">
             or try a mock interview
-          </Link>
+          </a>
         </motion.div>
 
         {/* Trust badges */}

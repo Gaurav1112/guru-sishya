@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { AlertTriangle, X, Crown } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { isNeverExpire, computeDaysRemaining } from "@/lib/stores/premium-slice";
@@ -163,7 +162,7 @@ export function SubscriptionBanner() {
       <span className="flex-1 leading-snug">{config.message}</span>
 
       {/* CTA button */}
-      <Link
+      <a
         href="/app/pricing"
         className={`shrink-0 rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
           isExpired
@@ -172,7 +171,7 @@ export function SubscriptionBanner() {
         }`}
       >
         {config.buttonLabel}
-      </Link>
+      </a>
 
       {/* Dismiss button */}
       <button

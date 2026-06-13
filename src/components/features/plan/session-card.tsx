@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { CheckCircle2, Circle, ChevronDown, ChevronUp, Clock, Target, BookOpen, HelpCircle, ExternalLink, Lock, Loader2, Check } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -118,7 +117,7 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
           </div>
 
           {/* Open full lesson link — hidden when locked */}
-          <Link
+          <a
             href={`/app/topic/${topicId}/plan/session/${session.sessionNumber}`}
             onClick={(e) => e.stopPropagation()}
             className="shrink-0 flex items-center gap-1 rounded-md border border-saffron/40 bg-saffron/10 px-2.5 py-1 text-xs font-medium text-saffron hover:bg-saffron/20 transition-colors"
@@ -126,7 +125,7 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
           >
             <ExternalLink className="size-3" />
             {isLocked ? "Preview" : "Open"}
-          </Link>
+          </a>
 
           {/* Expand toggle — only for unlocked sessions */}
           {!isLocked && (

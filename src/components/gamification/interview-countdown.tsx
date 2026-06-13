@@ -1,7 +1,6 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import Link from "next/link";
 import { CalendarClock, Settings } from "lucide-react";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -85,7 +84,7 @@ export function InterviewCountdown() {
   // No date set — show a nudge
   if (!interviewDate) {
     return (
-      <Link
+      <a
         href="/app/settings"
         className="group flex items-center gap-4 rounded-xl border border-border/50 bg-surface hover:bg-surface-hover p-4 transition-all"
       >
@@ -99,7 +98,7 @@ export function InterviewCountdown() {
           </p>
         </div>
         <Settings className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-      </Link>
+      </a>
     );
   }
 
@@ -166,9 +165,9 @@ export function InterviewCountdown() {
           {isPast && (
             <p className="text-xs text-muted-foreground mt-1">
               Update your interview date in{" "}
-              <Link href="/app/settings" className="text-saffron hover:underline">
+              <a href="/app/settings" className="text-saffron hover:underline">
                 Settings
-              </Link>
+              </a>
             </p>
           )}
         </div>

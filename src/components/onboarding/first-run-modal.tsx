@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/navigation";
 import { Target, Clock, ArrowRight, Sparkles } from "lucide-react";
 
 const GOALS = [

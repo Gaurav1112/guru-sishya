@@ -1,6 +1,5 @@
 "use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Home, BookOpen, BrainCircuit, Mic, User } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -53,7 +52,7 @@ export function MobileTabBar() {
             pathname.startsWith(tab.href + "/");
           const Icon = tab.icon;
           return (
-            <Link
+            <a
               key={tab.href}
               href={tab.href}
               className={cn(
@@ -73,7 +72,7 @@ export function MobileTabBar() {
               {isActive && (
                 <span className="absolute top-0 h-0.5 w-8 rounded-b bg-saffron" />
               )}
-            </Link>
+            </a>
           );
         })}
       </div>

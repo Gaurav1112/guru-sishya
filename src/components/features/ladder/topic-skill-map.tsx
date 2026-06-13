@@ -2,7 +2,6 @@
 
 import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { db } from "@/lib/db";
 import { calculateRetention, getDecayState } from "@/lib/spaced-repetition";
 import { cn } from "@/lib/utils";
@@ -181,7 +180,7 @@ export function TopicSkillMap() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04, duration: 0.25 }}
             >
-              <Link href={`/app/topic/${data.topic.id}/ladder`}>
+              <a href={`/app/topic/${data.topic.id}/ladder`}>
                 <div
                   className={cn(
                     "rounded-xl border p-4 transition-colors cursor-pointer",
@@ -281,7 +280,7 @@ export function TopicSkillMap() {
                     </div>
                   )}
                 </div>
-              </Link>
+              </a>
             </motion.div>
           );
         })}

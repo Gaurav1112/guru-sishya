@@ -1,20 +1,12 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { lazy, Suspense } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 // Mermaid is ~2.5MB — only load when a diagram is actually rendered
-const MermaidDiagram = dynamic(
-  () => import("./mermaid-diagram").then((mod) => mod.MermaidDiagram),
-  {
-    loading: () => (
-      <div className="my-4 flex items-center justify-center py-8 text-xs text-muted-foreground rounded-lg border border-border bg-surface">
-        Loading diagram...
-      </div>
-    ),
-    ssr: false,
-  }
+const MermaidDiagram = lazy(
+  () => import("./mermaid-diagram").then((mod) => ({ default: mod.MermaidDiagram }))
 );
 
 interface MarkdownRendererProps {
@@ -42,7 +34,11 @@ export function MarkdownRenderer({ content, className, languageFilter = "all" }:
 
           // Mermaid diagrams get their own renderer
           if (language === "mermaid") {
-            return <MermaidDiagram chart={codeString} />;
+            return (
+              <Suspense fallback={<div className="my-4 flex items-center justify-center py-8 text-xs text-muted-foreground rounded-lg border border-border bg-surface">Loading diagram...</div>}>
+                <MermaidDiagram chart={codeString} />
+              </Suspense>
+            );
           }
 
           // Block code (has a language class or multi-line)

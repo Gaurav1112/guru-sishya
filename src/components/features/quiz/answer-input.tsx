@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,9 +8,8 @@ import type { GeneratedQuestion } from "@/lib/quiz/types";
 import { useStore } from "@/lib/store";
 
 // CodeViewer is lazily loaded so Monaco never runs on the server
-const CodeViewer = dynamic(
-  () => import("@/components/code-playground").then((m) => m.CodeViewer),
-  { ssr: false }
+const CodeViewer = lazy(
+  () => import("@/components/code-playground").then((m) => ({ default: m.CodeViewer }))
 );
 
 // Extract the first fenced code block from a markdown string
@@ -365,18 +363,20 @@ export function AnswerInput({ question, onSubmit, onSkip, disabled }: AnswerInpu
   return (
     <div className="flex flex-col gap-3">
       {codeSnippet && (
-        <CodeViewer
-          code={codeSnippet.code}
-          language={
-            codeSnippet.lang === "typescript" || codeSnippet.lang === "ts"
-              ? "typescript"
-              : codeSnippet.lang === "python" || codeSnippet.lang === "py"
-              ? "python"
-              : "javascript"
-          }
-          height={180}
-          className="mb-1"
-        />
+        <Suspense fallback={null}>
+          <CodeViewer
+            code={codeSnippet.code}
+            language={
+              codeSnippet.lang === "typescript" || codeSnippet.lang === "ts"
+                ? "typescript"
+                : codeSnippet.lang === "python" || codeSnippet.lang === "py"
+                ? "python"
+                : "javascript"
+            }
+            height={180}
+            className="mb-1"
+          />
+        </Suspense>
       )}
       <textarea
         value={selected}

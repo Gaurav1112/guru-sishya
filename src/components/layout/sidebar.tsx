@@ -1,6 +1,5 @@
 "use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Crown, ShieldCheck, ChevronDown } from "lucide-react";
 import { useSession } from "@/lib/clerk-compat";
@@ -104,7 +103,7 @@ export function Sidebar() {
     const isActive =
       pathname === item.href || pathname.startsWith(item.href + "/");
     return (
-      <Link
+      <a
         key={item.href}
         href={item.href}
         className={cn(
@@ -138,7 +137,7 @@ export function Sidebar() {
             {activeChallenges}
           </span>
         )}
-      </Link>
+      </a>
     );
   }
 
@@ -173,7 +172,7 @@ export function Sidebar() {
 
         {/* Admin console link — only visible for admin */}
         {isAdmin && (
-          <Link
+          <a
             href="/app/admin"
             className={cn(
               "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
@@ -184,12 +183,12 @@ export function Sidebar() {
           >
             <ShieldCheck className="size-4 shrink-0" />
             <span className="flex-1">Admin Console</span>
-          </Link>
+          </a>
         )}
 
         {/* Pro upgrade / status link */}
         {isActivePro ? (
-          <Link
+          <a
             href="/app/pricing"
             className={cn(
               "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
@@ -203,9 +202,9 @@ export function Sidebar() {
             <span className="text-[10px] font-semibold text-gold bg-gold/10 border border-gold/30 rounded-full px-1.5 py-0.5">
               Active
             </span>
-          </Link>
+          </a>
         ) : (
-          <Link
+          <a
             href="/app/pricing"
             className={cn(
               "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
@@ -216,16 +215,16 @@ export function Sidebar() {
           >
             <Crown className="size-4 shrink-0" />
             <span className="flex-1">Upgrade to Pro</span>
-          </Link>
+          </a>
         )}
 
         {topics && topics.length > 0 && (
           <>
             <div className="mt-6 mb-2 px-3 text-xs font-medium tracking-wider text-muted-foreground">RECENT TOPICS</div>
             {topics.map((topic) => (
-              <Link key={topic.id} href={`/app/topic/${topic.id}`} className={cn("flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors", pathname === `/app/topic/${topic.id}` ? "bg-surface text-foreground" : "text-muted-foreground hover:bg-surface-hover hover:text-foreground")}>
+              <a key={topic.id} href={`/app/topic/${topic.id}`} className={cn("flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors", pathname === `/app/topic/${topic.id}` ? "bg-surface text-foreground" : "text-muted-foreground hover:bg-surface-hover hover:text-foreground")}>
                 <span className="h-2 w-2 rounded-full bg-saffron/40" /><span className="truncate">{topic.name}</span>
-              </Link>
+              </a>
             ))}
           </>
         )}

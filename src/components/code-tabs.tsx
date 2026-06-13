@@ -16,15 +16,11 @@
  * "guru-preferred-lang". Falls back to the first available language.
  */
 
-import { useState, useEffect, useCallback } from "react";
-import dynamic from "next/dynamic";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
-  ssr: false,
-  loading: () => <div className="h-full animate-pulse bg-[#1e1e1e]" />,
-});
+const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 
 /** Skeleton shown while Monaco loads */
 function EditorSkeleton({ height }: { height: number }) {
@@ -192,13 +188,13 @@ export function CodeTabs({ codes, height = 300, title, className }: CodeTabsProp
 
       {/* ── Monaco viewer (read-only) ─────────────────────────────────────── */}
       <div style={{ height }}>
+        <Suspense fallback={<EditorSkeleton height={height} />}>
         <MonacoEditor
           key={activeLang} // force remount on language switch so syntax highlighting refreshes
           height="100%"
           language={activeMeta.monacoId}
           value={activeCode}
           theme="vs-dark"
-          loading={<EditorSkeleton height={height} />}
           options={{
             readOnly: true,
             minimap: { enabled: false },
@@ -224,6 +220,7 @@ export function CodeTabs({ codes, height = 300, title, className }: CodeTabsProp
             links: false,
           }}
         />
+        </Suspense>
       </div>
 
       {/* ── Language badge ────────────────────────────────────────────────── */}
