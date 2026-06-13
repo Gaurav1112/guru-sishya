@@ -17,7 +17,7 @@ export default function Image({ src, alt, width, height, priority, fill, style, 
       width={fill ? undefined : width}
       height={fill ? undefined : height}
       loading={priority ? "eager" : "lazy"}
-      decoding={priority ? "sync" : "async"}
+      decoding="auto"
       style={fill ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", ...style } : style}
       {...rest}
     />

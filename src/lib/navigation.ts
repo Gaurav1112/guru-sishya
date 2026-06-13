@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 
 export function useRouter() {
   return {
-    push: (href: string) => { window.location.href = href; },
-    replace: (href: string) => { window.location.replace(href); },
-    back: () => { window.history.back(); },
+    push: (href: string) => { if (typeof window !== "undefined") window.location.href = href; },
+    replace: (href: string) => { if (typeof window !== "undefined") window.location.replace(href); },
+    back: () => { if (typeof window !== "undefined") window.history.back(); },
     prefetch: () => {},
-    refresh: () => { window.location.reload(); },
+    refresh: () => { if (typeof window !== "undefined") window.location.reload(); },
   };
 }
 
