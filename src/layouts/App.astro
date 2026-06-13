@@ -1,0 +1,19 @@
+---
+import Base from "./Base.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Dashboard | Guru Sishya",
+  description = "Your personal interview preparation dashboard",
+} = Astro.props;
+
+const { userId } = Astro.locals.auth();
+if (!userId) return Astro.redirect("/login");
+---
+<Base title={title} description={description} noIndex={true}>
+  <slot />
+</Base>

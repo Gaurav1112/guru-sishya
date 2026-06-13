@@ -1,10 +1,30 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/astro/server";
 
-export default clerkMiddleware();
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/learn(.*)",
+  "/questions-bank(.*)",
+  "/system-design-interview",
+  "/backend-interview",
+  "/database-interview",
+  "/cloud-devops-interview",
+  "/behavioral-interview",
+  "/dsa-interview-questions",
+  "/top-coding-questions",
+  "/leetcode-alternative",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/login(.*)",
+  "/sso-callback(.*)",
+  "/ref/(.*)",
+  "/api/contact",
+  "/api/email-capture",
+  "/api/og",
+]);
 
-export const config = {
-  matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
-  ],
-};
+export const onRequest = clerkMiddleware((auth, context) => {
+  if (!isPublicRoute(context.request) && !auth().userId) {
+    return auth().redirectToSignIn();
+  }
+});
