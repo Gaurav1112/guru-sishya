@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/astro/server";
+import type { MiddlewareHandler } from "astro";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -23,8 +24,13 @@ const isPublicRoute = createRouteMatcher([
   "/api/og",
 ]);
 
-export const onRequest = clerkMiddleware((auth, context) => {
-  if (!isPublicRoute(context.request) && !auth().userId) {
-    return auth().redirectToSignIn();
-  }
-});
+// Gracefully skip Clerk when keys aren't configured (e.g. preview deploys)
+const clerkEnabled = Boolean(import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY);
+
+export const onRequest: MiddlewareHandler = clerkEnabled
+  ? clerkMiddleware((auth, context) => {
+      if (!isPublicRoute(context.request) && !auth().userId) {
+        return auth().redirectToSignIn();
+      }
+    })
+  : ((_ctx, next) => next());
