@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import SubscribersPage from "@/components/app/admin/SubscribersPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Admin: Subscribers — Guru Sishya">
+  <SubscribersPage client:only="react" userId={userId} />
+</App>

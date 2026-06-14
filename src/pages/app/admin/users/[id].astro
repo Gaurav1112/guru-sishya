@@ -1,0 +1,11 @@
+---
+import App from "@/layouts/App.astro";
+import UserDetailPage from "@/components/app/admin/users/DetailPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+const { id } = Astro.params;
+---
+<App title="Admin: User Detail — Guru Sishya">
+  <UserDetailPage client:only="react" userId={id} currentUserId={userId} />
+</App>

@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import AllowlistPage from "@/components/app/admin/AllowlistPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Admin: Allowlist — Guru Sishya">
+  <AllowlistPage client:only="react" userId={userId} />
+</App>
