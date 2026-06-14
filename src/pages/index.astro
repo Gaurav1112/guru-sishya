@@ -1,0 +1,124 @@
+---
+import Public from "@/layouts/Public.astro";
+import { Hero } from "@/components/landing/hero";
+import { Features } from "@/components/landing/features";
+import { HowItWorks } from "@/components/landing/how-it-works";
+import { Pricing } from "@/components/landing/pricing";
+import { Testimonials } from "@/components/landing/testimonials";
+import { SocialProof } from "@/components/landing/social-proof";
+import { FAQ } from "@/components/landing/faq";
+import { ExitIntent } from "@/components/landing/exit-intent";
+
+// Static stats — avoids loading 11MB of content JSON on the landing page
+const stats = { topicCount: 80, questionCount: 1715, sessionCount: 775 };
+
+const COMPANIES = [
+  "Google", "Amazon", "Microsoft", "Meta", "Apple",
+  "Netflix", "Flipkart", "Razorpay", "Uber", "Goldman Sachs",
+];
+
+const PAINS = [
+  {
+    problem: "Overwhelmed by 2,800+ LeetCode problems",
+    solution: "Our Pareto-based plans focus on the 20% of problems that cover 80% of interviews",
+  },
+  {
+    problem: "No structure -- jumping between YouTube, blogs, and courses",
+    solution: "One platform with 80 topics, 775 lessons, and a visual roadmap from zero to offer",
+  },
+  {
+    problem: "Behavioral rounds are a black box -- 40% of candidates fail here",
+    solution: "58 pre-written STAR answers for Google, Amazon, Meta, and more -- ready to customize",
+  },
+];
+---
+<Public
+  title="Guru Sishya — AI-Powered Interview Preparation"
+  description="Master software engineering interviews with AI-powered quizzes, system design practice, and spaced repetition. 50+ topics, 2000+ questions."
+>
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:rounded-lg focus:bg-saffron focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-background">
+    Skip to main content
+  </a>
+
+  <!-- Hero — above fold, load immediately -->
+  <Hero client:load stats={stats} />
+
+  <!-- Company logo strip -->
+  <section class="border-y border-border/30 bg-surface/30 py-6 px-6">
+    <div class="mx-auto max-w-5xl">
+      <p class="text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground/60 mb-4">
+        Prepare for interviews at
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        {COMPANIES.map((company) => (
+          <span class="rounded-full border border-border/50 bg-surface px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-saffron/40 hover:text-foreground transition-colors">
+            {company}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof — below fold -->
+  <SocialProof client:visible />
+
+  <!-- Pain points — static HTML, no JS needed -->
+  <section class="px-6 py-20">
+    <div class="mx-auto max-w-4xl">
+      <h2 class="font-heading text-3xl font-bold text-center mb-3">Sound Familiar?</h2>
+      <p class="text-center text-muted-foreground mb-12 max-w-xl mx-auto">
+        Most engineers waste weeks on unfocused prep. Here is how Guru Sishya fixes that.
+      </p>
+      <div class="space-y-6">
+        {PAINS.map((pain) => (
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-5">
+              <svg aria-hidden="true" class="h-6 w-6 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-red-400 mb-1">The Problem</p>
+                <p class="text-sm text-foreground/90">{pain.problem}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 rounded-xl border border-teal/20 bg-teal/5 p-5">
+              <svg aria-hidden="true" class="h-6 w-6 text-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-teal mb-1">Our Solution</p>
+                <p class="text-sm text-foreground/90">{pain.solution}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Below-fold React islands -->
+  <HowItWorks client:visible />
+  <Testimonials client:visible />
+  <Features client:visible />
+  <Pricing client:visible stats={stats} />
+  <FAQ client:visible />
+
+  <!-- Final CTA — static HTML -->
+  <section class="px-6 py-20 text-center">
+    <div class="mx-auto max-w-2xl rounded-2xl border border-saffron/30 bg-gradient-to-br from-saffron/10 via-surface to-teal/5 p-6 sm:p-12">
+      <h2 class="font-heading text-3xl font-bold mb-3">Ready to Start Preparing?</h2>
+      <p class="text-muted-foreground mb-8 max-w-md mx-auto">
+        {stats.topicCount} topics, {stats.questionCount.toLocaleString()} questions, 58 STAR behavioral answers &mdash; all free. No signup needed.
+      </p>
+      <a href="/app/topics" class="inline-flex items-center justify-center rounded-md text-sm font-semibold h-12 px-8 bg-saffron hover:bg-saffron/90 text-white transition-colors min-w-[240px]">
+        Browse Topics &mdash; It&apos;s Free
+      </a>
+      <p class="mt-5 text-xs text-muted-foreground/60">
+        No credit card required &bull; No signup needed &bull; Works offline
+      </p>
+    </div>
+  </section>
+
+  <!-- ExitIntent — client-only interactive island -->
+  <ExitIntent client:idle />
+</Public>
