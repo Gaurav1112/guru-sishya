@@ -15,12 +15,13 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const body = await request.json();
-  const { provider, apiKey, ...payload } = body as {
-    provider: string;
-    apiKey: string;
-    [key: string]: unknown;
-  };
+  let body: { provider: string; apiKey: string; [key: string]: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+  const { provider, apiKey, ...payload } = body;
 
   const urlMap: Record<string, string> = {
     groq: "https://api.groq.com/openai/v1/chat/completions",

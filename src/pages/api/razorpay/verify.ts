@@ -37,6 +37,13 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  // SECURITY: Auth check must run before any body parsing or business logic
+  const session = await auth();
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const email = session.user.email.trim().toLowerCase();
+
   try {
     const body = await request.json();
     const {
@@ -50,11 +57,6 @@ export const POST: APIRoute = async ({ request }) => {
       razorpay_signature?: string;
       planType?: string;
     };
-
-    // SECURITY: Use authenticated session email, not client-supplied email.
-    // This prevents IDOR where an attacker could assign a subscription to any email.
-    const session = await auth();
-    const email = session?.user?.email?.trim().toLowerCase();
 
     // Validate required fields
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !planType) {
