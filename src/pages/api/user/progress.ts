@@ -1,0 +1,129 @@
+import type { APIRoute } from "astro";
+import { getSupabaseAdmin } from "@/lib/supabase";
+import { auth } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
+
+// ── GET /api/user/progress?email= ────────────────────────────────────────────
+// Returns user progress from Supabase. Falls back to zeroed defaults when no
+// record exists so the client never has to handle null.
+// SECURITY: Authenticated — users can only read their own progress.
+
+export const GET: APIRoute = async ({ request }) => {
+  try {
+    // SECURITY: Rate limit to prevent abuse
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!(await checkRateLimit(`user-progress:${ip}`, 30, 60000))) {
+      return Response.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429 }
+      );
+    }
+
+    const session = await auth();
+    if (!session?.user?.email) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // SECURITY: Only allow users to query their own data (prevents IDOR)
+    const email = session.user.email.toLowerCase();
+    const requestedEmail = new URL(request.url).searchParams.get("email")?.toLowerCase();
+    if (requestedEmail && requestedEmail !== email) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("user_progress")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      // PGRST116 = "no rows returned" — anything else is a real error
+      console.error("[user/progress GET]", error);
+      return Response.json({ error: "Failed to fetch progress." }, { status: 500 });
+    }
+
+    return Response.json(
+      data ?? { total_xp: 0, level: 1, current_streak: 0, longest_streak: 0, coins: 0, topics_completed: 0, quizzes_taken: 0 }
+    );
+  } catch (err) {
+    console.error("[user/progress GET]", err);
+    const message = err instanceof Error ? err.message : "Unknown error.";
+    return Response.json({ error: message }, { status: 500 });
+  }
+};
+
+// ── POST /api/user/progress ───────────────────────────────────────────────────
+// Upserts user progress into Supabase. Conflict key is email.
+// SECURITY: Authenticated — users can only write their own progress.
+
+export const POST: APIRoute = async ({ request }) => {
+  try {
+    // SECURITY: Rate limit to prevent abuse
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (!(await checkRateLimit(`user-progress-write:${ip}`, 20, 60000))) {
+      return Response.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429 }
+      );
+    }
+
+    const session = await auth();
+    if (!session?.user?.email) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const {
+      total_xp,
+      level,
+      current_streak,
+      longest_streak,
+      coins,
+      topics_completed,
+      quizzes_taken,
+    } = body;
+
+    // Validate numeric fields — reject negative or unreasonable values
+    const numericFields = { total_xp, level, current_streak, longest_streak, coins, topics_completed, quizzes_taken };
+    for (const [field, value] of Object.entries(numericFields)) {
+      if (value !== undefined && (typeof value !== "number" || !Number.isFinite(value) || value < 0)) {
+        return Response.json(
+          { error: `${field} must be a non-negative number.` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // SECURITY: Always use the authenticated email, never trust client-supplied email
+    const email = session.user.email.toLowerCase();
+
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase.from("user_progress").upsert(
+      {
+        email,
+        total_xp,
+        level,
+        current_streak,
+        longest_streak,
+        coins,
+        topics_completed,
+        quizzes_taken,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "email" }
+    );
+
+    if (error) {
+      console.error("[user/progress POST]", error);
+      return Response.json({ error: "Failed to save progress." }, { status: 500 });
+    }
+
+    return Response.json({ success: true });
+  } catch (err) {
+    console.error("[user/progress POST]", err);
+    const message = err instanceof Error ? err.message : "Unknown error.";
+    return Response.json({ error: message }, { status: 500 });
+  }
+};
