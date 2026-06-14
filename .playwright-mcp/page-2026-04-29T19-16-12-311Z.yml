@@ -1,0 +1,67 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "Guru Sishya GURU SISHYA" [ref=e6] [cursor=pointer]:
+        - /url: /app/dashboard
+        - img "Guru Sishya" [ref=e7]
+        - generic [ref=e8]: GURU SISHYA
+      - generic [ref=e9]:
+        - generic "Active today" [ref=e10]:
+          - generic [ref=e12]: 🔥
+          - generic [ref=e14]: "1"
+        - generic [ref=e17]:
+          - generic [ref=e18]: Beginner I
+          - generic [ref=e19]: 5/100 XP
+        - generic [ref=e22]:
+          - generic [ref=e23]: 🪙
+          - generic [ref=e24]: "0"
+        - generic [ref=e25]: Beginner I
+    - generic [ref=e27]:
+      - complementary [ref=e28]:
+        - navigation [ref=e29]:
+          - link "🏠 Dashboard" [ref=e30] [cursor=pointer]:
+            - /url: /app/dashboard
+            - generic [ref=e31]: 🏠
+            - generic [ref=e32]: Dashboard
+          - link "📚 Topics" [ref=e33] [cursor=pointer]:
+            - /url: /app/topics
+            - generic [ref=e34]: 📚
+            - generic [ref=e35]: Topics
+          - link "📝 Questions" [ref=e36] [cursor=pointer]:
+            - /url: /app/questions
+            - generic [ref=e37]: 📝
+            - generic [ref=e38]: Questions
+          - link "🎤 Mock Interview" [ref=e39] [cursor=pointer]:
+            - /url: /app/interview
+            - generic [ref=e40]: 🎤
+            - generic [ref=e41]: Mock Interview
+          - link "🔁 Review" [ref=e42] [cursor=pointer]:
+            - /url: /app/review
+            - generic [ref=e43]: 🔁
+            - generic [ref=e44]: Review
+          - button "More" [ref=e45]:
+            - img [ref=e46]
+            - generic [ref=e48]: More
+          - link "Upgrade to Pro" [ref=e49] [cursor=pointer]:
+            - /url: /app/pricing
+            - img [ref=e50]
+            - generic [ref=e52]: Upgrade to Pro
+      - main [ref=e53]:
+        - img [ref=e55]
+  - button "Study Buddy — upgrade to Pro to unlock unlimited chat"
+  - button "Send feedback" [ref=e57]:
+    - img [ref=e58]
+  - generic [ref=e60]:
+    - generic [ref=e61]:
+      - img [ref=e62]
+      - generic [ref=e64]: Unlock all features with Pro
+      - generic [ref=e65]: — starting at just Rs.149/mo
+    - generic [ref=e66]:
+      - link "Upgrade" [ref=e67] [cursor=pointer]:
+        - /url: /app/pricing
+      - button [ref=e68]:
+        - img [ref=e69]
+  - region "Notifications alt+T"
+  - alert [ref=e72]

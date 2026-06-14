@@ -132,10 +132,10 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE INDEX IF NOT EXISTS idx_users_last_login ON users (last_login_at DESC);
 `;
 
-export const POST: APIRoute = async () => {
+export const POST: APIRoute = async ({ locals }) => {
   try {
     // SECURITY: Authenticate via server-side session, not client-supplied headers
-    const session = await auth();
+    const session = await auth(locals);
     const sessionEmail = session?.user?.email;
     if (!isAdminEmail(sessionEmail)) {
       return Response.json({ error: "Forbidden." }, { status: 403 });
@@ -200,9 +200,9 @@ export const POST: APIRoute = async () => {
 };
 
 // GET — return the SQL so the admin can copy-paste it into Supabase SQL Editor
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ locals }) => {
   // SECURITY: Authenticate via server-side session
-  const session = await auth();
+  const session = await auth(locals);
   const sessionEmail = session?.user?.email;
   if (!isAdminEmail(sessionEmail)) {
     return Response.json({ error: "Forbidden." }, { status: 403 });

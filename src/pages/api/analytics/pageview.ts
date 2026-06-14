@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { auth } from "@/lib/auth";
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // SECURITY: Rate limit to prevent analytics table spam
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -12,7 +12,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // SECURITY: Use authenticated session email, not client-supplied email
-    const session = await auth();
+    const session = await auth(locals);
     const sessionEmail = session?.user?.email?.trim().toLowerCase();
 
     const { path } = await request.json();

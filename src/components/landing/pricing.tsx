@@ -2,7 +2,11 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import type { ContentStats } from "@/app/page";
+interface ContentStats {
+  topicCount: number;
+  questionCount: number;
+  sessionCount: number;
+}
 
 interface PlanFeature {
   text: string;

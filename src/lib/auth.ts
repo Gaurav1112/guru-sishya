@@ -1,9 +1,19 @@
-import { currentUser } from "@clerk/astro/server";
+import type { APIContext } from "astro";
 
-// Compatibility wrapper — all API routes call auth() unchanged.
-// Returns the same shape as the previous NextAuth session object.
-export async function auth() {
-  const user = await currentUser();
+type Locals = APIContext["locals"];
+
+/**
+ * Server-side auth helper for Astro API routes.
+ * Pass `locals` from the APIRoute context.
+ *
+ * Usage:
+ *   export const GET: APIRoute = async ({ locals }) => {
+ *     const session = await auth(locals);
+ *   }
+ */
+export async function auth(locals?: Locals) {
+  if (!locals) return null;
+  const user = await locals.currentUser?.();
   if (!user) return null;
   return {
     user: {

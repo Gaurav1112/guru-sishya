@@ -7,5 +7,5 @@ if (!userId) return Astro.redirect("/login");
 const { id, num } = Astro.params;
 ---
 <App title="Study Session — Guru Sishya">
-  <SessionPage client:only="react" topicId={id} sessionNum={num} userId={userId} />
+  <SessionPage client:only="react" params={Promise.resolve({ id: id!, num: num! })} />
 </App>

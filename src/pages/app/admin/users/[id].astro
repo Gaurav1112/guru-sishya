@@ -7,5 +7,5 @@ if (!userId) return Astro.redirect("/login");
 const { id } = Astro.params;
 ---
 <App title="Admin: User Detail — Guru Sishya">
-  <UserDetailPage client:only="react" userId={id} currentUserId={userId} />
+  <UserDetailPage client:only="react" params={Promise.resolve({ id: id! })} />
 </App>

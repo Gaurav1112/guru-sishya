@@ -16,7 +16,14 @@ export default defineConfig({
   ],
   vite: {
     resolve: {
-      alias: { "@": "/src" },
+      alias: {
+        "@": "/src",
+        // Next.js compatibility shims — map next/* to local shims
+        "next/link": "/src/lib/link.tsx",
+        "next/image": "/src/components/ui/image.tsx",
+        "next/navigation": "/src/lib/navigation.ts",
+        "next/dynamic": "/src/lib/dynamic.ts",
+      },
     },
   },
 });

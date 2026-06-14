@@ -26,8 +26,8 @@ async function readAllowlist(): Promise<string[]> {
 // ── GET /api/admin/allowlist ───────────────────────────────────────────────────
 // Admin gets the full list. Non-admin authenticated users only see their own status.
 
-export const GET: APIRoute = async () => {
-  const session = await auth();
+export const GET: APIRoute = async ({ locals }) => {
+  const session = await auth(locals);
   const callerEmail = session?.user?.email?.toLowerCase() ?? "";
 
   const cacheHeaders = {
@@ -56,8 +56,8 @@ export const GET: APIRoute = async () => {
 
 // ── POST /api/admin/allowlist ─────────────────────────────────────────────────
 
-export const POST: APIRoute = async ({ request }) => {
-  const session = await auth();
+export const POST: APIRoute = async ({ request, locals }) => {
+  const session = await auth(locals);
   const callerEmail = session?.user?.email;
   if (!isAdminEmail(callerEmail)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });

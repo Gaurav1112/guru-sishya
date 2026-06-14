@@ -8,7 +8,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 // Returns: { isPremium, premiumUntil, planType }
 // SECURITY: Authenticated — users can only check their own subscription.
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
   try {
     // SECURITY: Rate limit to prevent enumeration attacks
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -19,7 +19,7 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    const session = await auth();
+    const session = await auth(locals);
     if (!session?.user?.email) {
       return Response.json(
         { error: "Unauthorized" },

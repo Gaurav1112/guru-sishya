@@ -6,5 +6,5 @@ const userId = Astro.locals.auth?.()?.userId;
 if (!userId) return Astro.redirect("/login");
 ---
 <App title="Admin: Analytics — Guru Sishya">
-  <AdminAnalyticsPage client:only="react" userId={userId} />
+  <AdminAnalyticsPage client:only="react" />
 </App>

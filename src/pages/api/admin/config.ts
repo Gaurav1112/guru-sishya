@@ -70,8 +70,8 @@ async function writeConfig(config: AppConfig): Promise<void> {
 // ── GET /api/admin/config ──────────────────────────────────────────────────────
 // SECURITY: Admin-only — prevents leaking internal feature gate values.
 
-export const GET: APIRoute = async () => {
-  const session = await auth();
+export const GET: APIRoute = async ({ locals }) => {
+  const session = await auth(locals);
   const callerEmail = session?.user?.email;
   if (!isAdminEmail(callerEmail)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
@@ -90,8 +90,8 @@ export const GET: APIRoute = async () => {
 
 // ── POST /api/admin/config ─────────────────────────────────────────────────────
 
-export const POST: APIRoute = async ({ request }) => {
-  const session = await auth();
+export const POST: APIRoute = async ({ request, locals }) => {
+  const session = await auth(locals);
   const callerEmail = session?.user?.email;
   if (!isAdminEmail(callerEmail)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });

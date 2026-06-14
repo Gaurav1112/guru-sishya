@@ -3,19 +3,28 @@
 // Client-side compatibility shim — mirrors the NextAuth useSession / signOut API
 // so all client components need only an import-path change, not a logic rewrite.
 
-import { useUser, useClerk } from "@clerk/astro/react";
+import { useAuth } from "@clerk/astro/react";
 
 export function useSession() {
-  const { user, isLoaded, isSignedIn } = useUser();
+  const { userId, isLoaded, isSignedIn, sessionClaims } = useAuth();
+
+  // Build a minimal session-like object from auth claims
+  const email =
+    (sessionClaims?.email as string | undefined) ??
+    (sessionClaims?.primary_email_address as string | undefined) ??
+    "";
+  const name = (sessionClaims?.name as string | undefined) ?? "";
+  const image = (sessionClaims?.image_url as string | undefined) ?? "";
+
   return {
     data:
-      isSignedIn && user
+      isSignedIn && userId
         ? {
             user: {
-              id: user.id,
-              email: user.emailAddresses[0]?.emailAddress ?? "",
-              name: user.fullName ?? "",
-              image: user.imageUrl ?? "",
+              id: userId,
+              email,
+              name,
+              image,
             },
           }
         : null,
@@ -28,7 +37,7 @@ export function useSession() {
 }
 
 export function useSignOut() {
-  const { signOut } = useClerk();
+  const { signOut } = useAuth();
   return (options?: { callbackUrl?: string }) =>
     signOut({ redirectUrl: options?.callbackUrl ?? "/" });
 }

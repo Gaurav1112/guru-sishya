@@ -7,5 +7,5 @@ if (!userId) return Astro.redirect("/login");
 const { id } = Astro.params;
 ---
 <App title="Study Plan — Guru Sishya">
-  <PlanPage client:only="react" topicId={id} userId={userId} />
+  <PlanPage client:only="react" params={Promise.resolve({ id: id! })} />
 </App>

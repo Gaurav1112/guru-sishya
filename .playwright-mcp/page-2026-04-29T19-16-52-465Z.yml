@@ -1,0 +1,116 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "Guru Sishya GURU SISHYA" [ref=e6] [cursor=pointer]:
+        - /url: /app/dashboard
+        - img "Guru Sishya" [ref=e7]
+        - generic [ref=e8]: GURU SISHYA
+      - generic [ref=e9]:
+        - generic "Active today" [ref=e10]:
+          - generic [ref=e12]: 🔥
+          - generic [ref=e14]: "1"
+        - generic [ref=e17]:
+          - generic [ref=e18]: Beginner I
+          - generic [ref=e19]: 5/100 XP
+        - generic [ref=e22]:
+          - generic [ref=e23]: 🪙
+          - generic [ref=e24]: "0"
+        - generic [ref=e25]: Beginner I
+    - generic [ref=e27]:
+      - complementary [ref=e28]:
+        - navigation [ref=e29]:
+          - link "🏠 Dashboard" [ref=e30] [cursor=pointer]:
+            - /url: /app/dashboard
+            - generic [ref=e31]: 🏠
+            - generic [ref=e32]: Dashboard
+          - link "📚 Topics" [ref=e33] [cursor=pointer]:
+            - /url: /app/topics
+            - generic [ref=e35]: 📚
+            - generic [ref=e36]: Topics
+          - link "📝 Questions" [ref=e37] [cursor=pointer]:
+            - /url: /app/questions
+            - generic [ref=e38]: 📝
+            - generic [ref=e39]: Questions
+          - link "🎤 Mock Interview" [ref=e40] [cursor=pointer]:
+            - /url: /app/interview
+            - generic [ref=e41]: 🎤
+            - generic [ref=e42]: Mock Interview
+          - link "🔁 Review" [ref=e43] [cursor=pointer]:
+            - /url: /app/review
+            - generic [ref=e44]: 🔁
+            - generic [ref=e45]: Review
+          - button "More" [ref=e46]:
+            - img [ref=e47]
+            - generic [ref=e49]: More
+          - link "Upgrade to Pro" [ref=e50] [cursor=pointer]:
+            - /url: /app/pricing
+            - img [ref=e51]
+            - generic [ref=e53]: Upgrade to Pro
+      - main [ref=e54]:
+        - generic [ref=e55]:
+          - dialog "What are you preparing for?" [ref=e56]:
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - img [ref=e60]
+                - heading "What are you preparing for?" [level=2] [ref=e64]
+              - generic [ref=e65]:
+                - button "🏢 FAANG / Big Tech" [ref=e66]:
+                  - generic [ref=e67]: 🏢
+                  - generic [ref=e68]: FAANG / Big Tech
+                - button "🚀 Startups" [ref=e69]:
+                  - generic [ref=e70]: 🚀
+                  - generic [ref=e71]: Startups
+                - button "🎓 Campus Placement" [ref=e72]:
+                  - generic [ref=e73]: 🎓
+                  - generic [ref=e74]: Campus Placement
+                - button "🔄 Career Switch" [ref=e75]:
+                  - generic [ref=e76]: 🔄
+                  - generic [ref=e77]: Career Switch
+                - button "📚 General Practice" [ref=e78]:
+                  - generic [ref=e79]: 📚
+                  - generic [ref=e80]: General Practice
+              - button "Skip — I know what I want" [ref=e81]
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - paragraph [ref=e84]: Interview Prep Hub
+              - heading "Browse All Topics" [level=1] [ref=e85]
+              - generic [ref=e86]:
+                - generic [ref=e90]: Topics
+                - generic [ref=e94]: Quiz Questions
+                - generic [ref=e95]:
+                  - generic [ref=e96]: "6"
+                  - generic [ref=e97]: FAANG Companies
+            - generic [ref=e98]:
+              - generic [ref=e99]:
+                - generic: 🔍
+                - combobox "Search topics" [ref=e100]
+              - generic [ref=e101]:
+                - button "All Topics" [ref=e102]
+                - button "System Design" [ref=e103]
+                - button "Case Studies" [ref=e104]
+                - button "DS & Algo" [ref=e105]
+                - button "Core CS" [ref=e106]
+                - button "DevOps & Infra" [ref=e107]
+            - generic [ref=e157]:
+              - heading "Have a custom topic?" [level=2] [ref=e158]
+              - paragraph [ref=e159]: Enter any topic to create a personalized learning hub with your AI provider.
+              - generic [ref=e161]:
+                - textbox "e.g., System Design, Guitar, Machine Learning..." [ref=e162]
+                - button "Learn" [disabled]
+  - button "Study Buddy — upgrade to Pro to unlock unlimited chat"
+  - button "Send feedback" [ref=e163]:
+    - img [ref=e164]
+  - generic [ref=e166]:
+    - generic [ref=e167]:
+      - img [ref=e168]
+      - generic [ref=e170]: Unlock all features with Pro
+      - generic [ref=e171]: — starting at just Rs.149/mo
+    - generic [ref=e172]:
+      - link "Upgrade" [ref=e173] [cursor=pointer]:
+        - /url: /app/pricing
+      - button [ref=e174]:
+        - img [ref=e175]
+  - region "Notifications alt+T"
+  - alert [ref=e178]

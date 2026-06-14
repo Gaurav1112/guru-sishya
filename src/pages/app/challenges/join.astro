@@ -6,5 +6,5 @@ const userId = Astro.locals.auth?.()?.userId;
 if (!userId) return Astro.redirect("/login");
 ---
 <App title="Join Challenge — Guru Sishya">
-  <ChallengesJoinPage client:only="react" userId={userId} />
+  <ChallengesJoinPage client:only="react" />
 </App>

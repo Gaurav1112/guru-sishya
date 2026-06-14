@@ -7,10 +7,10 @@ import { auth } from "@/lib/auth";
 // Admin-only route that returns all subscriber records from Supabase.
 // Protected by server-side session check (not spoofable headers).
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
   try {
     // SECURITY: Authenticate via server-side session, not client-supplied headers
-    const session = await auth();
+    const session = await auth(locals);
     const sessionEmail = session?.user?.email;
     if (!isAdminEmail(sessionEmail)) {
       return Response.json({ error: "Forbidden." }, { status: 403 });

@@ -27,7 +27,7 @@ const PLAN_AMOUNTS: Record<string, number> = {
 
 // ── POST /api/razorpay/verify ────────────────────────────────────────────────
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   // SECURITY: Rate limit to prevent brute-force signature guessing
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   if (!(await checkRateLimit(`razorpay-verify:${ip}`, 10, 60000))) {
@@ -38,7 +38,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // SECURITY: Auth check must run before any body parsing or business logic
-  const session = await auth();
+  const session = await auth(locals);
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

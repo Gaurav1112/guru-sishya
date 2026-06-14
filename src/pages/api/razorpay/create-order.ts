@@ -50,9 +50,9 @@ function getRazorpayInstance() {
 
 // ── POST /api/razorpay/create-order ─────────────────────────────────────────
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   // SECURITY: Require authentication to create payment orders
-  const session = await auth();
+  const session = await auth(locals);
   if (!session?.user?.email) {
     return Response.json({ error: "Sign in required to purchase" }, { status: 401 });
   }

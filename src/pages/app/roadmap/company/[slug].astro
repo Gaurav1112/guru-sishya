@@ -7,5 +7,5 @@ if (!userId) return Astro.redirect("/login");
 const { slug } = Astro.params;
 ---
 <App title="Company Roadmap — Guru Sishya">
-  <CompanyRoadmapPage client:only="react" slug={slug} userId={userId} />
+  <CompanyRoadmapPage client:only="react" />
 </App>

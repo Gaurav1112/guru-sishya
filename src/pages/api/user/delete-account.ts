@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { auth } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-export const DELETE: APIRoute = async ({ request }) => {
+export const DELETE: APIRoute = async ({ request, locals }) => {
   // SECURITY: Rate limit account deletion to prevent abuse
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (!(await checkRateLimit(`delete-account:${ip}`, 3, 3600000))) {
@@ -12,7 +12,7 @@ export const DELETE: APIRoute = async ({ request }) => {
     );
   }
 
-  const session = await auth();
+  const session = await auth(locals);
   if (!session?.user?.email) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

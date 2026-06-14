@@ -31,9 +31,9 @@ function getCurrentWeekId(): string {
 
 // ── POST: sync user's weekly XP ─────────────────────────────────────────────
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   // SECURITY: Require authentication to prevent unauthenticated leaderboard manipulation
-  const session = await auth();
+  const session = await auth(locals);
   if (!session?.user?.email) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

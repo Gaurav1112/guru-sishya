@@ -6,5 +6,5 @@ const userId = Astro.locals.auth?.()?.userId;
 if (!userId) return Astro.redirect("/login");
 ---
 <App title="Topics — Guru Sishya">
-  <TopicsPage client:only="react" userId={userId} />
+  <TopicsPage client:only="react" />
 </App>

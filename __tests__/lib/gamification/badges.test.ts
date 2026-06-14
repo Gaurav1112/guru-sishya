@@ -43,8 +43,8 @@ function makeStats(overrides: Partial<UserStats> = {}): UserStats {
 // ────────────────────────────────────────────────────────────────────────────
 
 describe("BADGE_DEFINITIONS", () => {
-  it("has exactly 34 badge definitions", () => {
-    expect(BADGE_DEFINITIONS).toHaveLength(34);
+  it("has exactly 36 badge definitions", () => {
+    expect(BADGE_DEFINITIONS).toHaveLength(36);
   });
 
   it("has unique IDs", () => {
@@ -168,7 +168,7 @@ describe("checkAndUnlockBadges", () => {
     await checkAndUnlockBadges(stats);
     const saved = await db.badges.where("type").equals("prathama_jyoti").first();
     expect(saved).toBeDefined();
-    expect(saved?.name).toBe("Prathama Jyoti");
+    expect(saved?.name).toBe("First Light");
   });
 });
 

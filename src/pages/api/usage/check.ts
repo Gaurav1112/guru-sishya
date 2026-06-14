@@ -16,7 +16,7 @@ import { verifyPremium } from "@/lib/premium/verify";
 // Graceful degradation: if Supabase is not configured, returns { allowed: true }
 // so the client-side check remains the only gate (existing behaviour).
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   // ── Rate limit ───────────────────────────────────────────────────────────
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const rl = await rateLimit(`usage-check:${ip}`, 60, 60_000); // 60/min
@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // ── Auth ─────────────────────────────────────────────────────────────────
-  const session = await auth();
+  const session = await auth(locals);
   const email = session?.user?.email?.trim().toLowerCase();
   if (!email) {
     // Not authenticated — allow (client-side is the gate for anonymous users)

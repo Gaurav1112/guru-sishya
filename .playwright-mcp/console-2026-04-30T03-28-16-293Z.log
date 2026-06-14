@@ -1,0 +1,5 @@
+[    2006ms] [ERROR] Loading the script 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs/loader.js' violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://checkout.razorpay.com". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked. @ https://www.guru-sishya.in/_next/static/chunks/0.ih~lbjrpvch.js:0
+[    2010ms] [ERROR] Monaco initialization: error: Event @ https://www.guru-sishya.in/_next/static/chunks/0.ih~lbjrpvch.js:0
+[    2011ms] [ERROR] Monaco initialization: error: Event @ https://www.guru-sishya.in/_next/static/chunks/0.ih~lbjrpvch.js:0
+[    2012ms] Event
+[    2012ms] Event

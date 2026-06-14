@@ -8,7 +8,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 // record exists so the client never has to handle null.
 // SECURITY: Authenticated — users can only read their own progress.
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
   try {
     // SECURITY: Rate limit to prevent abuse
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -19,7 +19,7 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    const session = await auth();
+    const session = await auth(locals);
     if (!session?.user?.email) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -58,7 +58,7 @@ export const GET: APIRoute = async ({ request }) => {
 // Upserts user progress into Supabase. Conflict key is email.
 // SECURITY: Authenticated — users can only write their own progress.
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // SECURITY: Rate limit to prevent abuse
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -69,7 +69,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const session = await auth();
+    const session = await auth(locals);
     if (!session?.user?.email) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -40,6 +40,13 @@ export function useSearchParams() {
   return [params] as const;
 }
 
+export function useParams(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  // Return a simple record; components that need specific keys should rely on Astro props
+  return Object.fromEntries(parts.map((p, i) => [String(i), p]));
+}
+
 export function notFound(): never {
   throw new Response(null, { status: 404 });
 }

@@ -2,10 +2,8 @@ import type { APIRoute } from "astro";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
 import { auth } from "@/lib/auth";
-import {
-  buildWeeklyDigestHtml,
-  WeeklyDigestData,
-} from "@/lib/email-templates/weekly-digest";
+import { buildWeeklyDigestHtml } from "@/lib/email-templates/weekly-digest";
+import type { WeeklyDigestData } from "@/lib/email-templates/weekly-digest";
 
 /**
  * POST /api/digest
@@ -16,7 +14,7 @@ import {
  *
  * Body: { digest: WeeklyDigestData }
  */
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   // SECURITY: Rate limit -- max 3 digest requests per IP per hour
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   if (!(await checkRateLimit(`digest:${ip}`, 3, 3600000))) {
@@ -27,7 +25,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // SECURITY: Require authentication to prevent abuse as an email relay
-  const session = await auth();
+  const session = await auth(locals);
   if (!session?.user?.email) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

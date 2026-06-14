@@ -1,0 +1,1119 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "Guru Sishya GURU SISHYA" [ref=e6] [cursor=pointer]:
+        - /url: /app/dashboard
+        - img "Guru Sishya" [ref=e7]
+        - generic [ref=e8]: GURU SISHYA
+      - generic [ref=e9]:
+        - generic "Active today" [ref=e10]:
+          - generic [ref=e12]: 🔥
+          - generic [ref=e14]: "1"
+        - generic [ref=e17]:
+          - generic [ref=e18]: Beginner I
+          - generic [ref=e19]: 5/100 XP
+        - generic [ref=e22]:
+          - generic [ref=e23]: 🪙
+          - generic [ref=e24]: "0"
+        - generic [ref=e25]: Beginner I
+    - generic [ref=e27]:
+      - complementary [ref=e28]:
+        - navigation [ref=e29]:
+          - link "🏠 Dashboard" [ref=e30] [cursor=pointer]:
+            - /url: /app/dashboard
+            - generic [ref=e31]: 🏠
+            - generic [ref=e32]: Dashboard
+          - link "📚 Topics" [ref=e33] [cursor=pointer]:
+            - /url: /app/topics
+            - generic [ref=e35]: 📚
+            - generic [ref=e36]: Topics
+          - link "📝 Questions" [ref=e37] [cursor=pointer]:
+            - /url: /app/questions
+            - generic [ref=e38]: 📝
+            - generic [ref=e39]: Questions
+          - link "🎤 Mock Interview" [ref=e40] [cursor=pointer]:
+            - /url: /app/interview
+            - generic [ref=e41]: 🎤
+            - generic [ref=e42]: Mock Interview
+          - link "🔁 Review" [ref=e43] [cursor=pointer]:
+            - /url: /app/review
+            - generic [ref=e44]: 🔁
+            - generic [ref=e45]: Review
+          - button "More" [ref=e46]:
+            - img [ref=e47]
+            - generic [ref=e49]: More
+          - link "Upgrade to Pro" [ref=e50] [cursor=pointer]:
+            - /url: /app/pricing
+            - img [ref=e51]
+            - generic [ref=e53]: Upgrade to Pro
+      - main [ref=e54]:
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - paragraph [ref=e58]: Interview Prep Hub
+            - heading "Browse All Topics" [level=1] [ref=e59]
+            - generic [ref=e60]:
+              - generic [ref=e61]:
+                - generic [ref=e62]: "80"
+                - generic [ref=e63]: Topics
+              - generic [ref=e64]:
+                - generic [ref=e65]: 1,715
+                - generic [ref=e66]: Quiz Questions
+              - generic [ref=e67]:
+                - generic [ref=e68]: "6"
+                - generic [ref=e69]: FAANG Companies
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - generic: 🔍
+              - combobox "Search topics" [ref=e72]
+            - generic [ref=e73]:
+              - button "All Topics(80)" [ref=e74]:
+                - text: All Topics
+                - generic [ref=e75]: (80)
+              - button "System Design(20)" [ref=e76]:
+                - text: System Design
+                - generic [ref=e77]: (20)
+              - button "Case Studies(23)" [ref=e78]:
+                - text: Case Studies
+                - generic [ref=e79]: (23)
+              - button "DS & Algo(16)" [ref=e80]:
+                - text: DS & Algo
+                - generic [ref=e81]: (16)
+              - button "Core CS(18)" [ref=e82]:
+                - text: Core CS
+                - generic [ref=e83]: (18)
+              - button "DevOps & Infra(3)" [ref=e84]:
+                - text: DevOps & Infra
+                - generic [ref=e85]: (3)
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - generic [ref=e88]:
+                - generic [ref=e89]: 📐
+                - heading "System Design Fundamentals" [level=2] [ref=e90]
+                - generic [ref=e91]: "20"
+              - generic [ref=e92]:
+                - button "Load Balancing System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e93] [cursor=pointer]:
+                  - paragraph [ref=e94]: Load Balancing
+                  - generic [ref=e95]: System Design
+                  - generic [ref=e96]:
+                    - generic [ref=e97]: 20 questions
+                    - generic [ref=e98]: 10 sessions
+                  - generic [ref=e99]:
+                    - generic "Learning Plan" [ref=e100]: 📋
+                    - generic "Quick Summary" [ref=e101]: 📄
+                    - generic "Quiz Bank" [ref=e102]: 🧠
+                    - generic "Skill Levels" [ref=e103]: 🪜
+                    - generic "Resources" [ref=e104]: 🔍
+                - button "API Gateway System Design 21 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e105] [cursor=pointer]:
+                  - paragraph [ref=e106]: API Gateway
+                  - generic [ref=e107]: System Design
+                  - generic [ref=e108]:
+                    - generic [ref=e109]: 21 questions
+                    - generic [ref=e110]: 10 sessions
+                  - generic [ref=e111]:
+                    - generic "Learning Plan" [ref=e112]: 📋
+                    - generic "Quick Summary" [ref=e113]: 📄
+                    - generic "Quiz Bank" [ref=e114]: 🧠
+                    - generic "Skill Levels" [ref=e115]: 🪜
+                    - generic "Resources" [ref=e116]: 🔍
+                - button "Caching System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e117] [cursor=pointer]:
+                  - paragraph [ref=e118]: Caching
+                  - generic [ref=e119]: System Design
+                  - generic [ref=e120]:
+                    - generic [ref=e121]: 20 questions
+                    - generic [ref=e122]: 10 sessions
+                  - generic [ref=e123]:
+                    - generic "Learning Plan" [ref=e124]: 📋
+                    - generic "Quick Summary" [ref=e125]: 📄
+                    - generic "Quiz Bank" [ref=e126]: 🧠
+                    - generic "Skill Levels" [ref=e127]: 🪜
+                    - generic "Resources" [ref=e128]: 🔍
+                - button "Database Design System Design 21 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e129] [cursor=pointer]:
+                  - paragraph [ref=e130]: Database Design
+                  - generic [ref=e131]: System Design
+                  - generic [ref=e132]:
+                    - generic [ref=e133]: 21 questions
+                    - generic [ref=e134]: 10 sessions
+                  - generic [ref=e135]:
+                    - generic "Learning Plan" [ref=e136]: 📋
+                    - generic "Quick Summary" [ref=e137]: 📄
+                    - generic "Quiz Bank" [ref=e138]: 🧠
+                    - generic "Skill Levels" [ref=e139]: 🪜
+                    - generic "Resources" [ref=e140]: 🔍
+                - button "Database Scaling System Design 21 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e141] [cursor=pointer]:
+                  - paragraph [ref=e142]: Database Scaling
+                  - generic [ref=e143]: System Design
+                  - generic [ref=e144]:
+                    - generic [ref=e145]: 21 questions
+                    - generic [ref=e146]: 10 sessions
+                  - generic [ref=e147]:
+                    - generic "Learning Plan" [ref=e148]: 📋
+                    - generic "Quick Summary" [ref=e149]: 📄
+                    - generic "Quiz Bank" [ref=e150]: 🧠
+                    - generic "Skill Levels" [ref=e151]: 🪜
+                    - generic "Resources" [ref=e152]: 🔍
+                - button "Message Queues System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e153] [cursor=pointer]:
+                  - paragraph [ref=e154]: Message Queues
+                  - generic [ref=e155]: System Design
+                  - generic [ref=e156]:
+                    - generic [ref=e157]: 20 questions
+                    - generic [ref=e158]: 10 sessions
+                  - generic [ref=e159]:
+                    - generic "Learning Plan" [ref=e160]: 📋
+                    - generic "Quick Summary" [ref=e161]: 📄
+                    - generic "Quiz Bank" [ref=e162]: 🧠
+                    - generic "Skill Levels" [ref=e163]: 🪜
+                    - generic "Resources" [ref=e164]: 🔍
+                - button "Microservices Architecture System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e165] [cursor=pointer]:
+                  - paragraph [ref=e166]: Microservices Architecture
+                  - generic [ref=e167]: System Design
+                  - generic [ref=e168]:
+                    - generic [ref=e169]: 20 questions
+                    - generic [ref=e170]: 10 sessions
+                  - generic [ref=e171]:
+                    - generic "Learning Plan" [ref=e172]: 📋
+                    - generic "Quick Summary" [ref=e173]: 📄
+                    - generic "Quiz Bank" [ref=e174]: 🧠
+                    - generic "Skill Levels" [ref=e175]: 🪜
+                    - generic "Resources" [ref=e176]: 🔍
+                - button "Distributed Systems Fundamentals System Design 21 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e177] [cursor=pointer]:
+                  - paragraph [ref=e178]: Distributed Systems Fundamentals
+                  - generic [ref=e179]: System Design
+                  - generic [ref=e180]:
+                    - generic [ref=e181]: 21 questions
+                    - generic [ref=e182]: 10 sessions
+                  - generic [ref=e183]:
+                    - generic "Learning Plan" [ref=e184]: 📋
+                    - generic "Quick Summary" [ref=e185]: 📄
+                    - generic "Quiz Bank" [ref=e186]: 🧠
+                    - generic "Skill Levels" [ref=e187]: 🪜
+                    - generic "Resources" [ref=e188]: 🔍
+                - button "Scalability Patterns System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e189] [cursor=pointer]:
+                  - paragraph [ref=e190]: Scalability Patterns
+                  - generic [ref=e191]: System Design
+                  - generic [ref=e192]:
+                    - generic [ref=e193]: 20 questions
+                    - generic [ref=e194]: 10 sessions
+                  - generic [ref=e195]:
+                    - generic "Learning Plan" [ref=e196]: 📋
+                    - generic "Quick Summary" [ref=e197]: 📄
+                    - generic "Quiz Bank" [ref=e198]: 🧠
+                    - generic "Skill Levels" [ref=e199]: 🪜
+                    - generic "Resources" [ref=e200]: 🔍
+                - button "Content Delivery Networks (CDN) System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e201] [cursor=pointer]:
+                  - paragraph [ref=e202]: Content Delivery Networks (CDN)
+                  - generic [ref=e203]: System Design
+                  - generic [ref=e204]:
+                    - generic [ref=e205]: 20 questions
+                    - generic [ref=e206]: 10 sessions
+                  - generic [ref=e207]:
+                    - generic "Learning Plan" [ref=e208]: 📋
+                    - generic "Quick Summary" [ref=e209]: 📄
+                    - generic "Quiz Bank" [ref=e210]: 🧠
+                    - generic "Skill Levels" [ref=e211]: 🪜
+                    - generic "Resources" [ref=e212]: 🔍
+                - button "Rate Limiting & Throttling System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e213] [cursor=pointer]:
+                  - paragraph [ref=e214]: Rate Limiting & Throttling
+                  - generic [ref=e215]: System Design
+                  - generic [ref=e216]:
+                    - generic [ref=e217]: 20 questions
+                    - generic [ref=e218]: 10 sessions
+                  - generic [ref=e219]:
+                    - generic "Learning Plan" [ref=e220]: 📋
+                    - generic "Quick Summary" [ref=e221]: 📄
+                    - generic "Quiz Bank" [ref=e222]: 🧠
+                    - generic "Skill Levels" [ref=e223]: 🪜
+                    - generic "Resources" [ref=e224]: 🔍
+                - button "Authentication & Authorization System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e225] [cursor=pointer]:
+                  - paragraph [ref=e226]: Authentication & Authorization
+                  - generic [ref=e227]: System Design
+                  - generic [ref=e228]:
+                    - generic [ref=e229]: 20 questions
+                    - generic [ref=e230]: 10 sessions
+                  - generic [ref=e231]:
+                    - generic "Learning Plan" [ref=e232]: 📋
+                    - generic "Quick Summary" [ref=e233]: 📄
+                    - generic "Quiz Bank" [ref=e234]: 🧠
+                    - generic "Skill Levels" [ref=e235]: 🪜
+                    - generic "Resources" [ref=e236]: 🔍
+                - button "Monitoring & Observability System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e237] [cursor=pointer]:
+                  - paragraph [ref=e238]: Monitoring & Observability
+                  - generic [ref=e239]: System Design
+                  - generic [ref=e240]:
+                    - generic [ref=e241]: 20 questions
+                    - generic [ref=e242]: 10 sessions
+                  - generic [ref=e243]:
+                    - generic "Learning Plan" [ref=e244]: 📋
+                    - generic "Quick Summary" [ref=e245]: 📄
+                    - generic "Quiz Bank" [ref=e246]: 🧠
+                    - generic "Skill Levels" [ref=e247]: 🪜
+                    - generic "Resources" [ref=e248]: 🔍
+                - button "Networking Fundamentals System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e249] [cursor=pointer]:
+                  - paragraph [ref=e250]: Networking Fundamentals
+                  - generic [ref=e251]: System Design
+                  - generic [ref=e252]:
+                    - generic [ref=e253]: 20 questions
+                    - generic [ref=e254]: 10 sessions
+                  - generic [ref=e255]:
+                    - generic "Learning Plan" [ref=e256]: 📋
+                    - generic "Quick Summary" [ref=e257]: 📄
+                    - generic "Quiz Bank" [ref=e258]: 🧠
+                    - generic "Skill Levels" [ref=e259]: 🪜
+                    - generic "Resources" [ref=e260]: 🔍
+                - button "Data Storage & Processing System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e261] [cursor=pointer]:
+                  - paragraph [ref=e262]: Data Storage & Processing
+                  - generic [ref=e263]: System Design
+                  - generic [ref=e264]:
+                    - generic [ref=e265]: 20 questions
+                    - generic [ref=e266]: 10 sessions
+                  - generic [ref=e267]:
+                    - generic "Learning Plan" [ref=e268]: 📋
+                    - generic "Quick Summary" [ref=e269]: 📄
+                    - generic "Quiz Bank" [ref=e270]: 🧠
+                    - generic "Skill Levels" [ref=e271]: 🪜
+                    - generic "Resources" [ref=e272]: 🔍
+                - button "Back-of-Envelope Estimation System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e273] [cursor=pointer]:
+                  - paragraph [ref=e274]: Back-of-Envelope Estimation
+                  - generic [ref=e275]: System Design
+                  - generic [ref=e276]:
+                    - generic [ref=e277]: 20 questions
+                    - generic [ref=e278]: 10 sessions
+                  - generic [ref=e279]:
+                    - generic "Learning Plan" [ref=e280]: 📋
+                    - generic "Quick Summary" [ref=e281]: 📄
+                    - generic "Quiz Bank" [ref=e282]: 🧠
+                    - generic "Skill Levels" [ref=e283]: 🪜
+                    - generic "Resources" [ref=e284]: 🔍
+                - button "System Design Interview Framework System Design 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e285] [cursor=pointer]:
+                  - paragraph [ref=e286]: System Design Interview Framework
+                  - generic [ref=e287]: System Design
+                  - generic [ref=e288]:
+                    - generic [ref=e289]: 20 questions
+                    - generic [ref=e290]: 10 sessions
+                  - generic [ref=e291]:
+                    - generic "Learning Plan" [ref=e292]: 📋
+                    - generic "Quick Summary" [ref=e293]: 📄
+                    - generic "Quiz Bank" [ref=e294]: 🧠
+                    - generic "Skill Levels" [ref=e295]: 🪜
+                    - generic "Resources" [ref=e296]: 🔍
+                - button "Trie (Prefix Tree) Data Structures & Algorithms 20 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e297] [cursor=pointer]:
+                  - paragraph [ref=e298]: Trie (Prefix Tree)
+                  - generic [ref=e299]: Data Structures & Algorithms
+                  - generic [ref=e300]:
+                    - generic [ref=e301]: 20 questions
+                    - generic [ref=e302]: 8 sessions
+                  - generic [ref=e303]:
+                    - generic "Learning Plan" [ref=e304]: 📋
+                    - generic "Quick Summary" [ref=e305]: 📄
+                    - generic "Quiz Bank" [ref=e306]: 🧠
+                    - generic "Skill Levels" [ref=e307]: 🪜
+                    - generic "Resources" [ref=e308]: 🔍
+                - button "Bit Manipulation Data Structures & Algorithms 20 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e309] [cursor=pointer]:
+                  - paragraph [ref=e310]: Bit Manipulation
+                  - generic [ref=e311]: Data Structures & Algorithms
+                  - generic [ref=e312]:
+                    - generic [ref=e313]: 20 questions
+                    - generic [ref=e314]: 8 sessions
+                  - generic [ref=e315]:
+                    - generic "Learning Plan" [ref=e316]: 📋
+                    - generic "Quick Summary" [ref=e317]: 📄
+                    - generic "Quiz Bank" [ref=e318]: 🧠
+                    - generic "Skill Levels" [ref=e319]: 🪜
+                    - generic "Resources" [ref=e320]: 🔍
+                - button "Union-Find (Disjoint Set) Data Structures & Algorithms 15 questions 6 sessions 📋 📄 🧠 🪜 🔍" [ref=e321] [cursor=pointer]:
+                  - paragraph [ref=e322]: Union-Find (Disjoint Set)
+                  - generic [ref=e323]: Data Structures & Algorithms
+                  - generic [ref=e324]:
+                    - generic [ref=e325]: 15 questions
+                    - generic [ref=e326]: 6 sessions
+                  - generic [ref=e327]:
+                    - generic "Learning Plan" [ref=e328]: 📋
+                    - generic "Quick Summary" [ref=e329]: 📄
+                    - generic "Quiz Bank" [ref=e330]: 🧠
+                    - generic "Skill Levels" [ref=e331]: 🪜
+                    - generic "Resources" [ref=e332]: 🔍
+            - generic [ref=e333]:
+              - generic [ref=e334]:
+                - generic [ref=e335]: 🏗️
+                - heading "System Design Case Studies" [level=2] [ref=e336]
+                - generic [ref=e337]: "23"
+              - generic [ref=e338]:
+                - 'button "Design: URL Shortener (TinyURL) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e339] [cursor=pointer]':
+                  - paragraph [ref=e340]: "Design: URL Shortener (TinyURL)"
+                  - generic [ref=e341]: System Design Cases
+                  - generic [ref=e342]:
+                    - generic [ref=e343]: 22 questions
+                    - generic [ref=e344]: 10 sessions
+                  - generic [ref=e345]:
+                    - generic "Learning Plan" [ref=e346]: 📋
+                    - generic "Quick Summary" [ref=e347]: 📄
+                    - generic "Quiz Bank" [ref=e348]: 🧠
+                    - generic "Skill Levels" [ref=e349]: 🪜
+                    - generic "Resources" [ref=e350]: 🔍
+                - 'button "Design: Chat System (WhatsApp/Slack) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e351] [cursor=pointer]':
+                  - paragraph [ref=e352]: "Design: Chat System (WhatsApp/Slack)"
+                  - generic [ref=e353]: System Design Cases
+                  - generic [ref=e354]:
+                    - generic [ref=e355]: 22 questions
+                    - generic [ref=e356]: 10 sessions
+                  - generic [ref=e357]:
+                    - generic "Learning Plan" [ref=e358]: 📋
+                    - generic "Quick Summary" [ref=e359]: 📄
+                    - generic "Quiz Bank" [ref=e360]: 🧠
+                    - generic "Skill Levels" [ref=e361]: 🪜
+                    - generic "Resources" [ref=e362]: 🔍
+                - 'button "Design: News Feed (Facebook/Twitter) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e363] [cursor=pointer]':
+                  - paragraph [ref=e364]: "Design: News Feed (Facebook/Twitter)"
+                  - generic [ref=e365]: System Design Cases
+                  - generic [ref=e366]:
+                    - generic [ref=e367]: 22 questions
+                    - generic [ref=e368]: 10 sessions
+                  - generic [ref=e369]:
+                    - generic "Learning Plan" [ref=e370]: 📋
+                    - generic "Quick Summary" [ref=e371]: 📄
+                    - generic "Quiz Bank" [ref=e372]: 🧠
+                    - generic "Skill Levels" [ref=e373]: 🪜
+                    - generic "Resources" [ref=e374]: 🔍
+                - 'button "Design: Rate Limiter System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e375] [cursor=pointer]':
+                  - paragraph [ref=e376]: "Design: Rate Limiter"
+                  - generic [ref=e377]: System Design Cases
+                  - generic [ref=e378]:
+                    - generic [ref=e379]: 22 questions
+                    - generic [ref=e380]: 10 sessions
+                  - generic [ref=e381]:
+                    - generic "Learning Plan" [ref=e382]: 📋
+                    - generic "Quick Summary" [ref=e383]: 📄
+                    - generic "Quiz Bank" [ref=e384]: 🧠
+                    - generic "Skill Levels" [ref=e385]: 🪜
+                    - generic "Resources" [ref=e386]: 🔍
+                - 'button "Design: Web Crawler System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e387] [cursor=pointer]':
+                  - paragraph [ref=e388]: "Design: Web Crawler"
+                  - generic [ref=e389]: System Design Cases
+                  - generic [ref=e390]:
+                    - generic [ref=e391]: 22 questions
+                    - generic [ref=e392]: 10 sessions
+                  - generic [ref=e393]:
+                    - generic "Learning Plan" [ref=e394]: 📋
+                    - generic "Quick Summary" [ref=e395]: 📄
+                    - generic "Quiz Bank" [ref=e396]: 🧠
+                    - generic "Skill Levels" [ref=e397]: 🪜
+                    - generic "Resources" [ref=e398]: 🔍
+                - 'button "Design: Notification System System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e399] [cursor=pointer]':
+                  - paragraph [ref=e400]: "Design: Notification System"
+                  - generic [ref=e401]: System Design Cases
+                  - generic [ref=e402]:
+                    - generic [ref=e403]: 22 questions
+                    - generic [ref=e404]: 10 sessions
+                  - generic [ref=e405]:
+                    - generic "Learning Plan" [ref=e406]: 📋
+                    - generic "Quick Summary" [ref=e407]: 📄
+                    - generic "Quiz Bank" [ref=e408]: 🧠
+                    - generic "Skill Levels" [ref=e409]: 🪜
+                    - generic "Resources" [ref=e410]: 🔍
+                - 'button "Design: E-Commerce System (Amazon) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e411] [cursor=pointer]':
+                  - paragraph [ref=e412]: "Design: E-Commerce System (Amazon)"
+                  - generic [ref=e413]: System Design Cases
+                  - generic [ref=e414]:
+                    - generic [ref=e415]: 22 questions
+                    - generic [ref=e416]: 10 sessions
+                  - generic [ref=e417]:
+                    - generic "Learning Plan" [ref=e418]: 📋
+                    - generic "Quick Summary" [ref=e419]: 📄
+                    - generic "Quiz Bank" [ref=e420]: 🧠
+                    - generic "Skill Levels" [ref=e421]: 🪜
+                    - generic "Resources" [ref=e422]: 🔍
+                - 'button "Design: Video Streaming Platform (YouTube/Netflix) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e423] [cursor=pointer]':
+                  - paragraph [ref=e424]: "Design: Video Streaming Platform (YouTube/Netflix)"
+                  - generic [ref=e425]: System Design Cases
+                  - generic [ref=e426]:
+                    - generic [ref=e427]: 22 questions
+                    - generic [ref=e428]: 10 sessions
+                  - generic [ref=e429]:
+                    - generic "Learning Plan" [ref=e430]: 📋
+                    - generic "Quick Summary" [ref=e431]: 📄
+                    - generic "Quiz Bank" [ref=e432]: 🧠
+                    - generic "Skill Levels" [ref=e433]: 🪜
+                    - generic "Resources" [ref=e434]: 🔍
+                - 'button "Design: Search Autocomplete (Google) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e435] [cursor=pointer]':
+                  - paragraph [ref=e436]: "Design: Search Autocomplete (Google)"
+                  - generic [ref=e437]: System Design Cases
+                  - generic [ref=e438]:
+                    - generic [ref=e439]: 22 questions
+                    - generic [ref=e440]: 10 sessions
+                  - generic [ref=e441]:
+                    - generic "Learning Plan" [ref=e442]: 📋
+                    - generic "Quick Summary" [ref=e443]: 📄
+                    - generic "Quiz Bank" [ref=e444]: 🧠
+                    - generic "Skill Levels" [ref=e445]: 🪜
+                    - generic "Resources" [ref=e446]: 🔍
+                - 'button "Design: Distributed Key-Value Store (Redis/DynamoDB) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e447] [cursor=pointer]':
+                  - paragraph [ref=e448]: "Design: Distributed Key-Value Store (Redis/DynamoDB)"
+                  - generic [ref=e449]: System Design Cases
+                  - generic [ref=e450]:
+                    - generic [ref=e451]: 22 questions
+                    - generic [ref=e452]: 10 sessions
+                  - generic [ref=e453]:
+                    - generic "Learning Plan" [ref=e454]: 📋
+                    - generic "Quick Summary" [ref=e455]: 📄
+                    - generic "Quiz Bank" [ref=e456]: 🧠
+                    - generic "Skill Levels" [ref=e457]: 🪜
+                    - generic "Resources" [ref=e458]: 🔍
+                - 'button "Design: Ride-Sharing Service (Uber/Lyft) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e459] [cursor=pointer]':
+                  - paragraph [ref=e460]: "Design: Ride-Sharing Service (Uber/Lyft)"
+                  - generic [ref=e461]: System Design Cases
+                  - generic [ref=e462]:
+                    - generic [ref=e463]: 22 questions
+                    - generic [ref=e464]: 10 sessions
+                  - generic [ref=e465]:
+                    - generic "Learning Plan" [ref=e466]: 📋
+                    - generic "Quick Summary" [ref=e467]: 📄
+                    - generic "Quiz Bank" [ref=e468]: 🧠
+                    - generic "Skill Levels" [ref=e469]: 🪜
+                    - generic "Resources" [ref=e470]: 🔍
+                - 'button "Design: Social Media Platform (Instagram) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e471] [cursor=pointer]':
+                  - paragraph [ref=e472]: "Design: Social Media Platform (Instagram)"
+                  - generic [ref=e473]: System Design Cases
+                  - generic [ref=e474]:
+                    - generic [ref=e475]: 22 questions
+                    - generic [ref=e476]: 10 sessions
+                  - generic [ref=e477]:
+                    - generic "Learning Plan" [ref=e478]: 📋
+                    - generic "Quick Summary" [ref=e479]: 📄
+                    - generic "Quiz Bank" [ref=e480]: 🧠
+                    - generic "Skill Levels" [ref=e481]: 🪜
+                    - generic "Resources" [ref=e482]: 🔍
+                - 'button "Design: Payment System (Stripe/PayPal) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e483] [cursor=pointer]':
+                  - paragraph [ref=e484]: "Design: Payment System (Stripe/PayPal)"
+                  - generic [ref=e485]: System Design Cases
+                  - generic [ref=e486]:
+                    - generic [ref=e487]: 22 questions
+                    - generic [ref=e488]: 10 sessions
+                  - generic [ref=e489]:
+                    - generic "Learning Plan" [ref=e490]: 📋
+                    - generic "Quick Summary" [ref=e491]: 📄
+                    - generic "Quiz Bank" [ref=e492]: 🧠
+                    - generic "Skill Levels" [ref=e493]: 🪜
+                    - generic "Resources" [ref=e494]: 🔍
+                - 'button "Design: File Storage System (Google Drive/Dropbox) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e495] [cursor=pointer]':
+                  - paragraph [ref=e496]: "Design: File Storage System (Google Drive/Dropbox)"
+                  - generic [ref=e497]: System Design Cases
+                  - generic [ref=e498]:
+                    - generic [ref=e499]: 22 questions
+                    - generic [ref=e500]: 10 sessions
+                  - generic [ref=e501]:
+                    - generic "Learning Plan" [ref=e502]: 📋
+                    - generic "Quick Summary" [ref=e503]: 📄
+                    - generic "Quiz Bank" [ref=e504]: 🧠
+                    - generic "Skill Levels" [ref=e505]: 🪜
+                    - generic "Resources" [ref=e506]: 🔍
+                - 'button "Design: Distributed Task Scheduler (Cron at Scale) System Design Cases 22 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e507] [cursor=pointer]':
+                  - paragraph [ref=e508]: "Design: Distributed Task Scheduler (Cron at Scale)"
+                  - generic [ref=e509]: System Design Cases
+                  - generic [ref=e510]:
+                    - generic [ref=e511]: 22 questions
+                    - generic [ref=e512]: 10 sessions
+                  - generic [ref=e513]:
+                    - generic "Learning Plan" [ref=e514]: 📋
+                    - generic "Quick Summary" [ref=e515]: 📄
+                    - generic "Quiz Bank" [ref=e516]: 🧠
+                    - generic "Skill Levels" [ref=e517]: 🪜
+                    - generic "Resources" [ref=e518]: 🔍
+                - 'button "Design: YouTube (Detailed) System Design Cases 15 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e519] [cursor=pointer]':
+                  - paragraph [ref=e520]: "Design: YouTube (Detailed)"
+                  - generic [ref=e521]: System Design Cases
+                  - generic [ref=e522]:
+                    - generic [ref=e523]: 15 questions
+                    - generic [ref=e524]: 8 sessions
+                  - generic [ref=e525]:
+                    - generic "Learning Plan" [ref=e526]: 📋
+                    - generic "Quick Summary" [ref=e527]: 📄
+                    - generic "Quiz Bank" [ref=e528]: 🧠
+                    - generic "Skill Levels" [ref=e529]: 🪜
+                    - generic "Resources" [ref=e530]: 🔍
+                - 'button "Design: Instagram (Detailed) System Design Cases 12 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e531] [cursor=pointer]':
+                  - paragraph [ref=e532]: "Design: Instagram (Detailed)"
+                  - generic [ref=e533]: System Design Cases
+                  - generic [ref=e534]:
+                    - generic [ref=e535]: 12 questions
+                    - generic [ref=e536]: 8 sessions
+                  - generic [ref=e537]:
+                    - generic "Learning Plan" [ref=e538]: 📋
+                    - generic "Quick Summary" [ref=e539]: 📄
+                    - generic "Quiz Bank" [ref=e540]: 🧠
+                    - generic "Skill Levels" [ref=e541]: 🪜
+                    - generic "Resources" [ref=e542]: 🔍
+                - 'button "Design: Uber (Detailed) System Design Cases 10 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e543] [cursor=pointer]':
+                  - paragraph [ref=e544]: "Design: Uber (Detailed)"
+                  - generic [ref=e545]: System Design Cases
+                  - generic [ref=e546]:
+                    - generic [ref=e547]: 10 questions
+                    - generic [ref=e548]: 8 sessions
+                  - generic [ref=e549]:
+                    - generic "Learning Plan" [ref=e550]: 📋
+                    - generic "Quick Summary" [ref=e551]: 📄
+                    - generic "Quiz Bank" [ref=e552]: 🧠
+                    - generic "Skill Levels" [ref=e553]: 🪜
+                    - generic "Resources" [ref=e554]: 🔍
+                - 'button "Design: Airbnb (Detailed) System Design Cases 10 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e555] [cursor=pointer]':
+                  - paragraph [ref=e556]: "Design: Airbnb (Detailed)"
+                  - generic [ref=e557]: System Design Cases
+                  - generic [ref=e558]:
+                    - generic [ref=e559]: 10 questions
+                    - generic [ref=e560]: 8 sessions
+                  - generic [ref=e561]:
+                    - generic "Learning Plan" [ref=e562]: 📋
+                    - generic "Quick Summary" [ref=e563]: 📄
+                    - generic "Quiz Bank" [ref=e564]: 🧠
+                    - generic "Skill Levels" [ref=e565]: 🪜
+                    - generic "Resources" [ref=e566]: 🔍
+                - 'button "Design: WhatsApp (Detailed) System Design Cases 10 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e567] [cursor=pointer]':
+                  - paragraph [ref=e568]: "Design: WhatsApp (Detailed)"
+                  - generic [ref=e569]: System Design Cases
+                  - generic [ref=e570]:
+                    - generic [ref=e571]: 10 questions
+                    - generic [ref=e572]: 8 sessions
+                  - generic [ref=e573]:
+                    - generic "Learning Plan" [ref=e574]: 📋
+                    - generic "Quick Summary" [ref=e575]: 📄
+                    - generic "Quiz Bank" [ref=e576]: 🧠
+                    - generic "Skill Levels" [ref=e577]: 🪜
+                    - generic "Resources" [ref=e578]: 🔍
+                - 'button "Design: Twitter/X (Detailed) System Design Cases 10 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e579] [cursor=pointer]':
+                  - paragraph [ref=e580]: "Design: Twitter/X (Detailed)"
+                  - generic [ref=e581]: System Design Cases
+                  - generic [ref=e582]:
+                    - generic [ref=e583]: 10 questions
+                    - generic [ref=e584]: 8 sessions
+                  - generic [ref=e585]:
+                    - generic "Learning Plan" [ref=e586]: 📋
+                    - generic "Quick Summary" [ref=e587]: 📄
+                    - generic "Quiz Bank" [ref=e588]: 🧠
+                    - generic "Skill Levels" [ref=e589]: 🪜
+                    - generic "Resources" [ref=e590]: 🔍
+                - 'button "Design: Spotify (Detailed) System Design Cases 10 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e591] [cursor=pointer]':
+                  - paragraph [ref=e592]: "Design: Spotify (Detailed)"
+                  - generic [ref=e593]: System Design Cases
+                  - generic [ref=e594]:
+                    - generic [ref=e595]: 10 questions
+                    - generic [ref=e596]: 8 sessions
+                  - generic [ref=e597]:
+                    - generic "Learning Plan" [ref=e598]: 📋
+                    - generic "Quick Summary" [ref=e599]: 📄
+                    - generic "Quiz Bank" [ref=e600]: 🧠
+                    - generic "Skill Levels" [ref=e601]: 🪜
+                    - generic "Resources" [ref=e602]: 🔍
+                - 'button "Design: Stripe (Detailed) System Design Cases 10 questions 8 sessions 📋 📄 🧠 🪜 🔍" [ref=e603] [cursor=pointer]':
+                  - paragraph [ref=e604]: "Design: Stripe (Detailed)"
+                  - generic [ref=e605]: System Design Cases
+                  - generic [ref=e606]:
+                    - generic [ref=e607]: 10 questions
+                    - generic [ref=e608]: 8 sessions
+                  - generic [ref=e609]:
+                    - generic "Learning Plan" [ref=e610]: 📋
+                    - generic "Quick Summary" [ref=e611]: 📄
+                    - generic "Quiz Bank" [ref=e612]: 🧠
+                    - generic "Skill Levels" [ref=e613]: 🪜
+                    - generic "Resources" [ref=e614]: 🔍
+            - generic [ref=e615]:
+              - generic [ref=e616]:
+                - generic [ref=e617]: 🧮
+                - heading "Data Structures & Algorithms" [level=2] [ref=e618]
+                - generic [ref=e619]: "16"
+              - generic [ref=e620]:
+                - button "Arrays & Strings Data Structures 34 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e621] [cursor=pointer]:
+                  - paragraph [ref=e622]: Arrays & Strings
+                  - generic [ref=e623]: Data Structures
+                  - generic [ref=e624]:
+                    - generic [ref=e625]: 34 questions
+                    - generic [ref=e626]: 10 sessions
+                  - generic [ref=e627]:
+                    - generic "Learning Plan" [ref=e628]: 📋
+                    - generic "Quick Summary" [ref=e629]: 📄
+                    - generic "Quiz Bank" [ref=e630]: 🧠
+                    - generic "Skill Levels" [ref=e631]: 🪜
+                    - generic "Resources" [ref=e632]: 🔍
+                - button "Linked Lists Data Structures 33 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e633] [cursor=pointer]:
+                  - paragraph [ref=e634]: Linked Lists
+                  - generic [ref=e635]: Data Structures
+                  - generic [ref=e636]:
+                    - generic [ref=e637]: 33 questions
+                    - generic [ref=e638]: 10 sessions
+                  - generic [ref=e639]:
+                    - generic "Learning Plan" [ref=e640]: 📋
+                    - generic "Quick Summary" [ref=e641]: 📄
+                    - generic "Quiz Bank" [ref=e642]: 🧠
+                    - generic "Skill Levels" [ref=e643]: 🪜
+                    - generic "Resources" [ref=e644]: 🔍
+                - button "Stacks & Queues Data Structures 34 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e645] [cursor=pointer]:
+                  - paragraph [ref=e646]: Stacks & Queues
+                  - generic [ref=e647]: Data Structures
+                  - generic [ref=e648]:
+                    - generic [ref=e649]: 34 questions
+                    - generic [ref=e650]: 10 sessions
+                  - generic [ref=e651]:
+                    - generic "Learning Plan" [ref=e652]: 📋
+                    - generic "Quick Summary" [ref=e653]: 📄
+                    - generic "Quiz Bank" [ref=e654]: 🧠
+                    - generic "Skill Levels" [ref=e655]: 🪜
+                    - generic "Resources" [ref=e656]: 🔍
+                - button "Trees & BST Data Structures 33 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e657] [cursor=pointer]:
+                  - paragraph [ref=e658]: Trees & BST
+                  - generic [ref=e659]: Data Structures
+                  - generic [ref=e660]:
+                    - generic [ref=e661]: 33 questions
+                    - generic [ref=e662]: 10 sessions
+                  - generic [ref=e663]:
+                    - generic "Learning Plan" [ref=e664]: 📋
+                    - generic "Quick Summary" [ref=e665]: 📄
+                    - generic "Quiz Bank" [ref=e666]: 🧠
+                    - generic "Skill Levels" [ref=e667]: 🪜
+                    - generic "Resources" [ref=e668]: 🔍
+                - button "Graphs Algorithms 33 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e669] [cursor=pointer]:
+                  - paragraph [ref=e670]: Graphs
+                  - generic [ref=e671]: Algorithms
+                  - generic [ref=e672]:
+                    - generic [ref=e673]: 33 questions
+                    - generic [ref=e674]: 10 sessions
+                  - generic [ref=e675]:
+                    - generic "Learning Plan" [ref=e676]: 📋
+                    - generic "Quick Summary" [ref=e677]: 📄
+                    - generic "Quiz Bank" [ref=e678]: 🧠
+                    - generic "Skill Levels" [ref=e679]: 🪜
+                    - generic "Resources" [ref=e680]: 🔍
+                - button "Hash Tables Data Structures 32 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e681] [cursor=pointer]:
+                  - paragraph [ref=e682]: Hash Tables
+                  - generic [ref=e683]: Data Structures
+                  - generic [ref=e684]:
+                    - generic [ref=e685]: 32 questions
+                    - generic [ref=e686]: 10 sessions
+                  - generic [ref=e687]:
+                    - generic "Learning Plan" [ref=e688]: 📋
+                    - generic "Quick Summary" [ref=e689]: 📄
+                    - generic "Quiz Bank" [ref=e690]: 🧠
+                    - generic "Skill Levels" [ref=e691]: 🪜
+                    - generic "Resources" [ref=e692]: 🔍
+                - button "Heaps & Priority Queues Data Structures 31 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e693] [cursor=pointer]:
+                  - paragraph [ref=e694]: Heaps & Priority Queues
+                  - generic [ref=e695]: Data Structures
+                  - generic [ref=e696]:
+                    - generic [ref=e697]: 31 questions
+                    - generic [ref=e698]: 10 sessions
+                  - generic [ref=e699]:
+                    - generic "Learning Plan" [ref=e700]: 📋
+                    - generic "Quick Summary" [ref=e701]: 📄
+                    - generic "Quiz Bank" [ref=e702]: 🧠
+                    - generic "Skill Levels" [ref=e703]: 🪜
+                    - generic "Resources" [ref=e704]: 🔍
+                - button "Sorting & Searching Algorithms 31 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e705] [cursor=pointer]:
+                  - paragraph [ref=e706]: Sorting & Searching
+                  - generic [ref=e707]: Algorithms
+                  - generic [ref=e708]:
+                    - generic [ref=e709]: 31 questions
+                    - generic [ref=e710]: 10 sessions
+                  - generic [ref=e711]:
+                    - generic "Learning Plan" [ref=e712]: 📋
+                    - generic "Quick Summary" [ref=e713]: 📄
+                    - generic "Quiz Bank" [ref=e714]: 🧠
+                    - generic "Skill Levels" [ref=e715]: 🪜
+                    - generic "Resources" [ref=e716]: 🔍
+                - button "Dynamic Programming Algorithms 32 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e717] [cursor=pointer]:
+                  - paragraph [ref=e718]: Dynamic Programming
+                  - generic [ref=e719]: Algorithms
+                  - generic [ref=e720]:
+                    - generic [ref=e721]: 32 questions
+                    - generic [ref=e722]: 10 sessions
+                  - generic [ref=e723]:
+                    - generic "Learning Plan" [ref=e724]: 📋
+                    - generic "Quick Summary" [ref=e725]: 📄
+                    - generic "Quiz Bank" [ref=e726]: 🧠
+                    - generic "Skill Levels" [ref=e727]: 🪜
+                    - generic "Resources" [ref=e728]: 🔍
+                - button "Recursion & Backtracking Algorithms 32 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e729] [cursor=pointer]:
+                  - paragraph [ref=e730]: Recursion & Backtracking
+                  - generic [ref=e731]: Algorithms
+                  - generic [ref=e732]:
+                    - generic [ref=e733]: 32 questions
+                    - generic [ref=e734]: 10 sessions
+                  - generic [ref=e735]:
+                    - generic "Learning Plan" [ref=e736]: 📋
+                    - generic "Quick Summary" [ref=e737]: 📄
+                    - generic "Quiz Bank" [ref=e738]: 🧠
+                    - generic "Skill Levels" [ref=e739]: 🪜
+                    - generic "Resources" [ref=e740]: 🔍
+                - button "DSA Coding Patterns Algorithms 13 questions 20 sessions 📋 📄 🧠 🪜 🔍" [ref=e741] [cursor=pointer]:
+                  - paragraph [ref=e742]: DSA Coding Patterns
+                  - generic [ref=e743]: Algorithms
+                  - generic [ref=e744]:
+                    - generic [ref=e745]: 13 questions
+                    - generic [ref=e746]: 20 sessions
+                  - generic [ref=e747]:
+                    - generic "Learning Plan" [ref=e748]: 📋
+                    - generic "Quick Summary" [ref=e749]: 📄
+                    - generic "Quiz Bank" [ref=e750]: 🧠
+                    - generic "Skill Levels" [ref=e751]: 🪜
+                    - generic "Resources" [ref=e752]: 🔍
+                - button "Segment Trees Data Structures 15 questions 6 sessions 📋 📄 🧠 🪜 🔍" [ref=e753] [cursor=pointer]:
+                  - paragraph [ref=e754]: Segment Trees
+                  - generic [ref=e755]: Data Structures
+                  - generic [ref=e756]:
+                    - generic [ref=e757]: 15 questions
+                    - generic [ref=e758]: 6 sessions
+                  - generic [ref=e759]:
+                    - generic "Learning Plan" [ref=e760]: 📋
+                    - generic "Quick Summary" [ref=e761]: 📄
+                    - generic "Quiz Bank" [ref=e762]: 🧠
+                    - generic "Skill Levels" [ref=e763]: 🪜
+                    - generic "Resources" [ref=e764]: 🔍
+                - button "String Algorithms Algorithms 15 questions 6 sessions 📋 📄 🧠 🪜 🔍" [ref=e765] [cursor=pointer]:
+                  - paragraph [ref=e766]: String Algorithms
+                  - generic [ref=e767]: Algorithms
+                  - generic [ref=e768]:
+                    - generic [ref=e769]: 15 questions
+                    - generic [ref=e770]: 6 sessions
+                  - generic [ref=e771]:
+                    - generic "Learning Plan" [ref=e772]: 📋
+                    - generic "Quick Summary" [ref=e773]: 📄
+                    - generic "Quiz Bank" [ref=e774]: 🧠
+                    - generic "Skill Levels" [ref=e775]: 🪜
+                    - generic "Resources" [ref=e776]: 🔍
+                - button "Advanced Graph Algorithms Algorithms 15 questions 6 sessions 📋 📄 🧠 🪜 🔍" [ref=e777] [cursor=pointer]:
+                  - paragraph [ref=e778]: Advanced Graph Algorithms
+                  - generic [ref=e779]: Algorithms
+                  - generic [ref=e780]:
+                    - generic [ref=e781]: 15 questions
+                    - generic [ref=e782]: 6 sessions
+                  - generic [ref=e783]:
+                    - generic "Learning Plan" [ref=e784]: 📋
+                    - generic "Quick Summary" [ref=e785]: 📄
+                    - generic "Quiz Bank" [ref=e786]: 🧠
+                    - generic "Skill Levels" [ref=e787]: 🪜
+                    - generic "Resources" [ref=e788]: 🔍
+                - button "Greedy Algorithms Algorithms 15 questions 6 sessions 📋 📄 🧠 🪜 🔍" [ref=e789] [cursor=pointer]:
+                  - paragraph [ref=e790]: Greedy Algorithms
+                  - generic [ref=e791]: Algorithms
+                  - generic [ref=e792]:
+                    - generic [ref=e793]: 15 questions
+                    - generic [ref=e794]: 6 sessions
+                  - generic [ref=e795]:
+                    - generic "Learning Plan" [ref=e796]: 📋
+                    - generic "Quick Summary" [ref=e797]: 📄
+                    - generic "Quiz Bank" [ref=e798]: 🧠
+                    - generic "Skill Levels" [ref=e799]: 🪜
+                    - generic "Resources" [ref=e800]: 🔍
+                - button "Fenwick Tree (Binary Indexed Tree) Data Structures 10 questions 4 sessions 📋 📄 🧠 🪜 🔍" [ref=e801] [cursor=pointer]:
+                  - paragraph [ref=e802]: Fenwick Tree (Binary Indexed Tree)
+                  - generic [ref=e803]: Data Structures
+                  - generic [ref=e804]:
+                    - generic [ref=e805]: 10 questions
+                    - generic [ref=e806]: 4 sessions
+                  - generic [ref=e807]:
+                    - generic "Learning Plan" [ref=e808]: 📋
+                    - generic "Quick Summary" [ref=e809]: 📄
+                    - generic "Quiz Bank" [ref=e810]: 🧠
+                    - generic "Skill Levels" [ref=e811]: 🪜
+                    - generic "Resources" [ref=e812]: 🔍
+            - generic [ref=e813]:
+              - generic [ref=e814]:
+                - generic [ref=e815]: 💻
+                - heading "Core CS & Languages" [level=2] [ref=e816]
+                - generic [ref=e817]: "18"
+              - generic [ref=e818]:
+                - button "JavaScript Fundamentals Programming Languages 34 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e819] [cursor=pointer]:
+                  - paragraph [ref=e820]: JavaScript Fundamentals
+                  - generic [ref=e821]: Programming Languages
+                  - generic [ref=e822]:
+                    - generic [ref=e823]: 34 questions
+                    - generic [ref=e824]: 10 sessions
+                  - generic [ref=e825]:
+                    - generic "Learning Plan" [ref=e826]: 📋
+                    - generic "Quick Summary" [ref=e827]: 📄
+                    - generic "Quiz Bank" [ref=e828]: 🧠
+                    - generic "Skill Levels" [ref=e829]: 🪜
+                    - generic "Resources" [ref=e830]: 🔍
+                - button "TypeScript Programming Languages 32 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e831] [cursor=pointer]:
+                  - paragraph [ref=e832]: TypeScript
+                  - generic [ref=e833]: Programming Languages
+                  - generic [ref=e834]:
+                    - generic [ref=e835]: 32 questions
+                    - generic [ref=e836]: 10 sessions
+                  - generic [ref=e837]:
+                    - generic "Learning Plan" [ref=e838]: 📋
+                    - generic "Quick Summary" [ref=e839]: 📄
+                    - generic "Quiz Bank" [ref=e840]: 🧠
+                    - generic "Skill Levels" [ref=e841]: 🪜
+                    - generic "Resources" [ref=e842]: 🔍
+                - button "React Frontend 32 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e843] [cursor=pointer]:
+                  - paragraph [ref=e844]: React
+                  - generic [ref=e845]: Frontend
+                  - generic [ref=e846]:
+                    - generic [ref=e847]: 32 questions
+                    - generic [ref=e848]: 10 sessions
+                  - generic [ref=e849]:
+                    - generic "Learning Plan" [ref=e850]: 📋
+                    - generic "Quick Summary" [ref=e851]: 📄
+                    - generic "Quiz Bank" [ref=e852]: 🧠
+                    - generic "Skill Levels" [ref=e853]: 🪜
+                    - generic "Resources" [ref=e854]: 🔍
+                - button "Node.js Backend 31 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e855] [cursor=pointer]:
+                  - paragraph [ref=e856]: Node.js
+                  - generic [ref=e857]: Backend
+                  - generic [ref=e858]:
+                    - generic [ref=e859]: 31 questions
+                    - generic [ref=e860]: 10 sessions
+                  - generic [ref=e861]:
+                    - generic "Learning Plan" [ref=e862]: 📋
+                    - generic "Quick Summary" [ref=e863]: 📄
+                    - generic "Quiz Bank" [ref=e864]: 🧠
+                    - generic "Skill Levels" [ref=e865]: 🪜
+                    - generic "Resources" [ref=e866]: 🔍
+                - button "Python Programming Languages 32 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e867] [cursor=pointer]:
+                  - paragraph [ref=e868]: Python
+                  - generic [ref=e869]: Programming Languages
+                  - generic [ref=e870]:
+                    - generic [ref=e871]: 32 questions
+                    - generic [ref=e872]: 10 sessions
+                  - generic [ref=e873]:
+                    - generic "Learning Plan" [ref=e874]: 📋
+                    - generic "Quick Summary" [ref=e875]: 📄
+                    - generic "Quiz Bank" [ref=e876]: 🧠
+                    - generic "Skill Levels" [ref=e877]: 🪜
+                    - generic "Resources" [ref=e878]: 🔍
+                - button "SQL Databases 31 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e879] [cursor=pointer]:
+                  - paragraph [ref=e880]: SQL
+                  - generic [ref=e881]: Databases
+                  - generic [ref=e882]:
+                    - generic [ref=e883]: 31 questions
+                    - generic [ref=e884]: 10 sessions
+                  - generic [ref=e885]:
+                    - generic "Learning Plan" [ref=e886]: 📋
+                    - generic "Quick Summary" [ref=e887]: 📄
+                    - generic "Quiz Bank" [ref=e888]: 🧠
+                    - generic "Skill Levels" [ref=e889]: 🪜
+                    - generic "Resources" [ref=e890]: 🔍
+                - button "OOP & Design Patterns Software Engineering 30 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e891] [cursor=pointer]:
+                  - paragraph [ref=e892]: OOP & Design Patterns
+                  - generic [ref=e893]: Software Engineering
+                  - generic [ref=e894]:
+                    - generic [ref=e895]: 30 questions
+                    - generic [ref=e896]: 10 sessions
+                  - generic [ref=e897]:
+                    - generic "Learning Plan" [ref=e898]: 📋
+                    - generic "Quick Summary" [ref=e899]: 📄
+                    - generic "Quiz Bank" [ref=e900]: 🧠
+                    - generic "Skill Levels" [ref=e901]: 🪜
+                    - generic "Resources" [ref=e902]: 🔍
+                - button "Operating Systems Computer Science Fundamentals 30 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e903] [cursor=pointer]:
+                  - paragraph [ref=e904]: Operating Systems
+                  - generic [ref=e905]: Computer Science Fundamentals
+                  - generic [ref=e906]:
+                    - generic [ref=e907]: 30 questions
+                    - generic [ref=e908]: 10 sessions
+                  - generic [ref=e909]:
+                    - generic "Learning Plan" [ref=e910]: 📋
+                    - generic "Quick Summary" [ref=e911]: 📄
+                    - generic "Quiz Bank" [ref=e912]: 🧠
+                    - generic "Skill Levels" [ref=e913]: 🪜
+                    - generic "Resources" [ref=e914]: 🔍
+                - button "Networking Computer Science Fundamentals 30 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e915] [cursor=pointer]:
+                  - paragraph [ref=e916]: Networking
+                  - generic [ref=e917]: Computer Science Fundamentals
+                  - generic [ref=e918]:
+                    - generic [ref=e919]: 30 questions
+                    - generic [ref=e920]: 10 sessions
+                  - generic [ref=e921]:
+                    - generic "Learning Plan" [ref=e922]: 📋
+                    - generic "Quick Summary" [ref=e923]: 📄
+                    - generic "Quiz Bank" [ref=e924]: 🧠
+                    - generic "Skill Levels" [ref=e925]: 🪜
+                    - generic "Resources" [ref=e926]: 🔍
+                - button "Git & DevOps Software Engineering 29 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e927] [cursor=pointer]:
+                  - paragraph [ref=e928]: Git & DevOps
+                  - generic [ref=e929]: Software Engineering
+                  - generic [ref=e930]:
+                    - generic [ref=e931]: 29 questions
+                    - generic [ref=e932]: 10 sessions
+                  - generic [ref=e933]:
+                    - generic "Learning Plan" [ref=e934]: 📋
+                    - generic "Quick Summary" [ref=e935]: 📄
+                    - generic "Quiz Bank" [ref=e936]: 🧠
+                    - generic "Skill Levels" [ref=e937]: 🪜
+                    - generic "Resources" [ref=e938]: 🔍
+                - button "Software Design Patterns Software Engineering 15 questions 15 sessions 📋 📄 🧠 🪜 🔍" [ref=e939] [cursor=pointer]:
+                  - paragraph [ref=e940]: Software Design Patterns
+                  - generic [ref=e941]: Software Engineering
+                  - generic [ref=e942]:
+                    - generic [ref=e943]: 15 questions
+                    - generic [ref=e944]: 15 sessions
+                  - generic [ref=e945]:
+                    - generic "Learning Plan" [ref=e946]: 📋
+                    - generic "Quick Summary" [ref=e947]: 📄
+                    - generic "Quiz Bank" [ref=e948]: 🧠
+                    - generic "Skill Levels" [ref=e949]: 🪜
+                    - generic "Resources" [ref=e950]: 🔍
+                - button "JavaScript & TypeScript Programming Languages 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e951] [cursor=pointer]:
+                  - paragraph [ref=e952]: JavaScript & TypeScript
+                  - generic [ref=e953]: Programming Languages
+                  - generic [ref=e954]:
+                    - generic [ref=e955]: 20 questions
+                    - generic [ref=e956]: 10 sessions
+                  - generic [ref=e957]:
+                    - generic "Learning Plan" [ref=e958]: 📋
+                    - generic "Quick Summary" [ref=e959]: 📄
+                    - generic "Quiz Bank" [ref=e960]: 🧠
+                    - generic "Skill Levels" [ref=e961]: 🪜
+                    - generic "Resources" [ref=e962]: 🔍
+                - button "React & Next.js Frontend 15 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e963] [cursor=pointer]:
+                  - paragraph [ref=e964]: React & Next.js
+                  - generic [ref=e965]: Frontend
+                  - generic [ref=e966]:
+                    - generic [ref=e967]: 15 questions
+                    - generic [ref=e968]: 10 sessions
+                  - generic [ref=e969]:
+                    - generic "Learning Plan" [ref=e970]: 📋
+                    - generic "Quick Summary" [ref=e971]: 📄
+                    - generic "Quiz Bank" [ref=e972]: 🧠
+                    - generic "Skill Levels" [ref=e973]: 🪜
+                    - generic "Resources" [ref=e974]: 🔍
+                - button "HTML & CSS Frontend 15 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e975] [cursor=pointer]:
+                  - paragraph [ref=e976]: HTML & CSS
+                  - generic [ref=e977]: Frontend
+                  - generic [ref=e978]:
+                    - generic [ref=e979]: 15 questions
+                    - generic [ref=e980]: 10 sessions
+                  - generic [ref=e981]:
+                    - generic "Learning Plan" [ref=e982]: 📋
+                    - generic "Quick Summary" [ref=e983]: 📄
+                    - generic "Quiz Bank" [ref=e984]: 🧠
+                    - generic "Skill Levels" [ref=e985]: 🪜
+                    - generic "Resources" [ref=e986]: 🔍
+                - button "Java Core Programming Languages 20 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e987] [cursor=pointer]:
+                  - paragraph [ref=e988]: Java Core
+                  - generic [ref=e989]: Programming Languages
+                  - generic [ref=e990]:
+                    - generic [ref=e991]: 20 questions
+                    - generic [ref=e992]: 10 sessions
+                  - generic [ref=e993]:
+                    - generic "Learning Plan" [ref=e994]: 📋
+                    - generic "Quick Summary" [ref=e995]: 📄
+                    - generic "Quiz Bank" [ref=e996]: 🧠
+                    - generic "Skill Levels" [ref=e997]: 🪜
+                    - generic "Resources" [ref=e998]: 🔍
+                - button "Spring Boot Programming Languages 15 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e999] [cursor=pointer]:
+                  - paragraph [ref=e1000]: Spring Boot
+                  - generic [ref=e1001]: Programming Languages
+                  - generic [ref=e1002]:
+                    - generic [ref=e1003]: 15 questions
+                    - generic [ref=e1004]: 10 sessions
+                  - generic [ref=e1005]:
+                    - generic "Learning Plan" [ref=e1006]: 📋
+                    - generic "Quick Summary" [ref=e1007]: 📄
+                    - generic "Quiz Bank" [ref=e1008]: 🧠
+                    - generic "Skill Levels" [ref=e1009]: 🪜
+                    - generic "Resources" [ref=e1010]: 🔍
+                - button "NoSQL Databases Databases 15 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e1011] [cursor=pointer]:
+                  - paragraph [ref=e1012]: NoSQL Databases
+                  - generic [ref=e1013]: Databases
+                  - generic [ref=e1014]:
+                    - generic [ref=e1015]: 15 questions
+                    - generic [ref=e1016]: 10 sessions
+                  - generic [ref=e1017]:
+                    - generic "Learning Plan" [ref=e1018]: 📋
+                    - generic "Quick Summary" [ref=e1019]: 📄
+                    - generic "Quiz Bank" [ref=e1020]: 🧠
+                    - generic "Skill Levels" [ref=e1021]: 🪜
+                    - generic "Resources" [ref=e1022]: 🔍
+                - button "RDBMS & SQL Databases 15 questions 10 sessions 📋 📄 🧠 🪜 🔍" [ref=e1023] [cursor=pointer]:
+                  - paragraph [ref=e1024]: RDBMS & SQL
+                  - generic [ref=e1025]: Databases
+                  - generic [ref=e1026]:
+                    - generic [ref=e1027]: 15 questions
+                    - generic [ref=e1028]: 10 sessions
+                  - generic [ref=e1029]:
+                    - generic "Learning Plan" [ref=e1030]: 📋
+                    - generic "Quick Summary" [ref=e1031]: 📄
+                    - generic "Quiz Bank" [ref=e1032]: 🧠
+                    - generic "Skill Levels" [ref=e1033]: 🪜
+                    - generic "Resources" [ref=e1034]: 🔍
+            - generic [ref=e1035]:
+              - generic [ref=e1036]:
+                - generic [ref=e1037]: 🔧
+                - heading "DevOps & Infrastructure" [level=2] [ref=e1038]
+                - generic [ref=e1039]: "3"
+              - generic [ref=e1040]:
+                - button "Apache Kafka Distributed Systems 20 questions 12 sessions 📋 📄 🧠 🪜 🔍" [ref=e1041] [cursor=pointer]:
+                  - paragraph [ref=e1042]: Apache Kafka
+                  - generic [ref=e1043]: Distributed Systems
+                  - generic [ref=e1044]:
+                    - generic [ref=e1045]: 20 questions
+                    - generic [ref=e1046]: 12 sessions
+                  - generic [ref=e1047]:
+                    - generic "Learning Plan" [ref=e1048]: 📋
+                    - generic "Quick Summary" [ref=e1049]: 📄
+                    - generic "Quiz Bank" [ref=e1050]: 🧠
+                    - generic "Skill Levels" [ref=e1051]: 🪜
+                    - generic "Resources" [ref=e1052]: 🔍
+                - button "AWS Cloud Services Cloud Computing 15 questions 12 sessions 📋 📄 🧠 🪜 🔍" [ref=e1053] [cursor=pointer]:
+                  - paragraph [ref=e1054]: AWS Cloud Services
+                  - generic [ref=e1055]: Cloud Computing
+                  - generic [ref=e1056]:
+                    - generic [ref=e1057]: 15 questions
+                    - generic [ref=e1058]: 12 sessions
+                  - generic [ref=e1059]:
+                    - generic "Learning Plan" [ref=e1060]: 📋
+                    - generic "Quick Summary" [ref=e1061]: 📄
+                    - generic "Quiz Bank" [ref=e1062]: 🧠
+                    - generic "Skill Levels" [ref=e1063]: 🪜
+                    - generic "Resources" [ref=e1064]: 🔍
+                - button "Kubernetes & Docker DevOps & Containers 15 questions 12 sessions 📋 📄 🧠 🪜 🔍" [ref=e1065] [cursor=pointer]:
+                  - paragraph [ref=e1066]: Kubernetes & Docker
+                  - generic [ref=e1067]: DevOps & Containers
+                  - generic [ref=e1068]:
+                    - generic [ref=e1069]: 15 questions
+                    - generic [ref=e1070]: 12 sessions
+                  - generic [ref=e1071]:
+                    - generic "Learning Plan" [ref=e1072]: 📋
+                    - generic "Quick Summary" [ref=e1073]: 📄
+                    - generic "Quiz Bank" [ref=e1074]: 🧠
+                    - generic "Skill Levels" [ref=e1075]: 🪜
+                    - generic "Resources" [ref=e1076]: 🔍
+          - generic [ref=e1077]:
+            - heading "Have a custom topic?" [level=2] [ref=e1078]
+            - paragraph [ref=e1079]: Enter any topic to create a personalized learning hub with your AI provider.
+            - generic [ref=e1080]:
+              - generic [ref=e1081]:
+                - textbox "e.g., System Design, Guitar, Machine Learning..." [ref=e1082]
+                - button "Learn" [disabled]
+              - generic [ref=e1083]:
+                - paragraph [ref=e1084]: "Built-in topics (click to start):"
+                - generic [ref=e1085]:
+                  - button "Arrays & Strings" [ref=e1086]
+                  - button "Linked Lists" [ref=e1087]
+                  - button "Stacks & Queues" [ref=e1088]
+                  - button "Trees & BST" [ref=e1089]
+                  - button "Graphs" [ref=e1090]
+                  - button "Hash Tables" [ref=e1091]
+                  - button "Heaps & Priority Queues" [ref=e1092]
+                  - button "Sorting & Searching" [ref=e1093]
+                  - button "Dynamic Programming" [ref=e1094]
+                  - button "Recursion & Backtracking" [ref=e1095]
+                  - button "DSA Coding Patterns" [ref=e1096]
+                  - button "Load Balancing" [ref=e1097]
+                  - generic [ref=e1098]: +69 more
+  - button "Study Buddy — upgrade to Pro to unlock unlimited chat" [ref=e1099]:
+    - img [ref=e1100]
+    - img [ref=e1104]
+  - button "Send feedback" [ref=e1107]:
+    - img [ref=e1108]
+  - generic [ref=e1110]:
+    - generic [ref=e1111]:
+      - img [ref=e1112]
+      - generic [ref=e1114]: Unlock all features with Pro
+      - generic [ref=e1115]: — starting at just Rs.149/mo
+    - generic [ref=e1116]:
+      - link "Upgrade" [ref=e1117] [cursor=pointer]:
+        - /url: /app/pricing
+      - button [ref=e1118]:
+        - img [ref=e1119]
+  - region "Notifications alt+T"
+  - alert [ref=e1122]

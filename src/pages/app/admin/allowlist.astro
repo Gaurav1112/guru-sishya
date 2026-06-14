@@ -6,5 +6,5 @@ const userId = Astro.locals.auth?.()?.userId;
 if (!userId) return Astro.redirect("/login");
 ---
 <App title="Admin: Allowlist — Guru Sishya">
-  <AllowlistPage client:only="react" userId={userId} />
+  <AllowlistPage client:only="react" />
 </App>

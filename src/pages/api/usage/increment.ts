@@ -15,7 +15,7 @@ import { verifyPremium } from "@/lib/premium/verify";
 // Graceful degradation: if Supabase is not configured, returns success so the
 // client-side tracking remains the only source of truth.
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   // ── Rate limit ───────────────────────────────────────────────────────────
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const rl = await rateLimit(`usage-inc:${ip}`, 30, 60_000); // 30/min
@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // ── Auth ─────────────────────────────────────────────────────────────────
-  const session = await auth();
+  const session = await auth(locals);
   const email = session?.user?.email?.trim().toLowerCase();
   if (!email) {
     // Not authenticated — silently succeed (client-side is the gate)
