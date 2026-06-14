@@ -50,6 +50,7 @@ const primaryNavItems = [
 ];
 
 const moreNavItems = [
+  { href: "/app/codex", label: "Interview Codex", icon: "📋" },
   { href: "/app/playground", label: "Playground", icon: "⚡" },
   { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/app/notes", label: "My Notes", icon: "📓" },

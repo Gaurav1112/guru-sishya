@@ -23,6 +23,7 @@ const navItems = [
   { href: "/app/questions", label: "Questions", icon: "📝" },
   { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
   { href: "/app/review", label: "Review", icon: "🔁" },
+  { href: "/app/codex", label: "Interview Codex", icon: "📋" },
   { href: "/app/playground", label: "Playground", icon: "⚡" },
   { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/app/notes", label: "My Notes", icon: "📓" },

@@ -1,5 +1,8 @@
 ---
 import Base from "./Base.astro";
+import { Topbar } from "@/components/layout/topbar";
+import { Sidebar } from "@/components/layout/sidebar";
+import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 
 interface Props {
   title?: string;
@@ -15,5 +18,16 @@ const userId = Astro.locals.auth?.()?.userId;
 if (!userId) return Astro.redirect("/login");
 ---
 <Base title={title} description={description} noIndex={true}>
-  <slot />
+  <div class="flex h-screen overflow-hidden bg-background">
+    <!-- Sidebar: hidden on mobile, fixed column on md+ -->
+    <Sidebar client:only="react" />
+    <!-- Main column: topbar + scrollable content -->
+    <div class="flex flex-1 flex-col overflow-hidden min-w-0">
+      <Topbar client:only="react" />
+      <main class="flex-1 overflow-y-auto pb-16 md:pb-0">
+        <slot />
+      </main>
+    </div>
+  </div>
+  <MobileTabBar client:only="react" />
 </Base>
