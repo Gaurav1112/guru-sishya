@@ -1,0 +1,11 @@
+---
+import App from "@/layouts/App.astro";
+import CompanyRoadmapPage from "@/components/app/roadmap/CompanyPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+const { slug } = Astro.params;
+---
+<App title="Company Roadmap — Guru Sishya">
+  <CompanyRoadmapPage client:only="react" slug={slug} userId={userId} />
+</App>
