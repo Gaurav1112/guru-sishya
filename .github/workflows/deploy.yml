@@ -1,0 +1,59 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main, feat/migrate-to-clerk]
+  pull_request:
+    branches: [main]
+
+env:
+  VERCEL_ORG_ID: team_2UY7pp9h1FlHusSRGnipTkXU
+  # Using guru-sishya-test while main project recovers from stale sourceless config
+  VERCEL_PROJECT_ID: prj_eBOt4hTHfXuMGCRVUN5z6dXGwk2w
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Clerk keys needed at build time if referenced in static pages
+          PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.PUBLIC_CLERK_PUBLISHABLE_KEY }}
+
+      - name: Patch serverless runtime to Node 22
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = '.vercel/output/functions/_render.func/.vc-config.json';
+          if (fs.existsSync(path)) {
+            const config = JSON.parse(fs.readFileSync(path, 'utf8'));
+            config.runtime = 'nodejs22.x';
+            fs.writeFileSync(path, JSON.stringify(config, null, 2));
+            console.log('Patched runtime:', config.runtime);
+          }
+          "
+
+      - name: Deploy to Vercel (Preview)
+        if: github.ref != 'refs/heads/main'
+        run: npx vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ env.VERCEL_ORG_ID }}
+        env:
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to Vercel (Production)
+        if: github.ref == 'refs/heads/main'
+        run: npx vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ env.VERCEL_ORG_ID }}
+        env:
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
