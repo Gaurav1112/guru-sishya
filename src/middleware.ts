@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
   "/cloud-devops-interview",
   "/behavioral-interview",
   "/dsa-interview-questions",
+  "/senior-backend-interview",
   "/top-coding-questions",
   "/leetcode-alternative",
   "/contact",
