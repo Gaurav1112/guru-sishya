@@ -3,7 +3,7 @@ import Base from "@/layouts/Base.astro";
 import { SignIn } from "@clerk/astro/components";
 
 // Redirect authenticated users away from login
-const { userId } = Astro.locals.auth();
+const userId = Astro.locals.auth?.()?.userId ?? null;
 const callbackUrl = Astro.url.searchParams.get("callbackUrl") ?? "/app/dashboard";
 if (userId) {
   return Astro.redirect(callbackUrl);
