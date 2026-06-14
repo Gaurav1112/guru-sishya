@@ -1,6 +1,6 @@
 ---
 import Base from "@/layouts/Base.astro";
-import { SignIn } from "@clerk/astro/react";
+import { SignIn } from "@clerk/astro/components";
 
 // Redirect authenticated users away from login
 const { userId } = Astro.locals.auth();
@@ -49,7 +49,6 @@ if (userId) {
 
         <!-- Clerk SignIn component -->
         <SignIn
-          client:load
           redirectUrl={callbackUrl}
           appearance={{
             elements: {

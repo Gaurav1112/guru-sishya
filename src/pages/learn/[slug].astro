@@ -2,7 +2,9 @@
 import Public from "@/layouts/Public.astro";
 import { loadAllContentFromDisk, findTopicBySlug, slugify, getRelatedTopics } from "@/lib/content/server-loader";
 
-export function getStaticPaths() {
+export const prerender = true;
+
+export async function getStaticPaths() {
   const allTopics = loadAllContentFromDisk();
   return allTopics.map((t) => ({ params: { slug: slugify(t.topic) } }));
 }

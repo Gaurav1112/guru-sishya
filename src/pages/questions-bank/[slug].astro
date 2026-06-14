@@ -2,7 +2,9 @@
 import Public from "@/layouts/Public.astro";
 import { getIndexableQuestions, findQuestionBySlug } from "@/lib/content/server-loader";
 
-export function getStaticPaths() {
+export const prerender = true;
+
+export async function getStaticPaths() {
   const questions = getIndexableQuestions();
   return questions.map((q) => ({ params: { slug: q.slug } }));
 }
