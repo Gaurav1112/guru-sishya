@@ -1,0 +1,11 @@
+---
+import App from "@/layouts/App.astro";
+import QuizPage from "@/components/app/topic/QuizPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+const { id } = Astro.params;
+---
+<App title="Quiz — Guru Sishya">
+  <QuizPage client:only="react" topicId={id} userId={userId} />
+</App>

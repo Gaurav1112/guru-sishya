@@ -1,0 +1,11 @@
+---
+import App from "@/layouts/App.astro";
+import PlanPage from "@/components/app/topic/PlanPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+const { id } = Astro.params;
+---
+<App title="Study Plan — Guru Sishya">
+  <PlanPage client:only="react" topicId={id} userId={userId} />
+</App>

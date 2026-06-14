@@ -1,0 +1,11 @@
+---
+import App from "@/layouts/App.astro";
+import CheatsheetPage from "@/components/app/topic/CheatsheetPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+const { id } = Astro.params;
+---
+<App title="Cheatsheet — Guru Sishya">
+  <CheatsheetPage client:only="react" topicId={id} userId={userId} />
+</App>
