@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import ChallengesJoinPage from "@/components/app/challenges/JoinPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Join Challenge — Guru Sishya">
+  <ChallengesJoinPage client:only="react" userId={userId} />
+</App>

@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import WeeklyReviewPage from "@/components/app/review/WeeklyPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Weekly Review — Guru Sishya">
+  <WeeklyReviewPage client:only="react" userId={userId} />
+</App>
