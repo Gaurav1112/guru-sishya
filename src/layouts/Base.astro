@@ -50,11 +50,10 @@ const fullTitle = title.includes("Guru Sishya")
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
 
-    <!-- Theme toggle — runs before paint to prevent flash -->
+    <!-- Theme: always dark unless user explicitly chose light -->
     <script is:inline>
       const saved = localStorage.getItem("theme");
-      const preferred = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", saved ?? preferred);
+      document.documentElement.setAttribute("data-theme", saved ?? "dark");
     </script>
 
     <!-- Google Analytics -->

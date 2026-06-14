@@ -3899,6 +3899,985 @@ import App from "@/layouts/App.astro";
       </details>
     </section>
 
-    
-  </div>
+    <!-- ── Reference Sections ─────────────────────────────────────── -->
+
+    <!-- LLD Quick Reference -->
+    <section id="sec-lld" class="mb-8">
+      <h2 class="text-xl font-heading font-bold text-foreground mb-4 flex items-center gap-2">
+        <span>🏗</span> LLD Quick Reference
+      </h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <!-- Parking Lot -->
+        <div class="rounded-xl border border-border/30 bg-card/50 p-5 space-y-3">
+          <h3 class="text-sm font-semibold text-teal uppercase tracking-wider">Parking Lot Design (Common LLD)</h3>
+          <p class="text-xs text-muted-foreground"><strong class="text-foreground">Entities:</strong> ParkingLot → ParkingFloor → ParkingSpot → Ticket → Vehicle → Payment</p>
+          <p class="text-xs text-muted-foreground"><strong class="text-foreground">Key patterns:</strong> Strategy (pricing per vehicle type), Observer (spot availability), Factory (vehicle from type string)</p>
+          <p class="text-xs text-muted-foreground"><strong class="text-foreground">Concurrency:</strong> <code class="bg-card px-1 rounded text-saffron">ConcurrentHashMap&lt;SpotId, AtomicBoolean&gt;</code> — use <code class="bg-card px-1 rounded text-saffron">compareAndSet(false, true)</code> for atomic allocation.</p>
+          <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// 3 patterns in 15 lines
+class ParkingLot &#123;
+  private final Map&lt;SpotType, Deque&lt;ParkingSpot&gt;&gt; available
+      = new ConcurrentHashMap&lt;&gt;();
+
+  public Optional&lt;Ticket&gt; park(Vehicle v) &#123;
+    return available.getOrDefault(v.spotType(), new ArrayDeque&lt;&gt;())
+      .poll()
+      .map(spot -&gt; Ticket.create(spot, v,
+          pricingStrategy.calculate(v)));
+  &#125;
+&#125;</pre>
+        </div>
+        <!-- LRU Cache -->
+        <div class="rounded-xl border border-border/30 bg-card/50 p-5 space-y-3">
+          <h3 class="text-sm font-semibold text-teal uppercase tracking-wider">LRU Cache Design</h3>
+          <p class="text-xs text-muted-foreground"><strong class="text-foreground">Java shortcut (interview acceptable):</strong> <code class="bg-card px-1 rounded text-saffron">new LinkedHashMap&lt;&gt;(cap, 0.75f, true)</code> with <code class="bg-card px-1 rounded text-saffron">removeEldestEntry</code> override.</p>
+          <p class="text-xs text-muted-foreground"><strong class="text-foreground">Custom O(1):</strong> HashMap&lt;Key, DLLNode&gt; + Doubly-Linked List. HashMap → O(1) lookup; DLL → O(1) move-to-front and evict-tail.</p>
+          <p class="text-xs text-muted-foreground"><strong class="text-foreground">Distributed LRU:</strong> Redis with <code class="bg-card px-1 rounded text-saffron">maxmemory-policy allkeys-lru</code>. Add TTL for time-based expiry on top.</p>
+          <div class="rounded-lg p-3 bg-blue-500/5 border border-blue-500/20">
+            <p class="text-xs text-blue-400"><strong>LLD Interview Flow:</strong> State entities → define interfaces → pick patterns → address concurrency → discuss trade-offs. Never jump straight to code.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HLD 6-Step Framework -->
+    <section id="sec-hld" class="mb-8">
+      <h2 class="text-xl font-heading font-bold text-foreground mb-4 flex items-center gap-2">
+        <span>🏛</span> HLD 6-Step Framework
+      </h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="rounded-xl border border-border/30 bg-card/50 p-5">
+          <ol class="space-y-3">
+            <li class="text-sm text-muted-foreground"><span class="inline-block w-6 h-6 rounded-full bg-saffron/20 text-saffron text-xs font-bold text-center leading-6 mr-2">1</span><strong class="text-foreground">Requirements (5 min)</strong> — Functional + Non-functional (QPS, latency SLA, availability %, consistency, durability). Write on board.</li>
+            <li class="text-sm text-muted-foreground"><span class="inline-block w-6 h-6 rounded-full bg-saffron/20 text-saffron text-xs font-bold text-center leading-6 mr-2">2</span><strong class="text-foreground">Estimation (3 min)</strong> — QPS (peak = avg × 2-3×), storage/record × records/day × retention, bandwidth. Anchor on powers of 10.</li>
+            <li class="text-sm text-muted-foreground"><span class="inline-block w-6 h-6 rounded-full bg-saffron/20 text-saffron text-xs font-bold text-center leading-6 mr-2">3</span><strong class="text-foreground">API Design (3 min)</strong> — Core REST endpoints. Method, path, key request/response fields. Idempotency key on POST mutations.</li>
+            <li class="text-sm text-muted-foreground"><span class="inline-block w-6 h-6 rounded-full bg-saffron/20 text-saffron text-xs font-bold text-center leading-6 mr-2">4</span><strong class="text-foreground">Data Model (5 min)</strong> — Core entities, schema, SQL vs NoSQL justification. Partition key choice.</li>
+            <li class="text-sm text-muted-foreground"><span class="inline-block w-6 h-6 rounded-full bg-saffron/20 text-saffron text-xs font-bold text-center leading-6 mr-2">5</span><strong class="text-foreground">High-Level Design (15 min)</strong> — Draw components + data flow. Client → LB → API Gateway → Services → DB + Cache + Queue. Show read and write paths separately.</li>
+            <li class="text-sm text-muted-foreground"><span class="inline-block w-6 h-6 rounded-full bg-saffron/20 text-saffron text-xs font-bold text-center leading-6 mr-2">6</span><strong class="text-foreground">Deep Dive (15 min)</strong> — Pick 2-3 hardest problems. Scaling, consistency trade-offs, failure handling, observability. Show you know the trade-offs.</li>
+          </ol>
+        </div>
+        <div class="rounded-xl border border-border/30 bg-card/50 p-5">
+          <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-3">Estimation Anchors</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs border-collapse">
+              <thead><tr class="border-b border-border/30"><th class="text-left py-1.5 px-2 text-muted-foreground">Unit</th><th class="text-left py-1.5 px-2 text-muted-foreground">Value</th></tr></thead>
+              <tbody class="divide-y divide-border/20 text-muted-foreground">
+                <tr><td class="py-1.5 px-2 text-foreground font-mono">1 char</td><td class="py-1.5 px-2">1 byte</td></tr>
+                <tr><td class="py-1.5 px-2 text-foreground font-mono">1 UUID</td><td class="py-1.5 px-2">16 bytes</td></tr>
+                <tr><td class="py-1.5 px-2 text-foreground font-mono">1 day</td><td class="py-1.5 px-2">86,400 sec ≈ 100K sec</td></tr>
+                <tr><td class="py-1.5 px-2 text-foreground font-mono">Twitter scale</td><td class="py-1.5 px-2">500M tweets/day = ~5K/sec write</td></tr>
+                <tr><td class="py-1.5 px-2 text-foreground font-mono">WhatsApp scale</td><td class="py-1.5 px-2">100B messages/day = ~1.2M/sec</td></tr>
+                <tr><td class="py-1.5 px-2 text-foreground font-mono">Typical RDS</td><td class="py-1.5 px-2">~5K-10K QPS (read replicas → 50K)</td></tr>
+                <tr><td class="py-1.5 px-2 text-foreground font-mono">Redis</td><td class="py-1.5 px-2">~100K-1M ops/sec single node</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3 rounded-lg p-2.5 bg-saffron/5 border border-saffron/20">
+            <p class="text-xs text-saffron font-mono">pool_size = (core_count × 2) + effective_spindle_count</p>
+            <p class="text-xs text-muted-foreground mt-1">HikariCP formula. 4-core + SSD → pool=9. Too many connections = context-switch overhead.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reference Tables -->
+    <section id="sec-tables" class="mb-8">
+      <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+        <summary class="flex items-center justify-between p-5 cursor-pointer select-none font-semibold text-foreground hover:bg-card/80 transition-colors">
+          <span class="flex items-center gap-2"><span class="text-saffron">📊</span> Key Reference Tables (Spring TX, Kafka vs SQS, Scaling Ladder)</span>
+          <span class="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div class="p-5 pt-3 border-t border-border/20 space-y-6">
+          <div>
+            <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Spring Transaction Propagation</h3>
+            <div class="overflow-x-auto"><table class="w-full text-xs border-collapse"><thead><tr class="border-b border-border/30"><th class="text-left py-1.5 px-2 text-muted-foreground">Propagation</th><th class="text-left py-1.5 px-2 text-muted-foreground">Behavior</th><th class="text-left py-1.5 px-2 text-muted-foreground">When to Use</th></tr></thead><tbody class="divide-y divide-border/20 text-muted-foreground text-xs"><tr><td class="py-1.5 px-2 font-mono text-saffron">REQUIRED</td><td class="py-1.5 px-2">Join existing tx or create new</td><td class="py-1.5 px-2">Most service methods</td></tr><tr><td class="py-1.5 px-2 font-mono text-saffron">REQUIRES_NEW</td><td class="py-1.5 px-2">Suspend existing, create new</td><td class="py-1.5 px-2">Audit logging, outbox writes</td></tr><tr><td class="py-1.5 px-2 font-mono text-saffron">NESTED</td><td class="py-1.5 px-2">Savepoint inside existing tx</td><td class="py-1.5 px-2">Partial rollback within a flow</td></tr><tr><td class="py-1.5 px-2 font-mono text-saffron">MANDATORY</td><td class="py-1.5 px-2">Must have existing, else throw</td><td class="py-1.5 px-2">Internal methods that must not run alone</td></tr><tr><td class="py-1.5 px-2 font-mono text-saffron">NEVER</td><td class="py-1.5 px-2">Must NOT have existing, else throw</td><td class="py-1.5 px-2">Purely non-transactional code</td></tr><tr><td class="py-1.5 px-2 font-mono text-saffron">NOT_SUPPORTED</td><td class="py-1.5 px-2">Suspend existing, run non-tx</td><td class="py-1.5 px-2">Long batch reads</td></tr></tbody></table></div>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Kafka vs RabbitMQ vs SQS</h3>
+            <div class="overflow-x-auto"><table class="w-full text-xs border-collapse"><thead><tr class="border-b border-border/30"><th class="text-left py-1.5 px-2 text-muted-foreground">Dimension</th><th class="text-left py-1.5 px-2 text-muted-foreground">Kafka</th><th class="text-left py-1.5 px-2 text-muted-foreground">RabbitMQ</th><th class="text-left py-1.5 px-2 text-muted-foreground">AWS SQS</th></tr></thead><tbody class="divide-y divide-border/20 text-muted-foreground text-xs"><tr><td class="py-1.5 px-2 text-foreground">Model</td><td class="py-1.5 px-2">Log-based pub/sub</td><td class="py-1.5 px-2">Exchange/queue</td><td class="py-1.5 px-2">Managed queue</td></tr><tr><td class="py-1.5 px-2 text-foreground">Replay</td><td class="py-1.5 px-2 text-emerald-400">Yes (retention)</td><td class="py-1.5 px-2 text-red-400">No</td><td class="py-1.5 px-2 text-red-400">No</td></tr><tr><td class="py-1.5 px-2 text-foreground">Throughput</td><td class="py-1.5 px-2">Millions/sec</td><td class="py-1.5 px-2">Tens of K/sec</td><td class="py-1.5 px-2">Thousands/sec</td></tr><tr><td class="py-1.5 px-2 text-foreground">Ordering</td><td class="py-1.5 px-2">Per partition</td><td class="py-1.5 px-2">Per queue</td><td class="py-1.5 px-2">FIFO queues only</td></tr><tr><td class="py-1.5 px-2 text-foreground">Best for</td><td class="py-1.5 px-2">Event streaming, CDC</td><td class="py-1.5 px-2">Task queue, RPC</td><td class="py-1.5 px-2">Serverless, simple queue</td></tr></tbody></table></div>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Scaling Ladder</h3>
+            <div class="overflow-x-auto"><table class="w-full text-xs border-collapse"><thead><tr class="border-b border-border/30"><th class="text-left py-1.5 px-2 text-muted-foreground">Scale</th><th class="text-left py-1.5 px-2 text-muted-foreground">Bottleneck</th><th class="text-left py-1.5 px-2 text-muted-foreground">Key Solutions</th></tr></thead><tbody class="divide-y divide-border/20 text-muted-foreground text-xs"><tr><td class="py-1.5 px-2 text-foreground font-mono">1K req/day</td><td class="py-1.5 px-2">Nothing yet</td><td class="py-1.5 px-2">Simple monolith, PostgreSQL</td></tr><tr><td class="py-1.5 px-2 text-foreground font-mono">100K req/day</td><td class="py-1.5 px-2">DB reads</td><td class="py-1.5 px-2">Read replicas, HikariCP, basic caching</td></tr><tr><td class="py-1.5 px-2 text-foreground font-mono">1M req/day</td><td class="py-1.5 px-2">DB writes + app</td><td class="py-1.5 px-2">Redis cache, async writes (Kafka), CDN</td></tr><tr><td class="py-1.5 px-2 text-foreground font-mono">10M req/day</td><td class="py-1.5 px-2">Network + single DB</td><td class="py-1.5 px-2">Horizontal sharding, CQRS, queue-based writes</td></tr><tr><td class="py-1.5 px-2 text-foreground font-mono">100M req/day</td><td class="py-1.5 px-2">Everything</td><td class="py-1.5 px-2">Multi-region, cell-based, eventual consistency</td></tr></tbody></table></div>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Resilience Patterns</h3>
+            <div class="overflow-x-auto"><table class="w-full text-xs border-collapse"><thead><tr class="border-b border-border/30"><th class="text-left py-1.5 px-2 text-muted-foreground">Pattern</th><th class="text-left py-1.5 px-2 text-muted-foreground">Problem Solved</th><th class="text-left py-1.5 px-2 text-muted-foreground">Config</th></tr></thead><tbody class="divide-y divide-border/20 text-muted-foreground text-xs"><tr><td class="py-1.5 px-2 text-foreground">Circuit Breaker</td><td class="py-1.5 px-2">Stop calls to failing service</td><td class="py-1.5 px-2">CLOSED→OPEN→HALF_OPEN at 50% failure in 10s</td></tr><tr><td class="py-1.5 px-2 text-foreground">Bulkhead</td><td class="py-1.5 px-2">Isolate thread pools per dependency</td><td class="py-1.5 px-2">Semaphore or thread-pool isolation</td></tr><tr><td class="py-1.5 px-2 text-foreground">Retry</td><td class="py-1.5 px-2">Transient failures</td><td class="py-1.5 px-2">Max attempts + exponential backoff + jitter</td></tr><tr><td class="py-1.5 px-2 text-foreground">Rate Limiter</td><td class="py-1.5 px-2">Cap outbound call rate</td><td class="py-1.5 px-2">Requests/second; Bucket4j for distributed</td></tr></tbody></table></div>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">REST Client Evolution (Spring)</h3>
+            <div class="overflow-x-auto"><table class="w-full text-xs border-collapse"><thead><tr class="border-b border-border/30"><th class="text-left py-1.5 px-2 text-muted-foreground">Client</th><th class="text-left py-1.5 px-2 text-muted-foreground">Status</th><th class="text-left py-1.5 px-2 text-muted-foreground">Use When</th></tr></thead><tbody class="divide-y divide-border/20 text-muted-foreground text-xs"><tr><td class="py-1.5 px-2 text-foreground font-mono">RestTemplate</td><td class="py-1.5 px-2 text-amber-400">⚠ Deprecated</td><td class="py-1.5 px-2">Legacy code only</td></tr><tr><td class="py-1.5 px-2 text-foreground font-mono">WebClient</td><td class="py-1.5 px-2 text-emerald-400">✓ Current (reactive)</td><td class="py-1.5 px-2">Reactive/async (WebFlux)</td></tr><tr><td class="py-1.5 px-2 text-foreground font-mono">RestClient</td><td class="py-1.5 px-2 text-emerald-400">✓ Current (Spring 6.1+)</td><td class="py-1.5 px-2">Blocking but fluent — preferred for new code</td></tr></tbody></table></div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Payment System Design -->
+    <section id="sec-payment" class="mb-8">
+      <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+        <summary class="flex items-center justify-between p-5 cursor-pointer select-none font-semibold text-foreground hover:bg-card/80 transition-colors">
+          <span class="flex items-center gap-2"><span>💳</span> Payment System Design (Deep Dive)</span>
+          <span class="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div class="p-5 pt-3 border-t border-border/20 space-y-5">
+          <div>
+            <h3 class="text-sm font-semibold text-red-400 mb-2">Double-Entry Ledger (NEVER single balance column)</h3>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">-- WRONG: UPDATE accounts SET balance = balance - 100 WHERE id = ?
+-- RIGHT: Insert two ledger rows atomically
+
+CREATE TABLE ledger_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  account_id UUID NOT NULL REFERENCES accounts(id),
+  amount NUMERIC(20,4) NOT NULL,  -- positive=credit, negative=debit
+  balance_after NUMERIC(20,4),    -- snapshot for fast reads
+  transaction_id UUID NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+-- Balance: SELECT SUM(amount) FROM ledger_entries WHERE account_id = ?
+-- Every payment = 2 rows: debit sender + credit receiver (same tx)</pre>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-blue-400 mb-2">Outbox Pattern (Exactly-Once Event Publishing)</h3>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">-- Same DB transaction:
+BEGIN;
+  INSERT INTO orders (id, ...) VALUES (...);
+  INSERT INTO outbox (id, topic, key, payload, status)
+    VALUES (gen_random_uuid(), 'order.created', order_id, '&#123;&#125;', 'PENDING');
+COMMIT;
+-- Separate publisher (or Debezium CDC):
+-- Poll WHERE status='PENDING' ORDER BY created_at LIMIT 100
+-- Publish to Kafka with idempotency key = outbox.id
+-- UPDATE outbox SET status='PUBLISHED' WHERE id = ?</pre>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- DSA Cheat Sheet -->
+    <section id="sec-dsa" class="mb-8">
+      <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+        <summary class="flex items-center justify-between p-5 cursor-pointer select-none font-semibold text-foreground hover:bg-card/80 transition-colors">
+          <span class="flex items-center gap-2"><span>💡</span> DSA Cheat Sheet — Patterns &amp; Complexity</span>
+          <span class="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div class="p-5 pt-3 border-t border-border/20 space-y-5">
+          <div class="grid gap-4 md:grid-cols-2">
+            <div>
+              <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Time Complexity Quick Reference</h3>
+              <div class="overflow-x-auto"><table class="w-full text-xs border-collapse"><thead><tr class="border-b border-border/30"><th class="text-left py-1.5 px-2 text-muted-foreground">Op</th><th class="py-1.5 px-2 text-muted-foreground">Array</th><th class="py-1.5 px-2 text-muted-foreground">HashMap</th><th class="py-1.5 px-2 text-muted-foreground">Heap</th><th class="py-1.5 px-2 text-muted-foreground">BST</th></tr></thead><tbody class="divide-y divide-border/20 text-muted-foreground text-xs text-center"><tr><td class="py-1.5 px-2 text-left text-foreground">Access</td><td>O(1)</td><td>O(1)</td><td>O(n)</td><td>O(log n)</td></tr><tr><td class="py-1.5 px-2 text-left text-foreground">Search</td><td>O(n)</td><td>O(1)</td><td>O(n)</td><td>O(log n)</td></tr><tr><td class="py-1.5 px-2 text-left text-foreground">Insert</td><td>O(n)</td><td>O(1)</td><td>O(log n)</td><td>O(log n)</td></tr><tr><td class="py-1.5 px-2 text-left text-foreground">Delete</td><td>O(n)</td><td>O(1)</td><td>O(log n)</td><td>O(log n)</td></tr></tbody></table></div>
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Graph Algorithms</h3>
+              <div class="overflow-x-auto"><table class="w-full text-xs border-collapse"><thead><tr class="border-b border-border/30"><th class="text-left py-1.5 px-2 text-muted-foreground">Algo</th><th class="py-1.5 px-2 text-muted-foreground">Time</th><th class="text-left py-1.5 px-2 text-muted-foreground">Use Case</th></tr></thead><tbody class="divide-y divide-border/20 text-muted-foreground text-xs"><tr><td class="py-1.5 px-2 text-foreground">BFS</td><td class="py-1.5 px-2 text-center">O(V+E)</td><td class="py-1.5 px-2">Shortest path (unweighted)</td></tr><tr><td class="py-1.5 px-2 text-foreground">DFS</td><td class="py-1.5 px-2 text-center">O(V+E)</td><td class="py-1.5 px-2">Connected components, cycle detection</td></tr><tr><td class="py-1.5 px-2 text-foreground">Dijkstra</td><td class="py-1.5 px-2 text-center">O((V+E)logV)</td><td class="py-1.5 px-2">Shortest path (non-negative weights)</td></tr><tr><td class="py-1.5 px-2 text-foreground">Union-Find</td><td class="py-1.5 px-2 text-center">O(α(n))</td><td class="py-1.5 px-2">Connected components, cycle detection</td></tr></tbody></table></div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Must-Know Java Templates</h3>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// ── Sliding Window ──────────────────────────────────────
+int left = 0, maxLen = 0;
+Map&lt;Character, Integer&gt; freq = new HashMap&lt;&gt;();
+for (int right = 0; right &lt; s.length(); right++) &#123;
+    freq.merge(s.charAt(right), 1, Integer::sum);
+    while (freq.size() &gt; k) &#123;
+        freq.merge(s.charAt(left), -1, Integer::sum);
+        if (freq.get(s.charAt(left)) == 0) freq.remove(s.charAt(left));
+        left++;
+    &#125;
+    maxLen = Math.max(maxLen, right - left + 1);
+&#125;
+
+// ── Binary Search ────────────────────────────────────────
+int lo = 0, hi = arr.length - 1;
+while (lo &lt;= hi) &#123;
+    int mid = lo + (hi - lo) / 2; // avoids overflow
+    if (arr[mid] == target) return mid;
+    else if (arr[mid] &lt; target) lo = mid + 1;
+    else hi = mid - 1;
+&#125;
+
+// ── Top-K with Min-Heap ──────────────────────────────────
+PriorityQueue&lt;Integer&gt; minHeap = new PriorityQueue&lt;&gt;(k);
+for (int num : nums) &#123;
+    minHeap.offer(num);
+    if (minHeap.size() &gt; k) minHeap.poll();
+&#125;
+// minHeap now contains top K largest elements
+
+// ── BFS (shortest path) ──────────────────────────────────
+Queue&lt;TreeNode&gt; q = new LinkedList&lt;&gt;();
+q.offer(root);
+while (!q.isEmpty()) &#123;
+    int size = q.size(); // current level
+    for (int i = 0; i &lt; size; i++) &#123;
+        TreeNode node = q.poll();
+        if (node.left != null) q.offer(node.left);
+        if (node.right != null) q.offer(node.right);
+    &#125;
+&#125;</pre>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 60-Second Cheat Sheet -->
+    <section id="sec-cheatsheet" class="mb-8">
+      <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+        <summary class="flex items-center justify-between p-5 cursor-pointer select-none font-semibold text-foreground hover:bg-card/80 transition-colors">
+          <span class="flex items-center gap-2"><span>⚡</span> 60-Second Cheat Sheet — 10 Core Principles</span>
+          <span class="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div class="p-5 pt-3 border-t border-border/20">
+          <ol class="space-y-2.5">
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">1. Measure first, optimize second</strong> — instrument P99 latency + error rate + saturation before changing anything. Never guess bottlenecks.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">2. Stateless services = horizontal scaling</strong> — session state → Redis, files → S3. If a service can't be killed any time, it's not stateless.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">3. Idempotency is non-negotiable</strong> — every mutating API needs an idempotency key. Retries, network blips, and duplicate webhooks are facts of life.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">4. Every external call needs a circuit breaker</strong> — one downstream failure should never take down your service. Resilience4j, always.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">5. Eventual consistency is acceptable; data loss is not</strong> — design write paths for durability first, relax read consistency where product allows.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">6. Design for failure, not success</strong> — network is unreliable, disks fail, services crash. Chaos engineering validates assumptions.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">7. Observability beats monitoring</strong> — metrics + structured logs + distributed traces (RED: Rate, Errors, Duration). Alert on symptoms, not causes.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">8. Schema evolution must be backward compatible</strong> — add columns, never rename/drop in one deployment. Blue-green + rolling deploys require this.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">9. Caching is a read optimization</strong> — write-through only if you understand the invalidation strategy. Cache invalidation is hard.</li>
+            <li class="text-sm text-muted-foreground"><strong class="text-foreground">10. The 8 Fallacies of Distributed Systems</strong> — network is NOT reliable, NOT zero latency, NOT infinite bandwidth, NOT secure. Topology DOES change.</li>
+          </ol>
+        </div>
+      </details>
+    </section>
+
+    <!-- Company Study Paths -->
+    <section id="sec-companies" class="mb-8">
+      <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+        <summary class="flex items-center justify-between p-5 cursor-pointer select-none font-semibold text-foreground hover:bg-card/80 transition-colors">
+          <span class="flex items-center gap-2"><span>🏢</span> Company-Specific Study Paths</span>
+          <span class="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div class="p-5 pt-3 border-t border-border/20 space-y-5">
+          <div><h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Amazon — Leadership Principle Heavy (40% of interview)</h3><ul class="space-y-1.5"><li class="text-sm text-muted-foreground"><strong class="text-foreground">Prepare 14 STAR stories</strong> — one per LP. Most asked: Customer Obsession, Ownership, Deliver Results, Dive Deep, Bias for Action, Disagree and Commit.</li><li class="text-sm text-muted-foreground"><strong class="text-foreground">System Design + LPs</strong> — design questions tie back to trade-offs and LPs. Mention cost (Frugality), simplicity (Invent and Simplify), customer impact.</li><li class="text-sm text-muted-foreground"><strong class="text-foreground">Bar Raiser round</strong> — an additional interviewer whose job is to reject. Focuses on LPs and raises bar above team average. Don't soften your stories.</li><li class="text-sm text-muted-foreground"><strong class="text-foreground">Coding</strong> — LeetCode Medium, arrays/strings/trees/graphs. Amazon focuses on clean code and edge cases over clever algorithms.</li></ul></div>
+          <div><h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Google — Abstract Thinking + Scale</h3><ul class="space-y-1.5"><li class="text-sm text-muted-foreground"><strong class="text-foreground">System Design depth</strong> — expect detailed design for Google-scale systems. Know: Bigtable, Spanner, Chubby (Zookeeper), MapReduce, Pub/Sub, GFS architectures.</li><li class="text-sm text-muted-foreground"><strong class="text-foreground">Coding bar is high</strong> — LeetCode Hard is common. Focus on: graph algorithms, DP, string manipulation, binary search variations.</li></ul></div>
+          <div><h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Walmart / Flipkart / Swiggy / Razorpay (India)</h3><ul class="space-y-1.5"><li class="text-sm text-muted-foreground"><strong class="text-foreground">Java + Spring Boot depth</strong> — very hands-on. Expect JPA internals, Spring Security config, transaction management, Kafka consumer design.</li><li class="text-sm text-muted-foreground"><strong class="text-foreground">Practical system design</strong> — Indian scale: handle Diwali sale (10x spike), UPI transactions, OTP at scale, rider tracking.</li><li class="text-sm text-muted-foreground"><strong class="text-foreground">Take-home assignments</strong> — common at product companies. Full Spring Boot REST API with tests. Focus: clean architecture, error handling, test coverage.</li></ul></div>
+          <div><h3 class="text-sm font-semibold text-teal uppercase tracking-wider mb-2">Questions to Ask Your Interviewer</h3><ul class="space-y-1.5"><li class="text-sm text-muted-foreground">"What is the biggest technical challenge your team is currently dealing with?"</li><li class="text-sm text-muted-foreground">"How does your team handle production incidents? Do you do blameless post-mortems?"</li><li class="text-sm text-muted-foreground">"How often does your team deploy to production? What does your CI/CD pipeline look like?"</li><li class="text-sm text-muted-foreground">"What would success look like for someone in this role in the first 6 months?"</li><li class="text-sm text-muted-foreground">"What is the most significant architectural change you made in the last year and why?"</li></ul></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- STAR Framework + Interview Playbook -->
+    <section id="sec-star" class="mb-8">
+      <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+        <summary class="flex items-center justify-between p-5 cursor-pointer select-none font-semibold text-foreground hover:bg-card/80 transition-colors">
+          <span class="flex items-center gap-2"><span>⭐</span> STAR Framework &amp; Interview Day Playbook</span>
+          <span class="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div class="p-5 pt-3 border-t border-border/20 space-y-5">
+          <div class="grid gap-3 md:grid-cols-2">
+            <div class="space-y-2">
+              <div class="rounded-lg p-3 border border-border/30 bg-card/30 flex gap-3"><span class="shrink-0 w-7 h-7 rounded-full bg-saffron text-background text-xs font-bold flex items-center justify-center">S</span><div><p class="text-xs font-semibold text-foreground">Situation</p><p class="text-xs text-muted-foreground">Context in 1-2 sentences. Scale it: "handling ₹10Cr/day", "serving 5M users", "team of 8 engineers".</p></div></div>
+              <div class="rounded-lg p-3 border border-border/30 bg-card/30 flex gap-3"><span class="shrink-0 w-7 h-7 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center">T</span><div><p class="text-xs font-semibold text-foreground">Task</p><p class="text-xs text-muted-foreground">What YOU specifically were responsible for. Distinguish your role from the team's role.</p></div></div>
+              <div class="rounded-lg p-3 border border-border/30 bg-card/30 flex gap-3"><span class="shrink-0 w-7 h-7 rounded-full bg-teal text-background text-xs font-bold flex items-center justify-center">A</span><div><p class="text-xs font-semibold text-foreground">Action</p><p class="text-xs text-muted-foreground">What YOU did. Use "I" not "we". Steps taken, decisions made, alternatives considered and rejected.</p></div></div>
+              <div class="rounded-lg p-3 border border-border/30 bg-card/30 flex gap-3"><span class="shrink-0 w-7 h-7 rounded-full bg-emerald-500 text-white text-xs font-bold flex items-center justify-center">R</span><div><p class="text-xs font-semibold text-foreground">Result</p><p class="text-xs text-muted-foreground">Quantified outcome. Latency reduced X%, cost cut Y%, velocity increased Z%. Always end with numbers or learning.</p></div></div>
+            </div>
+            <div class="space-y-2">
+              <h3 class="text-sm font-semibold text-teal uppercase tracking-wider">Interview Day Playbook</h3>
+              <ol class="space-y-2">
+                <li class="text-xs text-muted-foreground"><span class="text-foreground font-semibold">First 2 min:</span> Repeat question back to confirm scope. "So you want me to design X that handles Y scale with Z constraint — right?"</li>
+                <li class="text-xs text-muted-foreground"><span class="text-foreground font-semibold">Before designing:</span> Ask QPS, latency SLA (p99), availability %, consistency requirements, read:write ratio.</li>
+                <li class="text-xs text-muted-foreground"><span class="text-foreground font-semibold">When stuck:</span> "Let me think through the trade-offs here…" — never go silent for more than 30 seconds.</li>
+                <li class="text-xs text-muted-foreground"><span class="text-foreground font-semibold">Red flags to avoid:</span> "We never had that problem", "I'd just use AWS", "My team handled that", "It depends" with no follow-up.</li>
+                <li class="text-xs text-muted-foreground"><span class="text-foreground font-semibold">Principal-level signal:</span> Mention cost, operational burden, team skills required, migration path. Juniors solve the problem; principals solve it in context.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="rounded-xl border border-gold/30 bg-gold/5 p-4">
+            <p class="text-xs font-semibold text-gold mb-2">Worked STAR Example — Technical Conflict</p>
+            <p class="text-xs text-muted-foreground leading-relaxed"><strong class="text-saffron">S:</strong> "Senior architect insisted on Oracle for new payment service. I preferred PostgreSQL + Citus for horizontal scale."<br/><strong class="text-saffron">T:</strong> "As tech lead for a service projecting ₹500Cr/year volume."<br/><strong class="text-saffron">A:</strong> "Ran a 2-week PoC: benchmarked both at 3× peak load, modeled 5-year TCO (Oracle ₹40L/yr vs PG free), documented HA capabilities, presented to CTO with data."<br/><strong class="text-saffron">R:</strong> "Chose PostgreSQL. Cut infra cost 42%. Service at 99.97% uptime for 18 months. Senior architect became a PostgreSQL advocate."</p>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Alisha's Questions — Real-World Production Crises with Mermaid Diagrams -->
+    <section id="sec-alisha" class="mb-8">
+      <h2 class="text-xl font-heading font-bold text-foreground mb-2 flex items-center gap-2">
+        <span>🌟</span> Alisha's Questions — Real-World Production Crises
+      </h2>
+      <p class="text-sm text-muted-foreground mb-5 max-w-2xl">20 real production incidents that became iconic interview questions. Each scenario maps to an actual company crisis. Master these to demonstrate <em>Staff Engineer</em> thinking.</p>
+      <div class="space-y-4">
+
+        <!-- 01 URL Shortener -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">01</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">URL Shortener Crashes During IPL Finals</p><p class="text-xs text-muted-foreground mt-0.5">CDN · Redis Hot Key · Cache Stampede · HikariCP</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Single short URL trending during IPL = one Redis slot at 100K req/sec. Redis is single-threaded per slot — hot key becomes the bottleneck. HikariCP pool (default: 10) exhausts on cache miss burst.</p>
+            <div class="mermaid text-xs">
+flowchart LR
+  B([Browser]) -->|301 redirect| CDN["CDN Edge\n301 Cache"]
+  CDN -->|cache miss| LB[Load Balancer]
+  LB --> APP["App Node\nCaffeine L1\n10K entries"]
+  APP -->|L1 miss| RC[("Redis Cluster\nL2")]
+  RC -->|miss| RR[("DB Read\nReplica")]
+  RR -.->|writes only| PDB[("Primary DB")]
+            </div>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// L1: Caffeine in-process cache (never hits Redis for top URLs)
+@Bean CacheManager cacheManager() &#123;
+    return new CaffeineCacheManager("urls") &#123;&#123;
+        setCaffeine(Caffeine.newBuilder()
+            .maximumSize(10_000).expireAfterWrite(5, MINUTES));
+    &#125;&#125;;
+&#125;
+// L2: Redis — shard hot keys across 10 replicas
+String redisKey = "url:" + shortCode + ":" + (shortCode.hashCode() % 10);
+// Reads pick random suffix; writes replicate to all 10</pre>
+            <p class="text-xs text-amber-400 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2"><strong>Interview Trap:</strong> "Add more servers" is wrong. More app servers don't help a hot Redis key — they all hit the same slot. Fix the cache tier first.</p>
+          </div>
+        </details>
+
+        <!-- 02 WhatsApp Duplicates -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">02</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">WhatsApp Users Receive Duplicate Messages</p><p class="text-xs text-muted-foreground mt-0.5">Idempotency · At-Least-Once · Kafka Retries · Redis Dedup</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Kafka guarantees at-least-once delivery. On consumer crash after processing but before offset commit, message is redelivered. Network retries cause the same issue.</p>
+            <div class="mermaid text-xs">
+sequenceDiagram
+  participant C as Client
+  participant WS as WebSocket
+  participant K as Kafka
+  participant Con as Consumer
+  participant R as Redis Dedup
+  C->>WS: send(msgId=abc123)
+  WS->>K: publish(message)
+  K-->>Con: deliver [at-least-once]
+  Con->>R: SETNX senderId:abc123
+  alt First delivery
+    R-->>Con: 1 - new
+    Con->>Con: persist + notify
+    Con->>K: commitOffset
+  else Duplicate
+    R-->>Con: 0 - exists
+    Con-->>Con: drop silently
+    Con->>K: commitOffset
+  end
+            </div>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">@KafkaListener(topics = "messages", containerFactory = "factory")
+public void consume(Message msg, Acknowledgment ack) &#123;
+    String key = msg.getSenderId() + ":" + msg.getClientMsgId();
+    Boolean isNew = redis.opsForValue()
+        .setIfAbsent(key, "1", 24, HOURS);
+    if (Boolean.TRUE.equals(isNew)) &#123;
+        messageRepository.save(msg);
+        notifyRecipient(msg);
+    &#125;
+    ack.acknowledge(); // always commit offset
+&#125;</pre>
+          </div>
+        </details>
+
+        <!-- 03 Swiggy Rider Location -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">03</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Swiggy Shows Wrong Rider Location</p><p class="text-xs text-muted-foreground mt-0.5">WebSocket · Redis Geo · Stale Cache · Event Ordering</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Location updates arrive out of order from the mobile app. HTTP retry of an older packet overwrites a newer location stored in Redis, showing the rider teleporting backwards.</p>
+            <div class="mermaid text-xs">
+sequenceDiagram
+  participant App as Rider App
+  participant GW as API Gateway
+  participant R as Redis GEO
+  participant WS as WebSocket
+  App->>GW: loc(t=100, lat=12.9, seq=5)
+  App->>GW: loc(t=101, lat=12.91, seq=6)
+  Note over GW: seq=5 delayed — arrives AFTER seq=6
+  GW->>R: GEOADD rider:123 12.91 (seq=6)
+  GW->>R: GEOADD rider:123 12.9 (seq=5) ← OVERWRITES!
+  R->>WS: push stale location 12.9
+            </div>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// Fix: only update if sequence number is higher
+String luaScript = """
+  local current = redis.call('GET', KEYS[1])
+  if not current or tonumber(current) &lt; tonumber(ARGV[1]) then
+    redis.call('SET', KEYS[1], ARGV[1])
+    redis.call('GEOADD', KEYS[2], ARGV[2], ARGV[3], ARGV[4])
+    return 1
+  end
+  return 0
+""";
+redis.execute(luaScript,
+    List.of("rider:seq:" + riderId, "rider:geo"),
+    seqNo, lng, lat, riderId);</pre>
+          </div>
+        </details>
+
+        <!-- 04 BookMyShow Double Booking -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">04</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">BookMyShow Sells the Same Seat Twice</p><p class="text-xs text-muted-foreground mt-0.5">Optimistic Locking · SELECT FOR UPDATE · Race Condition · Distributed Lock</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Two users simultaneously check seat availability — both see it free, both book it. Classic lost update problem with no locking.</p>
+            <div class="mermaid text-xs">
+sequenceDiagram
+  participant U1 as User 1
+  participant U2 as User 2
+  participant DB as Database
+  U1->>DB: SELECT status FROM seats WHERE id=A1 → FREE
+  U2->>DB: SELECT status FROM seats WHERE id=A1 → FREE
+  U1->>DB: UPDATE seats SET status=BOOKED, user=U1 WHERE id=A1
+  U2->>DB: UPDATE seats SET status=BOOKED, user=U2 WHERE id=A1
+  Note over DB: BOTH succeed! Seat sold twice ❌
+            </div>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// Fix 1: SELECT FOR UPDATE (pessimistic lock)
+@Transactional
+public Booking book(String seatId, String userId) &#123;
+    Seat seat = seatRepo.findByIdWithLock(seatId); // SELECT FOR UPDATE
+    if (seat.getStatus() != FREE) throw new SeatUnavailableException();
+    seat.setStatus(BOOKED);
+    seat.setUserId(userId);
+    return bookingRepo.save(new Booking(seat, userId));
+&#125;
+
+// Fix 2: Optimistic lock (high contention = many retries, use with caution)
+@Version long version; // JPA optimistic lock
+// UPDATE ... WHERE id=? AND version=? — fails if version changed</pre>
+            <p class="text-xs text-blue-400 bg-blue-500/5 border border-blue-500/20 rounded-lg px-3 py-2"><strong>Deeper:</strong> For IPL finals (10K concurrent users on one seat), use Redis distributed lock: SETNX seat:A1:lock with 30s TTL. Lock holder proceeds; others poll or fail-fast. Avoids DB contention entirely.</p>
+          </div>
+        </details>
+
+        <!-- 05 Netflix Buffering -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">05</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Netflix Buffers Right After New Season Drops</p><p class="text-xs text-muted-foreground mt-0.5">CDN Pre-warming · Adaptive Bitrate · Cache Thundering Herd</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> New content not pre-warmed in CDN edge caches. First million users all trigger CDN-miss → origin pull → origin overwhelmed. ABR quality drops as origin throughput degrades.</p>
+            <div class="mermaid text-xs">
+flowchart LR
+  R([Release]) -->|push| ORIG[Origin\nS3 / Media Server]
+  ORIG -->|pre-warm| CDN["CDN Edge\n(Global PoPs)"]
+  U([Users]) -->|request| CDN
+  CDN -->|cache hit| U
+  CDN -->|miss only| ORIG
+  style CDN fill:#1A2230,stroke:#17C492,color:#ECE8FF
+            </div>
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Fix:</strong> Pre-warm CDN before release. Push video segments to all edge PoPs 30 min before premiere. Use adaptive bitrate (HLS/DASH) — client auto-downgrades quality under load. Netflix Open Connect (their own CDN) goes further: ISP-deployed appliances cache content days before release.</p>
+          </div>
+        </details>
+
+        <!-- 06 Uber Surge -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">06</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Uber Surge Pricing During Rain</p><p class="text-xs text-muted-foreground mt-0.5">Geospatial Indexing · Real-time Aggregation · H3 Hexagons</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Problem:</strong> Computing surge multiplier requires knowing demand/supply ratio per geographic cell in real-time. Naïve approach: per-request DB query with geo radius search — too slow at scale.</p>
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Fix:</strong> Uber uses H3 hexagonal grid (Uber open source). Each driver pings location every 4 sec → Kafka → stream processor aggregates supply per H3 cell → Redis. Demand comes from ride request rate per cell. surge = demand/supply ratio, pre-computed every 30 sec.</p>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// H3 cell for a GPS coordinate (resolution 9 ≈ 174m hexagon)
+String cell = H3Core.getInstance().latLngToCellAddress(lat, lng, 9);
+// Redis: INCR supply:cell:&lt;h3id&gt; on driver update
+// Redis: INCR demand:cell:&lt;h3id&gt; on ride request
+// Surge worker: poll every 30s, compute ratios, store in Redis</pre>
+          </div>
+        </details>
+
+        <!-- 07 Amazon Cart Stale -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">07</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Amazon Cart Shows Old Data</p><p class="text-xs text-muted-foreground mt-0.5">Cache Invalidation · Eventual Consistency · Write-Through</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Cart update writes to DB but cache still holds old version. Next read hits cache → stale data. Classic cache invalidation problem.</p>
+            <div class="mermaid text-xs">
+flowchart LR
+  subgraph WRITE [Write — Cache-Aside]
+    W([Update Cart]) --> DB[(DB)]
+    DB -->|invalidate| R[("Redis\nDEL cart:userId")]
+  end
+  subgraph READ [Read — Cache-Aside]
+    U([User]) --> C&#123;Cache hit?&#125;
+    C -->|yes| D([Return cached])
+    C -->|no| DB2[(DB)]
+    DB2 -->|populate| R2[(Redis SET)]
+    R2 --> D2([Return fresh])
+  end
+            </div>
+            <p class="text-xs text-blue-400 bg-blue-500/5 border border-blue-500/20 rounded-lg px-3 py-2"><strong>Key insight:</strong> Delete the cache key on write (cache-aside), don't update it. Updating risks a race condition between the DB write and the cache write. DEL is atomic and safe. Cart can tolerate a single read-through on the next request.</p>
+          </div>
+        </details>
+
+        <!-- 08 Instagram Fan-out -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">08</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Instagram Notification Storm (Celebrity Posts)</p><p class="text-xs text-muted-foreground mt-0.5">Fan-out on Write · Fan-out on Read · Hybrid Strategy</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Problem:</strong> Celebrity with 50M followers posts a photo. Fan-out on write = insert 50M notification rows = database takes 30+ minutes. Fan-out on read = 50M concurrent followers checking their feed = thundering herd on read.</p>
+            <div class="mermaid text-xs">
+flowchart TD
+  POST([Celebrity Post]) --> CHECK&#123;Follower count?&#125;
+  CHECK -->|&lt; 10K followers| FOW["Fan-out on Write\nInsert to each feed\nimmediately"]
+  CHECK -->|≥ 10K followers| FOR["Fan-out on Read\nStore post ref only\nFeed assembled on request"]
+  FOW --> REDIS_W[(Redis feed lists)]
+  FOR --> DB_POST[(Post store\n+ follow graph)]
+            </div>
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Instagram's solution:</strong> Hybrid. Regular users → fan-out on write (fast feed). Celebrities → fan-out on read (assemble feed at read time, cached per-user). Threshold: ~10K followers.</p>
+          </div>
+        </details>
+
+        <!-- 09 Payment Deducted Order Failed -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">09</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Payment Deducted But Order Failed</p><p class="text-xs text-muted-foreground mt-0.5">Saga Pattern · Outbox · Compensating Transactions · 2PC</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Payment service (Service A) deducts money successfully. Network times out before Order service (Service B) confirms. No compensating transaction — money lost, order not created.</p>
+            <div class="mermaid text-xs">
+sequenceDiagram
+  participant U as User
+  participant OS as Order Service
+  participant PS as Payment Service
+  participant K as Kafka
+  U->>OS: place order
+  OS->>K: publish OrderCreated
+  K->>PS: consume OrderCreated
+  PS->>PS: deduct payment
+  PS->>K: publish PaymentSuccess
+  K->>OS: consume PaymentSuccess
+  OS->>OS: confirm order
+  Note over OS: If PaymentSuccess never arrives, saga timeout → publish OrderCancelled → PS refunds
+            </div>
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Fix: Saga Pattern (choreography).</strong> Each service publishes events and reacts to others. Compensating transactions handle failures. Use Outbox Pattern to guarantee event publishing survives crashes (same DB tx as business entity).</p>
+          </div>
+        </details>
+
+        <!-- 10 YouTube Processing -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">10</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">YouTube Video Processing Pipeline</p><p class="text-xs text-muted-foreground mt-0.5">DAG Workflow · Worker Queues · Idempotent Processing · Chunked Upload</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <div class="mermaid text-xs">
+flowchart LR
+  U([Upload]) -->|chunked S3| RAW[Raw Storage]
+  RAW -->|trigger| Q[Kafka Queue]
+  Q --> T1[Transcode Worker\n360p/720p/1080p]
+  Q --> T2[Thumbnail\nExtractor]
+  Q --> T3[Audio\nProcessor]
+  T1 & T2 & T3 --> AGG[Aggregator]
+  AGG -->|all done| META[(Metadata DB\nstatus=READY)]
+  META -->|CDN push| CDN[CDN Edge]
+            </div>
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Key design decisions:</strong> (1) Chunked upload with resumability — 5GB videos need chunk IDs + S3 multipart upload. (2) Worker idempotency — transcode job ID ensures re-runs don't duplicate output. (3) Fan-out at processing — multiple quality levels processed in parallel. (4) Only mark video READY when ALL qualities are done (aggregator waits with DAG).</p>
+          </div>
+        </details>
+
+        <!-- 11 Kafka Consumer Double-Process -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">11</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Kafka Consumer Processes Same Event Twice</p><p class="text-xs text-muted-foreground mt-0.5">At-Least-Once · Idempotent Consumer · Exactly-Once Semantics</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Consumer processes event, DB write succeeds, then crashes before committing Kafka offset. On restart, Kafka re-delivers the same event. Business logic runs twice (double charge, double email).</p>
+            <div class="mermaid text-xs">
+sequenceDiagram
+  participant K as Kafka
+  participant C as Consumer
+  participant R as Redis Dedup
+  participant DB as Database
+  K->>C: event (orderId=123)
+  C->>R: SETNX event:123 TTL=24h
+  alt New event
+    R-->>C: 1 - new
+    C->>DB: save order
+    C->>K: commitOffset
+  else Duplicate (after crash)
+    R-->>C: 0 - exists
+    C->>K: commitOffset silently
+  end
+            </div>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// Idempotent consumer with Redis dedup
+@KafkaListener(topics = "orders")
+@Transactional
+public void consume(OrderEvent event, Acknowledgment ack) &#123;
+    String dedupKey = "kafka:dedup:" + event.getEventId();
+    Boolean isNew = redis.opsForValue()
+        .setIfAbsent(dedupKey, "1", 24, HOURS);
+    if (Boolean.TRUE.equals(isNew)) &#123;
+        orderService.process(event); // idempotent business logic
+    &#125;
+    ack.acknowledge(); // always ack to move offset forward
+&#125;</pre>
+          </div>
+        </details>
+
+        <!-- 12 Order Events Out of Sequence -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">12</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Order Events Arrive Out of Sequence</p><p class="text-xs text-muted-foreground mt-0.5">Kafka Partitions · Event Ordering · Sequence Numbers · Reorder Buffer</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Kafka guarantees order only within a partition. With 10 partitions and round-robin assignment, events for Order #123 land on different partitions — consumed out of order.</p>
+            <div class="mermaid text-xs">
+flowchart LR
+  P([Producer]) -->|key=orderId\nsame partition| K["Kafka Partition\nordered within"]
+  K --> C[Consumer]
+  C --> BUF["TreeMap Buffer\nseq 1, 2, 3..."]
+  BUF -->|consecutive ready| PROC[Process in order]
+  BUF -->|gap - wait| W["timeout\nflush gap"]
+            </div>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// Producer: always use orderId as key → same partition
+kafkaTemplate.send("order-events", order.getId().toString(), event);
+
+// Consumer: reorder buffer for global ordering (if needed)
+Map&lt;Long, TreeMap&lt;Long, OrderEvent&gt;&gt; buffers = new ConcurrentHashMap&lt;&gt;();
+public void process(OrderEvent event) &#123;
+    TreeMap&lt;Long, OrderEvent&gt; buf = buffers
+        .computeIfAbsent(event.getOrderId(), k -&gt; new TreeMap&lt;&gt;());
+    buf.put(event.getSeqNo(), event);
+    long expected = lastProcessed.getOrDefault(event.getOrderId(), 0L) + 1;
+    while (buf.containsKey(expected))
+        processEvent(buf.remove(expected++));
+&#125;</pre>
+            <p class="text-xs text-amber-400 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2"><strong>Interview Trap:</strong> Using a single-partition topic for global ordering — one partition = no parallelism = throughput bottleneck. Correct: partition by orderId.</p>
+          </div>
+        </details>
+
+        <!-- 13 Notification Crash Flash Sale -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">13</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Notification Service Crashes During Flash Sale</p><p class="text-xs text-muted-foreground mt-0.5">Backpressure · Rate Limiting · Circuit Breaker · Queue Buffer</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <div class="mermaid text-xs">
+flowchart LR
+  FS(["Flash Sale\n50K events/sec"]) -->|absorbs spike| K["Kafka Buffer"]
+  K -->|safe rate\n~1K/sec| W[Notification\nWorker]
+  W --> RL["Rate Limiter\nBucket4j 1K/sec"]
+  RL --> CB[Circuit Breaker]
+  CB -->|closed| SMS[SMS Provider]
+  CB -->|open| FB[FCM Fallback]
+            </div>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// Rate limiter: max 1000 notifications/sec to SMS provider
+Bucket smsRateBucket = Bucket.builder()
+    .addLimit(Bandwidth.classic(1000, Refill.greedy(1000, ofSeconds(1))))
+    .build();
+
+@CircuitBreaker(name = "sms", fallbackMethod = "pushFallback")
+public void sendSMS(String phone, String msg) &#123;
+    if (!smsRateBucket.tryConsume(1))
+        throw new RateLimitExceededException();
+    smsProvider.send(phone, msg);
+&#125;
+// fallback: FCM push notification instead of SMS</pre>
+          </div>
+        </details>
+
+        <!-- 14 Instagram Avoids JOINs -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">14</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Why Instagram Avoids JOINs at Scale</p><p class="text-xs text-muted-foreground mt-0.5">Denormalization · CQRS · Read Model · Sharding</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <div class="mermaid text-xs">
+flowchart LR
+  subgraph BAD [Normalized - unusable at 1B rows]
+    J1[(users)] -.->|JOIN| J2[(posts)]
+    J2 -.->|JOIN| J3[(likes)]
+    J3 -.->|JOIN| J4[(comments)]
+  end
+  subgraph GOOD [Denormalized - Instagram approach]
+    F["post_feed_item&#123;\n  userId, postId,\n  authorName, authorAvatar,\n  likeCount, commentCount,\n  mediaUrl\n&#125;"]
+  end
+            </div>
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Solution:</strong> Pre-compute read models (denormalized). Write path updates all read models (fan-out). Read path is a single key lookup. Trade-off: write amplification for read simplicity. Instagram stores separate "feed" table per user pre-populated on write. CQRS makes this explicit: Command (write) and Query (read) sides are separate.</p>
+          </div>
+        </details>
+
+        <!-- 15 DynamoDB Hot Partition -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">15</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">DynamoDB Hot Partition Problem</p><p class="text-xs text-muted-foreground mt-0.5">Partition Key Design · Write Sharding · DAX Cache</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Poor partition key choice causes all writes to hit one partition. DynamoDB partitions each handle ~1000 WCU — exceeded → ProvisionedThroughputExceeded errors even if total WCU is fine.</p>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// BAD: all writes for same date go to same partition
+partitionKey = "event_date#2024-01-15" // HOT PARTITION
+
+// GOOD: add random suffix (write sharding)
+int shard = ThreadLocalRandom.current().nextInt(10);
+partitionKey = "event_date#2024-01-15#" + shard;
+
+// Read: query all 10 shards in parallel (scatter-gather)
+List&lt;String&gt; keys = IntStream.range(0, 10)
+    .mapToObj(i -&gt; "event_date#2024-01-15#" + i)
+    .collect(toList());
+// Parallel DynamoDB BatchGetItem</pre>
+          </div>
+        </details>
+
+        <!-- 16 Redis Cache Stampede -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">16</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">Redis Cache Stampede Causes Production Outage</p><p class="text-xs text-muted-foreground mt-0.5">Thundering Herd · Mutex Lock · Probabilistic Early Expiration</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Popular cache key expires. 10,000 concurrent requests all miss, all query DB simultaneously. DB connection pool exhausted → cascade failure.</p>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// Fix 1: Mutex lock — only one thread refreshes cache
+public Product getProduct(String id) &#123;
+    Product cached = cache.get(id);
+    if (cached != null) return cached;
+
+    String lockKey = "lock:product:" + id;
+    if (redis.setIfAbsent(lockKey, "1", 10, SECONDS)) &#123;
+        try &#123;
+            Product p = db.findById(id);
+            cache.set(id, p, 5, MINUTES);
+            return p;
+        &#125; finally &#123; redis.delete(lockKey); &#125;
+    &#125;
+    // Others: short wait + retry (or return stale)
+    Thread.sleep(100);
+    return cache.get(id);
+&#125;
+
+// Fix 2: TTL jitter — spread expiry times
+long ttl = baseSeconds + ThreadLocalRandom.current().nextLong(60);
+cache.set(key, value, ttl, SECONDS);</pre>
+          </div>
+        </details>
+
+        <!-- 17 AI Chatbot Hallucination -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">17</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">AI Chatbot Gives Wrong Answers (Hallucination)</p><p class="text-xs text-muted-foreground mt-0.5">RAG · Vector Search · Grounding · Prompt Engineering</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> LLM trained on fixed data → answers from training, not your current product docs → hallucinations and outdated facts.</p>
+            <div class="mermaid text-xs">
+flowchart LR
+  Q([User Question]) --> EMB[Embedding Model]
+  EMB -->|query vector| VS[(Vector Store\nPinecone/pgvector)]
+  VS -->|top-K chunks| CTX[Context Builder]
+  CTX -->|question + context| LLM[LLM\nClaude/GPT-4]
+  LLM --> A([Answer grounded\nin your docs])
+            </div>
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Fix: RAG (Retrieval-Augmented Generation).</strong> Embed your product docs into a vector store. On each question: embed the query → retrieve top-K similar chunks → inject as context → LLM answers from context, not from training. Answer quality is only as good as your retrieval quality.</p>
+          </div>
+        </details>
+
+        <!-- 18 AI Bill Spike -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">18</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">AI Platform Bill Spikes 10x Overnight</p><p class="text-xs text-muted-foreground mt-0.5">Token Budget · Prompt Caching · Model Tiering · Cost Guards</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Causes:</strong> (1) Runaway loop making repeated LLM calls. (2) Large context window per call (long conversation history). (3) No model tiering — using GPT-4 for simple classification tasks. (4) No caching for repeated identical prompts.</p>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">// Fix 1: Token budget per call
+if (estimateTokens(prompt) &gt; MAX_TOKENS) &#123;
+    prompt = summarize(prompt); // truncate + summarize history
+&#125;
+
+// Fix 2: Model tiering
+LLMResponse classify(String text) &#123;
+    // Simple classification: use cheap model (haiku/mini)
+    if (text.length() &lt; 500) return cheapModel.call(text);
+    // Complex reasoning: use expensive model
+    return premiumModel.call(text);
+&#125;
+
+// Fix 3: Semantic cache (identical/similar prompts → cached answer)
+String cacheKey = hash(embed(prompt)); // vector similarity cache
+String cached = redis.get(cacheKey);
+if (cached != null) return cached;</pre>
+          </div>
+        </details>
+
+        <!-- 19 Vector Search Latency -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">19</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">AI Search Feels Slow (Vector Search Latency)</p><p class="text-xs text-muted-foreground mt-0.5">ANN · HNSW · Embedding Cache · Hybrid Search</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Brute-force cosine similarity over 10M+ vectors is O(n·d) — too slow for real-time search. Embedding the query itself adds latency.</p>
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Fixes:</strong> (1) ANN (Approximate Nearest Neighbor) with HNSW index — O(log n) vs O(n). pgvector, Pinecone, Qdrant use HNSW. (2) Cache embeddings for popular queries. (3) Pre-filter: use keyword search (BM25) to narrow candidates, then vector re-rank. (4) Dimensionality reduction (PCA) — fewer dimensions = faster similarity.</p>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">-- pgvector with HNSW index (fast ANN)
+CREATE INDEX ON documents
+  USING hnsw (embedding vector_cosine_ops)
+  WITH (m = 16, ef_construction = 64);
+
+-- Hybrid search: keyword pre-filter + vector re-rank
+SELECT id, content,
+  ts_rank(to_tsvector(content), query) AS keyword_score,
+  1 - (embedding &lt;=&gt; $1) AS vector_score
+FROM documents,
+  plainto_tsquery($2) AS query
+WHERE to_tsvector(content) @@ query  -- keyword filter
+ORDER BY vector_score DESC LIMIT 10; -- vector re-rank</pre>
+          </div>
+        </details>
+
+        <!-- 20 OTP Service Failure -->
+        <details class="group rounded-xl border border-border/30 bg-card/50 overflow-hidden">
+          <summary class="flex items-start gap-3 p-4 cursor-pointer select-none hover:bg-card/80 transition-colors list-none">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-saffron/20 text-saffron text-xs font-bold flex items-center justify-center">20</span>
+            <div class="flex-1"><p class="text-sm font-medium text-foreground">OTP Service Fails During Peak Traffic</p><p class="text-xs text-muted-foreground mt-0.5">SMS Failover · Rate Limiting · Redis TTL · Brute Force Prevention</p></div>
+            <span class="shrink-0 text-muted-foreground text-xs">▼</span>
+          </summary>
+          <div class="px-4 pb-4 pt-2 border-t border-border/20 space-y-3">
+            <p class="text-xs text-muted-foreground"><strong class="text-foreground">Root Cause:</strong> Single SMS provider rate-limited or down. No failover. OTP stored in DB — too slow at scale. No brute-force protection → security risk.</p>
+            <div class="mermaid text-xs">
+sequenceDiagram
+  participant U as User
+  participant API as OTP Service
+  participant R as Redis
+  participant P1 as Primary SMS
+  participant P2 as Fallback SMS
+  U->>API: request OTP
+  API->>R: SET otp:&#123;phone&#125; 6-digit TTL=300s
+  API->>R: INCR rate:&#123;phone&#125; (max 5/day)
+  API->>P1: send SMS
+  alt P1 fails
+    API->>P2: failover SMS provider
+  end
+  U->>API: verify OTP
+  API->>R: GET otp:&#123;phone&#125; + DEL (one-time)
+  API->>R: INCR verify-fail:&#123;phone&#125; (max 3 attempts)
+            </div>
+            <pre class="text-xs bg-card rounded-lg p-3 overflow-x-auto text-emerald-400 leading-relaxed">public String generateOTP(String phone) &#123;
+    // Rate limit: max 5 OTPs per phone per day
+    Long count = redis.opsForValue().increment("rate:" + phone);
+    if (count == 1) redis.expire("rate:" + phone, 24, HOURS);
+    if (count &gt; 5) throw new RateLimitException("Too many OTPs");
+
+    String otp = String.format("%06d", secureRandom.nextInt(1_000_000));
+    redis.opsForValue().set("otp:" + phone, otp, 5, MINUTES);
+
+    try &#123; primarySMS.send(phone, otp); &#125;
+    catch (Exception e) &#123; fallbackSMS.send(phone, otp); &#125;
+    return "OTP sent";
+&#125;
+
+public boolean verifyOTP(String phone, String input) &#123;
+    // Brute force: max 3 verify attempts
+    Long attempts = redis.opsForValue().increment("fail:" + phone);
+    if (attempts == 1) redis.expire("fail:" + phone, 5, MINUTES);
+    if (attempts &gt; 3) throw new TooManyAttemptsException();
+
+    String stored = redis.opsForValue().getAndDelete("otp:" + phone);
+    return stored != null &amp;&amp; stored.equals(input);
+&#125;</pre>
+          </div>
+        </details>
+
+      </div><!-- end alisha questions -->
+    </section>
+
+  </div><!-- end main content -->
 </App>
+
+<script is:inline src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script is:inline>
+  mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+
+  // ── Filter logic ────────────────────────────────────────────────────────────
+  (function () {
+    const items = Array.from(document.querySelectorAll('.question-item'));
+    const countEl = document.getElementById('q-count');
+    let activeDiff = 'All';
+    let activeCat = 'All';
+    let searchText = '';
+
+    function applyFilters() {
+      let visible = 0;
+      items.forEach(function (el) {
+        const diff = el.dataset.diff || '';
+        const cat = el.dataset.cat || '';
+        const text = el.textContent.toLowerCase();
+        const matchDiff = activeDiff === 'All' || diff === activeDiff;
+        const matchCat = activeCat === 'All' || cat === activeCat;
+        const matchSearch = !searchText || text.includes(searchText);
+        const show = matchDiff && matchCat && matchSearch;
+        el.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      if (countEl) countEl.textContent = visible + ' question' + (visible !== 1 ? 's' : '');
+    }
+
+    // Difficulty buttons
+    document.querySelectorAll('.diff-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activeDiff = this.dataset.diff;
+        document.querySelectorAll('.diff-btn').forEach(function (b) {
+          b.classList.remove('bg-saffron', 'text-white', 'border-saffron');
+          b.classList.add('bg-card/50', 'text-muted-foreground', 'border-border/30');
+        });
+        this.classList.add('bg-saffron', 'text-white', 'border-saffron');
+        this.classList.remove('bg-card/50', 'text-muted-foreground', 'border-border/30');
+        applyFilters();
+      });
+    });
+
+    // Category buttons
+    document.querySelectorAll('.cat-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activeCat = this.dataset.cat;
+        document.querySelectorAll('.cat-btn').forEach(function (b) {
+          b.classList.remove('bg-saffron', 'text-white', 'border-saffron');
+          b.classList.add('bg-card/50', 'text-muted-foreground', 'border-border/30');
+        });
+        this.classList.add('bg-saffron', 'text-white', 'border-saffron');
+        this.classList.remove('bg-card/50', 'text-muted-foreground', 'border-border/30');
+        applyFilters();
+      });
+    });
+
+    // Search input
+    var searchInput = document.getElementById('q-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        searchText = this.value.toLowerCase().trim();
+        applyFilters();
+      });
+    }
+
+    // Initial count
+    applyFilters();
+  })();
+</script>
