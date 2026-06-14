@@ -1,0 +1,75 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "Guru Sishya GURU SISHYA" [ref=e6] [cursor=pointer]:
+        - /url: /app/dashboard
+        - img "Guru Sishya" [ref=e7]
+        - generic [ref=e8]: GURU SISHYA
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic [ref=e12]: 🔥
+          - generic [ref=e13]: "0"
+        - generic [ref=e16]:
+          - generic [ref=e17]: Shishya I
+          - generic [ref=e18]: 0/100 XP
+        - generic [ref=e20]:
+          - generic [ref=e21]: 🪙
+          - generic [ref=e22]: "0"
+        - generic [ref=e23]: Shishya I
+        - link "Sign In" [ref=e24] [cursor=pointer]:
+          - /url: /login
+          - button "Sign In" [ref=e25]
+    - generic [ref=e26]:
+      - complementary [ref=e27]:
+        - navigation [ref=e28]:
+          - link "🏠 Dashboard" [ref=e29] [cursor=pointer]:
+            - /url: /app/dashboard
+            - generic [ref=e30]: 🏠
+            - generic [ref=e31]: Dashboard
+          - link "📚 Topics" [ref=e32] [cursor=pointer]:
+            - /url: /app/topics
+            - generic [ref=e33]: 📚
+            - generic [ref=e34]: Topics
+          - link "📝 Questions" [ref=e35] [cursor=pointer]:
+            - /url: /app/questions
+            - generic [ref=e36]: 📝
+            - generic [ref=e37]: Questions
+          - link "🎤 Mock Interview" [ref=e38] [cursor=pointer]:
+            - /url: /app/interview
+            - generic [ref=e39]: 🎤
+            - generic [ref=e40]: Mock Interview
+          - link "🔁 Review" [ref=e41] [cursor=pointer]:
+            - /url: /app/review
+            - generic [ref=e42]: 🔁
+            - generic [ref=e43]: Review
+          - button "More" [ref=e44]:
+            - img [ref=e45]
+            - generic [ref=e47]: More
+          - link "Upgrade to Pro" [ref=e48] [cursor=pointer]:
+            - /url: /app/pricing
+            - img [ref=e49]
+            - generic [ref=e51]: Upgrade to Pro
+      - main [ref=e52]:
+        - generic [ref=e53]:
+          - img [ref=e55]
+          - heading "Access Denied" [level=1] [ref=e57]
+          - paragraph [ref=e58]: This page is restricted to site administrators.
+  - button "Mitra — upgrade to Pro to unlock unlimited chat" [ref=e59]:
+    - img [ref=e60]
+    - img [ref=e64]
+  - button "Send feedback" [ref=e67]:
+    - img [ref=e68]
+  - generic [ref=e70]:
+    - generic [ref=e71]:
+      - img [ref=e72]
+      - generic [ref=e74]: Unlock all features with Pro
+      - generic [ref=e75]: — starting at just Rs.149/mo
+    - generic [ref=e76]:
+      - link "Upgrade" [ref=e77] [cursor=pointer]:
+        - /url: /app/pricing
+      - button [ref=e78]:
+        - img [ref=e79]
+  - region "Notifications alt+T"
+  - alert [ref=e82]

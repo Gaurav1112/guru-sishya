@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { getLevelInfo, xpProgressInLevel } from "@/lib/gamification/xp";
 import { useStore } from "@/lib/store";
 

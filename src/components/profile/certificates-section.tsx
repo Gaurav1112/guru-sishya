@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { Award, ChevronRight, Lock } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
@@ -104,7 +103,7 @@ export function CertificatesSection() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         {certStatuses.map(({ topic, accuracy, questionsAnswered, eligible }) => (
-          <Link
+          <a
             key={topic.id}
             href={
               eligible
@@ -145,7 +144,7 @@ export function CertificatesSection() {
               </p>
             </div>
             <ChevronRight className="size-4 text-muted-foreground/40 group-hover:text-saffron transition-colors shrink-0" />
-          </Link>
+          </a>
         ))}
       </div>
 

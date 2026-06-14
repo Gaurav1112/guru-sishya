@@ -1,11 +1,10 @@
 "use client";
-import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/ui/image";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Crown, Menu, ShieldCheck } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/clerk-compat";
 import { useStore } from "@/lib/store";
 import { ADMIN_EMAIL } from "@/lib/stores/premium-slice";
 import { StreakFlame, type StreakStatus } from "@/components/gamification/streak-flame";
@@ -24,6 +23,7 @@ const navItems = [
   { href: "/app/questions", label: "Questions", icon: "📝" },
   { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
   { href: "/app/review", label: "Review", icon: "🔁" },
+  { href: "/app/codex", label: "Interview Codex", icon: "📋" },
   { href: "/app/playground", label: "Playground", icon: "⚡" },
   { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
   { href: "/app/notes", label: "My Notes", icon: "📓" },
@@ -79,7 +79,7 @@ function MobileNav() {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
             return (
-              <Link
+              <a
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
@@ -102,12 +102,12 @@ function MobileNav() {
                     {revisionCount > 99 ? "99+" : revisionCount}
                   </span>
                 )}
-              </Link>
+              </a>
             );
           })}
           {/* Admin console link — only visible for admin */}
           {isAdmin && (
-            <Link
+            <a
               href="/app/admin"
               onClick={() => setOpen(false)}
               className={cn(
@@ -119,12 +119,12 @@ function MobileNav() {
             >
               <ShieldCheck className="size-4 shrink-0" />
               Admin Console
-            </Link>
+            </a>
           )}
 
           {/* Pro upgrade / status link */}
           {isActivePro ? (
-            <Link
+            <a
               href="/app/pricing"
               onClick={() => setOpen(false)}
               className={cn(
@@ -139,9 +139,9 @@ function MobileNav() {
               <span className="text-[10px] font-semibold text-gold bg-gold/10 border border-gold/30 rounded-full px-1.5 py-0.5">
                 Active
               </span>
-            </Link>
+            </a>
           ) : (
-            <Link
+            <a
               href="/app/pricing"
               onClick={() => setOpen(false)}
               className={cn(
@@ -153,14 +153,14 @@ function MobileNav() {
             >
               <Crown className="size-4 shrink-0" />
               Upgrade to Pro
-            </Link>
+            </a>
           )}
 
           {topics && topics.length > 0 && (
             <>
               <div className="mt-6 mb-2 px-3 text-xs font-medium tracking-wider text-muted-foreground">RECENT TOPICS</div>
               {topics.map((topic) => (
-                <Link
+                <a
                   key={topic.id}
                   href={`/app/topic/${topic.id}`}
                   onClick={() => setOpen(false)}
@@ -173,7 +173,7 @@ function MobileNav() {
                 >
                   <span className="h-2 w-2 rounded-full bg-saffron/40" />
                   <span className="truncate">{topic.name}</span>
-                </Link>
+                </a>
               ))}
             </>
           )}
@@ -213,13 +213,13 @@ export function Topbar() {
     <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-sm">
       <div className="flex items-center gap-2">
         <MobileNav />
-        <Link
+        <a
           href="/app/dashboard"
           className="flex items-center gap-2 shrink-0"
         >
           <Image src="/logo-mark.png" alt="Guru Sishya" width={32} height={32} className="size-8 rounded-lg" priority />
           <span className="font-heading text-lg font-bold text-saffron tracking-wider hidden sm:inline">GURU SISHYA</span>
-        </Link>
+        </a>
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-4" data-tour="topbar-stats">

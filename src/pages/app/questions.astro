@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import QuestionsPage from "@/components/app/questions/Page";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Questions — Guru Sishya">
+  <QuestionsPage client:only="react" />
+</App>

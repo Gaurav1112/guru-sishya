@@ -1,0 +1,85 @@
+---
+import Base from "@/layouts/Base.astro";
+import { SignIn } from "@clerk/astro/components";
+
+// Redirect authenticated users away from login
+const userId = Astro.locals.auth?.()?.userId ?? null;
+const callbackUrl = Astro.url.searchParams.get("callbackUrl") ?? "/app/dashboard";
+if (userId) {
+  return Astro.redirect(callbackUrl);
+}
+---
+<Base
+  title="Sign In — Sync Progress & Track Badges"
+  description="Sign in to Guru Sishya to sync your interview prep progress across devices, track badges, earn XP, and join the leaderboard."
+>
+  <main class="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+    <!-- Background accent -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-saffron/10 blur-3xl"></div>
+      <div class="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-teal/5 blur-3xl"></div>
+    </div>
+
+    <div class="relative w-full max-w-sm">
+      <!-- Logo -->
+      <div class="mb-8 text-center">
+        <a href="/" class="font-heading text-2xl font-black text-saffron tracking-wider">GURU SISHYA</a>
+      </div>
+
+      <!-- Card -->
+      <div class="rounded-2xl border border-border/50 bg-card/80 backdrop-blur p-8 shadow-xl shadow-black/20">
+        <h1 class="font-heading text-2xl font-bold text-center mb-2">Welcome back</h1>
+        <p class="text-center text-sm text-muted-foreground mb-6">Sign in to sync your progress across all devices</p>
+
+        <!-- Value props -->
+        <ul class="mb-6 space-y-2 text-sm text-muted-foreground">
+          <li class="flex items-center gap-2.5">
+            <span class="text-base leading-none">&#128202;</span>
+            <span>Track your progress across devices</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <span class="text-base leading-none">&#127942;</span>
+            <span>Appear on the leaderboard with your name</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <span class="text-base leading-none">&#128276;</span>
+            <span>Weekly &amp; monthly review reminders</span>
+          </li>
+        </ul>
+
+        <!-- Clerk SignIn component -->
+        <SignIn
+          fallbackRedirectUrl={callbackUrl}
+          appearance={{
+            elements: {
+              rootBox: "w-full",
+              card: "bg-transparent shadow-none border-0 p-0",
+              headerTitle: "hidden",
+              headerSubtitle: "hidden",
+              socialButtonsBlockButton: "w-full h-10 border border-border/50 bg-card/50 hover:bg-card text-foreground text-sm font-medium transition-colors",
+              dividerLine: "bg-border/30",
+              dividerText: "text-muted-foreground text-xs",
+              formFieldInput: "bg-card/50 border-border/50 text-foreground placeholder-muted-foreground",
+              formButtonPrimary: "bg-saffron hover:bg-saffron/90 text-white font-semibold",
+              footerActionLink: "text-saffron hover:text-saffron/80",
+            },
+          }}
+        />
+
+        <div class="mt-4 border-t border-border/30 pt-4 text-center">
+          <a href="/app/topics" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Continue without account
+          </a>
+        </div>
+
+        <p class="mt-3 text-center text-xs text-muted-foreground/60">
+          No credit card required &bull; Fully free, forever
+        </p>
+      </div>
+
+      <p class="mt-6 text-center text-xs text-muted-foreground/50">
+        Your data stays local even without signing in.<br />Sign in only unlocks cross-device sync.
+      </p>
+    </div>
+  </main>
+</Base>

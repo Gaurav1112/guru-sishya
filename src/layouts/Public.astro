@@ -1,0 +1,20 @@
+---
+import Base from "./Base.astro";
+import PublicNav from "@/components/layout/PublicNav.astro";
+import PublicFooter from "@/components/layout/PublicFooter.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+}
+---
+<Base {...Astro.props}>
+  <PublicNav />
+  <main id="main-content">
+    <slot />
+  </main>
+  <PublicFooter />
+</Base>

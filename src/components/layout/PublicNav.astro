@@ -1,0 +1,61 @@
+---
+const navLinks = [
+  { href: "/learn", label: "Learn" },
+  { href: "/questions-bank", label: "Questions" },
+  { href: "/system-design-interview", label: "System Design" },
+  { href: "/app/pricing", label: "Pricing" },
+];
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => currentPath === href || currentPath.startsWith(href + "/");
+---
+<style>
+  .skip-to-content {
+    position: absolute;
+    left: -9999px;
+    top: 1rem;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    background: var(--color-accent);
+    color: #000;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    z-index: 100;
+  }
+  .skip-to-content:focus {
+    left: 1rem;
+    width: auto;
+    height: auto;
+    overflow: visible;
+  }
+</style>
+<a href="#main-content" class="skip-to-content">Skip to content</a>
+<header style="border-bottom: 1px solid var(--color-border); background: var(--color-bg); position: sticky; top: 0; z-index: 50;">
+  <nav aria-label="Main navigation" style="max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; height: 56px; display: flex; align-items: center; justify-content: space-between;">
+    <a href="/" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 600; letter-spacing: -0.02em; color: var(--color-text);" aria-label="Guru Sishya home">
+      <img src="/logo-mark-v6.svg" alt="" width="24" height="24" aria-hidden="true" />
+      <span>Guru Sishya</span>
+    </a>
+
+    <div style="display: flex; align-items: center; gap: 2rem;">
+      {navLinks.map(({ href, label }) => (
+        <a
+          href={href}
+          aria-current={isActive(href) ? "page" : undefined}
+          style={`text-decoration: none; font-size: 0.875rem; color: ${isActive(href) ? "var(--color-text)" : "var(--color-text-muted)"}; transition: color 0.15s;`}
+        >
+          {label}
+        </a>
+      ))}
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <a href="/login" style="font-size: 0.875rem; color: var(--color-text-muted); text-decoration: none;">Sign in</a>
+      <a href="/app/dashboard" style="font-size: 0.875rem; font-weight: 500; background: var(--color-accent); color: #000; padding: 0.375rem 0.875rem; text-decoration: none; letter-spacing: -0.01em;">
+        Get Started
+      </a>
+    </div>
+  </nav>
+</header>

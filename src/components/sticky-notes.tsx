@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, StickyNote, GripVertical, Lock } from "lucide-react";
-import Link from "next/link";
 import { useStore } from "@/lib/store";
 
 interface Note {
@@ -177,13 +176,13 @@ export function StickyNotes({ pageId }: StickyNotesProps) {
 
   // Free limit upgrade nudge
   const UpgradeNudge = () => (
-    <Link
+    <a
       href="/app/pricing"
       className="flex items-center gap-1.5 rounded-md border border-saffron/30 bg-saffron/10 px-2 py-1.5 text-[10px] font-medium text-saffron hover:bg-saffron/20 transition-colors"
     >
       <Lock className="size-3" />
       Upgrade for unlimited notes
-    </Link>
+    </a>
   );
 
   return (

@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import TopicsPage from "@/components/app/topics/Page";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Topics — Guru Sishya">
+  <TopicsPage client:only="react" />
+</App>

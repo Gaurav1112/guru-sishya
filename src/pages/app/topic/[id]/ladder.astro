@@ -1,0 +1,11 @@
+---
+import App from "@/layouts/App.astro";
+import LadderPage from "@/components/app/topic/LadderPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+const { id } = Astro.params;
+---
+<App title="Learning Ladder — Guru Sishya">
+  <LadderPage client:only="react" params={Promise.resolve({ id: id! })} />
+</App>

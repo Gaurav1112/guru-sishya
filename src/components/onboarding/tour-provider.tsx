@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useStore } from "@/lib/store";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/navigation";
 import { TOUR_STEPS } from "./tour-steps";
 import { TourStep } from "./tour-step";
 

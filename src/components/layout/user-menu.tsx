@@ -1,13 +1,13 @@
 "use client";
-import { useSession, signOut } from "next-auth/react";
-import Link from "next/link";
-import Image from "next/image";
+import { useSession, useSignOut } from "@/lib/clerk-compat";
+import Image from "@/components/ui/image";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function UserMenu() {
   const { data: session, status } = useSession();
+  const signOut = useSignOut();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -30,7 +30,7 @@ export function UserMenu() {
 
   if (!session) {
     return (
-      <Link href="/login">
+      <a href="/login">
         <Button
           variant="outline"
           size="sm"
@@ -38,7 +38,7 @@ export function UserMenu() {
         >
           Sign In
         </Button>
-      </Link>
+      </a>
     );
   }
 
@@ -46,7 +46,7 @@ export function UserMenu() {
   const initials = user?.name
     ? user.name
         .split(" ")
-        .map((n) => n[0])
+        .map((n: string) => n[0])
         .slice(0, 2)
         .join("")
         .toUpperCase()
@@ -96,20 +96,20 @@ export function UserMenu() {
           </div>
 
           <nav aria-label="User menu" className="py-1">
-            <Link
+            <a
               href="/app/profile"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
             >
               <span aria-hidden="true">👤</span> Profile
-            </Link>
-            <Link
+            </a>
+            <a
               href="/app/settings"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
             >
               <span aria-hidden="true">⚙️</span> Settings
-            </Link>
+            </a>
           </nav>
 
           <div className="border-t border-border/40 pt-1">

@@ -1,17 +1,13 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import dynamic from "next/dynamic";
+import { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
 import { Play, RotateCcw, Terminal, Code2, ChevronDown, ChevronUp, Loader2, Clock, Copy, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { runJava, runC, runCpp, runPython, runJavaScriptSandboxed, type RunResult } from "@/lib/code-runner";
 
-// Monaco must be dynamically imported with ssr: false
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
-  ssr: false,
-  loading: () => <div className="h-full animate-pulse bg-[#1e1e1e]" />,
-});
+// Monaco must be lazily loaded (client-only)
+const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 
 /** Skeleton shown while Monaco loads */
 function EditorSkeleton({ height }: { height: number }) {
@@ -364,13 +360,13 @@ export function CodePlayground({
 
       {/* ── Monaco Editor ────────────────────────────────────────────────── */}
       <div style={{ height }}>
+        <Suspense fallback={<EditorSkeleton height={height} />}>
         <MonacoEditor
           height="100%"
           language={monacoLang}
           value={code}
           onChange={(val) => !readOnly && setCode(val ?? "")}
           theme="vs-dark"
-          loading={<EditorSkeleton height={height} />}
           options={{
             readOnly,
             minimap: { enabled: false },
@@ -398,6 +394,7 @@ export function CodePlayground({
             editorRef.current = editor;
           }}
         />
+        </Suspense>
       </div>
 
       {/* ── Run button ───────────────────────────────────────────────────── */}
@@ -547,12 +544,12 @@ export function CodeViewer({ code, language = "javascript", height = 200, classN
         <span className="text-xs text-muted-foreground font-medium capitalize">{language}</span>
       </div>
       <div style={{ height }}>
+        <Suspense fallback={<EditorSkeleton height={height} />}>
         <MonacoEditor
           height="100%"
           language={monacoLang}
           value={code}
           theme="vs-dark"
-          loading={<EditorSkeleton height={height} />}
           options={{
             readOnly: true,
             minimap: { enabled: false },
@@ -578,6 +575,7 @@ export function CodeViewer({ code, language = "javascript", height = 200, classN
             links: false,
           }}
         />
+        </Suspense>
       </div>
     </div>
   );

@@ -1,0 +1,29 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - link "GURU SISHYA" [ref=e5] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e6]:
+      - heading "Welcome back" [level=1] [ref=e7]
+      - paragraph [ref=e8]: Sign in to sync your progress across all devices
+      - list [ref=e9]:
+        - listitem [ref=e10]:
+          - generic [ref=e11]: 📊
+          - generic [ref=e12]: Track your progress across devices
+        - listitem [ref=e13]:
+          - generic [ref=e14]: 🏆
+          - generic [ref=e15]: Appear on the leaderboard with your name
+        - listitem [ref=e16]:
+          - generic [ref=e17]: 🔔
+          - generic [ref=e18]: Weekly & monthly review reminders
+      - button "Sign in with Google" [ref=e19]:
+        - img
+        - text: Sign in with Google
+      - generic [ref=e24]: or
+      - link "Continue without account" [ref=e25] [cursor=pointer]:
+        - /url: /app/topics
+        - button "Continue without account" [ref=e26]
+      - paragraph [ref=e27]: No credit card required • Fully free, forever
+    - paragraph [ref=e28]:
+      - text: Your data stays local even without signing in.
+      - text: Sign in only unlocks cross-device sync.
+  - alert [ref=e29]

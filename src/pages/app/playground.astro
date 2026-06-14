@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import PlaygroundPage from "@/components/app/playground/Page";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Playground — Guru Sishya">
+  <PlaygroundPage client:only="react" />
+</App>

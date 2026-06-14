@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import RevisionPage from "@/components/app/revision/Page";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Revision — Guru Sishya">
+  <RevisionPage client:only="react" />
+</App>

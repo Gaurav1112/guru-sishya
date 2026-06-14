@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import ShopPage from "@/components/app/shop/Page";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Shop — Guru Sishya">
+  <ShopPage client:only="react" />
+</App>

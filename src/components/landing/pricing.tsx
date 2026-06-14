@@ -1,9 +1,12 @@
 "use client";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import type { ContentStats } from "@/app/page";
+interface ContentStats {
+  topicCount: number;
+  questionCount: number;
+  sessionCount: number;
+}
 
 interface PlanFeature {
   text: string;
@@ -104,11 +107,11 @@ export function Pricing({ stats }: { stats: ContentStats }) {
             ))}
           </ul>
 
-          <Link href="/app/topics">
+          <a href="/app/topics">
             <Button variant="outline" className="w-full" size="lg">
               Get Started Free
             </Button>
-          </Link>
+          </a>
         </motion.div>
 
         {/* Pro Monthly — highlighted */}
@@ -149,11 +152,11 @@ export function Pricing({ stats }: { stats: ContentStats }) {
             ))}
           </ul>
 
-          <Link href="/app/pricing">
+          <a href="/app/pricing">
             <Button className="w-full bg-saffron hover:bg-saffron/90" size="lg">
               Try Pro Free for 7 Days
             </Button>
-          </Link>
+          </a>
           <p className="mt-2 text-center text-xs text-muted-foreground">
             Cancel anytime &bull; No card to start trial
           </p>
@@ -196,14 +199,14 @@ export function Pricing({ stats }: { stats: ContentStats }) {
             ))}
           </ul>
 
-          <Link href="/app/pricing">
+          <a href="/app/pricing">
             <Button
               className="w-full bg-gradient-to-r from-gold to-saffron text-background hover:opacity-90"
               size="lg"
             >
               Get Lifetime Access
             </Button>
-          </Link>
+          </a>
           <p className="mt-2 text-center text-xs text-muted-foreground">
             Pay once, never pay again
           </p>
@@ -219,9 +222,9 @@ export function Pricing({ stats }: { stats: ContentStats }) {
       >
         <p className="text-sm text-muted-foreground">
           Looking for Starter, Semester, or Annual plans?{" "}
-          <Link href="/app/pricing" className="text-teal hover:underline font-medium">
+          <a href="/app/pricing" className="text-teal hover:underline font-medium">
             See all pricing options
-          </Link>
+          </a>
         </p>
         <p className="text-xs text-muted-foreground/60">
           Payments secured by Razorpay &bull; 7-day free trial on all Pro plans &bull; 7-day money-back guarantee

@@ -2,7 +2,6 @@
 
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
-import Link from "next/link";
 import { AlertTriangle, ChevronRight } from "lucide-react";
 
 interface WeakTopic {
@@ -66,7 +65,7 @@ export function WeakAreas() {
       ) : (
         <div className="space-y-2">
           {weakTopics.slice(0, 8).map((t) => (
-            <Link
+            <a
               key={t.topicId}
               href={`/app/topic/${t.topicId}/quiz`}
               className="flex items-center gap-3 rounded-lg border border-border/30 px-3 py-2 hover:bg-surface-hover transition-colors group"
@@ -91,7 +90,7 @@ export function WeakAreas() {
                 </span>
                 <ChevronRight className="size-3.5 text-muted-foreground group-hover:text-saffron transition-colors" />
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       )}

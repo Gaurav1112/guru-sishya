@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { X, Crown } from "lucide-react";
 import { useStore } from "@/lib/store";
 
@@ -19,7 +18,7 @@ export function StickyUpgradeBar() {
         <span className="hidden sm:inline text-background/70">— starting at just Rs.149/mo</span>
       </div>
       <div className="flex items-center gap-2">
-        <Link href="/app/pricing" className="px-3 py-1 rounded-lg bg-background text-saffron text-sm font-semibold hover:bg-background/90 transition-colors">Upgrade</Link>
+        <a href="/app/pricing" className="px-3 py-1 rounded-lg bg-background text-saffron text-sm font-semibold hover:bg-background/90 transition-colors">Upgrade</a>
         <button onClick={() => setDismissed(true)} className="p-1 text-background/70 hover:text-background"><X className="size-4" /></button>
       </div>
     </div>

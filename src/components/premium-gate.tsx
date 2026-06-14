@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 import { Lock, RefreshCw, Timer } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useFeatureLimit } from "@/hooks/use-feature-limit";
@@ -157,18 +156,18 @@ export function PremiumGate({ feature, children, overlay = true, limitFeature }:
           </p>
         </div>
         <div className="flex flex-col gap-2 w-full">
-          <Link
+          <a
             href="/app/pricing"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-teal/50 bg-teal/10 px-4 py-2 text-sm font-semibold text-teal transition-opacity hover:bg-teal/20"
           >
             Starter &mdash; ₹49/mo
-          </Link>
-          <Link
+          </a>
+          <a
             href="/app/pricing"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
           >
             Pro &mdash; ₹149/mo (Everything)
-          </Link>
+          </a>
         </div>
         <p className="text-[10px] text-muted-foreground/60">
           Pro users complete 3x more topics on average
@@ -226,27 +225,27 @@ export function PremiumGate({ feature, children, overlay = true, limitFeature }:
       </div>
       <div className="flex flex-col gap-2 w-full">
         {showStarter && (
-          <Link
+          <a
             href={href}
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-teal/50 bg-teal/10 px-4 py-2 text-sm font-semibold text-teal transition-opacity hover:bg-teal/20"
           >
             Starter &mdash; ₹49/mo
-          </Link>
+          </a>
         )}
-        <Link
+        <a
           href={href}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-saffron px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
         >
           {cta}
-        </Link>
+        </a>
       </div>
       {!hadPremium && (
-        <Link
+        <a
           href="/app/pricing"
           className="text-xs text-muted-foreground hover:text-saffron transition-colors"
         >
           or start 7-day free trial
-        </Link>
+        </a>
       )}
       <p className="text-[10px] text-muted-foreground/60">
         Pro users complete 3x more topics on average

@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import ProfilePage from "@/components/app/profile/Page";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Profile — Guru Sishya">
+  <ProfilePage client:only="react" />
+</App>

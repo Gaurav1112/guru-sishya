@@ -1,0 +1,10 @@
+---
+import App from "@/layouts/App.astro";
+import ReferralPage from "@/components/app/profile/ReferralPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+---
+<App title="Referral — Guru Sishya">
+  <ReferralPage client:only="react" />
+</App>

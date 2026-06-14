@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { PremiumGate } from "@/components/premium-gate";
 import { Lock, ChevronDown, Building2 } from "lucide-react";
-import Link from "next/link";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -224,12 +223,12 @@ export function CompanyQuestionsSection() {
           />
         ))}
         {filtered.length > 10 && (
-          <Link
+          <a
             href="/app/questions"
             className="flex items-center justify-center gap-2 rounded-xl border border-saffron/30 bg-saffron/5 px-4 py-3 text-sm font-medium text-saffron hover:bg-saffron/10 transition-colors"
           >
             View all {filtered.length} questions →
-          </Link>
+          </a>
         )}
       </div>
     </div>

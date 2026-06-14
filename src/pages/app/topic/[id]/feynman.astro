@@ -1,0 +1,11 @@
+---
+import App from "@/layouts/App.astro";
+import FeynmanPage from "@/components/app/topic/FeynmanPage";
+
+const userId = Astro.locals.auth?.()?.userId;
+if (!userId) return Astro.redirect("/login");
+const { id } = Astro.params;
+---
+<App title="Feynman Technique — Guru Sishya">
+  <FeynmanPage client:only="react" params={Promise.resolve({ id: id! })} />
+</App>
