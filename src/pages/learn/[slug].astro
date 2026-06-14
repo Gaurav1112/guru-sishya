@@ -1,15 +1,9 @@
 ---
 import Public from "@/layouts/Public.astro";
-import { loadAllContentFromDisk, findTopicBySlug, slugify, getRelatedTopics } from "@/lib/content/server-loader";
-
-export const prerender = true;
-
-export async function getStaticPaths() {
-  const allTopics = loadAllContentFromDisk();
-  return allTopics.map((t) => ({ params: { slug: slugify(t.topic) } }));
-}
+import { findTopicBySlug, getRelatedTopics } from "@/lib/content/server-loader";
 
 const { slug } = Astro.params;
+Astro.response.headers.set("Cache-Control", "s-maxage=86400, stale-while-revalidate=3600");
 const topic = findTopicBySlug(slug!);
 if (!topic) return Astro.redirect("/404");
 
