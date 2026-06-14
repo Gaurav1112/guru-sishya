@@ -1,0 +1,82 @@
+---
+import Base from "@/layouts/Base.astro";
+
+const { code } = Astro.params;
+
+// Validate code format (4-10 alphanumeric chars)
+const validCode = code && /^[A-Za-z0-9]{4,10}$/.test(code) ? code : null;
+---
+<Base
+  title="You've been invited to Guru Sishya — Free Interview Prep"
+  description="Your friend invited you to Guru Sishya. Join for free and get a welcome bonus. 81 topics, 1730 questions, system design, and behavioral prep."
+>
+  <div class="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
+    <a href="/" class="mb-8 opacity-80 hover:opacity-100 transition-opacity">
+      <img src="/logo-mark.png" alt="Guru Sishya" width="48" height="48" class="rounded-xl" />
+    </a>
+
+    <div class="w-full max-w-lg rounded-2xl border border-saffron/30 bg-card/80 backdrop-blur p-8 text-center shadow-xl">
+      <!-- Icon -->
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-saffron/10 border border-saffron/30 mb-6">
+        <span class="text-3xl">&#10024;</span>
+      </div>
+
+      <h1 class="font-heading text-3xl sm:text-4xl font-black mb-3">
+        Your friend invited you to <span class="text-saffron">Guru Sishya</span>
+      </h1>
+
+      <p class="text-muted-foreground text-lg mb-2">The one-stop platform to ace your software engineering interviews.</p>
+      <p class="text-sm text-teal font-medium mb-8">Join now and get a welcome bonus: +50 XP and +25 coins!</p>
+
+      <!-- Highlights grid -->
+      <div class="grid grid-cols-2 gap-3 mb-8 text-left">
+        <div class="rounded-xl border border-border/50 bg-muted/20 p-3">
+          <span class="text-saffron font-bold text-lg block mb-1">&#128218;</span>
+          <p class="font-heading font-bold text-sm">81 Topics</p>
+          <p class="text-xs text-muted-foreground">From arrays to system design</p>
+        </div>
+        <div class="rounded-xl border border-border/50 bg-muted/20 p-3">
+          <span class="text-saffron font-bold text-lg block mb-1">&#127919;</span>
+          <p class="font-heading font-bold text-sm">1900+ Questions</p>
+          <p class="text-xs text-muted-foreground">Adaptive difficulty quizzes</p>
+        </div>
+        <div class="rounded-xl border border-border/50 bg-muted/20 p-3">
+          <span class="text-saffron font-bold text-lg block mb-1">&#128101;</span>
+          <p class="font-heading font-bold text-sm">Mock Interviews</p>
+          <p class="text-xs text-muted-foreground">3-round boss fight format</p>
+        </div>
+        <div class="rounded-xl border border-border/50 bg-muted/20 p-3">
+          <span class="text-saffron font-bold text-lg block mb-1">&#9889;</span>
+          <p class="font-heading font-bold text-sm">100% Free Core</p>
+          <p class="text-xs text-muted-foreground">No credit card needed</p>
+        </div>
+      </div>
+
+      <a
+        href="/app/topics"
+        class="inline-flex items-center justify-center w-full h-12 rounded-lg bg-saffron hover:bg-saffron/90 text-white font-bold text-lg transition-colors gap-2"
+      >
+        Start Free &rarr;
+      </a>
+
+      <p class="text-xs text-muted-foreground/60 mt-4">No sign-up required. Start learning instantly.</p>
+    </div>
+
+    {validCode && (
+      <p class="mt-8 text-xs text-muted-foreground/40">Referral code: {validCode.toUpperCase()}</p>
+    )}
+  </div>
+
+  {validCode && (
+    <script define:vars={{ referralCode: validCode }}>
+      // Store referral code in localStorage for later attribution when user signs up
+      try {
+        if (referralCode && referralCode.length >= 4 && referralCode.length <= 10) {
+          localStorage.setItem("pendingReferralCode", referralCode);
+        }
+      } catch {
+        // localStorage not available
+      }
+    </script>
+  )}
+</Base>

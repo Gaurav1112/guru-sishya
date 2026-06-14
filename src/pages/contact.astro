@@ -1,0 +1,100 @@
+---
+import Public from "@/layouts/Public.astro";
+import { ContactForm } from "@/components/contact/contact-form";
+
+const FAQ_ITEMS = [
+  { q: "How do I reset my password?", a: 'Go to the login page and click "Forgot password". You will receive a reset link via email within a few minutes.' },
+  { q: "Can I switch plans later?", a: "Yes. You can upgrade or downgrade your plan at any time from Settings. Changes take effect immediately and billing is prorated." },
+  { q: "How do I request a refund?", a: "Email us at gurusishya.in@gmail.com within 7 days of purchase. We offer a no-questions-asked refund policy on all paid plans." },
+  { q: "Is my progress saved if I cancel?", a: "Yes. Your progress, badges, and streaks are preserved. If you re-subscribe later, everything will be exactly as you left it." },
+  { q: "How do I report a bug?", a: 'Use the feedback button (bottom-right corner on any page) or fill out the contact form on this page with the "Technical Issue" category.' },
+  { q: "Can I export my data?", a: "Yes. Visit Settings in your dashboard to export your data or request account deletion. We comply with all applicable data protection regulations." },
+];
+---
+<Public
+  title="Contact & Support — Guru Sishya"
+  description="Get help with Guru Sishya. Contact our support team for technical issues, billing questions, feedback, or refund requests. We respond within 24 hours."
+  canonical="https://www.guru-sishya.in/contact"
+>
+  <div class="max-w-4xl mx-auto px-4 py-16">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="font-heading text-3xl sm:text-4xl font-bold mb-3">Contact &amp; Support</h1>
+      <p class="text-muted-foreground max-w-xl mx-auto">
+        Have a question or need help? We are here for you. Fill out the form below or reach out directly &mdash; we respond within 24 hours.
+      </p>
+    </div>
+
+    <!-- Quick info cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+      <div class="rounded-xl border border-border/50 bg-card/50 p-5">
+        <div class="size-5 text-saffron mb-2 font-bold text-lg">@</div>
+        <h3 class="text-sm font-semibold mb-1">Email</h3>
+        <a href="mailto:gurusishya.in@gmail.com" class="text-sm text-saffron hover:underline break-all">
+          gurusishya.in@gmail.com
+        </a>
+      </div>
+      <div class="rounded-xl border border-border/50 bg-card/50 p-5">
+        <div class="size-5 text-teal mb-2 font-bold text-lg">&#9201;</div>
+        <h3 class="text-sm font-semibold mb-1">Response Time</h3>
+        <p class="text-sm text-muted-foreground">Within 24 hours on weekdays. 48 hours on weekends.</p>
+      </div>
+      <div class="rounded-xl border border-border/50 bg-card/50 p-5">
+        <div class="size-5 text-muted-foreground mb-2 font-bold text-lg">&#10034;</div>
+        <h3 class="text-sm font-semibold mb-1">Open Source</h3>
+        <a href="https://github.com/Gaurav1112/guru-sishya" target="_blank" rel="noopener noreferrer" class="text-sm text-saffron hover:underline">
+          GitHub Repository
+        </a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12">
+      <!-- Contact Form takes 3 cols -->
+      <div class="lg:col-span-3">
+        <h2 class="text-xl font-semibold mb-4">Send us a Message</h2>
+        <div class="rounded-xl border border-border/50 bg-card/50 p-6">
+          <ContactForm client:load />
+        </div>
+      </div>
+
+      <!-- Sidebar takes 2 cols -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="rounded-xl border border-border/50 bg-card/50 p-5">
+          <h3 class="text-sm font-semibold mb-2">Refund Policy</h3>
+          <p class="text-sm text-muted-foreground">
+            We offer a <strong>7-day money-back guarantee</strong> on all paid plans. If you are not satisfied, email us within 7 days of purchase for a full refund. No questions asked.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-border/50 bg-card/50 p-5">
+          <h3 class="text-sm font-semibold mb-2">Data &amp; Privacy</h3>
+          <p class="text-sm text-muted-foreground">
+            To request data export or account deletion, visit <a href="/app/settings" class="text-saffron hover:underline">Settings</a> or email us. We comply with all applicable data protection regulations.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-border/50 bg-card/50 p-5">
+          <h3 class="text-sm font-semibold mb-2">Quick Tips</h3>
+          <ul class="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
+            <li>Use the feedback widget (bottom-right) for quick bug reports</li>
+            <li>Include screenshots or error messages when possible</li>
+            <li>Check the FAQ below before contacting support</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="mt-16">
+      <h2 class="text-xl font-semibold mb-6">Frequently Asked Questions</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {FAQ_ITEMS.map((item) => (
+          <div class="rounded-xl border border-border/50 bg-card/50 p-5">
+            <h3 class="text-sm font-semibold mb-2">{item.q}</h3>
+            <p class="text-sm text-muted-foreground">{item.a}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+</Public>

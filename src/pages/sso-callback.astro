@@ -1,0 +1,13 @@
+---
+import Base from "@/layouts/Base.astro";
+import { AuthenticateWithRedirectCallback } from "@clerk/astro/react";
+---
+<Base title="Signing you in — Guru Sishya" description="Completing sign-in...">
+  <div class="min-h-screen flex items-center justify-center bg-background">
+    <div class="text-center">
+      <div class="inline-block size-8 border-2 border-saffron border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true"></div>
+      <p class="text-sm text-muted-foreground">Completing sign-in&hellip;</p>
+    </div>
+    <AuthenticateWithRedirectCallback client:load />
+  </div>
+</Base>
