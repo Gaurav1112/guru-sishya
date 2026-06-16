@@ -1,26 +1,15 @@
-import type { APIContext } from "astro";
+// Server-side auth stub — login is disabled
 
-type Locals = APIContext["locals"];
-
-/**
- * Server-side auth helper for Astro API routes.
- * Pass `locals` from the APIRoute context.
- *
- * Usage:
- *   export const GET: APIRoute = async ({ locals }) => {
- *     const session = await auth(locals);
- *   }
- */
-export async function auth(locals?: Locals) {
-  if (!locals) return null;
-  const user = await locals.currentUser?.();
-  if (!user) return null;
-  return {
-    user: {
-      id: user.id,
-      email: user.emailAddresses[0]?.emailAddress ?? "",
-      name: user.fullName ?? "",
-      image: user.imageUrl ?? "",
-    },
+interface AuthSession {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    image: string;
   };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function auth(_locals?: any): Promise<AuthSession | null> {
+  return null;
 }
