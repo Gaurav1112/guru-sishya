@@ -8,8 +8,7 @@ on:
 
 env:
   VERCEL_ORG_ID: team_2UY7pp9h1FlHusSRGnipTkXU
-  # Using guru-sishya-test while main project recovers from stale sourceless config
-  VERCEL_PROJECT_ID: prj_eBOt4hTHfXuMGCRVUN5z6dXGwk2w
+  VERCEL_PROJECT_ID: prj_0lASUA8K5ZwsyEKBmi5yRSNi1E9Q
 
 jobs:
   deploy:
@@ -28,7 +27,6 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Clerk keys needed at build time if referenced in static pages
           PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.PUBLIC_CLERK_PUBLISHABLE_KEY }}
 
       - name: Patch serverless runtime to Node 22
@@ -46,14 +44,14 @@ jobs:
 
       - name: Deploy to Vercel (Preview)
         if: github.ref != 'refs/heads/main'
-        run: npx vercel deploy --prebuilt --archive=tgz --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ env.VERCEL_ORG_ID }}
+        run: npx vercel deploy --prebuilt --archive=tgz --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel (Production)
         if: github.ref == 'refs/heads/main'
-        run: npx vercel deploy --prebuilt --prod --archive=tgz --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ env.VERCEL_ORG_ID }}
+        run: npx vercel deploy --prebuilt --prod --archive=tgz --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
