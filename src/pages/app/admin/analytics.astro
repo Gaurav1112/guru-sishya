@@ -3,7 +3,6 @@ import App from "@/layouts/App.astro";
 import AdminAnalyticsPage from "@/components/app/admin/AnalyticsPage";
 
 const userId = Astro.locals.auth?.()?.userId;
-if (!userId) return Astro.redirect("/login");
 ---
 <App title="Admin: Analytics — Guru Sishya">
   <AdminAnalyticsPage client:only="react" />

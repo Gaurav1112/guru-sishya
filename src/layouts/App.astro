@@ -14,8 +14,8 @@ const {
   description = "Your personal interview preparation dashboard",
 } = Astro.props;
 
-const userId = Astro.locals.auth?.()?.userId;
-if (!userId) return Astro.redirect("/login");
+// Auth check disabled — app is open to all users while login is being fixed
+const userId = Astro.locals.auth?.()?.userId ?? null;
 ---
 <Base title={title} description={description} noIndex={true}>
   <div class="flex h-screen overflow-hidden bg-background">

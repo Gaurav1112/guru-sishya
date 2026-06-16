@@ -3,7 +3,6 @@ import App from "@/layouts/App.astro";
 import DashboardPage from "@/components/app/dashboard/Page";
 
 const userId = Astro.locals.auth?.()?.userId;
-if (!userId) return Astro.redirect("/login");
 ---
 <App title="Dashboard — Guru Sishya">
   <DashboardPage client:only="react" />

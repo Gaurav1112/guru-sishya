@@ -3,7 +3,6 @@ import App from "@/layouts/App.astro";
 import ResourcesPage from "@/components/app/topic/ResourcesPage";
 
 const userId = Astro.locals.auth?.()?.userId;
-if (!userId) return Astro.redirect("/login");
 const { id } = Astro.params;
 ---
 <App title="Resources — Guru Sishya">

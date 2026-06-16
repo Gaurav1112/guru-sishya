@@ -3,7 +3,6 @@ import App from "@/layouts/App.astro";
 import InterviewPage from "@/components/app/interview/Page";
 
 const userId = Astro.locals.auth?.()?.userId;
-if (!userId) return Astro.redirect("/login");
 ---
 <App title="Interview Practice — Guru Sishya">
   <InterviewPage client:only="react" />

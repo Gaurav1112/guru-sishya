@@ -3,6 +3,7 @@ import type { MiddlewareHandler } from "astro";
 
 const isPublicRoute = createRouteMatcher([
   "/",
+  "/app(.*)",
   "/learn(.*)",
   "/questions-bank(.*)",
   "/system-design-interview",

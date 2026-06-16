@@ -3,7 +3,6 @@ import App from "@/layouts/App.astro";
 import RoadmapPage from "@/components/app/roadmap/Page";
 
 const userId = Astro.locals.auth?.()?.userId;
-if (!userId) return Astro.redirect("/login");
 ---
 <App title="Roadmap — Guru Sishya">
   <RoadmapPage client:only="react" />

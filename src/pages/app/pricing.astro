@@ -3,7 +3,6 @@ import App from "@/layouts/App.astro";
 import PricingPage from "@/components/app/pricing/Page";
 
 const userId = Astro.locals.auth?.()?.userId;
-if (!userId) return Astro.redirect("/login");
 ---
 <App title="Pricing — Guru Sishya">
   <PricingPage client:only="react" />

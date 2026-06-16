@@ -3,7 +3,6 @@ import App from "@/layouts/App.astro";
 import UsersPage from "@/components/app/admin/users/Page";
 
 const userId = Astro.locals.auth?.()?.userId;
-if (!userId) return Astro.redirect("/login");
 ---
 <App title="Admin: Users — Guru Sishya">
   <UsersPage client:only="react" />
