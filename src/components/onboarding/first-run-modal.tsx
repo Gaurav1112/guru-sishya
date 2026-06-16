@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "@/lib/navigation";
 import { Target, Clock, ArrowRight, Sparkles } from "lucide-react";
@@ -30,12 +30,52 @@ export function FirstRunModal({ onComplete }: FirstRunModalProps) {
   const [timeline, setTimeline] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   const selectedGoal = GOALS.find((g) => g.id === goal);
+
+  // Focus trap: auto-focus first element; cycle Tab within dialog; Escape closes
+  useEffect(() => {
+    const el = dialogRef.current;
+    if (!el) return;
+
+    const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const getFocusable = () => Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE));
+    getFocusable()[0]?.focus();
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        localStorage.setItem("gs-first-run-done", "1");
+        onCompleteRef.current();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const nodes = getFocusable();
+      if (nodes.length === 0) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+
+    el.addEventListener("keydown", onKeyDown);
+    // Prevent background scroll while modal is open
+    document.body.style.overflow = "hidden";
+    return () => {
+      el.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [step]); // re-run when step changes so new focusable elements are picked up
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="first-run-title">
       <motion.div
+        ref={dialogRef}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-lg mx-4 rounded-2xl border border-saffron/20 bg-surface p-8 shadow-2xl"

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
-import { loadAllContent, type TopicContent } from "@/lib/content/loader";
+import { streamContent, type TopicContent } from "@/lib/content/loader";
 import { TopicInput } from "@/components/topic-input";
 import { Input } from "@/components/ui/input";
 import { PageTransition } from "@/components/page-transition";
@@ -168,7 +168,15 @@ const cardVariants = {
 
 // ── Topic Card ───────────────────────────────────────────────────────────────
 
-function TopicCard({ content, index }: { content: TopicContent; index: number }) {
+function TopicCard({
+  content,
+  index,
+  completedSessions,
+}: {
+  content: TopicContent;
+  index: number;
+  completedSessions?: number;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const meta = CATEGORY_META[content.category] ?? CATEGORY_META["System Design"];
@@ -176,21 +184,12 @@ function TopicCard({ content, index }: { content: TopicContent; index: number })
   const quizCount = content.quizBank?.length ?? 0;
   const planSessions = content.plan?.sessions?.length ?? 0;
 
-  // Real-time session progress from Dexie
-  const progress = useLiveQuery(async () => {
-    const topic = await db.topics.where("name").equalsIgnoreCase(content.topic).first();
-    if (!topic?.id) return null;
-    const plans = await db.learningPlans.where("topicId").equals(topic.id).toArray();
-    if (plans.length === 0) return null;
-    const planIds = plans.map((p) => p.id as number);
-    const sessions = await db.planSessions
-      .where("planId")
-      .anyOf(planIds)
-      .toArray();
-    const completed = sessions.filter((s) => s.completed).length;
-    if (completed === 0) return null;
-    return { completed, total: planSessions };
-  }, [content.topic, planSessions]);
+  // Progress is batch-loaded at the page level and passed as a prop to avoid
+  // ~120 individual useLiveQuery observers (~40 cards × 3 queries each).
+  const progress =
+    completedSessions !== undefined && completedSessions > 0 && planSessions > 0
+      ? { completed: completedSessions, total: planSessions }
+      : null;
 
   const hasCheatSheet = Boolean(content.cheatSheet);
   const hasResources = Array.isArray(content.resources)
@@ -301,10 +300,12 @@ function CategorySection({
   group,
   topics,
   indexOffset,
+  progressMap,
 }: {
   group: (typeof GROUPS)[number];
   topics: TopicContent[];
   indexOffset: number;
+  progressMap: Record<string, number> | undefined;
 }) {
   if (topics.length === 0) return null;
   return (
@@ -320,7 +321,12 @@ function CategorySection({
       </div>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {topics.map((t, i) => (
-          <TopicCard key={t.topic} content={t} index={indexOffset + i} />
+          <TopicCard
+            key={t.topic}
+            content={t}
+            index={indexOffset + i}
+            completedSessions={progressMap?.[t.topic.toLowerCase()]}
+          />
         ))}
       </div>
     </section>
@@ -365,11 +371,49 @@ export default function TopicsPage() {
     }
   }, []);
 
+  // Batch progress query: 3 queries for all topics instead of ~120 (40 cards × 3)
+  const progressMap = useLiveQuery(async () => {
+    const dbTopics = await db.topics.toArray();
+    if (dbTopics.length === 0) return {};
+
+    const topicIds = dbTopics.map((t) => t.id as number);
+    const plans = await db.learningPlans.where("topicId").anyOf(topicIds).toArray();
+    if (plans.length === 0) return {};
+
+    const planIds = plans.map((p) => p.id as number);
+    const sessions = await db.planSessions.where("planId").anyOf(planIds).toArray();
+
+    const planToTopicId = new Map<number, number>();
+    for (const plan of plans) {
+      if (plan.id !== undefined) planToTopicId.set(plan.id as number, plan.topicId);
+    }
+    const topicIdToName = new Map<number, string>();
+    for (const t of dbTopics) {
+      if (t.id !== undefined) topicIdToName.set(t.id as number, t.name.toLowerCase());
+    }
+
+    const result: Record<string, number> = {};
+    for (const session of sessions) {
+      if (!session.completed) continue;
+      const topicId = planToTopicId.get(session.planId);
+      if (topicId === undefined) continue;
+      const name = topicIdToName.get(topicId);
+      if (!name) continue;
+      result[name] = (result[name] ?? 0) + 1;
+    }
+    return result;
+  }, []);
+
   useEffect(() => {
-    loadAllContent()
-      .then(setAllContent)
-      .catch(() => {})
-      .finally(() => setContentLoading(false));
+    // Progressive: render first batch of files as soon as it resolves, add rest as they come
+    let firstBatch = true;
+    streamContent((items) => {
+      setAllContent((prev) => [...prev, ...items]);
+      if (firstBatch) {
+        setContentLoading(false);
+        firstBatch = false;
+      }
+    }).finally(() => setContentLoading(false));
   }, []);
 
   // Deduplicate by topic name (some files have dupes)
@@ -728,6 +772,7 @@ export default function TopicsPage() {
               group={group}
               topics={grouped[group.tab] ?? []}
               indexOffset={groupOffsets[group.tab] ?? 0}
+              progressMap={progressMap ?? undefined}
             />
           ))}
         </div>

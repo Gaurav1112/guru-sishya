@@ -66,6 +66,31 @@ const CONTENT_FILES = [
 
 let _contentCache: TopicContent[] | null = null;
 
+// ── Internal per-file fetch ───────────────────────────────────────────────
+
+async function fetchFileContent(file: string): Promise<TopicContent[]> {
+  try {
+    const response = await fetch(file);
+    if (!response.ok) return [];
+    const raw = (await response.json()) as TopicContent | TopicContent[];
+    const items: TopicContent[] = Array.isArray(raw) ? raw : [raw];
+    const normalized: TopicContent[] = [];
+    for (const item of items) {
+      const norm = (!item.topic && item.name) ? { ...item, topic: item.name } : item;
+      if (norm.plan?.sessions) {
+        norm.plan.sessions = norm.plan.sessions.map((s, idx) => ({
+          ...s,
+          sessionNumber: s.sessionNumber ?? idx + 1,
+        }));
+      }
+      if (norm.topic) normalized.push(norm);
+    }
+    return normalized;
+  } catch {
+    return [];
+  }
+}
+
 // ── Public API ────────────────────────────────────────────────────────────
 
 /**
@@ -74,40 +99,42 @@ let _contentCache: TopicContent[] | null = null;
  */
 export async function loadAllContent(): Promise<TopicContent[]> {
   if (_contentCache !== null) return _contentCache;
-
-  // Fetch ALL files in parallel (was sequential — 3-5s delay with 19 files)
-  const fetches = CONTENT_FILES.map(async (file) => {
-    try {
-      const response = await fetch(file);
-      if (!response.ok) return [];
-      const raw = (await response.json()) as TopicContent | TopicContent[];
-      const items: TopicContent[] = Array.isArray(raw) ? raw : [raw];
-      const normalized: TopicContent[] = [];
-      for (const item of items) {
-        // Normalise: some files use "name" instead of "topic"
-        const norm = (!item.topic && item.name)
-          ? { ...item, topic: item.name }
-          : item;
-
-        // Ensure every session has a valid sessionNumber
-        if (norm.plan?.sessions) {
-          norm.plan.sessions = norm.plan.sessions.map((s, idx) => ({
-            ...s,
-            sessionNumber: s.sessionNumber ?? idx + 1,
-          }));
-        }
-
-        if (norm.topic) normalized.push(norm);
-      }
-      return normalized;
-    } catch {
-      return [];
-    }
-  });
-
-  const results = (await Promise.all(fetches)).flat();
+  const results = (await Promise.all(CONTENT_FILES.map(fetchFileContent))).flat();
   _contentCache = results;
   return results;
+}
+
+/**
+ * Stream content progressively — calls onBatch as each file resolves so the
+ * UI can render partial results immediately instead of waiting for all files.
+ * Also populates the module-level cache once all files are loaded.
+ */
+export function streamContent(
+  onBatch: (items: TopicContent[]) => void
+): Promise<void> {
+  if (_contentCache !== null) {
+    onBatch(_contentCache);
+    return Promise.resolve();
+  }
+
+  const all: TopicContent[] = [];
+  let remaining = CONTENT_FILES.length;
+
+  return new Promise<void>((resolve) => {
+    for (const file of CONTENT_FILES) {
+      fetchFileContent(file).then((items) => {
+        if (items.length > 0) {
+          all.push(...items);
+          onBatch(items);
+        }
+        remaining--;
+        if (remaining === 0) {
+          _contentCache = all;
+          resolve();
+        }
+      });
+    }
+  });
 }
 
 /**
