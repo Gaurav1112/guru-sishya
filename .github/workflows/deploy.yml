@@ -8,7 +8,8 @@ on:
 
 env:
   VERCEL_ORG_ID: team_2UY7pp9h1FlHusSRGnipTkXU
-  VERCEL_PROJECT_ID: prj_0lASUA8K5ZwsyEKBmi5yRSNi1E9Q
+  # guru-sishya-test — the clean project; guru-sishya has stale sourceless config that causes build timeouts
+  VERCEL_PROJECT_ID: prj_eBOt4hTHfXuMGCRVUN5z6dXGwk2w
 
 jobs:
   deploy:
