@@ -595,7 +595,7 @@ export default function ReviewPage() {
 
   const isPremium = useStore((s) => s.isPremium);
   const premiumUntil = useStore((s) => s.premiumUntil);
-  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
   const currentStreak = useStore((s) => s.currentStreak);
   const longestStreak = useStore((s) => s.longestStreak);
   const streakFreezes = useStore((s) => s.streakFreezes);

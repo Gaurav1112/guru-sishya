@@ -125,7 +125,7 @@ export function StickyNotes({ pageId }: StickyNotesProps) {
 
   // Premium check
   const { isPremium, premiumUntil } = useStore();
-  const isActivePro = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePro = true; // upgrade layer disabled
   const atFreeLimit = !isActivePro && notes.length >= FREE_NOTE_LIMIT;
 
   // Load notes on mount

@@ -23,7 +23,7 @@ export default function CheatsheetPage({
   const setPreferredLanguage = useStore((s) => s.setPreferredLanguage);
   const hydrated = useHydrated();
 
-  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
 
   if (!hydrated || isLoading) {
     return (

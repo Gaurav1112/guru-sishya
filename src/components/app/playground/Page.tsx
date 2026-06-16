@@ -563,7 +563,7 @@ export default function PlaygroundPage() {
   const [key, setKey] = useState(0); // force re-mount on template change
 
   const { isPremium, premiumUntil } = useStore();
-  const isActivePro = isPremium && premiumUntil && new Date(premiumUntil) > new Date();
+  const isActivePro = true; // upgrade layer disabled
 
   const template = TEMPLATES[selectedTemplate];
 

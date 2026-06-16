@@ -89,8 +89,7 @@ export function Sidebar() {
     return cards;
   }, []);
 
-  const isActivePro =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePro = true; // upgrade layer disabled
 
   // Auto-expand "More" if the active path lives there
   useEffect(() => {

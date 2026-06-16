@@ -556,8 +556,7 @@ export default function QuestionsPage() {
 
   // Premium gate
   const { isPremium, premiumUntil, preferredLanguage, setPreferredLanguage } = useStore();
-  const isActivePremium =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
   const answerLimit = useFeatureLimit("question_reveal");
 
   // Load bookmarks from Dexie

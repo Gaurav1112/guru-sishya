@@ -688,7 +688,7 @@ export function MitraChat() {
   const progressLoadedRef = useRef(false);
 
   const { isSupported: micSupported, isListening, transcript, startListening, stopListening, resetTranscript } = useSpeechRecognition({ lang: "en-IN", continuous: false });
-  const isActivePro = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePro = true; // upgrade layer disabled
   const hitLimit = !mitraLimit.allowed;
 
   const toggleMode = useCallback(() => {

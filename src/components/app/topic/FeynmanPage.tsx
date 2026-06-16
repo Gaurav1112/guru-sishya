@@ -65,7 +65,7 @@ export default function FeynmanPage({
   const premiumUntil = useStore((s) => s.premiumUntil);
   const hydrated = useHydrated();
 
-  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
 
   if (!hydrated || isLoading) {
     return (

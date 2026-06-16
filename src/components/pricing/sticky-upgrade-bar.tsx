@@ -8,7 +8,8 @@ export function StickyUpgradeBar() {
   const isPremium = useStore((s) => s.isPremium);
   const [dismissed, setDismissed] = useState(false);
 
-  if (isPremium || dismissed) return null;
+  // Upgrade layer disabled
+  return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-saffron/90 to-gold/90 backdrop-blur-sm border-t border-saffron/30 px-4 py-2.5 flex items-center justify-between">

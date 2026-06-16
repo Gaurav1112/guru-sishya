@@ -38,7 +38,7 @@ export function LadderContainer({ topicId, topicName }: LadderContainerProps) {
   const ai = useAI();
   const isPremium = useStore((s) => s.isPremium);
   const premiumUntil = useStore((s) => s.premiumUntil);
-  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
 
   const [status, setStatus] = useState<LadderStatus>("loading");
   const [error, setError] = useState<string | null>(null);

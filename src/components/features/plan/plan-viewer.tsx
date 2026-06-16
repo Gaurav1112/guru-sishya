@@ -36,8 +36,7 @@ export function PlanViewer({
   const [skippedExpanded, setSkippedExpanded] = useState(false);
 
   const { isPremium, premiumUntil } = useStore();
-  const isActivePremium =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
 
   const completedCount = completions.filter((c) => c.completed).length;
   const totalSessions = plan.sessions.length;

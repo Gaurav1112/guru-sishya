@@ -513,8 +513,7 @@ export function StarSection() {
 
   // Premium gate
   const { isPremium, premiumUntil } = useStore();
-  const isActivePremium =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
   // Track which question IDs have had their sample answer revealed
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
 

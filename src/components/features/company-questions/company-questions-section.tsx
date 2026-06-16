@@ -113,7 +113,7 @@ export function CompanyQuestionsSection() {
   const [revealedIndices, setRevealedIndices] = useState<Set<number>>(new Set());
 
   const { isPremium, premiumUntil } = useStore();
-  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
 
   // Load questions
   useEffect(() => {

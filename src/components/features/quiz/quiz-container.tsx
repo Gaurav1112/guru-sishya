@@ -332,7 +332,7 @@ export function QuizContainer({ topicId, topicName }: QuizContainerProps) {
   const setQuizTimerEnabled = useStore((s) => s.setQuizTimerEnabled);
   const isPremium = useStore((s) => s.isPremium);
   const premiumUntil = useStore((s) => s.premiumUntil);
-  const isActivePremium = isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
   const [showTimerGate, setShowTimerGate] = useState(false);
 
   // Daily quiz question limit for free users (10 questions/day)

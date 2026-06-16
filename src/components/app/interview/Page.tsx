@@ -1809,8 +1809,7 @@ export default function InterviewPage() {
   const [interviewRounds, setInterviewRounds] = useState<InterviewRound[]>([]);
 
   const { isPremium, premiumUntil, addXP, addCoins, queueCelebration, totalXP, currentStreak, longestStreak, level } = useStore();
-  const isActivePremium =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
 
   useEffect(() => {
     setFreeInterviewsUsed(getFreeInterviewsToday());

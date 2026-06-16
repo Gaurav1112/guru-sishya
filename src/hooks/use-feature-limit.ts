@@ -155,25 +155,11 @@ export function useFeatureLimit(feature: string): FeatureLimitResult {
     return true;
   }, [feature, dailyLimit, isActivePro]);
 
-  if (isActivePro) {
-    return {
-      allowed: true,
-      remaining: Infinity,
-      limit: Infinity,
-      label,
-      increment,
-      verifyWithServer,
-    };
-  }
-
-  // If server has explicitly denied, override client-side "allowed"
-  const clientAllowed = count < dailyLimit;
-  const allowed = serverDenied ? false : clientAllowed;
-
+  // Upgrade layer disabled — everyone gets unlimited access
   return {
-    allowed,
-    remaining: serverDenied ? 0 : Math.max(0, dailyLimit - count),
-    limit: dailyLimit,
+    allowed: true,
+    remaining: Infinity,
+    limit: Infinity,
     label,
     increment,
     verifyWithServer,

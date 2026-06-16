@@ -148,8 +148,7 @@ export default function SessionViewPage({
   const queueCelebration = useStore((s) => s.queueCelebration);
   const isPremium = useStore((s) => s.isPremium);
   const premiumUntil = useStore((s) => s.premiumUntil);
-  const isActivePremium =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
 
   const [completing, setCompleting] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);

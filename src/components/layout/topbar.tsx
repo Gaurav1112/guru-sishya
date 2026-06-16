@@ -42,8 +42,7 @@ function MobileNav() {
   const { isPremium, premiumUntil } = useStore();
   const { data: session } = useSession();
   const topics = useLiveQuery(() => db.topics.orderBy("createdAt").reverse().limit(10).toArray());
-  const isActivePro =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePro = true; // upgrade layer disabled
   const isAdmin =
     session?.user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 

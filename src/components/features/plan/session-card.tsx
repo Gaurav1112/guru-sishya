@@ -29,8 +29,7 @@ export function SessionCard({ session, completed, onComplete, isLoading, topicId
   const [expanded, setExpanded] = useState(false);
 
   const { isPremium, premiumUntil } = useStore();
-  const isActivePremium =
-    isPremium && premiumUntil != null && new Date(premiumUntil) > new Date();
+  const isActivePremium = true; // upgrade layer disabled
   const isLocked = !isActivePremium && session.sessionNumber > FREE_SESSION_LIMIT;
 
   const totalMinutes = (session.activities ?? []).reduce(
