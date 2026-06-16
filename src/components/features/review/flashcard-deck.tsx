@@ -183,9 +183,11 @@ export function FlashcardDeck({ cards, onComplete }: FlashcardDeckProps) {
 
   const handleRate = useCallback(
     async (rating: DifficultyRating) => {
+      if (!currentCard) return;
+
       const quality = ratingToQuality(rating);
-      const newRatings = [...ratings, rating];
-      setRatings(newRatings);
+      // Functional update avoids stale closure on ratings array
+      setRatings((prev) => [...prev, rating]);
 
       // Update SM-2 schedule in Dexie
       if (currentCard.id !== undefined) {
@@ -227,7 +229,7 @@ export function FlashcardDeck({ cards, onComplete }: FlashcardDeckProps) {
         setCurrentIndex((i) => i + 1);
       }
     },
-    [currentCard, currentIndex, total, ratings, addXP, addCoins]
+    [currentCard, currentIndex, total, addXP, addCoins]
   );
 
   // XP and coins awarded

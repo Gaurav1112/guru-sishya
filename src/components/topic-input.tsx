@@ -55,6 +55,7 @@ export function TopicInput() {
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           placeholder="e.g., System Design, Guitar, Machine Learning..."
+          aria-label="Enter a topic to learn"
           className="bg-surface"
           disabled={loading}
         />

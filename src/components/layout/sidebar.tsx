@@ -148,6 +148,9 @@ export function Sidebar() {
 
         {/* Collapsible "More" section */}
         <button
+          type="button"
+          aria-expanded={showMore}
+          aria-label="More navigation items"
           onClick={() => setShowMore(!showMore)}
           className="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-surface-hover"
         >

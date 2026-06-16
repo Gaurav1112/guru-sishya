@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import type { APIRoute } from "astro";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -54,7 +55,7 @@ export const POST: APIRoute = async ({ request }) => {
           screen_size: body.screenSize,
           connection: body.connection,
           user_agent: body.userAgent?.slice(0, 500),
-          ip_hash: ip ? Buffer.from(ip).toString("base64").slice(0, 20) : null,
+          ip_hash: ip ? createHash("sha256").update(ip).digest("hex").slice(0, 32) : null,
           created_at: body.timestamp,
         });
       } catch {
