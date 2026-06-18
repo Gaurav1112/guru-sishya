@@ -22,6 +22,7 @@ import { PageTransition } from "@/components/page-transition";
 import { ShareButton } from "@/components/share-button";
 import { StreakFreezeModal } from "@/components/gamification/streak-freeze-modal";
 import { InterviewCountdown } from "@/components/gamification/interview-countdown";
+import { ReadinessWidget } from "@/components/app/readiness/Widget";
 import { PushNotificationPrompt } from "@/components/gamification/push-notification-prompt";
 
 // Lazy-load below-fold heavy components
@@ -690,6 +691,9 @@ export default function DashboardPage() {
 
       {/* Interview Countdown */}
       <FadeIn index={idx++}><InterviewCountdown /></FadeIn>
+
+      {/* Interview Readiness Widget */}
+      <FadeIn index={idx++}><ReadinessWidget /></FadeIn>
 
       {/* Daily Quests — engagement hook, above fold */}
       <FadeIn index={idx++}>

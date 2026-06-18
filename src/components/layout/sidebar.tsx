@@ -46,6 +46,7 @@ const primaryNavItems = [
   { href: "/app/topics", label: "Topics", icon: "📚" },
   { href: "/app/questions", label: "Questions", icon: "📝" },
   { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
+  { href: "/app/readiness", label: "Readiness", icon: "📊" },
   { href: "/app/review", label: "Review", icon: "🔁" },
 ];
 
