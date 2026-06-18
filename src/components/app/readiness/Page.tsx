@@ -25,13 +25,6 @@ const CATEGORY_LABELS: Record<ReadinessCategory, string> = {
   dsa: "DSA",
   behavioral: "Behavioral",
 };
-const CATEGORY_HREFS: Record<ReadinessCategory, string> = {
-  java: "/app/interview?topic=Java+Core",
-  systemDesign: "/app/interview?topic=System+Design",
-  dsa: "/app/interview?topic=DSA",
-  behavioral: "/app/interview?topic=Behavioral",
-};
-
 function barColor(score: number): string {
   if (score >= 70) return "bg-green-400";
   if (score >= 50) return "bg-yellow-400";
@@ -47,10 +40,11 @@ function barTextColor(score: number): string {
 export default function ReadinessPage() {
   const { interviewCompany, interviewDate, setInterviewCompany } = useStore();
 
+  const storedCompany = interviewCompany
+    ? interviewCompany.charAt(0).toUpperCase() + interviewCompany.slice(1)
+    : "Swiggy";
   const [selectedCompany, setSelectedCompany] = useState(
-    interviewCompany
-      ? interviewCompany.charAt(0).toUpperCase() + interviewCompany.slice(1)
-      : "Swiggy"
+    COMPANIES.includes(storedCompany) ? storedCompany : "Swiggy"
   );
   const [selectedLevel, setSelectedLevel] = useState("SDE-2");
   const [scores, setScores] = useState<CategoryScores>({ java: 0, systemDesign: 0, dsa: 0, behavioral: 0 });
@@ -73,7 +67,9 @@ export default function ReadinessPage() {
   const { label, color } = getReadinessLabel(overall);
   const recs = getStudyRecommendations(scores, companyKey);
   const weights = COMPANY_WEIGHTS[companyKey] ?? COMPANY_WEIGHTS.default;
-  const weakestCat = CATEGORY_KEYS.reduce((a, b) => scores[a] < scores[b] ? a : b);
+  const weakestCat = hasData
+    ? CATEGORY_KEYS.reduce((a, b) => scores[a] < scores[b] ? a : b)
+    : null;
 
   const daysAway = interviewDate
     ? Math.ceil((new Date(interviewDate).getTime() - Date.now()) / 86_400_000)
@@ -154,7 +150,7 @@ export default function ReadinessPage() {
                     Interview in
                   </div>
                   <p className="font-heading text-3xl font-bold text-yellow-400">{daysAway} days</p>
-                  <p className="text-xs text-muted-foreground">{new Date(interviewDate!).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(interviewDate ?? "").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
                 </div>
               ) : (
                 <div className="rounded-xl border border-border/50 bg-surface p-5 flex flex-col justify-center gap-1">
@@ -224,7 +220,7 @@ export default function ReadinessPage() {
                       <p className="text-[11px] text-muted-foreground">Current score: {rec.score}%</p>
                     </div>
                     <Link
-                      href={CATEGORY_HREFS[rec.category]}
+                      href={rec.href}
                       className="shrink-0 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-1.5 text-xs font-medium text-sky-400 hover:bg-sky-500/20 transition-colors"
                     >
                       Practice →

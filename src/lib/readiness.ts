@@ -46,10 +46,10 @@ const CATEGORY_LABELS: Record<ReadinessCategory, string> = {
 };
 
 const CATEGORY_HREFS: Record<ReadinessCategory, string> = {
-  java: "/app/interview?topic=Java+Core",
-  systemDesign: "/app/interview?topic=System+Design",
-  dsa: "/app/interview?topic=DSA",
-  behavioral: "/app/interview?topic=Behavioral",
+  java: "/app/interview",
+  systemDesign: "/app/interview",
+  dsa: "/app/interview",
+  behavioral: "/app/interview",
 };
 
 export function mapTopicToCategory(topic: string): ReadinessCategory | null {
