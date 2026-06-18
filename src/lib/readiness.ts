@@ -66,11 +66,11 @@ export function mapTopicToCategory(topic: string): ReadinessCategory | null {
   if (
     t.includes("dsa") || t.includes("algorithm") || t.includes("data structure") ||
     t.includes("graph") || t.includes("tree") || t.includes("dynamic programming") ||
-    t.includes("dp") || t.includes("array") || t.includes("string") ||
+    t.includes("array") || t.includes("string") ||
     t.includes("sorting") || t.includes("greedy")
   ) return "dsa";
   if (
-    t.includes("behavioral") || t.includes("star") || t.includes("leadership") ||
+    t.includes("behavioral") || t.includes("star question") || t.includes("star method") || t.includes("leadership") ||
     t.includes("soft skill") || t.includes("situational")
   ) return "behavioral";
   return null;
@@ -150,7 +150,7 @@ export function loadInterviewHistory(): InterviewHistoryEntry[] {
       overallScore?: number;
     }>;
     return parsed
-      .filter((e) => typeof e.overallScore === "number" && typeof e.topic === "string")
+      .filter((e) => typeof e.overallScore === "number" && !isNaN(e.overallScore) && typeof e.topic === "string")
       .map((e) => ({
         date: e.date ?? "",
         company: e.company ?? "",

@@ -54,9 +54,10 @@ describe("computeCategoryScores", () => {
 
   it("averages scores per category from filtered history", () => {
     const scores = computeCategoryScores(history);
-    // Java: (80+60)/2 = 70, plus the All contribution
-    expect(scores.java).toBeGreaterThan(0);
-    expect(scores.systemDesign).toBeGreaterThan(0);
+    // java: (80 + 60 + 50) / 3 = 63 (two Java sessions + one All session)
+    // systemDesign: (70 + 50) / 2 = 60 (one System Design session + one All session)
+    expect(scores.java).toBe(63);
+    expect(scores.systemDesign).toBe(60);
   });
 
   it("returns zero for categories with no sessions", () => {
@@ -109,7 +110,7 @@ describe("computeOverallReadiness", () => {
 });
 
 describe("getStudyRecommendations", () => {
-  it("returns recommendations sorted by priority (lowest score first)", () => {
+  it("returns recommendations sorted by highest ROI (weight × gap) first", () => {
     const scores: CategoryScores = { java: 80, systemDesign: 70, dsa: 30, behavioral: 75 };
     const recs = getStudyRecommendations(scores, "swiggy");
     expect(recs[0].category).toBe("dsa");
