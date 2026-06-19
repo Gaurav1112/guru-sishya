@@ -2,7 +2,7 @@
 
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { useSession } from "@/lib/clerk-compat";
 import Image from "next/image";
 import dynamic from "next/dynamic";

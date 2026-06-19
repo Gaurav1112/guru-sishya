@@ -6,5 +6,5 @@ const userId = Astro.locals.auth?.()?.userId;
 const { slug } = Astro.params;
 ---
 <App title="Company Roadmap — Guru Sishya">
-  <CompanyRoadmapPage client:only="react" />
+  <CompanyRoadmapPage client:only="react" slug={slug!} />
 </App>

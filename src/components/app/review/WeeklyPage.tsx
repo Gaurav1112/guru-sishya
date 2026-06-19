@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { useStore } from "@/lib/store";
 import { db } from "@/lib/db";
 import { getWeeklyTestQuestions } from "@/lib/review/question-selector";

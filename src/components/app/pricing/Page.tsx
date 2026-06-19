@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { motion } from "framer-motion";
 import { Check, Sparkles, Crown, Zap, Infinity as InfinityIcon, LogIn, X } from "lucide-react";
 import Link from "next/link";

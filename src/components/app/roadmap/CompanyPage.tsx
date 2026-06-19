@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -107,10 +107,8 @@ function TopicRow({
 
 // ── Main Company Path Page ───────────────────────────────────────────────────
 
-export default function CompanyPathPage() {
-  const params = useParams();
+export default function CompanyPathPage({ slug }: { slug: string }) {
   const router = useRouter();
-  const slug = params.slug as string;
 
   const path = getCompanyPath(slug);
 

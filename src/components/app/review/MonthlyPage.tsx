@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Award, Share2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { db } from "@/lib/db";

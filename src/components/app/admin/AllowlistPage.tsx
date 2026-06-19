@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "@/lib/clerk-compat";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import {
   UserPlus,
   Trash2,

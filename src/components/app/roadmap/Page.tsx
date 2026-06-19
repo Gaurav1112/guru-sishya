@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/router-compat";
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, Target } from "lucide-react";
 import { db } from "@/lib/db";

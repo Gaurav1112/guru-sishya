@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "@/lib/router-compat";
 import { Suspense, useEffect, useState } from "react";
 import { Loader2, ArrowLeft, Award } from "lucide-react";
 import Link from "next/link";
