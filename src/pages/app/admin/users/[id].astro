@@ -6,5 +6,5 @@ const userId = Astro.locals.auth?.()?.userId;
 const { id } = Astro.params;
 ---
 <App title="Admin: User Detail — Guru Sishya">
-  <UserDetailPage client:only="react" params={Promise.resolve({ id: id! })} />
+  <UserDetailPage client:only="react" id={id!} />
 </App>

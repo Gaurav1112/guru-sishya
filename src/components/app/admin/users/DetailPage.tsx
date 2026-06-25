@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, use } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "@/lib/clerk-compat";
 import { useRouter } from "@/lib/router-compat";
 import {
@@ -79,12 +79,7 @@ function DetailSkeleton() {
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 
-export default function AdminUserDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function AdminUserDetailPage({ id }: { id: string }) {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
 

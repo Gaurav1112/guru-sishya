@@ -1,6 +1,5 @@
 "use client";
 
-import { use } from "react";
 import { Loader2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/use-hydrated";
@@ -8,12 +7,7 @@ import { useTopicWithFallback } from "@/hooks/use-topic-with-fallback";
 import { LadderContainer } from "@/components/features/ladder/ladder-container";
 import { BackButton } from "@/components/back-button";
 
-export default function LadderPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function LadderPage({ id }: { id: string }) {
   const { topic, isLoading } = useTopicWithFallback(id);
   const apiKey = useStore((s) => s.apiKey);
   const aiProvider = useStore((s) => s.aiProvider);

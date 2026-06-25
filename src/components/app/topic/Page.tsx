@@ -1,6 +1,6 @@
 "use client";
 import { Loader2, Play } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "framer-motion";
 import { db } from "@/lib/db";
@@ -44,8 +44,7 @@ const CATEGORY_BADGE: Record<string, string> = {
   "Computer Science Fundamentals": "bg-gold/20 text-gold border-gold/30",
 };
 
-export default function TopicHubPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function TopicHubPage({ id }: { id: string }) {
   const { topic, isLoading } = useTopicWithFallback(id);
   const [builtIn, setBuiltIn] = useState<TopicContent | null>(null);
   const [contentChecked, setContentChecked] = useState(false);

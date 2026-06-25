@@ -6,5 +6,5 @@ const userId = Astro.locals.auth?.()?.userId;
 const { id, num } = Astro.params;
 ---
 <App title="Study Session — Guru Sishya">
-  <SessionPage client:only="react" params={Promise.resolve({ id: id!, num: num! })} />
+  <SessionPage client:only="react" id={id!} num={num!} />
 </App>

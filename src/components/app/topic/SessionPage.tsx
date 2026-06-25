@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -131,12 +131,7 @@ function DifficultyBadge({ difficulty }: { difficulty: string }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
-export default function SessionViewPage({
-  params,
-}: {
-  params: Promise<{ id: string; num: string }>;
-}) {
-  const { id, num } = use(params);
+export default function SessionViewPage({ id, num }: { id: string; num: string }) {
   const topicId = Number(id);
   const sessionNum = Number(num);
 
