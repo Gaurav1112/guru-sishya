@@ -1,6 +1,5 @@
 "use client";
 
-import DOMPurify from "dompurify";
 import { useEffect, useId, useRef, useState } from "react";
 
 interface MermaidDiagramProps {
@@ -44,7 +43,7 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
         const { svg } = await mermaid.render(renderId, chart.trim());
 
         if (!cancelled) {
-          setSvgContent(DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } }));
+          setSvgContent(svg);
         }
       } catch {
         if (!cancelled) {
