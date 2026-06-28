@@ -91,7 +91,7 @@ export function CommandPalette() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md"
             onClick={() => setOpen(false)}
           />
 
@@ -105,7 +105,7 @@ export function CommandPalette() {
             className="fixed left-1/2 top-[20vh] z-50 w-full max-w-lg -translate-x-1/2 px-4"
           >
             <Command
-              className="rounded-xl border border-border/60 bg-surface shadow-2xl overflow-hidden"
+              className="rounded-xl border border-border/70 overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_24px_64px_rgba(0,0,0,0.7),0_0_80px_rgba(245,158,11,0.06)]" style={{ background: "rgba(17,17,24,0.85)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)" }}
               label="Command palette"
             >
               <div className="flex items-center border-b border-border/40 px-4">

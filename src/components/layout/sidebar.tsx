@@ -1,7 +1,11 @@
 "use client";
 import { usePathname } from "@/lib/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Crown, ShieldCheck, ChevronDown } from "lucide-react";
+import {
+  Crown, ShieldCheck, ChevronDown, Home, BookOpen, FileQuestion, Mic,
+  BarChart3, RotateCcw, Library, Zap, Trophy, NotebookPen, Swords,
+  Bookmark, RefreshCw, Map, ShoppingCart, User, Settings, type LucideIcon,
+} from "lucide-react";
 import { useSession } from "@/lib/clerk-compat";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -41,27 +45,27 @@ function useActiveChallengeCount() {
   return count;
 }
 
-const primaryNavItems = [
-  { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
-  { href: "/app/topics", label: "Topics", icon: "📚" },
-  { href: "/app/questions", label: "Questions", icon: "📝" },
-  { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
-  { href: "/app/readiness", label: "Readiness", icon: "📊" },
-  { href: "/app/review", label: "Review", icon: "🔁" },
+const primaryNavItems: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/app/dashboard", label: "Dashboard", icon: Home },
+  { href: "/app/topics", label: "Topics", icon: BookOpen },
+  { href: "/app/questions", label: "Questions", icon: FileQuestion },
+  { href: "/app/interview", label: "Mock Interview", icon: Mic },
+  { href: "/app/readiness", label: "Readiness", icon: BarChart3 },
+  { href: "/app/review", label: "Review", icon: RotateCcw },
 ];
 
-const moreNavItems = [
-  { href: "/app/codex", label: "Interview Codex", icon: "📋" },
-  { href: "/app/playground", label: "Playground", icon: "⚡" },
-  { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
-  { href: "/app/notes", label: "My Notes", icon: "📓" },
-  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
-  { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
-  { href: "/app/revision", label: "Revision", icon: "📖" },
-  { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
-  { href: "/app/shop", label: "Shop", icon: "🛒" },
-  { href: "/app/profile", label: "Profile", icon: "👤" },
-  { href: "/app/settings", label: "Settings", icon: "⚙️" },
+const moreNavItems: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/app/codex", label: "Interview Codex", icon: Library },
+  { href: "/app/playground", label: "Playground", icon: Zap },
+  { href: "/app/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/app/notes", label: "My Notes", icon: NotebookPen },
+  { href: "/app/challenges", label: "Challenges", icon: Swords },
+  { href: "/app/saved", label: "Saved Questions", icon: Bookmark },
+  { href: "/app/revision", label: "Revision", icon: RefreshCw },
+  { href: "/app/roadmap", label: "Roadmap", icon: Map },
+  { href: "/app/shop", label: "Shop", icon: ShoppingCart },
+  { href: "/app/profile", label: "Profile", icon: User },
+  { href: "/app/settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -100,9 +104,10 @@ export function Sidebar() {
     if (isMoreActive) setShowMore(true);
   }, [pathname]);
 
-  function renderNavLink(item: { href: string; label: string; icon: string }) {
+  function renderNavLink(item: { href: string; label: string; icon: LucideIcon }) {
     const isActive =
       pathname === item.href || pathname.startsWith(item.href + "/");
+    const Icon = item.icon;
     return (
       <a
         key={item.href}
@@ -117,11 +122,11 @@ export function Sidebar() {
         {isActive && (
           <motion.div
             layoutId="nav-indicator"
-            className="absolute left-0 top-0 bottom-0 w-0.5 bg-saffron rounded-r"
+            className="absolute left-0 top-0 bottom-0 w-1 bg-saffron rounded-r"
             transition={{ type: "spring", stiffness: 400, damping: 35 }}
           />
         )}
-        <span>{item.icon}</span>
+        <Icon className="size-4 shrink-0" aria-hidden="true" />
         <span className="flex-1">{item.label}</span>
         {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
           <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">

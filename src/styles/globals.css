@@ -8,19 +8,31 @@
 @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/geist-mono-latin-400-normal.woff2') format('woff2'), url('/fonts/geist-mono-latin-400-normal.woff') format('woff'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/geist-mono-latin-500-normal.woff2') format('woff2'), url('/fonts/geist-mono-latin-500-normal.woff') format('woff'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
-/* ── Vercel design tokens ───────────────────────────────────────────────── */
+/* ── Design tokens — 5-layer dark surface system ───────────────────────── */
 :root {
-  --color-bg: #0a0a0a;
-  --color-surface: #111111;
-  --color-surface-raised: #161616;
-  --color-border: #333333;
-  --color-text: #ededed;
-  --color-text-muted: #888888;
+  /* Base background layer */
+  --color-bg: #0a0a0f;
+  /* Surface layers — each 8-10 lightness points above previous */
+  --color-surface: #111118;
+  --color-surface-raised: #1a1a24;
+  --color-surface-elevated: #22222e;
+  --color-surface-hover: #2a2a3a;
+  /* Borders */
+  --color-border: #2d2d3d;
+  /* Text — off-white to avoid halation, 3-tier hierarchy */
+  --color-text: #e8e8f0;
+  --color-text-muted: #9898a8;
+  --color-text-subtle: #5a5a6a;
+  /* Brand accents — desaturated 25% from pure for dark backgrounds */
   --color-accent: #f59e0b;
   --color-accent-hover: #d97706;
+  --color-saffron: #f59e0b;
+  --color-teal: #14b8a6;
+  --color-gold: #fbbf24;
+  --color-indigo: #6366f1;
+  /* Typography */
   --font-sans: "Geist Sans", system-ui, sans-serif;
   --font-mono: "Geist Mono", "Fira Code", monospace;
-  --radius: 0px;
   --max-width: 1200px;
   --spacing-section: clamp(3rem, 8vw, 6rem);
 }
@@ -29,9 +41,12 @@
   --color-bg: #ffffff;
   --color-surface: #fafafa;
   --color-surface-raised: #f5f5f5;
+  --color-surface-elevated: #efefef;
+  --color-surface-hover: #e8e8e8;
   --color-border: #e5e5e5;
   --color-text: #0a0a0a;
   --color-text-muted: #666666;
+  --color-text-subtle: #999999;
 }
 
 /* ── Base resets ────────────────────────────────────────────────────────── */
@@ -39,10 +54,28 @@
 
 body {
   background-color: var(--color-bg);
+  /* Multi-stop radial gradient — premium dark site signature */
+  background-image:
+    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(245, 158, 11, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 80%, rgba(20, 184, 166, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 30% at 15% 60%, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+  background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   margin: 0;
+}
+
+/* Premium noise overlay — most Awwwards dark sites use this */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
 }
 
 code, pre, kbd, samp {
@@ -85,14 +118,15 @@ code, pre, kbd, samp {
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    180px circle at var(--mx) var(--my),
-    rgba(245, 158, 11, 0.07),
+    260px circle at var(--mx) var(--my),
+    rgba(245, 158, 11, 0.12),
     transparent 70%
   );
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
   z-index: 0;
+  border-radius: inherit;
 }
 .magnetic-card:hover::before {
   opacity: 1;
@@ -105,4 +139,58 @@ code, pre, kbd, samp {
     color: var(--color-text);
   }
   a { color: inherit; }
+
+  /* Premium heading typography — tight negative letter-spacing */
+  h1 { letter-spacing: -0.03em; line-height: 1.08; }
+  h2 { letter-spacing: -0.02em; line-height: 1.15; }
+  h3 { letter-spacing: -0.01em; line-height: 1.25; }
+}
+
+/* ── Card elevation — premium shadow system ─────────────────────────────── */
+.card-elevated {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(245, 158, 11, 0.04);
+}
+.card-elevated:hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(245, 158, 11, 0.08);
+}
+
+/* ── Glassmorphism panels ───────────────────────────────────────────────── */
+.glass-panel {
+  background: rgba(17, 17, 24, 0.75);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Button press micro-interaction ────────────────────────────────────── */
+.btn-press {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.btn-press:hover {
+  transform: scale(1.02);
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* ── Skeleton shimmer ───────────────────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-elevated) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease infinite;
 }

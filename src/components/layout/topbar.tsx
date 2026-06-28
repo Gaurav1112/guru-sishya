@@ -3,7 +3,11 @@ import Image from "@/components/ui/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "@/lib/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Crown, Menu, ShieldCheck } from "lucide-react";
+import {
+  Crown, Menu, ShieldCheck, Home, BookOpen, FileQuestion, Mic, RotateCcw,
+  Library, Zap, Trophy, NotebookPen, Swords, Bookmark, RefreshCw, Map,
+  ShoppingCart, User, Settings, type LucideIcon,
+} from "lucide-react";
 import { useSession } from "@/lib/clerk-compat";
 import { useStore } from "@/lib/store";
 import { ADMIN_EMAIL } from "@/lib/stores/premium-slice";
@@ -17,23 +21,23 @@ import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/layout/user-menu";
 
 // Matches sidebar.tsx nav items (primary + more) in the same order
-const navItems = [
-  { href: "/app/dashboard", label: "Dashboard", icon: "🏠" },
-  { href: "/app/topics", label: "Topics", icon: "📚" },
-  { href: "/app/questions", label: "Questions", icon: "📝" },
-  { href: "/app/interview", label: "Mock Interview", icon: "🎤" },
-  { href: "/app/review", label: "Review", icon: "🔁" },
-  { href: "/app/codex", label: "Interview Codex", icon: "📋" },
-  { href: "/app/playground", label: "Playground", icon: "⚡" },
-  { href: "/app/leaderboard", label: "Leaderboard", icon: "🏆" },
-  { href: "/app/notes", label: "My Notes", icon: "📓" },
-  { href: "/app/challenges", label: "Challenges", icon: "⚔️" },
-  { href: "/app/saved", label: "Saved Questions", icon: "🔖" },
-  { href: "/app/revision", label: "Revision", icon: "📖" },
-  { href: "/app/roadmap", label: "Roadmap", icon: "🗺️" },
-  { href: "/app/shop", label: "Shop", icon: "🛒" },
-  { href: "/app/profile", label: "Profile", icon: "👤" },
-  { href: "/app/settings", label: "Settings", icon: "⚙️" },
+const navItems: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/app/dashboard", label: "Dashboard", icon: Home },
+  { href: "/app/topics", label: "Topics", icon: BookOpen },
+  { href: "/app/questions", label: "Questions", icon: FileQuestion },
+  { href: "/app/interview", label: "Mock Interview", icon: Mic },
+  { href: "/app/review", label: "Review", icon: RotateCcw },
+  { href: "/app/codex", label: "Interview Codex", icon: Library },
+  { href: "/app/playground", label: "Playground", icon: Zap },
+  { href: "/app/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/app/notes", label: "My Notes", icon: NotebookPen },
+  { href: "/app/challenges", label: "Challenges", icon: Swords },
+  { href: "/app/saved", label: "Saved Questions", icon: Bookmark },
+  { href: "/app/revision", label: "Revision", icon: RefreshCw },
+  { href: "/app/roadmap", label: "Roadmap", icon: Map },
+  { href: "/app/shop", label: "Shop", icon: ShoppingCart },
+  { href: "/app/profile", label: "Profile", icon: User },
+  { href: "/app/settings", label: "Settings", icon: Settings },
 ];
 
 function MobileNav() {
@@ -89,7 +93,7 @@ function MobileNav() {
                     : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
                 )}
               >
-                <span>{item.icon}</span>
+                <item.icon className="size-4 shrink-0" aria-hidden="true" />
                 <span className="flex-1">{item.label}</span>
                 {item.href === "/app/review" && dueCount !== undefined && dueCount > 0 && (
                   <span className="flex items-center justify-center rounded-full bg-saffron text-background text-[10px] font-bold min-w-[18px] h-[18px] px-1">
@@ -209,7 +213,7 @@ export function Topbar() {
     (displayName ? displayName.split(" ")[0] : null);
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/70 bg-background/85 px-4 backdrop-blur-md">
       <div className="flex items-center gap-2">
         <MobileNav />
         <a
@@ -230,7 +234,7 @@ export function Topbar() {
             new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true })
           )
         }
-        className="hidden md:inline-flex items-center gap-1.5 rounded-md border border-border/50 bg-surface px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+        className="hidden md:inline-flex items-center gap-1.5 rounded-md border border-border/50 bg-surface px-2.5 py-1 text-xs text-muted-foreground transition-all duration-150 hover:border-saffron/40 hover:text-foreground hover:shadow-[0_0_12px_rgba(245,158,11,0.15)]"
       >
         <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -246,7 +250,8 @@ export function Topbar() {
             title="XP Boost active — 1.5x XP for the next hour"
             className="hidden sm:inline-flex items-center gap-1 rounded-full bg-saffron/20 px-2 py-0.5 text-xs font-semibold text-saffron"
           >
-            ⚡ 1.5x XP
+            <Zap className="size-3 fill-saffron" />
+            1.5x XP
           </span>
         )}
         <div className="hidden sm:block">
@@ -254,8 +259,12 @@ export function Topbar() {
         </div>
         {/* Coin display: hidden on mobile, visible sm+ */}
         <div className="hidden sm:flex items-center gap-1 text-sm">
-          <span className="inline-block text-gold">🪙</span>
-          <span className="font-medium tabular-nums text-sm">{coins.toLocaleString()}</span>
+          <svg className="size-3.5 text-gold" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" opacity="0.2" />
+            <circle cx="12" cy="12" r="7" />
+            <text x="12" y="16" textAnchor="middle" fontSize="9" fontWeight="bold" fill="currentColor" opacity="0.9">G</text>
+          </svg>
+          <span className="font-medium tabular-nums text-sm text-gold">{coins.toLocaleString()}</span>
         </div>
         <LevelBadge level={level} size="sm" className="hidden sm:inline-flex" />
         <UserMenu />

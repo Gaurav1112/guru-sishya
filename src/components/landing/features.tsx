@@ -1,6 +1,10 @@
 "use client";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Route, FileText, BrainCircuit, TrendingUp, Library, MessageSquare, Target, Star,
+  type LucideIcon,
+} from "lucide-react";
 
 const BORDER_COLORS = [
   "border-t-saffron",
@@ -13,54 +17,65 @@ const BORDER_COLORS = [
   "border-t-gold",
 ];
 
-const features = [
+const ICON_BG_COLORS = [
+  "bg-saffron/10 text-saffron",
+  "bg-teal/10 text-teal",
+  "bg-indigo/10 text-indigo",
+  "bg-gold/10 text-gold",
+  "bg-saffron/10 text-saffron",
+  "bg-teal/10 text-teal",
+  "bg-indigo/10 text-indigo",
+  "bg-gold/10 text-gold",
+];
+
+const features: { title: string; description: string; icon: LucideIcon }[] = [
   {
     title: "Structured Learning Path",
     description:
       "Stop wasting hours on random topics. Our Pareto-based plans focus on the 20% of concepts that appear in 80% of interviews — so you learn what actually matters.",
-    icon: "📋",
+    icon: Route,
   },
   {
     title: "Quick Summary Sheets",
     description:
       "Revise an entire topic in 5 minutes before your interview. Visual 1-2 page cheat sheets with diagrams and code examples you can review on the go.",
-    icon: "📄",
+    icon: FileText,
   },
   {
     title: "Adaptive Quiz Engine",
     description:
       "Never wonder if you're ready. 1,730+ questions with adaptive difficulty that pinpoint your weak spots and grade you instantly — no AI key required.",
-    icon: "🧠",
+    icon: BrainCircuit,
   },
   {
     title: "Skill Progression Levels",
     description:
       "Track exactly where you stand. 5-level progression from Novice to Expert with clear milestones, so you always know what to work on next.",
-    icon: "🪜",
+    icon: TrendingUp,
   },
   {
     title: "Curated Resource Library",
     description:
       "No more searching for the right study material. Hand-picked books, courses, and videos for each topic — vetted so you don't waste time on bad resources.",
-    icon: "🔍",
+    icon: Library,
   },
   {
     title: "Teach-Back Mode",
     description:
       "The fastest way to truly understand a concept: explain it back. Research shows teaching others improves retention by 90%.",
-    icon: "💬",
+    icon: MessageSquare,
   },
   {
     title: "Mock Interview Simulator",
     description:
       "Walk into your real interview with confidence. 3-round simulated interviews with Easy, Medium, and Boss rounds — with a timer and instant feedback on wrong answers.",
-    icon: "🎯",
+    icon: Target,
   },
   {
     title: "STAR Behavioral Prep",
     description:
       "Don't lose the offer at the behavioral round — 40% of candidates do. 58 curated questions with structured STAR-format answers ready to adapt to your experience.",
-    icon: "⭐",
+    icon: Star,
   },
 ];
 
@@ -157,10 +172,12 @@ export function Features() {
               viewport={{ once: true }}
             >
               <Card
-                className={`h-full border-border/50 border-t-2 ${BORDER_COLORS[i]} bg-surface hover:bg-surface-hover hover:-translate-y-1 hover:shadow-lg transition-all duration-200`}
+                className={`h-full border-border/60 border-t-2 ${BORDER_COLORS[i]} bg-surface hover:bg-surface-hover hover:-translate-y-2 hover:shadow-xl hover:shadow-black/30 transition-all duration-200 group`}
               >
                 <CardHeader>
-                  <div className="mb-2 text-3xl">{f.icon}</div>
+                  <div className={`mb-3 inline-flex size-10 items-center justify-center rounded-lg ${ICON_BG_COLORS[i]} transition-transform duration-200 group-hover:scale-110`}>
+                    <f.icon className="size-5" aria-hidden="true" />
+                  </div>
                   <CardTitle className="font-heading text-lg">{f.title}</CardTitle>
                 </CardHeader>
                 <CardContent>

@@ -229,9 +229,9 @@ function TopicCard({
       variants={cardVariants}
       initial="hidden"
       animate="visible"
-      whileHover={{ scale: 1.02, y: -2, transition: { duration: 0.15 } }}
-      whileTap={{ scale: 0.98 }}
-      className="magnetic-card group text-left rounded-xl border border-border/50 bg-surface hover:bg-surface-hover hover:border-border hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-shadow duration-200 p-4 flex flex-col gap-2 disabled:opacity-60 cursor-pointer"
+      whileHover={{ scale: 1.02, y: -4, transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.97 }}
+      className="magnetic-card group text-left rounded-xl border border-border/60 bg-surface hover:bg-surface-raised hover:border-border hover:shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4),0_0_40px_rgba(245,158,11,0.06)] transition-all duration-200 p-4 flex flex-col gap-2 disabled:opacity-60 cursor-pointer"
     >
       {/* Topic name */}
       <p className="font-semibold text-sm leading-snug group-hover:text-foreground transition-colors">
@@ -241,7 +241,7 @@ function TopicCard({
       {/* Session progress bar — only shown after the user has started */}
       {progress && progress.total > 0 && (
         <div className="flex items-center gap-2">
-          <div className="relative flex-1 h-1 rounded-full bg-saffron/15 overflow-hidden">
+          <div className="relative flex-1 h-1.5 rounded-full bg-saffron/15 overflow-hidden">
             <div
               className="absolute inset-y-0 left-0 rounded-full bg-saffron transition-all duration-500"
               style={{ width: `${Math.min(100, (progress.completed / progress.total) * 100)}%` }}

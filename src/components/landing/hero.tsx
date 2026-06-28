@@ -101,8 +101,9 @@ export function Hero() {
       {/* Three.js particle network — gated post-LCP on desktop, static SVG on mobile */}
       <LazyHeroCanvas />
 
-      {/* Radial gradient glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-saffron)_8%,transparent),transparent_70%)]" />
+      {/* Radial gradient glow — layered for depth */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-saffron)_20%,transparent),transparent_70%)]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-teal)_8%,transparent),transparent_70%)] translate-x-[30%] translate-y-[-20%]" />
 
       {/* Grain texture — premium noise overlay */}
       <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.04]" aria-hidden="true">
