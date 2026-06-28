@@ -221,6 +221,24 @@ export function Topbar() {
         </a>
       </div>
 
+      {/* Cmd+K shortcut pill — visible on md+ screens */}
+      <button
+        type="button"
+        aria-label="Open command palette"
+        onClick={() =>
+          document.dispatchEvent(
+            new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true })
+          )
+        }
+        className="hidden md:inline-flex items-center gap-1.5 rounded-md border border-border/50 bg-surface px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+      >
+        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span>Search</span>
+        <kbd className="rounded border border-border/50 bg-muted px-1 py-0.5 font-mono text-[10px]">⌘K</kbd>
+      </button>
+
       <div className="flex items-center gap-1.5 sm:gap-4" data-tour="topbar-stats">
         <StreakFlame streak={currentStreak} size="sm" freezeCount={streakFreezes} status={streakStatus} />
         {xpBoostActive && (
