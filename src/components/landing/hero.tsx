@@ -1,5 +1,5 @@
 "use client";
-import { lazy, Suspense, useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -40,16 +40,78 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
   return <span ref={ref}>0{suffix}</span>;
 }
 
+function LazyHeroCanvas() {
+  const [show, setShow] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 767px)").matches;
+    setIsMobile(mobile);
+    if (mobile) return;
+
+    const id = typeof window.requestIdleCallback !== "undefined"
+      ? window.requestIdleCallback(() => setShow(true), { timeout: 2000 })
+      : window.setTimeout(() => setShow(true), 300);
+    return () => {
+      if (typeof window.cancelIdleCallback !== "undefined") window.cancelIdleCallback(id as unknown as number);
+      else window.clearTimeout(id as unknown as number);
+    };
+  }, []);
+
+  if (isMobile) {
+    // Static SVG gradient mesh — zero JS, zero bundle
+    return (
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        aria-hidden="true"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          <radialGradient id="mg1" cx="20%" cy="30%" r="50%">
+            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="mg2" cx="80%" cy="70%" r="50%">
+            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#14b8a6" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="mg3" cx="50%" cy="10%" r="40%">
+            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.05" />
+            <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#mg1)" />
+        <rect width="100%" height="100%" fill="url(#mg2)" />
+        <rect width="100%" height="100%" fill="url(#mg3)" />
+      </svg>
+    );
+  }
+
+  if (!show) return null;
+  return (
+    <Suspense fallback={null}>
+      <HeroCanvas />
+    </Suspense>
+  );
+}
+
 export function Hero() {
   return (
-    <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-4 sm:px-6 text-center">
-      {/* Three.js particle network — lazy loaded, doesn't block LCP */}
-      <Suspense fallback={null}>
-        <HeroCanvas />
-      </Suspense>
+    <section data-astro-transition="hero-section" className="relative flex min-h-[85vh] flex-col items-center justify-center px-4 sm:px-6 text-center">
+      {/* Three.js particle network — gated post-LCP on desktop, static SVG on mobile */}
+      <LazyHeroCanvas />
 
       {/* Radial gradient glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--color-saffron)_8%,transparent),transparent_70%)]" />
+
+      {/* Grain texture — premium noise overlay */}
+      <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.04]" aria-hidden="true">
+        <filter id="grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#grain)" />
+      </svg>
 
       <div className="relative z-10 max-w-3xl">
         {/* Social proof line */}

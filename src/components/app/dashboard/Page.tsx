@@ -42,6 +42,10 @@ const QuestionBanner = dynamic(
   () => import("@/components/gamification/question-banner").then((m) => m.QuestionBanner),
   { ssr: false }
 );
+const SkillRadarWidget = dynamic(
+  () => import("./SkillRadarWidget").then((m) => ({ default: m.SkillRadarWidget })),
+  { ssr: false }
+);
 
 // ── Stagger item wrapper ──────────────────────────────────────────────────────
 
@@ -672,6 +676,9 @@ export default function DashboardPage() {
           </Link>
         </div>
         <YourProgress />
+        <div className="mt-4">
+          <SkillRadarWidget />
+        </div>
       </section>
       </FadeIn>
 
