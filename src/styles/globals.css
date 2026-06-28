@@ -72,6 +72,32 @@ code, pre, kbd, samp {
 }
 .animate-marquee:hover { animation-play-state: paused; }
 
+/* ── Magnetic card spotlight ────────────────────────────────────────────────── */
+@property --mx { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+@property --my { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+
+.magnetic-card {
+  position: relative;
+  overflow: hidden;
+}
+.magnetic-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    180px circle at var(--mx) var(--my),
+    rgba(245, 158, 11, 0.07),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.magnetic-card:hover::before {
+  opacity: 1;
+}
+
 /* ── Tailwind base overrides ────────────────────────────────────────────── */
 @layer base {
   h1, h2, h3, h4, h5, h6 {

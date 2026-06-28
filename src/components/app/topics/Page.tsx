@@ -231,7 +231,7 @@ function TopicCard({
       animate="visible"
       whileHover={{ scale: 1.02, y: -2, transition: { duration: 0.15 } }}
       whileTap={{ scale: 0.98 }}
-      className="group text-left rounded-xl border border-border/50 bg-surface hover:bg-surface-hover hover:border-border hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-shadow duration-200 p-4 flex flex-col gap-2 disabled:opacity-60 cursor-pointer"
+      className="magnetic-card group text-left rounded-xl border border-border/50 bg-surface hover:bg-surface-hover hover:border-border hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-shadow duration-200 p-4 flex flex-col gap-2 disabled:opacity-60 cursor-pointer"
     >
       {/* Topic name */}
       <p className="font-semibold text-sm leading-snug group-hover:text-foreground transition-colors">

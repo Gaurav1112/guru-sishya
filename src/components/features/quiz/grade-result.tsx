@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, animate, motionValue } from "framer-motion";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { ChevronDown, ChevronUp, Star, AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -197,6 +197,40 @@ function MCQReview({ options, correctAnswer, userAnswer }: MCQReviewProps) {
   );
 }
 
+// ── AnimatedXP count-up component ────────────────────────────────────────────
+
+function AnimatedXP({ xp }: { xp: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const motionVal = motionValue(0);
+    const unsubscribe = motionVal.on("change", (v) => {
+      if (ref.current) ref.current.textContent = `+${Math.round(v)} XP`;
+    });
+    const controls = animate(motionVal, xp, {
+      duration: 0.7,
+      delay: 0.35,
+      ease: [0.22, 1, 0.36, 1],
+    });
+    return () => {
+      controls.stop();
+      unsubscribe();
+    };
+  }, [xp]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.6 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
+      className="mt-1 flex items-center gap-1 text-sm font-semibold text-gold"
+    >
+      <Star className="size-3.5 fill-gold" />
+      <span ref={ref}>+0 XP</span>
+    </motion.div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function GradeResult({ answer, xpEarned, onNext, isLast }: GradeResultProps) {
@@ -263,50 +297,47 @@ export function GradeResult({ answer, xpEarned, onNext, isLast }: GradeResultPro
       )}
 
       {/* ── Score circle ────────────────────────────────────────────────────── */}
-      <Card className={cn("border", getScoreBg(answer.score))}>
-        <CardContent className="pt-4">
-          <div className="flex items-center gap-4">
-            <div
-              className={cn(
-                "flex size-16 shrink-0 items-center justify-center rounded-full border-2 text-2xl font-bold",
-                getScoreBg(answer.score),
-                getScoreColor(answer.score)
-              )}
-            >
-              {answer.score}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span
-                  className={cn(
-                    "text-base font-semibold",
-                    getScoreColor(answer.score)
-                  )}
-                >
-                  {getScoreLabel(answer.score)}
-                </span>
-                <span className="text-xs text-muted-foreground">/ 10</span>
+      <motion.div
+        animate={answer.score < 4 ? {
+          x: [0, -6, 6, -5, 5, -3, 3, 0],
+          transition: { duration: 0.5, ease: "easeInOut" }
+        } : {}}
+      >
+        <Card className={cn("border", getScoreBg(answer.score))}>
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-4">
+              <div
+                className={cn(
+                  "flex size-16 shrink-0 items-center justify-center rounded-full border-2 text-2xl font-bold",
+                  getScoreBg(answer.score),
+                  getScoreColor(answer.score)
+                )}
+              >
+                {answer.score}
               </div>
-              {xpEarned > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, duration: 0.3 }}
-                  className="mt-1 flex items-center gap-1 text-sm font-medium text-gold"
-                >
-                  <Star className="size-3.5 fill-gold" />
-                  +{xpEarned} XP
-                </motion.div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span
+                    className={cn(
+                      "text-base font-semibold",
+                      getScoreColor(answer.score)
+                    )}
+                  >
+                    {getScoreLabel(answer.score)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">/ 10</span>
+                </div>
+                {xpEarned > 0 && <AnimatedXP xp={xpEarned} />}
+              </div>
+              {answer.score >= 7 ? (
+                <CheckCircle className="size-6 shrink-0 text-teal" />
+              ) : (
+                <AlertCircle className="size-6 shrink-0 text-destructive" />
               )}
             </div>
-            {answer.score >= 7 ? (
-              <CheckCircle className="size-6 shrink-0 text-teal" />
-            ) : (
-              <AlertCircle className="size-6 shrink-0 text-destructive" />
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* ── MCQ all-options review ───────────────────────────────────────────── */}
       {isMCQ && answer.options && answer.correctAnswer && (

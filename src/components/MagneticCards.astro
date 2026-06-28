@@ -1,0 +1,17 @@
+<script>
+  function initMagneticCards() {
+    document.querySelectorAll<HTMLElement>('.magnetic-card').forEach((card) => {
+      card.addEventListener('mousemove', (e: MouseEvent) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty('--mx', `${x}%`);
+        card.style.setProperty('--my', `${y}%`);
+      });
+    });
+  }
+
+  // Run on load and after Astro navigation
+  initMagneticCards();
+  document.addEventListener('astro:page-load', initMagneticCards);
+</script>
